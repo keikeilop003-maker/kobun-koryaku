@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "mcp__Claude_Preview__preview_start",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(git -C \"C:/Users/keike/OneDrive/デスクトップ/002_国語/Web App/【言文】復習/児のそら寝\" status)",
+      "Bash(git -C \"C:/Users/keike/OneDrive/デスクトップ/002_国語/Web App/【言文】復習/児のそら寝\" init)",
+      "Bash(git -C \"C:/Users/keike/OneDrive/デスクトップ/002_国語/Web App/【言文】復習/児のそら寝\" add -A)"
+    ]
+  }
+}
