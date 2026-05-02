@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import VerticalTextViewer from './components/VerticalTextViewer';
 import AnswerPanel from './components/AnswerPanel';
 import NormalQuestions from './components/NormalQuestions';
 import ScoreBoard from './components/ScoreBoard';
+import useHistory from './hooks/useHistory';
 import './styles/app.css';
 
 const LEGEND = [
@@ -19,9 +20,13 @@ export default function App() {
   const [textData, setTextData] = useState(null);
   const [selectedTarget, setSelectedTarget] = useState(null);
   const [selectedSection, setSelectedSection] = useState(null);
-  const [history, setHistory] = useState([]);
-  const [rightTab, setRightTab] = useState('knowledge'); // 'knowledge' | 'normal' | 'score'
+  const [rightTab, setRightTab] = useState('knowledge');
   const [activeType, setActiveType] = useState('all');
+  const [expandedNqId, setExpandedNqId] = useState(null);
+
+  const textId = textData?.id ?? 'konosorane';
+  const { entries, record, clearAll } = useHistory(textId);
+  const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
 
   const selectType = (type) => {
     setActiveType(type);
@@ -29,13 +34,30 @@ export default function App() {
     setSelectedSection(null);
   };
 
-
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/konosorane.json`)
       .then(r => r.json())
       .then(setTextData)
       .catch(console.error);
   }, []);
+
+  const handleJump = useCallback((entry) => {
+    if (!textData) return;
+    if (entry.questionId) {
+      setRightTab('normal');
+      setExpandedNqId(entry.questionId);
+      return;
+    }
+    if (entry.targetId) {
+      const section = textData.sections.find(s => s.id === entry.sectionId);
+      const target = section?.targets?.find(t => t.id === entry.targetId);
+      if (!section || !target) return;
+      setActiveType(entry.type);
+      setSelectedSection(section);
+      setSelectedTarget(target);
+      setRightTab('knowledge');
+    }
+  }, [textData]);
 
   if (!textData) {
     return <div className="loading">読み込み中…</div>;
@@ -77,28 +99,38 @@ export default function App() {
               読解問題 <span className="tab-count">{textData.normalQuestions?.length ?? 0}</span>
             </button>
             <button className={rightTab === 'score' ? 'active' : ''} onClick={() => setRightTab('score')}>
-              学習記録 <span className="tab-count">{history.length}</span>
+              学習記録 <span className="tab-count">{entryCount}</span>
             </button>
           </div>
 
-          {rightTab === 'knowledge' && (
+          <div style={{ display: rightTab === 'knowledge' ? 'contents' : 'none' }}>
             <AnswerPanel
               activeType={activeType}
               sections={textData.sections}
               selectedTarget={selectedTarget}
               selectedSection={selectedSection}
               onFocusTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
+              historyEntries={entries}
+              onRecord={record}
             />
-          )}
-          {rightTab === 'normal' && (
+          </div>
+          <div style={{ display: rightTab === 'normal' ? 'contents' : 'none' }}>
             <NormalQuestions
               questions={textData.normalQuestions}
               sections={textData.sections}
+              historyEntries={entries}
+              onRecord={record}
+              expandedNqId={expandedNqId}
+              onExpandHandled={() => setExpandedNqId(null)}
             />
-          )}
-          {rightTab === 'score' && (
-            <ScoreBoard history={history} />
-          )}
+          </div>
+          <div style={{ display: rightTab === 'score' ? 'contents' : 'none' }}>
+            <ScoreBoard
+              entries={entries}
+              onJump={handleJump}
+              onClear={clearAll}
+            />
+          </div>
         </div>
       </div>
     </div>

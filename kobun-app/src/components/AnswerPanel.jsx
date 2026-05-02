@@ -150,7 +150,7 @@ const VerbForm = forwardRef(function VerbForm({ target, section, onResult, initi
     setBaseResult(res.baseForm);
     setConjResult(res.conjugationType);
     setFormResult(res.formInText);
-    onResult(res);
+    if (b.trim() && c.trim() && f.trim()) onResult(res);
   }, [target, section, onResult]);
 
   const handleKeyDown = (e, nextRef, isLast) => {
@@ -221,7 +221,7 @@ const AdjForm = forwardRef(function AdjForm({ target, section, onResult, initial
     setBaseResult(res.baseForm);
     setConjResult(res.conjugationType);
     setFormResult(res.formInText);
-    onResult(res);
+    if (b.trim() && c.trim() && f.trim()) onResult(res);
   }, [target, section, onResult]);
 
   const handleKeyDown = (e, nextRef, isLast) => {
@@ -396,18 +396,36 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
 });
 
 // ── AnswerPanel ──────────────────────────────────────────────
-export default function AnswerPanel({ activeType, sections, selectedTarget, selectedSection, onFocusTarget }) {
-  const [historyMap, setHistoryMap] = useState(new Map());
+export default function AnswerPanel({ activeType, sections, selectedTarget, selectedSection, onFocusTarget, historyEntries, onRecord }) {
   const cardRefs = useRef([]);
   const inputsMap = useRef({});
 
-  const recordHistory = useCallback((targetId, result) => {
-    setHistoryMap(prev => {
-      const next = new Map(prev);
-      next.set(targetId, result);
-      return next;
+  const recordHistory = useCallback((target, section, result) => {
+    if (!result) return;
+    // verb/adj returns sub-field judgements, not a top-level judgement
+    let judgement = result.judgement;
+    if (!judgement) {
+      const subs = [result.baseForm, result.conjugationType, result.formInText, result.meaning].filter(Boolean).map(s => s.judgement);
+      if (subs.length === 0) return;
+      if (subs.every(j => j === '正解')) judgement = '正解';
+      else if (subs.every(j => j === '不正解')) judgement = '不正解';
+      else judgement = '部分正解';
+    }
+    onRecord?.({
+      id: target.id,
+      type: target.type,
+      surface: target.surface,
+      sectionId: section?.id ?? null,
+      targetId: target.id,
+      questionId: null,
+      judgement,
+      feedback: result,
     });
-  }, []);
+  }, [onRecord]);
+
+  const lastFeedback = useCallback((targetId) => {
+    return historyEntries?.[targetId]?.attempts?.at(-1)?.feedback ?? null;
+  }, [historyEntries]);
 
   const questions = useMemo(() => {
     if (activeType === 'all') return [];
@@ -443,8 +461,8 @@ export default function AnswerPanel({ activeType, sections, selectedTarget, sele
           target={selectedTarget}
           section={selectedSection}
           isSelected={false}
-          initialFeedback={historyMap.get(selectedTarget.id) ?? null}
-          onHistoryUpdate={r => recordHistory(selectedTarget.id, r)}
+          initialFeedback={lastFeedback(selectedTarget.id)}
+          onHistoryUpdate={r => recordHistory(selectedTarget, selectedSection, r)}
           initialInputs={inputsMap.current[selectedTarget.id]}
           onInputChange={vals => { inputsMap.current[selectedTarget.id] = vals; }}
           onFocusTarget={() => onFocusTarget?.(selectedTarget, selectedSection)}
@@ -476,8 +494,8 @@ export default function AnswerPanel({ activeType, sections, selectedTarget, sele
               ? selectedTarget?.groupId === target.groupId
               : selectedTarget?.id === target.id
           }
-          initialFeedback={historyMap.get(target.id) ?? null}
-          onHistoryUpdate={r => recordHistory(target.id, r)}
+          initialFeedback={lastFeedback(target.id)}
+          onHistoryUpdate={r => recordHistory(target, section, r)}
           onAdvance={() => cardRefs.current[i + 1]?.focus()}
           initialInputs={inputsMap.current[target.id]}
           onInputChange={vals => { inputsMap.current[target.id] = vals; }}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { reviewTranslation, reviewContent } from '../services/gemini';
 
 function JudgeBadge({ judgement }) {
@@ -13,11 +13,19 @@ function JudgeBadge({ judgement }) {
   );
 }
 
-function QuestionItem({ q, sections }) {
-  const [ans, setAns] = useState('');
-  const [result, setResult] = useState(null);
+function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened }) {
+  const lastFeedback = historyEntry?.attempts?.at(-1)?.feedback ?? null;
+  const [ans, setAns] = useState(lastFeedback?.userAnswer ?? '');
+  const [result, setResult] = useState(lastFeedback ?? null);
   const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(!!defaultOpen);
+
+  useEffect(() => {
+    if (defaultOpen) {
+      setOpen(true);
+      onOpened?.();
+    }
+  }, [defaultOpen, onOpened]);
 
   const section = sections.find(s => s.id === q.sectionId);
 
@@ -33,6 +41,18 @@ function QuestionItem({ q, sections }) {
     }
     setLoading(false);
     setResult(res);
+    if (res?.judgement) {
+      onRecord?.({
+        id: `nq_${q.id}`,
+        type: q.type,
+        surface: q.title,
+        sectionId: q.sectionId,
+        targetId: null,
+        questionId: q.id,
+        judgement: res.judgement,
+        feedback: { ...res, userAnswer: ans },
+      });
+    }
   };
 
   return (
@@ -71,13 +91,21 @@ function QuestionItem({ q, sections }) {
   );
 }
 
-export default function NormalQuestions({ questions, sections }) {
+export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled }) {
   if (!questions?.length) return null;
   return (
     <div className="normal-questions">
       <div className="nq-section-title">通常問題</div>
       {questions.map(q => (
-        <QuestionItem key={q.id} q={q} sections={sections} />
+        <QuestionItem
+          key={q.id}
+          q={q}
+          sections={sections}
+          onRecord={onRecord}
+          historyEntry={historyEntries?.[`nq_${q.id}`]}
+          defaultOpen={expandedNqId === q.id}
+          onOpened={onExpandHandled}
+        />
       ))}
     </div>
   );
