@@ -6,11 +6,13 @@ import ScoreBoard from './components/ScoreBoard';
 import './styles/app.css';
 
 const LEGEND = [
-  { type: 'vocab',    label: '古文単語',  cls: 'hl-vocab' },
-  { type: 'aux',      label: '助動詞',    cls: 'hl-aux' },
-  { type: 'verb',     label: '動詞',      cls: 'hl-verb' },
-  { type: 'particle', label: '助詞',      cls: 'hl-particle' },
-  { type: 'grammar',  label: '重要文法',  cls: 'hl-grammar' },
+  { type: 'all',      label: '全語句',   cls: 'hl-all' },
+  { type: 'vocab',    label: '重要単語', cls: 'hl-vocab' },
+  { type: 'grammar',  label: '重要文法', cls: 'hl-grammar' },
+  { type: 'verb',     label: '動',       cls: 'hl-verb' },
+  { type: 'adj',      label: '形',       cls: 'hl-adj' },
+  { type: 'aux',      label: '助動',     cls: 'hl-aux' },
+  { type: 'particle', label: '助',       cls: 'hl-particle' },
 ];
 
 export default function App() {
@@ -18,16 +20,15 @@ export default function App() {
   const [selectedTarget, setSelectedTarget] = useState(null);
   const [selectedSection, setSelectedSection] = useState(null);
   const [history, setHistory] = useState([]);
-  const [tab, setTab] = useState('text');
-  const [activeTypes, setActiveTypes] = useState(() => new Set(LEGEND.map(l => l.type)));
+  const [rightTab, setRightTab] = useState('knowledge'); // 'knowledge' | 'normal' | 'score'
+  const [activeType, setActiveType] = useState('all');
 
-  const toggleType = (type) => {
-    setActiveTypes(prev => {
-      const next = new Set(prev);
-      if (next.has(type)) next.delete(type); else next.add(type);
-      return next;
-    });
+  const selectType = (type) => {
+    setActiveType(type);
+    setSelectedTarget(null);
+    setSelectedSection(null);
   };
+
 
   useEffect(() => {
     fetch('/data/konosorane.json')
@@ -35,11 +36,6 @@ export default function App() {
       .then(setTextData)
       .catch(console.error);
   }, []);
-
-  const handleSelectTarget = (target, section) => {
-    setSelectedTarget(target);
-    setSelectedSection(section);
-  };
 
   if (!textData) {
     return <div className="loading">読み込み中…</div>;
@@ -57,8 +53,8 @@ export default function App() {
           {LEGEND.map(l => (
             <span
               key={l.type}
-              className={`legend-item ${l.cls}${activeTypes.has(l.type) ? '' : ' inactive'}`}
-              onClick={() => toggleType(l.type)}
+              className={`legend-item ${l.cls}${activeType === l.type ? ' active' : ''}`}
+              onClick={() => selectType(l.type)}
             >{l.label}</span>
           ))}
         </div>
@@ -66,48 +62,43 @@ export default function App() {
 
       <div className="app-body">
         <div className="left-col">
+          <VerticalTextViewer
+            sections={textData.sections}
+            selectedTarget={selectedTarget}
+            onSelectTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
+            activeType={activeType}
+          />
+        </div>
+
+        <div className="right-col">
           <div className="tab-bar">
-            <button className={tab === 'text' ? 'active' : ''} onClick={() => setTab('text')}>原文</button>
-            <button className={tab === 'normal' ? 'active' : ''} onClick={() => setTab('normal')}>
-              通常問題 <span className="tab-count">{textData.normalQuestions?.length ?? 0}</span>
+            <button className={rightTab === 'knowledge' ? 'active' : ''} onClick={() => setRightTab('knowledge')}>知識問題</button>
+            <button className={rightTab === 'normal' ? 'active' : ''} onClick={() => setRightTab('normal')}>
+              読解問題 <span className="tab-count">{textData.normalQuestions?.length ?? 0}</span>
             </button>
-            <button className={tab === 'score' ? 'active' : ''} onClick={() => setTab('score')}>
+            <button className={rightTab === 'score' ? 'active' : ''} onClick={() => setRightTab('score')}>
               学習記録 <span className="tab-count">{history.length}</span>
             </button>
           </div>
 
-          {tab === 'text' && (
-            <VerticalTextViewer
+          {rightTab === 'knowledge' && (
+            <AnswerPanel
+              activeType={activeType}
               sections={textData.sections}
               selectedTarget={selectedTarget}
-              onSelectTarget={handleSelectTarget}
-              activeTypes={activeTypes}
+              selectedSection={selectedSection}
+              onFocusTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
             />
           )}
-          {tab === 'normal' && (
+          {rightTab === 'normal' && (
             <NormalQuestions
               questions={textData.normalQuestions}
               sections={textData.sections}
             />
           )}
-          {tab === 'score' && (
+          {rightTab === 'score' && (
             <ScoreBoard history={history} />
           )}
-        </div>
-
-        <div className="right-col">
-          <AnswerPanel
-            selectedTarget={selectedTarget}
-            selectedSection={selectedSection}
-            onScore={(judgement) => {
-              if (!selectedTarget) return;
-              setHistory(h => [...h, {
-                surface: selectedTarget.surface,
-                type: selectedTarget.type,
-                judgement,
-              }]);
-            }}
-          />
         </div>
       </div>
     </div>

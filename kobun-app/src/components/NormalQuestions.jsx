@@ -1,10 +1,21 @@
 import { useState } from 'react';
-import FeedbackCard from './FeedbackCard';
 import { reviewTranslation, reviewContent } from '../services/gemini';
+
+function JudgeBadge({ judgement }) {
+  if (!judgement) return null;
+  const icon = judgement === '正解' ? '○' : judgement === '部分正解' ? '△' : '✕';
+  const cls = judgement === '正解' ? 'judge-correct' : judgement === '部分正解' ? 'judge-partial' : 'judge-wrong';
+  return (
+    <div className="nq-judge-row">
+      <span className={`judge-icon ${cls}`}>{icon}</span>
+      <span className={`judgement-text ${cls}`}>{judgement}</span>
+    </div>
+  );
+}
 
 function QuestionItem({ q, sections }) {
   const [ans, setAns] = useState('');
-  const [feedback, setFeedback] = useState(null);
+  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -13,7 +24,7 @@ function QuestionItem({ q, sections }) {
   const submit = async () => {
     if (!ans.trim()) return;
     setLoading(true);
-    setFeedback(null);
+    setResult(null);
     let res;
     if (q.type === 'translation') {
       res = await reviewTranslation({ targetText: q.targetText, sentence: section?.text ?? '', userAnswer: ans, correctAnswer: q.answer, explanation: q.explanation });
@@ -21,7 +32,7 @@ function QuestionItem({ q, sections }) {
       res = await reviewContent({ question: q.question, userAnswer: ans, correctAnswer: q.answer, explanation: q.explanation });
     }
     setLoading(false);
-    setFeedback(res);
+    setResult(res);
   };
 
   return (
@@ -37,16 +48,23 @@ function QuestionItem({ q, sections }) {
           {q.targetText && (
             <div className="nq-target-text">「{q.targetText}」</div>
           )}
-          <textarea
-            value={ans}
-            onChange={e => setAns(e.target.value)}
-            rows={4}
-            placeholder="ここに答えを入力…"
-          />
-          <button onClick={submit} disabled={loading}>
-            {loading ? '添削中…' : '添削する'}
-          </button>
-          {feedback && <FeedbackCard type={q.type} data={feedback} />}
+          <div className="nq-input-row">
+            <textarea
+              value={ans}
+              onChange={e => setAns(e.target.value)}
+              rows={4}
+            />
+            <button onClick={submit} disabled={loading}>
+              {loading ? '添削中…' : '添削する'}
+            </button>
+          </div>
+          {result && (
+            <>
+              <JudgeBadge judgement={result.judgement} />
+              <div className="hint">模範解答：<em>{q.answer}</em></div>
+              {q.explanation && <div className="explanation">{q.explanation}</div>}
+            </>
+          )}
         </div>
       )}
     </div>

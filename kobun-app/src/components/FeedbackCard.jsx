@@ -22,15 +22,15 @@ function Row({ label, value }) {
 export default function FeedbackCard({ type, data }) {
   if (!data) return null;
 
-  if (type === 'verb') {
+  if (type === 'adj') {
     const items = [
-      { key: 'baseForm', label: '基本形' },
-      { key: 'conjugationType', label: '活用の行と種類' },
+      { key: 'baseForm', label: '基本形（終止形）' },
+      { key: 'conjugationType', label: '活用の種類' },
       { key: 'formInText', label: '文中の活用形' },
+      { key: 'meaning', label: '意味' },
     ];
     return (
       <div className="feedback-card">
-        <div className="feedback-title">添削結果</div>
         {items.map(({ key, label }) => {
           const item = data[key];
           if (!item) return null;
@@ -40,26 +40,51 @@ export default function FeedbackCard({ type, data }) {
                 <span>{label}</span>
                 <Badge judgement={item.judgement} />
               </div>
-              <Row label="正答" value={item.correctAnswer} />
-              <Row label="コメント" value={item.comment} />
             </div>
           );
         })}
-        {data.overallAdvice && (
-          <div className="feedback-advice">
-            <span className="feedback-label">総評</span>
-            <p>{data.overallAdvice}</p>
-          </div>
-        )}
       </div>
     );
   }
 
-  // generic flat result
+  if (type === 'verb') {
+    const items = [
+      { key: 'baseForm', label: '基本形' },
+      { key: 'conjugationType', label: '活用の行と種類' },
+      { key: 'formInText', label: '文中の活用形' },
+    ];
+    return (
+      <div className="feedback-card">
+        {items.map(({ key, label }) => {
+          const item = data[key];
+          if (!item) return null;
+          return (
+            <div key={key} className="feedback-section">
+              <div className="feedback-section-header">
+                <span>{label}</span>
+                <Badge judgement={item.judgement} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  if (type === 'aux') {
+    return (
+      <div className="feedback-card">
+        <div className="feedback-judgement-row">
+          <Badge judgement={data.judgement} />
+        </div>
+      </div>
+    );
+  }
+
+  // generic flat result (vocab, particle, grammar)
   const judgement = data.judgement;
   return (
     <div className="feedback-card">
-      <div className="feedback-title">添削結果</div>
       {judgement && (
         <div className="feedback-judgement-row">
           <Badge judgement={judgement} />

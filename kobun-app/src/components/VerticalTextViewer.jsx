@@ -1,8 +1,11 @@
 import { useEffect, useRef } from 'react';
 import HighlightedToken from './HighlightedToken';
 
-function buildSegments(text, targets) {
-  // Sort by first occurrence in text to handle position ambiguity
+function buildSegments(text, allTargets, activeType) {
+  const targets = activeType === 'all'
+    ? allTargets
+    : allTargets.filter(t => t.type === activeType);
+
   const located = targets
     .map(t => {
       const hint = Math.max(0, (t.start ?? 0) - 5);
@@ -15,25 +18,27 @@ function buildSegments(text, targets) {
   const segments = [];
   let pos = 0;
   for (const { t, idx } of located) {
-    if (idx < pos) continue; // already consumed (overlap)
+    if (idx < pos) continue;
     if (idx > pos) segments.push({ type: 'plain', text: text.slice(pos, idx) });
-    segments.push({ type: 'target', target: t });
+    segments.push({ type: 'target', target: t, showAsAll: activeType === 'all' });
     pos = idx + t.surface.length;
   }
   if (pos < text.length) segments.push({ type: 'plain', text: text.slice(pos) });
   return segments;
 }
 
-function SectionCard({ section, selectedTarget, onSelectTarget, activeTypes }) {
+function SectionCard({ section, selectedTarget, onSelectTarget, activeType }) {
   const scrollRef = useRef(null);
-  const visibleTargets = (section.targets ?? []).filter(t => activeTypes.has(t.type));
-  const segments = buildSegments(section.text, visibleTargets);
+  const segments = buildSegments(section.text, section.targets ?? [], activeType);
 
-  // Scroll to the start of vertical text (rightmost = beginning) after render
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollLeft = el.scrollWidth - el.clientWidth;
   }, []);
+
+  const isSelected = t =>
+    selectedTarget?.id === t.id ||
+    (selectedTarget?.groupId && selectedTarget.groupId === t.groupId);
 
   return (
     <div className="section-card">
@@ -45,10 +50,11 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeTypes }) {
               <span key={i}>{seg.text}</span>
             ) : (
               <HighlightedToken
-                key={seg.target.id}
+                key={`${seg.target.id}-${seg.showAsAll}`}
                 target={seg.target}
-                isSelected={selectedTarget?.id === seg.target.id}
+                isSelected={isSelected(seg.target)}
                 onClick={t => onSelectTarget(t, section)}
+                showAsAll={seg.showAsAll}
               />
             )
           )}
@@ -58,7 +64,7 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeTypes }) {
   );
 }
 
-export default function VerticalTextViewer({ sections, selectedTarget, onSelectTarget, activeTypes }) {
+export default function VerticalTextViewer({ sections, selectedTarget, onSelectTarget, activeType }) {
   return (
     <div className="vertical-viewer">
       {sections.map(section => (
@@ -67,7 +73,7 @@ export default function VerticalTextViewer({ sections, selectedTarget, onSelectT
           section={section}
           selectedTarget={selectedTarget}
           onSelectTarget={onSelectTarget}
-          activeTypes={activeTypes}
+          activeType={activeType}
         />
       ))}
     </div>

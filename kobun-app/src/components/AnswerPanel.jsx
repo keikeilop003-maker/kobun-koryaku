@@ -1,208 +1,489 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback, forwardRef, useImperativeHandle } from 'react';
 import FeedbackCard from './FeedbackCard';
-import { reviewVocab, reviewAux, reviewVerb, reviewParticle, reviewGrammar } from '../services/gemini';
+import { reviewVocab, reviewAux, reviewVerb, reviewAdj, reviewParticle, reviewGrammar } from '../services/gemini';
 
 const TYPE_LABEL = {
-  vocab: '古文単語の意味',
-  aux: '助動詞の用法',
-  verb: '動詞の文法事項',
-  particle: '助詞の用法',
-  grammar: '重要文法',
+  vocab:    '重要単語',
+  aux:      '助動',
+  verb:     '動',
+  adj:      '形',
+  particle: '助',
+  grammar:  '重要文法',
 };
 
-function HintReveal({ answer, explanation, show }) {
-  if (!show) return null;
+const SCORE_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar']);
+
+function inputCls(judgement, value) {
+  if (!value?.trim() || !judgement) return '';
+  if (judgement === '正解') return 'input-correct';
+  if (judgement === '部分正解') return 'input-partial';
+  return 'input-wrong';
+}
+
+function JudgeIcon({ judgement }) {
+  if (!judgement) return <span className="judge-icon judge-empty" aria-hidden="true" />;
+  if (judgement === '正解')   return <span className="judge-icon judge-correct">○</span>;
+  if (judgement === '部分正解') return <span className="judge-icon judge-partial">△</span>;
+  return <span className="judge-icon judge-wrong">✕</span>;
+}
+
+function QuestionHeader({ target }) {
+  const surface = target.type === 'grammar' ? (target.questionSurface ?? target.surface) : target.surface;
+  const prefix = { aux: '助動詞', particle: '助詞' }[target.type] ?? '';
+  const suffix = {
+    vocab: 'の意味', aux: 'の用法', verb: 'の文法事項',
+    adj: 'の文法事項', particle: 'の訳し方', grammar: 'の文法的な働きと訳し方',
+  }[target.type] ?? '';
   return (
-    <>
-      <div className="hint">模範解答：<em>{answer}</em></div>
-      {explanation && <div className="explanation">{explanation}</div>}
-    </>
+    <span className="question-header-text">
+      {prefix}<span className="question-surface">「{surface}」</span>{suffix}
+    </span>
   );
 }
 
-function VerbHintReveal({ target, show }) {
-  if (!show) return null;
+// ── 重要単語 ─────────────────────────────────────────────────
+const VocabForm = forwardRef(function VocabForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+  const [ans, setAns] = useState(initialInputs?.ans ?? '');
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(initialInputs?.submitted ?? false);
+  const [result, setResult] = useState(initialResult ?? null);
+  const textareaRef = useRef(null);
+  const btnRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({ focus: () => textareaRef.current?.focus() }));
+
+  const submit = async () => {
+    if (!ans.trim()) return;
+    setLoading(true);
+    const res = await reviewVocab({ userAnswer: ans, correctAnswer: target.answer });
+    setLoading(false);
+    setSubmitted(true);
+    setResult(res);
+    onInputChange?.({ ans, submitted: true });
+    onResult(res);
+  };
+  const handleTextareaKeyDown = e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); btnRef.current?.focus(); }
+  };
+  const handleBtnKeyDown = e => {
+    if (e.key === 'Enter' && submitted) { e.preventDefault(); onAdvance?.(); }
+  };
   return (
-    <>
-      <div className="hint">
-        模範：{target.baseForm}／{target.conjugationType}／{target.formInText}
+    <div className="form-group" onFocus={() => onFocusTarget?.()}>
+      <div className="form-textarea-row">
+        <textarea ref={textareaRef} value={ans} onChange={e => { const v = e.target.value; setAns(v); onInputChange?.({ ans: v, submitted }); }} onKeyDown={handleTextareaKeyDown} rows={3} />
+        <button ref={btnRef} onClick={submit} disabled={loading} onKeyDown={handleBtnKeyDown}>{loading ? '採点中…' : '採点'}</button>
       </div>
-      {target.explanation && <div className="explanation">{target.explanation}</div>}
-    </>
-  );
-}
-
-function VocabForm({ target, section, onResult }) {
-  const [ans, setAns] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const submit = async () => {
-    if (!ans.trim()) return;
-    setLoading(true);
-    const res = await reviewVocab({ surface: target.surface, sentence: section.text, userAnswer: ans, correctAnswer: target.answer, explanation: target.explanation });
-    setLoading(false);
-    setSubmitted(true);
-    onResult(res);
-  };
-  return (
-    <div className="form-group">
-      <label>「{target.surface}」の意味を答えなさい。</label>
-      <textarea value={ans} onChange={e => setAns(e.target.value)} rows={3} placeholder="ここに答えを入力…" />
-      <button onClick={submit} disabled={loading}>{loading ? '添削中…' : '添削する'}</button>
-      <HintReveal answer={target.answer} explanation={target.explanation} show={submitted} />
+      {submitted && (
+        <>
+          <div className="judge-row-standalone">
+            <JudgeIcon judgement={result?.judgement} />
+            {result?.judgement && <span className="judgement-text">{result.judgement}</span>}
+          </div>
+          <div className="hint">模範解答：<em>{target.answer}</em></div>
+          {target.explanation && <div className="explanation">{target.explanation}</div>}
+        </>
+      )}
     </div>
   );
-}
+});
 
-function AuxForm({ target, section, onResult }) {
-  const [ans, setAns] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const submit = async () => {
-    if (!ans.trim()) return;
-    setLoading(true);
-    const res = await reviewAux({ surface: target.surface, sentence: section.text, userAnswer: ans, correctAnswer: target.answer, explanation: target.explanation });
-    setLoading(false);
-    setSubmitted(true);
+// ── 助動詞（Enter自動採点） ───────────────────────────────────
+const AuxForm = forwardRef(function AuxForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+  const [ans, setAns] = useState(initialInputs?.ans ?? '');
+  const ansRef = useRef(initialInputs?.ans ?? '');
+  const inputRef = useRef(null);
+  const [result, setResult] = useState(initialResult ?? null);
+
+  useImperativeHandle(ref, () => ({ focus: () => inputRef.current?.focus() }));
+
+  const score = useCallback(async () => {
+    const v = ansRef.current;
+    if (!v.trim()) return;
+    const res = await reviewAux({ surface: target.surface, sentence: section.text, userAnswer: v, correctAnswer: target.answer, explanation: target.explanation });
+    setResult(res);
     onResult(res);
+  }, [target, section, onResult]);
+
+  const handleKeyDown = e => {
+    if (e.key === 'Enter') { e.preventDefault(); score(); onAdvance?.(); }
   };
+
   return (
-    <div className="form-group">
-      <label>助動詞「{target.surface}」の用法を答えなさい。</label>
-      <input value={ans} onChange={e => setAns(e.target.value)} placeholder="例：過去、推量、完了…" />
-      <button onClick={submit} disabled={loading}>{loading ? '添削中…' : '添削する'}</button>
-      <HintReveal answer={target.answer} explanation={target.explanation} show={submitted} />
+    <div className="form-group" onFocus={() => onFocusTarget?.()}>
+      <div className="form-inline-row">
+        <input
+          ref={inputRef}
+          value={ans}
+          onChange={e => { const v = e.target.value; setAns(v); ansRef.current = v; setResult(null); onInputChange?.({ ans: v }); }}
+          onKeyDown={handleKeyDown}
+          className={inputCls(result?.judgement, ans)}
+          placeholder=""
+        />
+        <JudgeIcon judgement={ans.trim() ? result?.judgement : null} />
+      </div>
     </div>
   );
-}
+});
 
-function VerbForm({ target, section, onResult }) {
-  const [base, setBase] = useState('');
-  const [conj, setConj] = useState('');
-  const [form, setForm] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const submit = async () => {
-    setLoading(true);
-    const res = await reviewVerb({ surface: target.surface, sentence: section.text, userBaseForm: base, userConjugationType: conj, userFormInText: form, target });
-    setLoading(false);
-    setSubmitted(true);
+// ── 動詞（Enter自動採点） ────────────────────────────────────
+const VerbForm = forwardRef(function VerbForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+  const [base, setBase] = useState(initialInputs?.base ?? '');
+  const [conj, setConj] = useState(initialInputs?.conj ?? '');
+  const [form, setForm] = useState(initialInputs?.form ?? '');
+  const baseRef = useRef(initialInputs?.base ?? '');
+  const conjRef = useRef(initialInputs?.conj ?? '');
+  const formRef = useRef(initialInputs?.form ?? '');
+  const baseInputRef = useRef(null);
+  const conjInputRef = useRef(null);
+  const formInputRef = useRef(null);
+  const [baseResult, setBaseResult] = useState(initialResult?.baseForm ?? null);
+  const [conjResult, setConjResult] = useState(initialResult?.conjugationType ?? null);
+  const [formResult, setFormResult] = useState(initialResult?.formInText ?? null);
+
+  useImperativeHandle(ref, () => ({ focus: () => baseInputRef.current?.focus() }));
+
+  const score = useCallback(async () => {
+    const b = baseRef.current, c = conjRef.current, f = formRef.current;
+    if (!b && !c && !f) return;
+    const res = await reviewVerb({ surface: target.surface, sentence: section.text, userBaseForm: b, userConjugationType: c, userFormInText: f, target });
+    setBaseResult(res.baseForm);
+    setConjResult(res.conjugationType);
+    setFormResult(res.formInText);
     onResult(res);
+  }, [target, section, onResult]);
+
+  const handleKeyDown = (e, nextRef, isLast) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      score();
+      if (nextRef) { nextRef.current?.focus(); }
+      else if (isLast) { onAdvance?.(); }
+    }
   };
+
   return (
-    <div className="form-group">
-      <label>「{target.surface}」の文法事項を答えなさい。</label>
+    <div className="form-group" onFocus={() => onFocusTarget?.()}>
       <div className="verb-fields">
         <div className="field-row">
           <span>基本形</span>
-          <input value={base} onChange={e => setBase(e.target.value)} placeholder="例：思ふ" />
+          <input ref={baseInputRef} value={base}
+            onChange={e => { const v = e.target.value; setBase(v); baseRef.current = v; setBaseResult(null); onInputChange?.({ base: v, conj: conjRef.current, form: formRef.current }); }}
+            onKeyDown={e => handleKeyDown(e, conjInputRef, false)}
+            className={inputCls(baseResult?.judgement, base)}
+            placeholder="" />
+          <JudgeIcon judgement={base.trim() ? baseResult?.judgement : null} />
         </div>
         <div className="field-row">
           <span>活用の行と種類</span>
-          <input value={conj} onChange={e => setConj(e.target.value)} placeholder="例：ハ行四段活用" />
+          <input ref={conjInputRef} value={conj}
+            onChange={e => { const v = e.target.value; setConj(v); conjRef.current = v; setConjResult(null); onInputChange?.({ base: baseRef.current, conj: v, form: formRef.current }); }}
+            onKeyDown={e => handleKeyDown(e, formInputRef, false)}
+            className={inputCls(conjResult?.judgement, conj)}
+            placeholder="" />
+          <JudgeIcon judgement={conj.trim() ? conjResult?.judgement : null} />
         </div>
         <div className="field-row">
           <span>文中の活用形</span>
-          <input value={form} onChange={e => setForm(e.target.value)} placeholder="例：連用形" />
+          <input ref={formInputRef} value={form}
+            onChange={e => { const v = e.target.value; setForm(v); formRef.current = v; setFormResult(null); onInputChange?.({ base: baseRef.current, conj: conjRef.current, form: v }); }}
+            onKeyDown={e => handleKeyDown(e, null, true)}
+            className={inputCls(formResult?.judgement, form)}
+            placeholder="" />
+          <JudgeIcon judgement={form.trim() ? formResult?.judgement : null} />
         </div>
       </div>
-      <button onClick={submit} disabled={loading}>{loading ? '添削中…' : '添削する'}</button>
-      <VerbHintReveal target={target} show={submitted} />
     </div>
   );
-}
+});
 
-function ParticleForm({ target, section, onResult }) {
-  const [ans, setAns] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const submit = async () => {
-    if (!ans.trim()) return;
-    setLoading(true);
-    const res = await reviewParticle({ surface: target.surface, sentence: section.text, userAnswer: ans, correctAnswer: target.answer, explanation: target.explanation });
-    setLoading(false);
-    setSubmitted(true);
+// ── 形容詞（Enter自動採点） ──────────────────────────────────
+const AdjForm = forwardRef(function AdjForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+  const [base, setBase] = useState(initialInputs?.base ?? '');
+  const [conj, setConj] = useState(initialInputs?.conj ?? '');
+  const [form, setForm] = useState(initialInputs?.form ?? '');
+  const baseRef = useRef(initialInputs?.base ?? '');
+  const conjRef = useRef(initialInputs?.conj ?? '');
+  const formRef = useRef(initialInputs?.form ?? '');
+  const baseInputRef = useRef(null);
+  const conjInputRef = useRef(null);
+  const formInputRef = useRef(null);
+  const [baseResult, setBaseResult] = useState(initialResult?.baseForm ?? null);
+  const [conjResult, setConjResult] = useState(initialResult?.conjugationType ?? null);
+  const [formResult, setFormResult] = useState(initialResult?.formInText ?? null);
+
+  useImperativeHandle(ref, () => ({ focus: () => baseInputRef.current?.focus() }));
+
+  const score = useCallback(async () => {
+    const b = baseRef.current, c = conjRef.current, f = formRef.current;
+    if (!b && !c && !f) return;
+    const res = await reviewAdj({ surface: target.surface, sentence: section.text, userBaseForm: b, userConjugationType: c, userFormInText: f, target });
+    setBaseResult(res.baseForm);
+    setConjResult(res.conjugationType);
+    setFormResult(res.formInText);
     onResult(res);
+  }, [target, section, onResult]);
+
+  const handleKeyDown = (e, nextRef, isLast) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      score();
+      if (nextRef) { nextRef.current?.focus(); }
+      else if (isLast) { onAdvance?.(); }
+    }
   };
+
   return (
-    <div className="form-group">
-      <label>助詞「{target.surface}」の用法と訳し方を答えなさい。</label>
-      <textarea value={ans} onChange={e => setAns(e.target.value)} rows={3} placeholder="用法と訳し方を入力…" />
-      <button onClick={submit} disabled={loading}>{loading ? '添削中…' : '添削する'}</button>
-      <HintReveal answer={target.answer} explanation={target.explanation} show={submitted} />
+    <div className="form-group" onFocus={() => onFocusTarget?.()}>
+      <div className="verb-fields">
+        <div className="field-row">
+          <span>基本形（終止形）</span>
+          <input ref={baseInputRef} value={base}
+            onChange={e => { const v = e.target.value; setBase(v); baseRef.current = v; setBaseResult(null); onInputChange?.({ base: v, conj: conjRef.current, form: formRef.current }); }}
+            onKeyDown={e => handleKeyDown(e, conjInputRef, false)}
+            className={inputCls(baseResult?.judgement, base)}
+            placeholder="" />
+          <JudgeIcon judgement={base.trim() ? baseResult?.judgement : null} />
+        </div>
+        <div className="field-row">
+          <span>活用の種類</span>
+          <input ref={conjInputRef} value={conj}
+            onChange={e => { const v = e.target.value; setConj(v); conjRef.current = v; setConjResult(null); onInputChange?.({ base: baseRef.current, conj: v, form: formRef.current }); }}
+            onKeyDown={e => handleKeyDown(e, formInputRef, false)}
+            className={inputCls(conjResult?.judgement, conj)}
+            placeholder="" />
+          <JudgeIcon judgement={conj.trim() ? conjResult?.judgement : null} />
+        </div>
+        <div className="field-row">
+          <span>文中の活用形</span>
+          <input ref={formInputRef} value={form}
+            onChange={e => { const v = e.target.value; setForm(v); formRef.current = v; setFormResult(null); onInputChange?.({ base: baseRef.current, conj: conjRef.current, form: v }); }}
+            onKeyDown={e => handleKeyDown(e, null, true)}
+            className={inputCls(formResult?.judgement, form)}
+            placeholder="" />
+          <JudgeIcon judgement={form.trim() ? formResult?.judgement : null} />
+        </div>
+      </div>
     </div>
   );
-}
+});
 
-function GrammarForm({ target, section, onResult }) {
-  const [ans, setAns] = useState('');
+// ── 助詞 ─────────────────────────────────────────────────────
+const ParticleForm = forwardRef(function ParticleForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+  const [ans, setAns] = useState(initialInputs?.ans ?? '');
+  const ansRef = useRef(initialInputs?.ans ?? '');
+  const inputRef = useRef(null);
+  const [result, setResult] = useState(initialResult ?? null);
+
+  useImperativeHandle(ref, () => ({ focus: () => inputRef.current?.focus() }));
+
+  const score = useCallback(async () => {
+    const v = ansRef.current;
+    if (!v.trim()) return;
+    const res = await reviewParticle({ userAnswer: v, correctAnswer: target.answer });
+    setResult(res);
+    onResult(res);
+  }, [target, onResult]);
+
+  const handleKeyDown = e => {
+    if (e.key === 'Enter') { e.preventDefault(); score(); onAdvance?.(); }
+  };
+
+  return (
+    <div className="form-group" onFocus={() => onFocusTarget?.()}>
+      <div className="form-inline-row">
+        <input
+          ref={inputRef}
+          value={ans}
+          onChange={e => { const v = e.target.value; setAns(v); ansRef.current = v; setResult(null); onInputChange?.({ ans: v }); }}
+          onKeyDown={handleKeyDown}
+          className={inputCls(result?.judgement, ans)}
+          placeholder=""
+        />
+        <JudgeIcon judgement={ans.trim() ? result?.judgement : null} />
+      </div>
+    </div>
+  );
+});
+
+// ── 重要文法 ─────────────────────────────────────────────────
+const GrammarForm = forwardRef(function GrammarForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+  const [ans, setAns] = useState(initialInputs?.ans ?? '');
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState(initialInputs?.submitted ?? false);
+  const [result, setResult] = useState(initialResult ?? null);
+  const textareaRef = useRef(null);
+  const btnRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({ focus: () => textareaRef.current?.focus() }));
+
   const submit = async () => {
     if (!ans.trim()) return;
     setLoading(true);
     const res = await reviewGrammar({ surface: target.surface, sentence: section.text, userAnswer: ans, correctAnswer: target.answer, explanation: target.explanation });
     setLoading(false);
     setSubmitted(true);
+    setResult(res);
+    onInputChange?.({ ans, submitted: true });
     onResult(res);
   };
+  const handleTextareaKeyDown = e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); btnRef.current?.focus(); }
+  };
+  const handleBtnKeyDown = e => {
+    if (e.key === 'Enter' && submitted) { e.preventDefault(); onAdvance?.(); }
+  };
   return (
-    <div className="form-group">
-      <label>「{target.surface}」の文法的な働きと訳し方を答えなさい。</label>
-      <textarea value={ans} onChange={e => setAns(e.target.value)} rows={3} placeholder="文法的な働きと訳し方を入力…" />
-      <button onClick={submit} disabled={loading}>{loading ? '添削中…' : '添削する'}</button>
-      <HintReveal answer={target.answer} explanation={target.explanation} show={submitted} />
+    <div className="form-group" onFocus={() => onFocusTarget?.()}>
+      <div className="form-textarea-row">
+        <textarea ref={textareaRef} value={ans} onChange={e => { const v = e.target.value; setAns(v); onInputChange?.({ ans: v, submitted }); }} onKeyDown={handleTextareaKeyDown} rows={3} />
+        <button ref={btnRef} onClick={submit} disabled={loading} onKeyDown={handleBtnKeyDown}>{loading ? '採点中…' : '採点'}</button>
+      </div>
+      {submitted && (
+        <>
+          <div className="judge-row-standalone">
+            <JudgeIcon judgement={result?.judgement} />
+            {result?.judgement && <span className="judgement-text">{result.judgement}</span>}
+          </div>
+          <div className="hint">模範解答：<em>{target.answer}</em></div>
+          {target.explanation && <div className="explanation">{target.explanation}</div>}
+        </>
+      )}
     </div>
   );
-}
+});
 
-export default function AnswerPanel({ selectedTarget, selectedSection }) {
-  const [feedback, setFeedback] = useState(null);
+// ── QuestionCard ─────────────────────────────────────────────
+const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelected, initialFeedback, onHistoryUpdate, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+  const [feedback, setFeedback] = useState(initialFeedback ?? null);
+  const cardRef = useRef(null);
+  const formRef = useRef(null);
 
-  const key = selectedTarget?.id ?? 'none';
+  useImperativeHandle(ref, () => ({ focus: () => formRef.current?.focus() }));
 
-  if (!selectedTarget) {
+  useEffect(() => {
+    if (isSelected && cardRef.current) {
+      cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [isSelected]);
+
+  const setResult = r => {
+    setFeedback(null);
+    setTimeout(() => {
+      setFeedback(r);
+      onHistoryUpdate?.(r);
+    }, 0);
+  };
+
+  const isScoreType = SCORE_TYPES.has(target.type);
+  const formProps = { initialInputs, onInputChange, onFocusTarget };
+
+  return (
+    <div ref={cardRef} className={`question-card${isSelected ? ' question-card--selected' : ''}`}>
+      <div className="panel-header">
+        <span className={`type-badge type-${target.type}`}>{TYPE_LABEL[target.type] ?? '問題'}</span>
+        <QuestionHeader target={target} />
+      </div>
+      {target.type === 'vocab'    && <VocabForm    ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'aux'      && <AuxForm      ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'verb'     && <VerbForm     ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'adj'      && <AdjForm      ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'particle' && <ParticleForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'grammar'  && <GrammarForm  ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {feedback && !isScoreType && <FeedbackCard type={target.type} data={feedback} />}
+    </div>
+  );
+});
+
+// ── AnswerPanel ──────────────────────────────────────────────
+export default function AnswerPanel({ activeType, sections, selectedTarget, selectedSection, onFocusTarget }) {
+  const [historyMap, setHistoryMap] = useState(new Map());
+  const cardRefs = useRef([]);
+  const inputsMap = useRef({});
+
+  const recordHistory = useCallback((targetId, result) => {
+    setHistoryMap(prev => {
+      const next = new Map(prev);
+      next.set(targetId, result);
+      return next;
+    });
+  }, []);
+
+  const questions = useMemo(() => {
+    if (activeType === 'all') return [];
+    const all = sections.flatMap(section =>
+      (section.targets ?? [])
+        .filter(t => t.type === activeType)
+        .map(t => ({ target: t, section }))
+    );
+    const seenGroups = new Set();
+    return all.filter(({ target }) => {
+      if (!target.groupId) return true;
+      if (seenGroups.has(target.groupId)) return false;
+      seenGroups.add(target.groupId);
+      return true;
+    });
+  }, [activeType, sections]);
+
+  if (activeType === 'all') {
+    if (!selectedTarget) {
+      return (
+        <div className="answer-panel empty">
+          <div className="empty-message">
+            <span className="empty-icon">📖</span>
+            <p>ハイライトされた語を<br />選んでください</p>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="answer-panel-list">
+        <QuestionCard
+          key={selectedTarget.id}
+          target={selectedTarget}
+          section={selectedSection}
+          isSelected={false}
+          initialFeedback={historyMap.get(selectedTarget.id) ?? null}
+          onHistoryUpdate={r => recordHistory(selectedTarget.id, r)}
+          initialInputs={inputsMap.current[selectedTarget.id]}
+          onInputChange={vals => { inputsMap.current[selectedTarget.id] = vals; }}
+          onFocusTarget={() => onFocusTarget?.(selectedTarget, selectedSection)}
+        />
+      </div>
+    );
+  }
+
+  if (questions.length === 0) {
     return (
       <div className="answer-panel empty">
         <div className="empty-message">
-          <span className="empty-icon">📖</span>
-          <p>左の本文から<br />ハイライトされた語を<br />選んでください</p>
+          <p>この品詞の問題はありません</p>
         </div>
       </div>
     );
   }
 
-  const typeLabel = TYPE_LABEL[selectedTarget.type] ?? '問題';
-
   return (
-    <div className="answer-panel" key={key}>
-      <div className="panel-header">
-        <span className={`type-badge type-${selectedTarget.type}`}>{typeLabel}</span>
-        <span className="selected-surface">「{selectedTarget.surface}」</span>
-      </div>
-
-      <div className="context-text">
-        <span className="context-label">本文</span>
-        <span className="context-content">{selectedSection?.text}</span>
-      </div>
-
-      {selectedTarget.type === 'vocab' && (
-        <VocabForm target={selectedTarget} section={selectedSection} onResult={r => { setFeedback(null); setTimeout(() => setFeedback(r), 0); }} />
-      )}
-      {selectedTarget.type === 'aux' && (
-        <AuxForm target={selectedTarget} section={selectedSection} onResult={r => { setFeedback(null); setTimeout(() => setFeedback(r), 0); }} />
-      )}
-      {selectedTarget.type === 'verb' && (
-        <VerbForm target={selectedTarget} section={selectedSection} onResult={r => { setFeedback(null); setTimeout(() => setFeedback(r), 0); }} />
-      )}
-      {selectedTarget.type === 'particle' && (
-        <ParticleForm target={selectedTarget} section={selectedSection} onResult={r => { setFeedback(null); setTimeout(() => setFeedback(r), 0); }} />
-      )}
-      {selectedTarget.type === 'grammar' && (
-        <GrammarForm target={selectedTarget} section={selectedSection} onResult={r => { setFeedback(null); setTimeout(() => setFeedback(r), 0); }} />
-      )}
-
-      {feedback && <FeedbackCard type={selectedTarget.type} data={feedback} />}
+    <div className="answer-panel-list">
+      {questions.map(({ target, section }, i) => (
+        <QuestionCard
+          key={target.id}
+          ref={el => { cardRefs.current[i] = el; }}
+          target={target}
+          section={section}
+          isSelected={
+            target.groupId
+              ? selectedTarget?.groupId === target.groupId
+              : selectedTarget?.id === target.id
+          }
+          initialFeedback={historyMap.get(target.id) ?? null}
+          onHistoryUpdate={r => recordHistory(target.id, r)}
+          onAdvance={() => cardRefs.current[i + 1]?.focus()}
+          initialInputs={inputsMap.current[target.id]}
+          onInputChange={vals => { inputsMap.current[target.id] = vals; }}
+          onFocusTarget={() => onFocusTarget?.(target, section)}
+        />
+      ))}
     </div>
   );
 }
