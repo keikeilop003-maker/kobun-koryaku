@@ -32,6 +32,7 @@ export default function App() {
     setActiveType(type);
     setSelectedTarget(null);
     setSelectedSection(null);
+    setRightTab('knowledge');
   };
 
   useEffect(() => {
