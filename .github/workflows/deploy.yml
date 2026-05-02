@@ -21,13 +21,16 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: kobun-app/package-lock.json
       - run: npm ci
+        working-directory: kobun-app
       - run: npm run build
+        working-directory: kobun-app
         env:
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
       - uses: actions/configure-pages@v4
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: kobun-app/dist
       - uses: actions/deploy-pages@v4
         id: deployment
