@@ -189,7 +189,7 @@ async function callGemini(type, payload) {
       systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
       contents: [{ parts: [{ text: `[type=${type}]\n${JSON.stringify(payload)}` }] }],
       generationConfig: {
-        maxOutputTokens: 320,
+        maxOutputTokens: 150,
         temperature: 0.2,
         responseMimeType: 'application/json',
         responseSchema: SCHEMAS[type],
@@ -239,11 +239,7 @@ async function review(type, payload) {
 }
 
 export async function reviewVocab({ userAnswer, correctAnswer }) {
-  return review('vocab', {
-    correctAnswer,
-    userAnswer,
-    task: '模範解答との整合性のみ判定。正解・部分正解・不正解のいずれかを返す。',
-  });
+  return { judgement: localCompare(userAnswer, correctAnswer) };
 }
 
 export async function reviewAux({ userAnswer, correctAnswer }) {
@@ -292,14 +288,8 @@ export async function reviewParticle({ userAnswer, correctAnswer }) {
   };
 }
 
-export async function reviewGrammar({ surface, sentence, userAnswer, correctAnswer, explanation }) {
-  return review('grammar', {
-    surface,
-    ctx: contextWindow(sentence, surface),
-    correctAnswer,
-    explanation: clip(explanation, 80),
-    userAnswer,
-  });
+export async function reviewGrammar({ userAnswer, correctAnswer }) {
+  return { judgement: localCompare(userAnswer, correctAnswer) };
 }
 
 export async function reviewTranslation({ targetText, sentence, userAnswer, correctAnswer, explanation }) {
