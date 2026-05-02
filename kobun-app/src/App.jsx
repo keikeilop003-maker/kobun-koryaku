@@ -31,7 +31,7 @@ export default function App() {
 
 
   useEffect(() => {
-    fetch('/data/konosorane.json')
+    fetch(`${import.meta.env.BASE_URL}data/konosorane.json`)
       .then(r => r.json())
       .then(setTextData)
       .catch(console.error);
