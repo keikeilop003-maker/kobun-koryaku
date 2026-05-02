@@ -103,7 +103,7 @@ export default function App() {
             </button>
           </div>
 
-          <div style={{ display: rightTab === 'knowledge' ? 'contents' : 'none' }}>
+          <div style={{ display: rightTab === 'knowledge' ? 'block' : 'none' }}>
             <AnswerPanel
               activeType={activeType}
               sections={textData.sections}
@@ -114,7 +114,7 @@ export default function App() {
               onRecord={record}
             />
           </div>
-          <div style={{ display: rightTab === 'normal' ? 'contents' : 'none' }}>
+          <div style={{ display: rightTab === 'normal' ? 'block' : 'none' }}>
             <NormalQuestions
               questions={textData.normalQuestions}
               sections={textData.sections}
@@ -124,7 +124,7 @@ export default function App() {
               onExpandHandled={() => setExpandedNqId(null)}
             />
           </div>
-          <div style={{ display: rightTab === 'score' ? 'contents' : 'none' }}>
+          <div style={{ display: rightTab === 'score' ? 'block' : 'none' }}>
             <ScoreBoard
               entries={entries}
               onJump={handleJump}
