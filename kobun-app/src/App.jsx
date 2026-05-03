@@ -125,7 +125,7 @@ export default function App() {
               onRecord={record}
               expandedNqId={expandedNqId}
               onExpandHandled={() => setExpandedNqId(null)}
-              onFocusTarget={(sectionId, text) => setPinnedPhrase({ sectionId, text })}
+              onFocusTarget={(sectionId, text) => setPinnedPhrase(sectionId && text ? { sectionId, text } : null)}
             />
           </div>
           <div style={{ display: rightTab === 'score' ? 'block' : 'none' }}>

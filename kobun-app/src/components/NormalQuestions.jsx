@@ -24,7 +24,6 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
     if (defaultOpen) {
       setOpen(true);
       onOpened?.();
-      focusTarget();
     }
   }, [defaultOpen]);  // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -65,7 +64,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
 
   return (
     <div className="normal-question-card">
-      <div className="nq-header" onClick={() => { const next = !open; setOpen(next); if (next) focusTarget(); }}>
+      <div className="nq-header" onClick={() => setOpen(o => !o)}>
         <span className={`type-badge type-${q.type}`}>{q.type === 'translation' ? '現代語訳' : '内容読解'}</span>
         <span className="nq-title">{q.title}</span>
         <span className="nq-toggle">{open ? '▲' : '▼'}</span>
@@ -80,6 +79,8 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
             <textarea
               value={ans}
               onChange={e => setAns(e.target.value)}
+              onFocus={focusTarget}
+              onBlur={() => onFocusTarget?.(null, null)}
               rows={4}
             />
             <button onClick={submit} disabled={loading}>

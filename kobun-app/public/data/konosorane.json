@@ -902,8 +902,8 @@
       "local": true,
       "title": "現代語訳④",
       "question": "次の部分を現代語訳しなさい。",
-      "targetText": "「僧の、…と言ふを」の「の」",
-      "sectionId": "s1",
+      "targetText": "僧の、「もの申しさぶらはむ。おどろかせたまへ。」と言ふを、",
+      "sectionId": "s2",
       "answer": "が。",
       "explanation": ""
     },
@@ -914,7 +914,7 @@
       "title": "現代語訳⑤",
       "question": "次の部分を現代語訳しなさい。",
       "targetText": "起こせかし",
-      "sectionId": "s1",
+      "sectionId": "s2",
       "answer": "起こしてくれよ。",
       "explanation": ""
     },
@@ -925,7 +925,7 @@
       "title": "現代語訳⑥",
       "question": "次の部分を現代語訳しなさい。",
       "targetText": "聞けば",
-      "sectionId": "s1",
+      "sectionId": "s2",
       "answer": "聞くと。",
       "explanation": ""
     },
