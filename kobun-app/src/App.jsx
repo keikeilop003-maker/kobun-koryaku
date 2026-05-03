@@ -3,7 +3,9 @@ import VerticalTextViewer from './components/VerticalTextViewer';
 import AnswerPanel from './components/AnswerPanel';
 import NormalQuestions from './components/NormalQuestions';
 import ScoreBoard from './components/ScoreBoard';
+import LoginScreen from './components/LoginScreen';
 import useHistory from './hooks/useHistory';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './styles/app.css';
 
 const LEGEND = [
@@ -16,7 +18,8 @@ const LEGEND = [
   { type: 'particle', label: '助',       cls: 'hl-particle' },
 ];
 
-export default function App() {
+function AppInner() {
+  const { user, logout } = useAuth();
   const [textbooks, setTextbooks] = useState([]);
   const [selectedTextId, setSelectedTextId] = useState(null);
   const [textData, setTextData] = useState(null);
@@ -28,10 +31,9 @@ export default function App() {
   const [pinnedPhrase, setPinnedPhrase] = useState(null);
 
   const textId = textData?.id ?? selectedTextId ?? '';
-  const { entries, record, clearAll } = useHistory(textId);
+  const { entries, record, clearAll } = useHistory(textId, user?.uid);
   const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
 
-  // 教材一覧を取得し、最初の教材を自動選択
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/index.json`)
       .then(r => r.json())
@@ -42,7 +44,6 @@ export default function App() {
       .catch(console.error);
   }, []);
 
-  // 教材選択時にテキストデータを取得
   useEffect(() => {
     if (!selectedTextId) return;
     setTextData(null);
@@ -108,6 +109,10 @@ export default function App() {
               onClick={() => selectType(l.type)}
             >{l.label}</span>
           ))}
+        </div>
+        <div className="header-right">
+          <span className="user-name">{user.displayName}</span>
+          <button className="logout-btn" onClick={logout}>ログアウト</button>
         </div>
       </header>
 
@@ -180,5 +185,20 @@ export default function App() {
         </div>
       </div>
     </div>
+  );
+}
+
+function AuthGate() {
+  const { user } = useAuth();
+  if (user === undefined) return <div className="loading">読み込み中…</div>;
+  if (user === null) return <LoginScreen />;
+  return <AppInner />;
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AuthGate />
+    </AuthProvider>
   );
 }
