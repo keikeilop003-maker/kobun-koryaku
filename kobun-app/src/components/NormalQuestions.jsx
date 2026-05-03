@@ -30,7 +30,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   const section = sections.find(s => s.id === q.sectionId);
 
   const focusTarget = () => {
-    if (q.type !== 'translation' || !q.targetText) return;
+    if (!q.targetText) return;
     onFocusTarget?.(q.sectionId, q.targetText);
   };
 

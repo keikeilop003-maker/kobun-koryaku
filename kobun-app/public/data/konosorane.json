@@ -848,48 +848,10 @@
   ],
   "normalQuestions": [
     {
-      "id": "trans-1",
-      "type": "translation",
-      "title": "現代語訳①",
-      "question": "次の部分を現代語訳しなさい。",
-      "targetText": "さりとて、し出ださむを待ちて寝ざらむもわろかりなむと思ひて",
-      "sectionId": "s1",
-      "answer": "そうかといって、（ぼたもちを）作り上げるのを待って寝ないのも、きっとよくないだろうと思って",
-      "explanation": "「さりとて」＝そうかといって、「し出だす」＝作り上げる、「わろし」＝よくない、「なむ」＝きっと〜だろう（強意＋推量）がポイント。"
-    },
-    {
-      "id": "trans-2",
-      "type": "translation",
-      "title": "現代語訳②",
-      "question": "次の部分を現代語訳しなさい。",
-      "targetText": "ただ一度にいらへむも、待ちけるかともぞ思ふとて",
-      "sectionId": "s2",
-      "answer": "たった一度で返事をするのも、（起こされるのを）待っていたのかと（僧たちが）思うと困ると思って",
-      "explanation": "「も＋ぞ」は「〜すると困る」という危惧の表現。主語の補完（僧たちが思う）がポイント。"
-    },
-    {
-      "id": "content-1",
-      "type": "content",
-      "title": "内容読解①",
-      "question": "この場面で児はなぜ寝たふりをしたのか、本文の内容をふまえて説明しなさい。",
-      "sectionId": "s1",
-      "answer": "ぼたもちを食べたいという気持ちはあったが、作り上げるのを待って寝ないのはみっともない（よくない）と思ったため。また、すぐに返事をすると起こされるのを待っていたと思われるのが恥ずかしかったため。",
-      "explanation": "本文の根拠：「し出ださむを待ちて寝ざらむもわろかりなむと思ひて」および「待ちけるかともぞ思ふとて」の二箇所。"
-    },
-    {
-      "id": "content-2",
-      "type": "content",
-      "title": "内容読解②",
-      "question": "この話のおもしろさ（滑稽さ）はどのような点にあるか説明しなさい。",
-      "sectionId": "s2",
-      "answer": "ぼたもちを食べたいのに体裁を気にして返事できず、そのまま食べられてしまい、最終的に食べ終わったずっと後に「えい。」と間の抜けた返事をしてしまう点。見え透いた児の心理と、それが完全に裏目に出る展開のギャップがおかしさを生む。",
-      "explanation": "児の「格好をつけたい」という心理と、ぼたもちを食べたいという欲求の葛藤が滑稽さの核心。"
-    },
-    {
       "id": "trans-3",
       "type": "translation",
       "local": true,
-      "title": "現代語訳③",
+      "title": "現代語訳①",
       "question": "次の部分を現代語訳しなさい。",
       "targetText": "児ありけり",
       "sectionId": "s1",
@@ -897,15 +859,35 @@
       "explanation": ""
     },
     {
+      "id": "trans-1",
+      "type": "translation",
+      "title": "現代語訳②",
+      "question": "次の部分を現代語訳しなさい。",
+      "targetText": "さりとて、し出ださむを待ちて寝ざらむもわろかりなむと思ひて",
+      "sectionId": "s1",
+      "answer": "そうかといって、（ぼたもちを）作り上げるのを待って寝ないのも、きっとよくないだろうと思って",
+      "explanation": "「さりとて」＝そうかといって、「し出だす」＝作り上げる、「わろし」＝よくない、「なむ」＝きっと〜だろう（強意＋推量）がポイント。"
+    },
+    {
       "id": "trans-4",
       "type": "translation",
       "local": true,
-      "title": "現代語訳④",
+      "title": "現代語訳③",
       "question": "次の部分を現代語訳しなさい。",
       "targetText": "僧の、「もの申しさぶらはむ。おどろかせたまへ。」と言ふを、",
       "sectionId": "s2",
       "answer": "が。",
       "explanation": ""
+    },
+    {
+      "id": "trans-2",
+      "type": "translation",
+      "title": "現代語訳④",
+      "question": "次の部分を現代語訳しなさい。",
+      "targetText": "ただ一度にいらへむも、待ちけるかともぞ思ふとて",
+      "sectionId": "s2",
+      "answer": "たった一度で返事をするのも、（起こされるのを）待っていたのかと（僧たちが）思うと困ると思って",
+      "explanation": "「も＋ぞ」は「〜すると困る」という危惧の表現。主語の補完（僧たちが思う）がポイント。"
     },
     {
       "id": "trans-5",
@@ -933,8 +915,9 @@
       "id": "content-3",
       "type": "content",
       "local": true,
-      "title": "内容読解③",
+      "title": "内容読解①",
       "question": "「かいもちひ」と「せむ」の間に適切な助詞を補え。",
+      "targetText": "かいもちひせむ",
       "sectionId": "s1",
       "answer": "を",
       "explanation": "「ぼたもちを作ろう」と訳す。"
@@ -943,8 +926,9 @@
       "id": "content-4",
       "type": "content",
       "local": true,
-      "title": "内容読解④",
+      "title": "内容読解②",
       "question": "「この児、心寄せに聞きけり」について、「この児」の後に適切な助詞を補え。",
+      "targetText": "この児、心寄せに聞きけり",
       "sectionId": "s1",
       "answer": "は",
       "explanation": ""
@@ -952,8 +936,9 @@
     {
       "id": "content-5",
       "type": "content",
-      "title": "内容読解⑤",
+      "title": "内容読解③",
       "question": "「心寄せに聞」くとはどのような様子か。",
+      "targetText": "心寄せに聞きけり",
       "sectionId": "s1",
       "answer": "特定のことに関心を寄せて聞く様子。",
       "explanation": ""
@@ -961,8 +946,9 @@
     {
       "id": "content-6",
       "type": "content",
-      "title": "内容読解⑥",
+      "title": "内容読解④",
       "question": "児が「心寄せに聞」いたこととは何か。",
+      "targetText": "心寄せに聞きけり",
       "sectionId": "s1",
       "answer": "これからぼたもちを作って食べるという話。",
       "explanation": ""
@@ -971,8 +957,9 @@
       "id": "content-7",
       "type": "content",
       "local": true,
-      "title": "内容読解⑦",
+      "title": "内容読解⑤",
       "question": "「寝ざらむも…と思ひて」の動作主（主語）は誰か。",
+      "targetText": "寝ざらむもわろかりなむと思ひて",
       "sectionId": "s1",
       "answer": "児",
       "explanation": ""
@@ -981,8 +968,9 @@
       "id": "content-8",
       "type": "content",
       "local": true,
-      "title": "内容読解⑧",
+      "title": "内容読解⑥",
       "question": "「すでにし出だしたる」の動作主（主語）は誰か。",
+      "targetText": "すでにし出だしたる",
       "sectionId": "s1",
       "answer": "僧たち,僧",
       "explanation": ""
@@ -990,8 +978,9 @@
     {
       "id": "content-9",
       "type": "content",
-      "title": "内容読解⑨",
+      "title": "内容読解⑦",
       "question": "児は、「すでにし出だしたるさま」を、僧たちが「ひしめき合」っている様子から判断している。このことからどのようなことがわかるか。",
+      "targetText": "すでにし出だしたるさまにて、ひしめき合ひたり",
       "sectionId": "s1",
       "answer": "聞こえる声や音で僧たちの様子を判断しているということ。",
       "explanation": ""
@@ -999,7 +988,7 @@
     {
       "id": "content-10",
       "type": "content",
-      "title": "内容読解⑩",
+      "title": "内容読解⑧",
       "question": "第一段落から心中語の部分を抜き出せ。",
       "sectionId": "s1",
       "answer": "「さりとて、し出ださむを待ちて寝ざらむもわろかりなむ」",
@@ -1009,8 +998,9 @@
       "id": "content-11",
       "type": "content",
       "local": true,
-      "title": "内容読解⑪",
+      "title": "内容読解⑨",
       "question": "脚問　「思へども」の動作主（主語）は誰か。",
+      "targetText": "思へども",
       "sectionId": "s2",
       "answer": "児",
       "explanation": ""
@@ -1018,8 +1008,9 @@
     {
       "id": "content-12",
       "type": "content",
-      "title": "内容読解⑫",
+      "title": "内容読解⑩",
       "question": "「うれしとは思へども」について、「うれし」と児が思ったのはなぜか。",
+      "targetText": "うれしとは思へども",
       "sectionId": "s2",
       "answer": "ぼたもちができあがるまで寝たふりをして待っていたところ、起こしてくれたので、いよいよぼたもちを食べることができると思ったから。",
       "explanation": ""
@@ -1027,8 +1018,9 @@
     {
       "id": "content-13",
       "type": "content",
-      "title": "内容読解⑬",
+      "title": "内容読解⑪",
       "question": "「待ちけるか」とあるが、誰が何を待つのか。",
+      "targetText": "待ちけるか",
       "sectionId": "s2",
       "answer": "児が、ぼたもちができあがることを待つ。",
       "explanation": ""
@@ -1037,8 +1029,9 @@
       "id": "content-14",
       "type": "content",
       "local": true,
-      "title": "内容読解⑭",
+      "title": "内容読解⑫",
       "question": "「思ふ」の動作主（主語）は誰か。",
+      "targetText": "待ちけるかともぞ思ふとて",
       "sectionId": "s2",
       "answer": "僧たち,僧",
       "explanation": ""
@@ -1046,8 +1039,9 @@
     {
       "id": "content-15",
       "type": "content",
-      "title": "内容読解⑮",
+      "title": "内容読解⑬",
       "question": "「待ちけるかともぞ思ふ」（待っていたのかと思うと困る）とあるが、なぜ困るのか。",
+      "targetText": "待ちけるかともぞ思ふとて",
       "sectionId": "s2",
       "answer": "ぼたもちのできあがりを寝たふりをして待っていたと僧たちにばれるのは恥ずかしいことだから。",
       "explanation": ""
@@ -1055,8 +1049,9 @@
     {
       "id": "content-16",
       "type": "content",
-      "title": "内容読解⑯",
+      "title": "内容読解⑭",
       "question": "「たてまつる」「たまふ」はどのような使われ方をする語か。",
+      "targetText": "な起こしたてまつりそ。をさなき人は、寝入りたまひにけり。",
       "sectionId": "s2",
       "answer": "相手に敬意をはらうときに使われる語。",
       "explanation": ""
@@ -1065,8 +1060,9 @@
       "id": "content-17",
       "type": "content",
       "local": true,
-      "title": "内容読解⑰",
+      "title": "内容読解⑮",
       "question": "脚問　「言ふ」の動作主（主語）は誰か。",
+      "targetText": "「や、な起こしたてまつりそ。をさなき人は、寝入りたまひにけり。」と言ふ声のしければ",
       "sectionId": "s2",
       "answer": "僧",
       "explanation": "最初の僧とは別の僧。"
@@ -1074,8 +1070,9 @@
     {
       "id": "content-18",
       "type": "content",
-      "title": "内容読解⑱",
+      "title": "内容読解⑯",
       "question": "「あな、わびし」とはどのような気持ちを表しているか。詳しく説明せよ。",
+      "targetText": "あな、わびし",
       "sectionId": "s2",
       "answer": "もう少しで自分の考えていたように、自分の体面を保ちながらぼたもちが食べられるところであったのに、それどころか僧の一言で、ぼたもちを食べることが難しくなりそうで、困っている気持ち。",
       "explanation": ""
@@ -1084,8 +1081,9 @@
       "id": "content-19",
       "type": "content",
       "local": true,
-      "title": "内容読解⑲",
+      "title": "内容読解⑰",
       "question": "「思ひて」の動作主（主語）は誰か。",
+      "targetText": "あな、わびしと思ひて",
       "sectionId": "s2",
       "answer": "児",
       "explanation": ""
@@ -1093,8 +1091,9 @@
     {
       "id": "content-20",
       "type": "content",
-      "title": "内容読解⑳",
+      "title": "内容読解⑱",
       "question": "「思ひ寝に聞」くとはどのような状態か。",
+      "targetText": "思ひ寝に聞けば",
       "sectionId": "s2",
       "answer": "横になって眠ったふりをしながら、もう一度起こしてほしいと考えつつ耳をそばだてる。",
       "explanation": ""
@@ -1103,8 +1102,9 @@
       "id": "content-21",
       "type": "content",
       "local": true,
-      "title": "内容読解㉑",
+      "title": "内容読解⑲",
       "question": "「食ひに食ふ」とは誰が「食ふ」のか。",
+      "targetText": "ただ食ひに食ふ音",
       "sectionId": "s2",
       "answer": "僧たち,僧",
       "explanation": ""
@@ -1113,8 +1113,9 @@
       "id": "content-22",
       "type": "content",
       "local": true,
-      "title": "内容読解㉒",
+      "title": "内容読解⑳",
       "question": "「食ひに食ふ」とはどのような食べ方をしているか。",
+      "targetText": "ただ食ひに食ふ音",
       "sectionId": "s2",
       "answer": "ひたすら食べている。",
       "explanation": ""
@@ -1123,8 +1124,9 @@
       "id": "content-23",
       "type": "content",
       "local": true,
-      "title": "内容読解㉓",
+      "title": "内容読解㉑",
       "question": "発問　「えい」の意味を答えよ。",
+      "targetText": "えい。",
       "sectionId": "s2",
       "answer": "はい",
       "explanation": ""
@@ -1132,8 +1134,9 @@
     {
       "id": "content-24",
       "type": "content",
-      "title": "内容読解㉔",
+      "title": "内容読解㉒",
       "question": "発問　「えい」とは何に対する返事か。現代語で説明せよ。",
+      "targetText": "えい。",
       "sectionId": "s2",
       "answer": "「もしもし、目を覚ましてください」という僧の呼びかけ。",
       "explanation": ""
