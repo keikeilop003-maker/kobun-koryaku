@@ -89,7 +89,7 @@ export default function App() {
             sections={textData.sections}
             selectedTarget={selectedTarget}
             onSelectTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
-            activeType={activeType}
+            activeType={rightTab === 'knowledge' ? activeType : null}
           />
         </div>
 

@@ -95,10 +95,14 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
 
 export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled }) {
   if (!questions?.length) return null;
+  const sorted = [...questions].sort((a, b) => {
+    if (a.type === b.type) return 0;
+    return a.type === 'translation' ? -1 : 1;
+  });
   return (
     <div className="normal-questions">
       <div className="nq-section-title">通常問題</div>
-      {questions.map(q => (
+      {sorted.map(q => (
         <QuestionItem
           key={q.id}
           q={q}
