@@ -1025,3 +1025,44 @@ body {
 .back-btn:hover {
   background: rgba(255,255,255,0.15);
 }
+
+/* ===== Textbook Nav ===== */
+.textbook-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 10px;
+  border-top: 1px solid #ddd;
+  background: #f5f3ee;
+  flex-shrink: 0;
+}
+
+.textbook-nav-label {
+  font-size: 0.75rem;
+  color: #888;
+  white-space: nowrap;
+}
+
+.textbook-nav-btn {
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border: 1px solid #bbb;
+  border-radius: 12px;
+  background: #fff;
+  color: #444;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+
+.textbook-nav-btn:hover {
+  background: #e8eaf0;
+}
+
+.textbook-nav-btn.active {
+  background: #2d3a5e;
+  color: #fff;
+  border-color: #2d3a5e;
+}

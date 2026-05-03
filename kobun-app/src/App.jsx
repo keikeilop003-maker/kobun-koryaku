@@ -3,7 +3,6 @@ import VerticalTextViewer from './components/VerticalTextViewer';
 import AnswerPanel from './components/AnswerPanel';
 import NormalQuestions from './components/NormalQuestions';
 import ScoreBoard from './components/ScoreBoard';
-import TextbookSelector from './components/TextbookSelector';
 import useHistory from './hooks/useHistory';
 import './styles/app.css';
 
@@ -17,17 +16,8 @@ const LEGEND = [
   { type: 'particle', label: '助',       cls: 'hl-particle' },
 ];
 
-function historyKeys() {
-  const keys = new Set();
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (k?.startsWith('kobun-history:')) keys.add(k.slice('kobun-history:'.length));
-  }
-  return keys;
-}
-
 export default function App() {
-  const [textbooks, setTextbooks] = useState(null);
+  const [textbooks, setTextbooks] = useState([]);
   const [selectedTextId, setSelectedTextId] = useState(null);
   const [textData, setTextData] = useState(null);
   const [selectedTarget, setSelectedTarget] = useState(null);
@@ -41,17 +31,21 @@ export default function App() {
   const { entries, record, clearAll } = useHistory(textId);
   const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
 
-  // 教材一覧を取得
+  // 教材一覧を取得し、最初の教材を自動選択
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/index.json`)
       .then(r => r.json())
-      .then(setTextbooks)
+      .then(list => {
+        setTextbooks(list);
+        if (list.length > 0) setSelectedTextId(list[0].id);
+      })
       .catch(console.error);
   }, []);
 
   // 教材選択時にテキストデータを取得
   useEffect(() => {
-    if (!selectedTextId) { setTextData(null); return; }
+    if (!selectedTextId) return;
+    setTextData(null);
     fetch(`${import.meta.env.BASE_URL}data/${selectedTextId}.json`)
       .then(r => r.json())
       .then(setTextData)
@@ -59,6 +53,7 @@ export default function App() {
   }, [selectedTextId]);
 
   const handleSelectTextbook = (id) => {
+    if (id === selectedTextId) return;
     setSelectedTextId(id);
     setSelectedTarget(null);
     setSelectedSection(null);
@@ -93,27 +88,15 @@ export default function App() {
     }
   }, [textData]);
 
-  // 教材一覧ロード中
-  if (!textbooks) {
+  if (!textData) {
     return <div className="loading">読み込み中…</div>;
-  }
-
-  // ホーム画面（教材未選択 or 教材データロード中）
-  if (!selectedTextId || !textData) {
-    return (
-      <TextbookSelector
-        textbooks={textbooks}
-        historyKeys={historyKeys()}
-        onSelect={handleSelectTextbook}
-      />
-    );
   }
 
   return (
     <div className="app-root">
       <header className="app-header">
         <div className="header-left">
-          <button className="back-btn" onClick={() => setSelectedTextId(null)}>◀ 教材</button>
+          <span className="app-title">古典ポータル</span>
           <span className="text-source">{textData.source}</span>
           <span className="text-title">「{textData.title}」</span>
         </div>
@@ -137,6 +120,20 @@ export default function App() {
             activeType={rightTab === 'knowledge' ? activeType : null}
             pinnedPhrase={rightTab === 'normal' ? pinnedPhrase : null}
           />
+          {textbooks.length > 1 && (
+            <div className="textbook-nav">
+              <span className="textbook-nav-label">教材：</span>
+              {textbooks.map(tb => (
+                <button
+                  key={tb.id}
+                  className={`textbook-nav-btn${tb.id === selectedTextId ? ' active' : ''}`}
+                  onClick={() => handleSelectTextbook(tb.id)}
+                >
+                  {tb.title}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="right-col">
