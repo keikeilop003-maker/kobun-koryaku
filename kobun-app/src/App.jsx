@@ -123,6 +123,7 @@ export default function App() {
               onRecord={record}
               expandedNqId={expandedNqId}
               onExpandHandled={() => setExpandedNqId(null)}
+              onFocusTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
             />
           </div>
           <div style={{ display: rightTab === 'score' ? 'block' : 'none' }}>

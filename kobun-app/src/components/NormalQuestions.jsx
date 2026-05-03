@@ -13,7 +13,7 @@ function JudgeBadge({ judgement }) {
   );
 }
 
-function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened }) {
+function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened, onFocusTarget }) {
   const lastFeedback = historyEntry?.attempts?.at(-1)?.feedback ?? null;
   const [ans, setAns] = useState(lastFeedback?.userAnswer ?? '');
   const [result, setResult] = useState(lastFeedback ?? null);
@@ -24,10 +24,17 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
     if (defaultOpen) {
       setOpen(true);
       onOpened?.();
+      focusTarget();
     }
-  }, [defaultOpen, onOpened]);
+  }, [defaultOpen]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   const section = sections.find(s => s.id === q.sectionId);
+
+  const focusTarget = () => {
+    if (q.type !== 'translation' || !q.targetText) return;
+    const target = section?.targets?.find(t => t.surface === q.targetText);
+    if (target) onFocusTarget?.(target, section);
+  };
 
   const submit = async () => {
     if (!ans.trim()) return;
@@ -59,7 +66,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
 
   return (
     <div className="normal-question-card">
-      <div className="nq-header" onClick={() => setOpen(o => !o)}>
+      <div className="nq-header" onClick={() => { const next = !open; setOpen(next); if (next) focusTarget(); }}>
         <span className={`type-badge type-${q.type}`}>{q.type === 'translation' ? '現代語訳' : '内容読解'}</span>
         <span className="nq-title">{q.title}</span>
         <span className="nq-toggle">{open ? '▲' : '▼'}</span>
@@ -93,7 +100,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   );
 }
 
-export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled }) {
+export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onFocusTarget }) {
   if (!questions?.length) return null;
   const sorted = [...questions].sort((a, b) => {
     if (a.type === b.type) return 0;
@@ -111,6 +118,7 @@ export default function NormalQuestions({ questions, sections, historyEntries, o
           historyEntry={historyEntries?.[`nq_${q.id}`]}
           defaultOpen={expandedNqId === q.id}
           onOpened={onExpandHandled}
+          onFocusTarget={onFocusTarget}
         />
       ))}
     </div>

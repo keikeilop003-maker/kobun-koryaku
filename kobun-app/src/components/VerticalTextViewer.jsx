@@ -1,10 +1,17 @@
 import { useEffect, useRef } from 'react';
 import HighlightedToken from './HighlightedToken';
 
-function buildSegments(text, allTargets, activeType) {
-  const targets = activeType === 'all'
+function buildSegments(text, allTargets, activeType, pinnedTarget) {
+  let targets = activeType === 'all'
     ? allTargets
     : allTargets.filter(t => t.type === activeType);
+
+  if (pinnedTarget) {
+    const inSection = allTargets.find(t => t.id === pinnedTarget.id);
+    if (inSection && !targets.find(t => t.id === inSection.id)) {
+      targets = [inSection, ...targets];
+    }
+  }
 
   const located = targets
     .map(t => {
@@ -29,7 +36,7 @@ function buildSegments(text, allTargets, activeType) {
 
 function SectionCard({ section, selectedTarget, onSelectTarget, activeType }) {
   const scrollRef = useRef(null);
-  const segments = buildSegments(section.text, section.targets ?? [], activeType);
+  const segments = buildSegments(section.text, section.targets ?? [], activeType, selectedTarget);
 
   useEffect(() => {
     const el = scrollRef.current;

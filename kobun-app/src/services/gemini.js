@@ -135,7 +135,7 @@ export function localScore(userAnswer, correctAnswer) {
 
 function normalize(s) {
   if (!s) return '';
-  return String(s).trim().replace(/[\s　]+/g, '');
+  return String(s).trim().replace(/[。．！？!?]+$/g, '').trim().replace(/[\s　]+/g, '');
 }
 
 function stripParens(s) {
