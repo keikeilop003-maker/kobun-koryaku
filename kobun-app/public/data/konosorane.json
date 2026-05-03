@@ -928,6 +928,215 @@
       "sectionId": "s1",
       "answer": "聞くと。",
       "explanation": ""
+    },
+    {
+      "id": "content-3",
+      "type": "content",
+      "local": true,
+      "title": "内容読解③",
+      "question": "「かいもちひ」と「せむ」の間に適切な助詞を補え。",
+      "sectionId": "s1",
+      "answer": "を",
+      "explanation": "「ぼたもちを作ろう」と訳す。"
+    },
+    {
+      "id": "content-4",
+      "type": "content",
+      "local": true,
+      "title": "内容読解④",
+      "question": "「この児、心寄せに聞きけり」について、「この児」の後に適切な助詞を補え。",
+      "sectionId": "s1",
+      "answer": "は",
+      "explanation": ""
+    },
+    {
+      "id": "content-5",
+      "type": "content",
+      "title": "内容読解⑤",
+      "question": "「心寄せに聞」くとはどのような様子か。",
+      "sectionId": "s1",
+      "answer": "特定のことに関心を寄せて聞く様子。",
+      "explanation": ""
+    },
+    {
+      "id": "content-6",
+      "type": "content",
+      "title": "内容読解⑥",
+      "question": "児が「心寄せに聞」いたこととは何か。",
+      "sectionId": "s1",
+      "answer": "これからぼたもちを作って食べるという話。",
+      "explanation": ""
+    },
+    {
+      "id": "content-7",
+      "type": "content",
+      "local": true,
+      "title": "内容読解⑦",
+      "question": "「寝ざらむも…と思ひて」の動作主（主語）は誰か。",
+      "sectionId": "s1",
+      "answer": "児",
+      "explanation": ""
+    },
+    {
+      "id": "content-8",
+      "type": "content",
+      "local": true,
+      "title": "内容読解⑧",
+      "question": "「すでにし出だしたる」の動作主（主語）は誰か。",
+      "sectionId": "s1",
+      "answer": "僧たち,僧",
+      "explanation": ""
+    },
+    {
+      "id": "content-9",
+      "type": "content",
+      "title": "内容読解⑨",
+      "question": "児は、「すでにし出だしたるさま」を、僧たちが「ひしめき合」っている様子から判断している。このことからどのようなことがわかるか。",
+      "sectionId": "s1",
+      "answer": "聞こえる声や音で僧たちの様子を判断しているということ。",
+      "explanation": ""
+    },
+    {
+      "id": "content-10",
+      "type": "content",
+      "title": "内容読解⑩",
+      "question": "第一段落から心中語の部分を抜き出せ。",
+      "sectionId": "s1",
+      "answer": "「さりとて、し出ださむを待ちて寝ざらむもわろかりなむ」",
+      "explanation": ""
+    },
+    {
+      "id": "content-11",
+      "type": "content",
+      "local": true,
+      "title": "内容読解⑪",
+      "question": "脚問　「思へども」の動作主（主語）は誰か。",
+      "sectionId": "s2",
+      "answer": "児",
+      "explanation": ""
+    },
+    {
+      "id": "content-12",
+      "type": "content",
+      "title": "内容読解⑫",
+      "question": "「うれしとは思へども」について、「うれし」と児が思ったのはなぜか。",
+      "sectionId": "s2",
+      "answer": "ぼたもちができあがるまで寝たふりをして待っていたところ、起こしてくれたので、いよいよぼたもちを食べることができると思ったから。",
+      "explanation": ""
+    },
+    {
+      "id": "content-13",
+      "type": "content",
+      "title": "内容読解⑬",
+      "question": "「待ちけるか」とあるが、誰が何を待つのか。",
+      "sectionId": "s2",
+      "answer": "児が、ぼたもちができあがることを待つ。",
+      "explanation": ""
+    },
+    {
+      "id": "content-14",
+      "type": "content",
+      "local": true,
+      "title": "内容読解⑭",
+      "question": "「思ふ」の動作主（主語）は誰か。",
+      "sectionId": "s2",
+      "answer": "僧たち,僧",
+      "explanation": ""
+    },
+    {
+      "id": "content-15",
+      "type": "content",
+      "title": "内容読解⑮",
+      "question": "「待ちけるかともぞ思ふ」（待っていたのかと思うと困る）とあるが、なぜ困るのか。",
+      "sectionId": "s2",
+      "answer": "ぼたもちのできあがりを寝たふりをして待っていたと僧たちにばれるのは恥ずかしいことだから。",
+      "explanation": ""
+    },
+    {
+      "id": "content-16",
+      "type": "content",
+      "title": "内容読解⑯",
+      "question": "「たてまつる」「たまふ」はどのような使われ方をする語か。",
+      "sectionId": "s2",
+      "answer": "相手に敬意をはらうときに使われる語。",
+      "explanation": ""
+    },
+    {
+      "id": "content-17",
+      "type": "content",
+      "local": true,
+      "title": "内容読解⑰",
+      "question": "脚問　「言ふ」の動作主（主語）は誰か。",
+      "sectionId": "s2",
+      "answer": "僧",
+      "explanation": "最初の僧とは別の僧。"
+    },
+    {
+      "id": "content-18",
+      "type": "content",
+      "title": "内容読解⑱",
+      "question": "「あな、わびし」とはどのような気持ちを表しているか。詳しく説明せよ。",
+      "sectionId": "s2",
+      "answer": "もう少しで自分の考えていたように、自分の体面を保ちながらぼたもちが食べられるところであったのに、それどころか僧の一言で、ぼたもちを食べることが難しくなりそうで、困っている気持ち。",
+      "explanation": ""
+    },
+    {
+      "id": "content-19",
+      "type": "content",
+      "local": true,
+      "title": "内容読解⑲",
+      "question": "「思ひて」の動作主（主語）は誰か。",
+      "sectionId": "s2",
+      "answer": "児",
+      "explanation": ""
+    },
+    {
+      "id": "content-20",
+      "type": "content",
+      "title": "内容読解⑳",
+      "question": "「思ひ寝に聞」くとはどのような状態か。",
+      "sectionId": "s2",
+      "answer": "横になって眠ったふりをしながら、もう一度起こしてほしいと考えつつ耳をそばだてる。",
+      "explanation": ""
+    },
+    {
+      "id": "content-21",
+      "type": "content",
+      "local": true,
+      "title": "内容読解21",
+      "question": "「食ひに食ふ」とは誰が「食ふ」のか。",
+      "sectionId": "s2",
+      "answer": "僧たち,僧",
+      "explanation": ""
+    },
+    {
+      "id": "content-22",
+      "type": "content",
+      "local": true,
+      "title": "内容読解22",
+      "question": "「食ひに食ふ」とはどのような食べ方をしているか。",
+      "sectionId": "s2",
+      "answer": "ひたすら食べている。",
+      "explanation": ""
+    },
+    {
+      "id": "content-23",
+      "type": "content",
+      "local": true,
+      "title": "内容読解23",
+      "question": "発問　「えい」の意味を答えよ。",
+      "sectionId": "s2",
+      "answer": "はい",
+      "explanation": ""
+    },
+    {
+      "id": "content-24",
+      "type": "content",
+      "title": "内容読解24",
+      "question": "発問　「えい」とは何に対する返事か。現代語で説明せよ。",
+      "sectionId": "s2",
+      "answer": "「もしもし、目を覚ましてください」という僧の呼びかけ。",
+      "explanation": ""
     }
   ]
 }
