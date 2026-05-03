@@ -2,7 +2,7 @@ export default function TextbookSelector({ textbooks, historyKeys, onSelect }) {
   return (
     <div className="textbook-selector-root">
       <header className="ts-header">
-        <span className="app-title">古文テスト対策</span>
+        <span className="app-title">古典ポータル</span>
       </header>
       <main className="ts-main">
         <h2 className="ts-heading">教材を選択</h2>

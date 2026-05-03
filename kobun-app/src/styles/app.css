@@ -821,6 +821,106 @@ body {
 
 .history-time { font-size: 0.7rem; color: #999; min-width: 55px; text-align: right; }
 
+/* ===== Export ===== */
+.export-section {
+  margin: 12px 0 4px;
+  border-top: 1px solid #e0ddd6;
+  padding-top: 12px;
+}
+
+.export-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.export-btn {
+  background: #2d3a5e;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.export-btn:hover { background: #1e2a4a; }
+
+.export-done {
+  font-size: 0.8rem;
+  color: #2e7d32;
+}
+
+.export-details {
+  font-size: 0.82rem;
+}
+
+.export-details summary {
+  cursor: pointer;
+  color: #4a6fa5;
+  font-size: 0.82rem;
+  padding: 4px 0;
+  user-select: none;
+}
+
+.export-guide {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.export-guide-block {}
+
+.export-guide-title {
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.export-guide-steps {
+  padding-left: 18px;
+  line-height: 1.8;
+  color: #444;
+}
+
+.export-guide-desc {
+  color: #555;
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.export-app-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.export-app-link {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  text-decoration: none;
+  font-weight: bold;
+  transition: opacity 0.15s;
+}
+
+.export-app-link:hover { opacity: 0.8; }
+
+.export-app-link.anki {
+  background: #0f6ab4;
+  color: #fff;
+}
+
+.export-app-link.quizlet {
+  background: #4257b2;
+  color: #fff;
+}
+
 /* ===== Loading ===== */
 .loading {
   display: flex;

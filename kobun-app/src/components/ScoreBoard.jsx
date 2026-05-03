@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
+import { exportCsv } from '../services/export';
 
 const TYPE_LABEL = {
   vocab: '単語', aux: '助動詞', verb: '動詞', adj: '形容詞', particle: '助詞',
@@ -70,7 +71,67 @@ function HistoryRow({ entry, stats, onJump, showStatus }) {
   );
 }
 
-export default function ScoreBoard({ entries, onJump, onClear }) {
+function ExportSection({ entries, textData }) {
+  const [done, setDone] = useState(false);
+  const timerRef = useRef(null);
+
+  const handleExport = () => {
+    exportCsv(entries, textData);
+    setDone(true);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setDone(false), 4000);
+  };
+
+  return (
+    <div className="export-section">
+      <div className="export-header">
+        <button className="export-btn" onClick={handleExport}>
+          CSV エクスポート ↓
+        </button>
+        {done && <span className="export-done">ダウンロードしました ✓</span>}
+      </div>
+
+      <details className="export-details">
+        <summary>活用方法</summary>
+        <div className="export-guide">
+          <div className="export-guide-block">
+            <div className="export-guide-title">📊 Excel に取り込む</div>
+            <ol className="export-guide-steps">
+              <li>Excel を開き、「データ」タブをクリック</li>
+              <li>「テキストまたは CSV から」を選択</li>
+              <li>ダウンロードした CSV ファイルを選択</li>
+              <li>文字コードを <strong>UTF-8</strong> に設定してインポート</li>
+            </ol>
+          </div>
+          <div className="export-guide-block">
+            <div className="export-guide-title">🃏 フラッシュカードアプリで復習</div>
+            <p className="export-guide-desc">CSV をそのまま取り込んで単語カードを自動生成できます。</p>
+            <div className="export-app-links">
+              <a
+                href="https://apps.ankiweb.net/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="export-app-link anki"
+              >
+                Anki（無料・PC/スマホ）
+              </a>
+              <a
+                href="https://quizlet.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="export-app-link quizlet"
+              >
+                Quizlet（無料・ブラウザ）
+              </a>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+  );
+}
+
+export default function ScoreBoard({ entries, onJump, onClear, textData }) {
   const [filter, setFilter] = useState('all');
 
   const enriched = useMemo(() => {
@@ -215,6 +276,8 @@ export default function ScoreBoard({ entries, onJump, onClear }) {
           {fullList.length === 0 && <div className="score-empty">該当する記録がありません</div>}
         </div>
       </div>
+
+      <ExportSection entries={entries} textData={textData} />
     </div>
   );
 }

@@ -177,6 +177,7 @@ export default function App() {
               entries={entries}
               onJump={handleJump}
               onClear={clearAll}
+              textData={textData}
             />
           </div>
         </div>
