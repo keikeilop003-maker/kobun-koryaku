@@ -32,8 +32,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
 
   const focusTarget = () => {
     if (q.type !== 'translation' || !q.targetText) return;
-    const target = section?.targets?.find(t => t.surface === q.targetText);
-    if (target) onFocusTarget?.(target, section);
+    onFocusTarget?.(q.sectionId, q.targetText);
   };
 
   const submit = async () => {

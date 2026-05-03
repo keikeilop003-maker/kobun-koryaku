@@ -23,6 +23,7 @@ export default function App() {
   const [rightTab, setRightTab] = useState('knowledge');
   const [activeType, setActiveType] = useState('all');
   const [expandedNqId, setExpandedNqId] = useState(null);
+  const [pinnedPhrase, setPinnedPhrase] = useState(null);
 
   const textId = textData?.id ?? 'konosorane';
   const { entries, record, clearAll } = useHistory(textId);
@@ -90,6 +91,7 @@ export default function App() {
             selectedTarget={selectedTarget}
             onSelectTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
             activeType={rightTab === 'knowledge' ? activeType : null}
+          pinnedPhrase={rightTab === 'normal' ? pinnedPhrase : null}
           />
         </div>
 
@@ -123,7 +125,7 @@ export default function App() {
               onRecord={record}
               expandedNqId={expandedNqId}
               onExpandHandled={() => setExpandedNqId(null)}
-              onFocusTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
+              onFocusTarget={(sectionId, text) => setPinnedPhrase({ sectionId, text })}
             />
           </div>
           <div style={{ display: rightTab === 'score' ? 'block' : 'none' }}>
