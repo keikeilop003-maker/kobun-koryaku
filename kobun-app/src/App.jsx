@@ -4,7 +4,10 @@ import AnswerPanel from './components/AnswerPanel';
 import NormalQuestions from './components/NormalQuestions';
 import ScoreBoard from './components/ScoreBoard';
 import LoginScreen from './components/LoginScreen';
+import WhisperPanel from './components/WhisperPanel';
+import AvatarIcon from './components/AvatarIcon';
 import useHistory from './hooks/useHistory';
+import useWhispers from './hooks/useWhispers';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './styles/app.css';
 
@@ -20,6 +23,8 @@ const LEGEND = [
 
 function AppInner() {
   const { user, logout } = useAuth();
+  const avatarSeed = user?.uid ? user.uid.substring(0, 8) : 'anon';
+
   const [textbooks, setTextbooks] = useState([]);
   const [selectedTextId, setSelectedTextId] = useState(null);
   const [textData, setTextData] = useState(null);
@@ -29,9 +34,11 @@ function AppInner() {
   const [activeType, setActiveType] = useState('all');
   const [expandedNqId, setExpandedNqId] = useState(null);
   const [pinnedPhrase, setPinnedPhrase] = useState(null);
+  const [whisperContext, setWhisperContext] = useState(null);
 
   const textId = textData?.id ?? selectedTextId ?? '';
   const { entries, record, clearAll } = useHistory(textId, user?.uid);
+  const { whispers } = useWhispers(textId);
   const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
 
   useEffect(() => {
@@ -62,6 +69,7 @@ function AppInner() {
     setActiveType('all');
     setExpandedNqId(null);
     setPinnedPhrase(null);
+    setWhisperContext(null);
   };
 
   const selectType = (type) => {
@@ -89,6 +97,11 @@ function AppInner() {
     }
   }, [textData]);
 
+  const handleWhisper = useCallback((questionId, questionTitle) => {
+    setWhisperContext({ questionId, questionTitle });
+    setRightTab('whisper');
+  }, []);
+
   if (!textData) {
     return <div className="loading">読み込み中…</div>;
   }
@@ -111,6 +124,7 @@ function AppInner() {
           ))}
         </div>
         <div className="header-right">
+          <AvatarIcon seed={avatarSeed} size={28} />
           <span className="user-name">{user.displayName}</span>
           <button className="logout-btn" onClick={logout}>ログアウト</button>
         </div>
@@ -150,6 +164,9 @@ function AppInner() {
             <button className={rightTab === 'score' ? 'active' : ''} onClick={() => setRightTab('score')}>
               学習記録 <span className="tab-count">{entryCount}</span>
             </button>
+            <button className={rightTab === 'whisper' ? 'active' : ''} onClick={() => setRightTab('whisper')}>
+              つぶやき <span className="tab-count">{whispers.length}</span>
+            </button>
           </div>
 
           <div style={{ display: rightTab === 'knowledge' ? 'block' : 'none' }}>
@@ -172,6 +189,7 @@ function AppInner() {
               expandedNqId={expandedNqId}
               onExpandHandled={() => setExpandedNqId(null)}
               onFocusTarget={(sectionId, text) => setPinnedPhrase(sectionId && text ? { sectionId, text } : null)}
+              onWhisper={handleWhisper}
             />
           </div>
           <div style={{ display: rightTab === 'score' ? 'block' : 'none' }}>
@@ -180,6 +198,14 @@ function AppInner() {
               onJump={handleJump}
               onClear={clearAll}
               textData={textData}
+            />
+          </div>
+          <div style={{ display: rightTab === 'whisper' ? 'block' : 'none' }}>
+            <WhisperPanel
+              textId={textId}
+              uid={user?.uid}
+              context={whisperContext}
+              onContextUsed={() => setWhisperContext(null)}
             />
           </div>
         </div>

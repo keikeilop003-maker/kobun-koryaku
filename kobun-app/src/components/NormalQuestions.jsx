@@ -13,7 +13,7 @@ function JudgeBadge({ judgement }) {
   );
 }
 
-function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened, onFocusTarget }) {
+function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened, onFocusTarget, onWhisper }) {
   const lastFeedback = historyEntry?.attempts?.at(-1)?.feedback ?? null;
   const [ans, setAns] = useState(lastFeedback?.userAnswer ?? '');
   const [result, setResult] = useState(lastFeedback ?? null);
@@ -94,13 +94,16 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
               {q.explanation && <div className="explanation">{q.explanation}</div>}
             </>
           )}
+          <button className="nq-whisper-btn" onClick={() => onWhisper?.(q.id, q.title)}>
+            💬 つぶやく
+          </button>
         </div>
       )}
     </div>
   );
 }
 
-export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onFocusTarget }) {
+export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onFocusTarget, onWhisper }) {
   if (!questions?.length) return null;
   const sorted = [...questions].sort((a, b) => {
     if (a.type === b.type) return 0;
@@ -119,6 +122,7 @@ export default function NormalQuestions({ questions, sections, historyEntries, o
           defaultOpen={expandedNqId === q.id}
           onOpened={onExpandHandled}
           onFocusTarget={onFocusTarget}
+          onWhisper={onWhisper}
         />
       ))}
     </div>
