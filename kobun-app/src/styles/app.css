@@ -1162,11 +1162,7 @@ body {
   flex-shrink: 0;
 }
 
-/* ===== Whisper (問題カード内) ===== */
-.whisper-error { font-size: 0.72rem; color: #d93025; }
-.whisper-done  { font-size: 0.72rem; color: #2e7d32; }
-
-/* action column: 添削する + 💬 を縦積み */
+/* action column: 添削する ボタン縦積み用 */
 .nq-action-col {
   display: flex;
   flex-direction: column;
@@ -1174,131 +1170,182 @@ body {
   align-items: stretch;
 }
 
-.nq-whisper-icon-btn {
-  background: none;
-  border: 1px solid #c5cae9;
-  border-radius: 6px;
-  padding: 6px 0;
-  font-size: 1rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.nq-whisper-icon-btn:hover  { background: #e8eaf0; }
-.nq-whisper-icon-btn.active { background: #e8eaf0; border-color: #7986cb; }
-
-/* 問題＋入力欄の相対基準コンテナ */
+/* 問題＋入力欄コンテナ */
 .nq-content-area {
-  position: relative;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* 吹き出し */
-@keyframes bubble-pop {
-  from { transform: scale(0.7); opacity: 0; }
-  to   { transform: scale(1);   opacity: 1; }
-}
-
-.whisper-bubble {
-  position: absolute;
-  background: #fff;
-  border: 1.5px solid #9fa8da;
-  border-radius: 12px;
-  padding: 7px 10px 5px;
-  max-width: 150px;
-  z-index: 10;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.13);
-  pointer-events: none;
-  animation: bubble-pop 0.22s ease-out;
-}
-/* 吹き出しの下向き三角（枠線） */
-.whisper-bubble::before {
-  content: '';
-  position: absolute;
-  bottom: -9px;
-  left: 14px;
-  border: 8px solid transparent;
-  border-top-color: #9fa8da;
-  border-bottom: none;
-}
-/* 吹き出しの下向き三角（白塗り） */
-.whisper-bubble::after {
-  content: '';
-  position: absolute;
-  bottom: -6px;
-  left: 15px;
-  border: 7px solid transparent;
-  border-top-color: #fff;
-  border-bottom: none;
-  z-index: 1;
-}
-
-.whisper-bubble-row {
+/* ===== 分析研究パネル ===== */
+.analysis-panel {
   display: flex;
-  align-items: flex-start;
-  gap: 5px;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 2px;
 }
 
-.whisper-bubble-text {
-  font-size: 0.73rem;
-  color: #2c2c2c;
-  line-height: 1.5;
-  word-break: break-all;
+.analysis-theme {
+  background: #eef0fb;
+  border-left: 4px solid #5c6bc0;
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
 }
-
-.whisper-bubble-time {
+.analysis-theme-label {
+  font-size: 0.72rem;
+  color: #5c6bc0;
+  font-weight: bold;
   display: block;
-  font-size: 0.62rem;
-  color: #bbb;
-  text-align: right;
-  margin-top: 2px;
+  margin-bottom: 4px;
+}
+.analysis-theme-text {
+  font-size: 0.9rem;
+  color: #2c2c2c;
+  line-height: 1.6;
+  margin: 0;
 }
 
-/* つぶやき投稿フォーム行 */
-.whisper-form-row {
+.analysis-form {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 0 2px;
-  border-top: 1px solid #e8e4dc;
+  gap: 10px;
+  padding: 14px 0;
+  border-bottom: 1px solid #e8e4dc;
 }
-
-.whisper-inline-input {
+.analysis-form-inner {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.analysis-textarea {
+  width: 100%;
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   border: 1.5px solid #c5cae9;
-  border-radius: 14px;
-  padding: 5px 12px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  resize: vertical;
   outline: none;
   transition: border-color 0.15s;
+  box-sizing: border-box;
 }
-.whisper-inline-input:focus { border-color: #5c6bc0; }
+.analysis-textarea:focus { border-color: #5c6bc0; }
 
-.whisper-inline-btn {
+.analysis-form-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.analysis-char-count { font-size: 0.75rem; color: #999; margin-right: auto; }
+.analysis-char-count.warn { color: #d93025; }
+.analysis-error { font-size: 0.75rem; color: #d93025; }
+.analysis-done  { font-size: 0.75rem; color: #2e7d32; }
+.analysis-send-btn {
   background: #5c6bc0;
   color: #fff;
   border: none;
   border-radius: 14px;
-  padding: 5px 12px;
-  font-size: 0.78rem;
+  padding: 5px 16px;
+  font-size: 0.82rem;
   font-family: inherit;
   cursor: pointer;
-  white-space: nowrap;
   transition: background 0.15s;
 }
-.whisper-inline-btn:hover:not(:disabled) { background: #3949ab; }
-.whisper-inline-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.analysis-send-btn:hover:not(:disabled) { background: #3949ab; }
+.analysis-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.whisper-close-btn {
+.analysis-reply-context {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f5f5ff;
+  border-left: 3px solid #9fa8da;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.78rem;
+  color: #555;
+}
+.analysis-reply-text {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.analysis-reply-dismiss {
   background: none;
   border: none;
   color: #aaa;
-  font-size: 0.8rem;
   cursor: pointer;
-  padding: 2px 4px;
+  font-size: 0.75rem;
+  padding: 0 2px;
   line-height: 1;
 }
-.whisper-close-btn:hover { color: #555; }
+.analysis-reply-dismiss:hover { color: #555; }
+
+.analysis-feed {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.analysis-empty {
+  color: #aaa;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 32px 0;
+}
+
+.analysis-post {
+  padding: 10px 0;
+  border-bottom: 1px solid #f0ece4;
+}
+.analysis-quote-block {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f9f8f5;
+  border-left: 3px solid #c5cae9;
+  border-radius: 4px;
+  padding: 4px 10px;
+  margin-bottom: 6px;
+  font-size: 0.78rem;
+  color: #777;
+}
+.analysis-quote-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+.analysis-post-main {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.analysis-post-content { flex: 1; }
+.analysis-post-text {
+  font-size: 0.88rem;
+  color: #2c2c2c;
+  line-height: 1.65;
+  margin: 0 0 5px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.analysis-post-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.analysis-post-time { font-size: 0.72rem; color: #bbb; }
+.analysis-reply-btn {
+  background: none;
+  border: 1px solid #c5cae9;
+  border-radius: 10px;
+  padding: 2px 10px;
+  font-size: 0.72rem;
+  color: #5c6bc0;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+.analysis-reply-btn:hover { background: #eef0fb; }

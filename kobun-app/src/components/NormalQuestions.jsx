@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { reviewTranslation, reviewContent, localScore } from '../services/gemini';
-import AvatarIcon from './AvatarIcon';
 
 function timeAgo(ts) {
   if (!ts?.toMillis) return '';
@@ -25,83 +24,16 @@ function JudgeBadge({ judgement }) {
   );
 }
 
-function WhisperForm({ avatarSeed, questionId, questionTitle, addWhisper, onClose }) {
-  const [text, setText] = useState('');
-  const [sending, setSending] = useState(false);
-  const [msg, setMsg] = useState(null);
-  const inputRef = useRef(null);
-
-  useEffect(() => { inputRef.current?.focus(); }, []);
-
-  const submit = async () => {
-    if (!text.trim() || sending) return;
-    setSending(true);
-    setMsg(null);
-    try {
-      await addWhisper({ text, avatarSeed, questionId, questionTitle });
-      setText('');
-      setMsg({ type: 'done', text: '投稿しました' });
-      setTimeout(() => { setMsg(null); onClose?.(); }, 1500);
-    } catch (e) {
-      setMsg({ type: 'error', text: e.message === 'rate_limit' ? '30秒おきに1回' : '投稿失敗' });
-    } finally {
-      setSending(false);
-    }
-  };
-
-  return (
-    <div className="whisper-form-row">
-      <AvatarIcon seed={avatarSeed} size={24} />
-      <input
-        ref={inputRef}
-        type="text"
-        className="whisper-inline-input"
-        value={text}
-        onChange={e => setText(e.target.value)}
-        onKeyDown={e => e.key === 'Enter' && !e.nativeEvent.isComposing && submit()}
-        placeholder="つぶやく…"
-        maxLength={200}
-      />
-      {msg && (
-        <span className={msg.type === 'done' ? 'whisper-done' : 'whisper-error'}>
-          {msg.text}
-        </span>
-      )}
-      <button className="whisper-inline-btn" onClick={submit} disabled={sending || !text.trim()}>
-        投稿
-      </button>
-      <button className="whisper-close-btn" onClick={onClose} title="閉じる">✕</button>
-    </div>
-  );
-}
-
-function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened, onFocusTarget, questionWhispers, addWhisper, avatarSeed }) {
+function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened, onFocusTarget }) {
   const lastFeedback = historyEntry?.attempts?.at(-1)?.feedback ?? null;
   const [ans, setAns] = useState(lastFeedback?.userAnswer ?? '');
   const [result, setResult] = useState(lastFeedback ?? null);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(!!defaultOpen);
-  const [whisperFormOpen, setWhisperFormOpen] = useState(false);
-  const [bubblePositions, setBubblePositions] = useState({});
 
   useEffect(() => {
     if (defaultOpen) { setOpen(true); onOpened?.(); }
   }, [defaultOpen]); // eslint-disable-line
-
-  // 新しいつぶやきにランダム座標を割り当て
-  useEffect(() => {
-    if (!result) return;
-    const newOnes = questionWhispers.filter(w => !bubblePositions[w.id]);
-    if (newOnes.length === 0) return;
-    const additions = {};
-    newOnes.forEach(w => {
-      additions[w.id] = {
-        top:  `${8  + Math.random() * 62}%`,
-        left: `${4  + Math.random() * 52}%`,
-      };
-    });
-    setBubblePositions(prev => ({ ...prev, ...additions }));
-  }, [questionWhispers, result]); // eslint-disable-line
 
   const section = sections.find(s => s.id === q.sectionId);
 
@@ -147,7 +79,6 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
       </div>
       {open && (
         <div className="nq-body">
-          {/* 問題＋入力欄エリア（吹き出しオーバーレイの基準） */}
           <div className="nq-content-area">
             <p className="nq-question">{q.question}</p>
             {q.targetText && (
@@ -165,44 +96,10 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
                 <button onClick={submit} disabled={loading}>
                   {loading ? '添削中…' : '添削する'}
                 </button>
-                <button
-                  className={`nq-whisper-icon-btn${whisperFormOpen ? ' active' : ''}`}
-                  onClick={() => setWhisperFormOpen(o => !o)}
-                  title="つぶやく"
-                >
-                  💬
-                </button>
               </div>
             </div>
-
-            {/* 吹き出しオーバーレイ */}
-            {result && questionWhispers.map(w => {
-              const pos = bubblePositions[w.id];
-              if (!pos) return null;
-              return (
-                <div key={w.id} className="whisper-bubble" style={pos}>
-                  <div className="whisper-bubble-row">
-                    <AvatarIcon seed={w.avatarSeed} size={16} />
-                    <p className="whisper-bubble-text">{w.text}</p>
-                  </div>
-                  <span className="whisper-bubble-time">{timeAgo(w.createdAt)}</span>
-                </div>
-              );
-            })}
           </div>
 
-          {/* つぶやき入力フォーム */}
-          {whisperFormOpen && (
-            <WhisperForm
-              avatarSeed={avatarSeed}
-              questionId={q.id}
-              questionTitle={q.title}
-              addWhisper={addWhisper}
-              onClose={() => setWhisperFormOpen(false)}
-            />
-          )}
-
-          {/* 添削結果 */}
           {result && (
             <>
               <JudgeBadge judgement={result.judgement} />
@@ -216,7 +113,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   );
 }
 
-export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onFocusTarget, whispers, addWhisper, avatarSeed }) {
+export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onFocusTarget }) {
   if (!questions?.length) return null;
   const sorted = [...questions].sort((a, b) => {
     if (a.type === b.type) return 0;
@@ -235,9 +132,6 @@ export default function NormalQuestions({ questions, sections, historyEntries, o
           defaultOpen={expandedNqId === q.id}
           onOpened={onExpandHandled}
           onFocusTarget={onFocusTarget}
-          questionWhispers={(whispers ?? []).filter(w => w.questionId === q.id)}
-          addWhisper={addWhisper}
-          avatarSeed={avatarSeed}
         />
       ))}
     </div>

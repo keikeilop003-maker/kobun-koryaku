@@ -5,8 +5,8 @@ import NormalQuestions from './components/NormalQuestions';
 import ScoreBoard from './components/ScoreBoard';
 import LoginScreen from './components/LoginScreen';
 import AvatarIcon from './components/AvatarIcon';
+import AnalysisPanel from './components/AnalysisPanel';
 import useHistory from './hooks/useHistory';
-import useWhispers from './hooks/useWhispers';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './styles/app.css';
 
@@ -36,7 +36,6 @@ function AppInner() {
 
   const textId = textData?.id ?? selectedTextId ?? '';
   const { entries, record, clearAll } = useHistory(textId, user?.uid);
-  const { whispers, addWhisper } = useWhispers(textId);
   const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
 
   useEffect(() => {
@@ -156,6 +155,7 @@ function AppInner() {
             <button className={rightTab === 'score' ? 'active' : ''} onClick={() => setRightTab('score')}>
               学習記録 <span className="tab-count">{entryCount}</span>
             </button>
+            <button className={rightTab === 'analysis' ? 'active' : ''} onClick={() => setRightTab('analysis')}>分析研究</button>
           </div>
 
           <div style={{ display: rightTab === 'knowledge' ? 'block' : 'none' }}>
@@ -178,9 +178,13 @@ function AppInner() {
               expandedNqId={expandedNqId}
               onExpandHandled={() => setExpandedNqId(null)}
               onFocusTarget={(sectionId, text) => setPinnedPhrase(sectionId && text ? { sectionId, text } : null)}
-              whispers={whispers}
-              addWhisper={addWhisper}
+            />
+          </div>
+          <div style={{ display: rightTab === 'analysis' ? 'block' : 'none' }}>
+            <AnalysisPanel
+              textId={textId}
               avatarSeed={avatarSeed}
+              analysisTheme={textData.analysisTheme}
             />
           </div>
           <div style={{ display: rightTab === 'score' ? 'block' : 'none' }}>
