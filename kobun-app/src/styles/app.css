@@ -600,10 +600,11 @@ body {
 .nq-target-text {
   background: #f5f3ee;
   border-left: 3px solid #4a6fa5;
+  border-right: 3px solid #4a6fa5;
   padding: 8px 12px;
   font-size: 0.9rem;
   color: #2d3a5e;
-  border-radius: 0 4px 4px 0;
+  border-radius: 0;
 }
 
 .nq-input-row { display: flex; gap: 8px; align-items: flex-start; }

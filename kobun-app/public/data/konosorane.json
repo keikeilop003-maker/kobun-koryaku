@@ -884,6 +884,46 @@
       "sectionId": "s2",
       "answer": "ぼたもちを食べたいのに体裁を気にして返事できず、そのまま食べられてしまい、最終的に食べ終わったずっと後に「えい。」と間の抜けた返事をしてしまう点。見え透いた児の心理と、それが完全に裏目に出る展開のギャップがおかしさを生む。",
       "explanation": "児の「格好をつけたい」という心理と、ぼたもちを食べたいという欲求の葛藤が滑稽さの核心。"
+    },
+    {
+      "id": "trans-3",
+      "type": "translation",
+      "title": "現代語訳③",
+      "question": "次の部分を現代語訳しなさい。",
+      "targetText": "児ありけり",
+      "sectionId": "s1",
+      "answer": "児がいた。",
+      "explanation": ""
+    },
+    {
+      "id": "trans-4",
+      "type": "translation",
+      "title": "現代語訳④",
+      "question": "次の部分を現代語訳しなさい。",
+      "targetText": "「僧の、…と言ふを」の「の」",
+      "sectionId": "s1",
+      "answer": "が。",
+      "explanation": ""
+    },
+    {
+      "id": "trans-5",
+      "type": "translation",
+      "title": "現代語訳⑤",
+      "question": "次の部分を現代語訳しなさい。",
+      "targetText": "起こせかし",
+      "sectionId": "s1",
+      "answer": "起こしてくれよ。",
+      "explanation": ""
+    },
+    {
+      "id": "trans-6",
+      "type": "translation",
+      "title": "現代語訳⑥",
+      "question": "次の部分を現代語訳しなさい。",
+      "targetText": "聞けば",
+      "sectionId": "s1",
+      "answer": "聞くと。",
+      "explanation": ""
     }
   ]
 }
