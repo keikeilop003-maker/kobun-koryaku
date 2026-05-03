@@ -1,5 +1,17 @@
 import { useEffect, useState } from 'react';
 import { reviewTranslation, reviewContent, localScore } from '../services/gemini';
+import AvatarIcon from './AvatarIcon';
+
+function timeAgo(ts) {
+  if (!ts?.toMillis) return '';
+  const sec = Math.floor((Date.now() - ts.toMillis()) / 1000);
+  if (sec < 60) return `${sec}秒前`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}分前`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}時間前`;
+  return `${Math.floor(hr / 24)}日前`;
+}
 
 function JudgeBadge({ judgement }) {
   if (!judgement) return null;
@@ -13,7 +25,56 @@ function JudgeBadge({ judgement }) {
   );
 }
 
-function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened, onFocusTarget, onWhisper }) {
+function InlineWhisperForm({ avatarSeed, questionId, questionTitle, addWhisper }) {
+  const [text, setText] = useState('');
+  const [sending, setSending] = useState(false);
+  const [msg, setMsg] = useState(null); // { type: 'error'|'done', text }
+
+  const submit = async () => {
+    if (!text.trim() || sending) return;
+    setSending(true);
+    setMsg(null);
+    try {
+      await addWhisper({ text, avatarSeed, questionId, questionTitle });
+      setText('');
+      setMsg({ type: 'done', text: '投稿しました' });
+      setTimeout(() => setMsg(null), 2000);
+    } catch (e) {
+      setMsg({ type: 'error', text: e.message === 'rate_limit' ? '30秒おきに1回' : '投稿失敗' });
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className="whisper-inline-form">
+      <AvatarIcon seed={avatarSeed} size={24} />
+      <input
+        type="text"
+        className="whisper-inline-input"
+        value={text}
+        onChange={e => setText(e.target.value)}
+        onKeyDown={e => e.key === 'Enter' && !e.nativeEvent.isComposing && submit()}
+        placeholder="つぶやく…"
+        maxLength={200}
+      />
+      {msg && (
+        <span className={msg.type === 'done' ? 'whisper-done' : 'whisper-error'}>
+          {msg.text}
+        </span>
+      )}
+      <button
+        className="whisper-inline-btn"
+        onClick={submit}
+        disabled={sending || !text.trim()}
+      >
+        投稿
+      </button>
+    </div>
+  );
+}
+
+function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened, onFocusTarget, questionWhispers, addWhisper, avatarSeed }) {
   const lastFeedback = historyEntry?.attempts?.at(-1)?.feedback ?? null;
   const [ans, setAns] = useState(lastFeedback?.userAnswer ?? '');
   const [result, setResult] = useState(lastFeedback ?? null);
@@ -92,18 +153,44 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
               <JudgeBadge judgement={result.judgement} />
               <div className="hint">模範解答：<em>{q.answer}</em></div>
               {q.explanation && <div className="explanation">{q.explanation}</div>}
+
+              <div className="whisper-inline-section">
+                <div className="whisper-inline-header">
+                  💬 みんなのつぶやき
+                  {questionWhispers.length > 0 && (
+                    <span className="whisper-inline-count">{questionWhispers.length}</span>
+                  )}
+                </div>
+                <div className="whisper-inline-feed">
+                  {questionWhispers.length === 0 && (
+                    <p className="whisper-inline-empty">まだつぶやきはありません</p>
+                  )}
+                  {questionWhispers.map(w => (
+                    <div key={w.id} className="whisper-inline-item">
+                      <AvatarIcon seed={w.avatarSeed} size={24} />
+                      <div className="whisper-inline-body">
+                        <p className="whisper-inline-text">{w.text}</p>
+                        <span className="whisper-inline-time">{timeAgo(w.createdAt)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <InlineWhisperForm
+                  avatarSeed={avatarSeed}
+                  questionId={q.id}
+                  questionTitle={q.title}
+                  addWhisper={addWhisper}
+                />
+              </div>
             </>
           )}
-          <button className="nq-whisper-btn" onClick={() => onWhisper?.(q.id, q.title)}>
-            💬 つぶやく
-          </button>
         </div>
       )}
     </div>
   );
 }
 
-export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onFocusTarget, onWhisper }) {
+export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onFocusTarget, whispers, addWhisper, avatarSeed }) {
   if (!questions?.length) return null;
   const sorted = [...questions].sort((a, b) => {
     if (a.type === b.type) return 0;
@@ -122,7 +209,9 @@ export default function NormalQuestions({ questions, sections, historyEntries, o
           defaultOpen={expandedNqId === q.id}
           onOpened={onExpandHandled}
           onFocusTarget={onFocusTarget}
-          onWhisper={onWhisper}
+          questionWhispers={(whispers ?? []).filter(w => w.questionId === q.id)}
+          addWhisper={addWhisper}
+          avatarSeed={avatarSeed}
         />
       ))}
     </div>

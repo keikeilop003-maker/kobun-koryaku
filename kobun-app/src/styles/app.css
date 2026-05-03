@@ -1162,151 +1162,102 @@ body {
   flex-shrink: 0;
 }
 
-/* ===== NormalQuestions: whisper button ===== */
-.nq-whisper-btn {
-  align-self: flex-start;
-  background: none;
-  border: 1px solid #c5cae9;
-  border-radius: 14px;
-  padding: 4px 12px;
-  font-size: 0.78rem;
-  color: #5c6bc0;
-  cursor: pointer;
-  font-family: inherit;
-  transition: background 0.15s;
-}
-.nq-whisper-btn:hover { background: #e8eaf0; }
+/* ===== Whisper inline (問題カード内) ===== */
+.whisper-error { font-size: 0.72rem; color: #d93025; }
+.whisper-done  { font-size: 0.72rem; color: #2e7d32; }
 
-/* ===== WhisperPanel ===== */
-.whisper-panel {
+.whisper-inline-section {
+  border-top: 1px solid #e8e4dc;
+  margin-top: 8px;
+  padding-top: 10px;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: hidden;
+  gap: 8px;
 }
 
-.whisper-form {
+.whisper-inline-header {
   display: flex;
-  gap: 10px;
-  padding: 14px 16px;
-  border-bottom: 1px solid #e8e4dc;
-  background: #fafaf7;
-  flex-shrink: 0;
-  align-items: flex-start;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: bold;
+  color: #5c6bc0;
 }
 
-.whisper-form-inner {
-  flex: 1;
+.whisper-inline-count {
+  background: #e8eaf0;
+  color: #3949ab;
+  border-radius: 8px;
+  font-size: 0.68rem;
+  padding: 1px 6px;
+}
+
+.whisper-inline-feed {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.whisper-context-tag {
-  font-size: 0.75rem;
-  background: #e8eaf0;
-  color: #3949ab;
-  border-radius: 10px;
-  padding: 2px 10px;
-  align-self: flex-start;
+.whisper-inline-empty {
+  font-size: 0.78rem;
+  color: #bbb;
 }
 
-.whisper-textarea {
-  width: 100%;
-  font-family: inherit;
-  font-size: 0.88rem;
-  border: 1.5px solid #ccc;
-  border-radius: 6px;
-  padding: 8px 10px;
-  resize: vertical;
-  line-height: 1.6;
-}
-.whisper-textarea:focus {
-  outline: none;
-  border-color: #5c6bc0;
-  box-shadow: 0 0 0 2px rgba(92,107,192,0.15);
-}
-
-.whisper-form-footer {
+.whisper-inline-item {
   display: flex;
-  align-items: center;
   gap: 8px;
-}
-
-.whisper-char-count {
-  font-size: 0.75rem;
-  color: #999;
-}
-.whisper-char-count.warn { color: #e65100; font-weight: bold; }
-
-.whisper-error { font-size: 0.75rem; color: #d93025; }
-.whisper-done  { font-size: 0.75rem; color: #2e7d32; }
-
-.whisper-send-btn {
-  margin-left: auto;
-  background: #3949ab;
-  color: #fff;
-  border: none;
-  border-radius: 14px;
-  padding: 5px 16px;
-  font-size: 0.82rem;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.whisper-send-btn:hover:not(:disabled) { background: #1a237e; }
-.whisper-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.whisper-feed {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.whisper-empty {
-  text-align: center;
-  color: #aaa;
-  font-size: 0.85rem;
-  padding: 24px 0;
-}
-
-.whisper-card {
-  display: flex;
-  gap: 10px;
   align-items: flex-start;
-  background: #fff;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: 10px 12px;
 }
 
-.whisper-card-body {
+.whisper-inline-body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
-.whisper-card-tag {
-  font-size: 0.7rem;
-  background: #e8eaf0;
-  color: #3949ab;
-  border-radius: 8px;
-  padding: 1px 8px;
-  align-self: flex-start;
-}
-
-.whisper-card-text {
-  font-size: 0.88rem;
-  color: #2c2c2c;
-  line-height: 1.6;
+.whisper-inline-text {
+  font-size: 0.85rem;
+  color: #333;
+  line-height: 1.5;
   word-break: break-all;
 }
 
-.whisper-card-time {
-  font-size: 0.7rem;
+.whisper-inline-time {
+  font-size: 0.68rem;
   color: #bbb;
 }
+
+.whisper-inline-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.whisper-inline-input {
+  flex: 1;
+  font-family: inherit;
+  font-size: 0.85rem;
+  border: 1.5px solid #c5cae9;
+  border-radius: 14px;
+  padding: 5px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.whisper-inline-input:focus { border-color: #5c6bc0; }
+
+.whisper-inline-btn {
+  background: #5c6bc0;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 5px 14px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.whisper-inline-btn:hover:not(:disabled) { background: #3949ab; }
+.whisper-inline-btn:disabled { opacity: 0.5; cursor: not-allowed; }
