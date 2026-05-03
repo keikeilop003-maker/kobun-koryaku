@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { reviewTranslation, reviewContent, localScore } from '../services/gemini';
 import AvatarIcon from './AvatarIcon';
 
@@ -25,10 +25,13 @@ function JudgeBadge({ judgement }) {
   );
 }
 
-function InlineWhisperForm({ avatarSeed, questionId, questionTitle, addWhisper }) {
+function WhisperForm({ avatarSeed, questionId, questionTitle, addWhisper, onClose }) {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
-  const [msg, setMsg] = useState(null); // { type: 'error'|'done', text }
+  const [msg, setMsg] = useState(null);
+  const inputRef = useRef(null);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
 
   const submit = async () => {
     if (!text.trim() || sending) return;
@@ -38,7 +41,7 @@ function InlineWhisperForm({ avatarSeed, questionId, questionTitle, addWhisper }
       await addWhisper({ text, avatarSeed, questionId, questionTitle });
       setText('');
       setMsg({ type: 'done', text: '投稿しました' });
-      setTimeout(() => setMsg(null), 2000);
+      setTimeout(() => { setMsg(null); onClose?.(); }, 1500);
     } catch (e) {
       setMsg({ type: 'error', text: e.message === 'rate_limit' ? '30秒おきに1回' : '投稿失敗' });
     } finally {
@@ -47,9 +50,10 @@ function InlineWhisperForm({ avatarSeed, questionId, questionTitle, addWhisper }
   };
 
   return (
-    <div className="whisper-inline-form">
+    <div className="whisper-form-row">
       <AvatarIcon seed={avatarSeed} size={24} />
       <input
+        ref={inputRef}
         type="text"
         className="whisper-inline-input"
         value={text}
@@ -63,13 +67,10 @@ function InlineWhisperForm({ avatarSeed, questionId, questionTitle, addWhisper }
           {msg.text}
         </span>
       )}
-      <button
-        className="whisper-inline-btn"
-        onClick={submit}
-        disabled={sending || !text.trim()}
-      >
+      <button className="whisper-inline-btn" onClick={submit} disabled={sending || !text.trim()}>
         投稿
       </button>
+      <button className="whisper-close-btn" onClick={onClose} title="閉じる">✕</button>
     </div>
   );
 }
@@ -80,13 +81,27 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   const [result, setResult] = useState(lastFeedback ?? null);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(!!defaultOpen);
+  const [whisperFormOpen, setWhisperFormOpen] = useState(false);
+  const [bubblePositions, setBubblePositions] = useState({});
 
   useEffect(() => {
-    if (defaultOpen) {
-      setOpen(true);
-      onOpened?.();
-    }
-  }, [defaultOpen]);  // eslint-disable-line react-hooks/exhaustive-deps
+    if (defaultOpen) { setOpen(true); onOpened?.(); }
+  }, [defaultOpen]); // eslint-disable-line
+
+  // 新しいつぶやきにランダム座標を割り当て
+  useEffect(() => {
+    if (!result) return;
+    const newOnes = questionWhispers.filter(w => !bubblePositions[w.id]);
+    if (newOnes.length === 0) return;
+    const additions = {};
+    newOnes.forEach(w => {
+      additions[w.id] = {
+        top:  `${8  + Math.random() * 62}%`,
+        left: `${4  + Math.random() * 52}%`,
+      };
+    });
+    setBubblePositions(prev => ({ ...prev, ...additions }));
+  }, [questionWhispers, result]); // eslint-disable-line
 
   const section = sections.find(s => s.id === q.sectionId);
 
@@ -132,56 +147,67 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
       </div>
       {open && (
         <div className="nq-body">
-          <p className="nq-question">{q.question}</p>
-          {q.targetText && (
-            <div className="nq-target-text">「{q.targetText}」</div>
-          )}
-          <div className="nq-input-row">
-            <textarea
-              value={ans}
-              onChange={e => setAns(e.target.value)}
-              onFocus={focusTarget}
-              onBlur={() => onFocusTarget?.(null, null)}
-              rows={4}
-            />
-            <button onClick={submit} disabled={loading}>
-              {loading ? '添削中…' : '添削する'}
-            </button>
+          {/* 問題＋入力欄エリア（吹き出しオーバーレイの基準） */}
+          <div className="nq-content-area">
+            <p className="nq-question">{q.question}</p>
+            {q.targetText && (
+              <div className="nq-target-text">「{q.targetText}」</div>
+            )}
+            <div className="nq-input-row">
+              <textarea
+                value={ans}
+                onChange={e => setAns(e.target.value)}
+                onFocus={focusTarget}
+                onBlur={() => onFocusTarget?.(null, null)}
+                rows={4}
+              />
+              <div className="nq-action-col">
+                <button onClick={submit} disabled={loading}>
+                  {loading ? '添削中…' : '添削する'}
+                </button>
+                <button
+                  className={`nq-whisper-icon-btn${whisperFormOpen ? ' active' : ''}`}
+                  onClick={() => setWhisperFormOpen(o => !o)}
+                  title="つぶやく"
+                >
+                  💬
+                </button>
+              </div>
+            </div>
+
+            {/* 吹き出しオーバーレイ */}
+            {result && questionWhispers.map(w => {
+              const pos = bubblePositions[w.id];
+              if (!pos) return null;
+              return (
+                <div key={w.id} className="whisper-bubble" style={pos}>
+                  <div className="whisper-bubble-row">
+                    <AvatarIcon seed={w.avatarSeed} size={16} />
+                    <p className="whisper-bubble-text">{w.text}</p>
+                  </div>
+                  <span className="whisper-bubble-time">{timeAgo(w.createdAt)}</span>
+                </div>
+              );
+            })}
           </div>
+
+          {/* つぶやき入力フォーム */}
+          {whisperFormOpen && (
+            <WhisperForm
+              avatarSeed={avatarSeed}
+              questionId={q.id}
+              questionTitle={q.title}
+              addWhisper={addWhisper}
+              onClose={() => setWhisperFormOpen(false)}
+            />
+          )}
+
+          {/* 添削結果 */}
           {result && (
             <>
               <JudgeBadge judgement={result.judgement} />
               <div className="hint">模範解答：<em>{q.answer}</em></div>
               {q.explanation && <div className="explanation">{q.explanation}</div>}
-
-              <div className="whisper-inline-section">
-                <div className="whisper-inline-header">
-                  💬 みんなのつぶやき
-                  {questionWhispers.length > 0 && (
-                    <span className="whisper-inline-count">{questionWhispers.length}</span>
-                  )}
-                </div>
-                <div className="whisper-inline-feed">
-                  {questionWhispers.length === 0 && (
-                    <p className="whisper-inline-empty">まだつぶやきはありません</p>
-                  )}
-                  {questionWhispers.map(w => (
-                    <div key={w.id} className="whisper-inline-item">
-                      <AvatarIcon seed={w.avatarSeed} size={24} />
-                      <div className="whisper-inline-body">
-                        <p className="whisper-inline-text">{w.text}</p>
-                        <span className="whisper-inline-time">{timeAgo(w.createdAt)}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <InlineWhisperForm
-                  avatarSeed={avatarSeed}
-                  questionId={q.id}
-                  questionTitle={q.title}
-                  addWhisper={addWhisper}
-                />
-              </div>
             </>
           )}
         </div>

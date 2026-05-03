@@ -1162,77 +1162,107 @@ body {
   flex-shrink: 0;
 }
 
-/* ===== Whisper inline (問題カード内) ===== */
+/* ===== Whisper (問題カード内) ===== */
 .whisper-error { font-size: 0.72rem; color: #d93025; }
 .whisper-done  { font-size: 0.72rem; color: #2e7d32; }
 
-.whisper-inline-section {
-  border-top: 1px solid #e8e4dc;
-  margin-top: 8px;
-  padding-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.whisper-inline-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.78rem;
-  font-weight: bold;
-  color: #5c6bc0;
-}
-
-.whisper-inline-count {
-  background: #e8eaf0;
-  color: #3949ab;
-  border-radius: 8px;
-  font-size: 0.68rem;
-  padding: 1px 6px;
-}
-
-.whisper-inline-feed {
+/* action column: 添削する + 💬 を縦積み */
+.nq-action-col {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  align-items: stretch;
 }
 
-.whisper-inline-empty {
-  font-size: 0.78rem;
-  color: #bbb;
+.nq-whisper-icon-btn {
+  background: none;
+  border: 1px solid #c5cae9;
+  border-radius: 6px;
+  padding: 6px 0;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s;
 }
+.nq-whisper-icon-btn:hover  { background: #e8eaf0; }
+.nq-whisper-icon-btn.active { background: #e8eaf0; border-color: #7986cb; }
 
-.whisper-inline-item {
+/* 問題＋入力欄の相対基準コンテナ */
+.nq-content-area {
+  position: relative;
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 吹き出し */
+@keyframes bubble-pop {
+  from { transform: scale(0.7); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.whisper-bubble {
+  position: absolute;
+  background: #fff;
+  border: 1.5px solid #9fa8da;
+  border-radius: 12px;
+  padding: 7px 10px 5px;
+  max-width: 150px;
+  z-index: 10;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.13);
+  pointer-events: none;
+  animation: bubble-pop 0.22s ease-out;
+}
+/* 吹き出しの下向き三角（枠線） */
+.whisper-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -9px;
+  left: 14px;
+  border: 8px solid transparent;
+  border-top-color: #9fa8da;
+  border-bottom: none;
+}
+/* 吹き出しの下向き三角（白塗り） */
+.whisper-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 15px;
+  border: 7px solid transparent;
+  border-top-color: #fff;
+  border-bottom: none;
+  z-index: 1;
+}
+
+.whisper-bubble-row {
+  display: flex;
   align-items: flex-start;
+  gap: 5px;
 }
 
-.whisper-inline-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.whisper-inline-text {
-  font-size: 0.85rem;
-  color: #333;
+.whisper-bubble-text {
+  font-size: 0.73rem;
+  color: #2c2c2c;
   line-height: 1.5;
   word-break: break-all;
 }
 
-.whisper-inline-time {
-  font-size: 0.68rem;
+.whisper-bubble-time {
+  display: block;
+  font-size: 0.62rem;
   color: #bbb;
+  text-align: right;
+  margin-top: 2px;
 }
 
-.whisper-inline-form {
+/* つぶやき投稿フォーム行 */
+.whisper-form-row {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 4px;
+  padding: 6px 0 2px;
+  border-top: 1px solid #e8e4dc;
 }
 
 .whisper-inline-input {
@@ -1252,7 +1282,7 @@ body {
   color: #fff;
   border: none;
   border-radius: 14px;
-  padding: 5px 14px;
+  padding: 5px 12px;
   font-size: 0.78rem;
   font-family: inherit;
   cursor: pointer;
@@ -1261,3 +1291,14 @@ body {
 }
 .whisper-inline-btn:hover:not(:disabled) { background: #3949ab; }
 .whisper-inline-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.whisper-close-btn {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+}
+.whisper-close-btn:hover { color: #555; }
