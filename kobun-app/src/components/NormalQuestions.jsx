@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { reviewTranslation, reviewContent } from '../services/gemini';
+import { reviewTranslation, reviewContent, localScore } from '../services/gemini';
 
 function JudgeBadge({ judgement }) {
   if (!judgement) return null;
@@ -34,7 +34,9 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
     setLoading(true);
     setResult(null);
     let res;
-    if (q.type === 'translation') {
+    if (q.local) {
+      res = localScore(ans, q.answer);
+    } else if (q.type === 'translation') {
       res = await reviewTranslation({ targetText: q.targetText, sentence: section?.text ?? '', userAnswer: ans, correctAnswer: q.answer, explanation: q.explanation });
     } else {
       res = await reviewContent({ question: q.question, userAnswer: ans, correctAnswer: q.answer, explanation: q.explanation });

@@ -888,6 +888,7 @@
     {
       "id": "trans-3",
       "type": "translation",
+      "local": true,
       "title": "現代語訳③",
       "question": "次の部分を現代語訳しなさい。",
       "targetText": "児ありけり",
@@ -898,6 +899,7 @@
     {
       "id": "trans-4",
       "type": "translation",
+      "local": true,
       "title": "現代語訳④",
       "question": "次の部分を現代語訳しなさい。",
       "targetText": "「僧の、…と言ふを」の「の」",
@@ -908,6 +910,7 @@
     {
       "id": "trans-5",
       "type": "translation",
+      "local": true,
       "title": "現代語訳⑤",
       "question": "次の部分を現代語訳しなさい。",
       "targetText": "起こせかし",
@@ -918,6 +921,7 @@
     {
       "id": "trans-6",
       "type": "translation",
+      "local": true,
       "title": "現代語訳⑥",
       "question": "次の部分を現代語訳しなさい。",
       "targetText": "聞けば",
