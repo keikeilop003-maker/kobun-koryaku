@@ -1185,6 +1185,28 @@ body {
   padding: 0 2px;
 }
 
+/* テーマタブバー */
+.analysis-theme-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.analysis-theme-tab {
+  font-size: 0.78rem;
+  font-family: inherit;
+  background: #f5f5ff;
+  border: 1.5px solid #c5cae9;
+  border-radius: 14px;
+  padding: 4px 12px;
+  cursor: pointer;
+  color: #555;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+.analysis-theme-tab:hover  { background: #eef0fb; border-color: #9fa8da; }
+.analysis-theme-tab.active { background: #5c6bc0; border-color: #5c6bc0; color: #fff; }
+
 .analysis-theme {
   display: flex;
   align-items: flex-start;

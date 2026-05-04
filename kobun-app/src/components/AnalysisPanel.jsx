@@ -81,11 +81,7 @@ function PostItem({ post, replies, reactions, avatarSeed, onReply, onToggleReact
             {post.text}
           </p>
           <div className="analysis-post-actions">
-            <button
-              className="analysis-action-btn"
-              onClick={e => { e.stopPropagation(); onReply(post); }}
-              title="返信"
-            >
+            <button className="analysis-action-btn" onClick={e => { e.stopPropagation(); onReply(post); }} title="返信">
               <ReplyIcon />
             </button>
             <button
@@ -111,20 +107,11 @@ function PostItem({ post, replies, reactions, avatarSeed, onReply, onToggleReact
               </button>
             )}
           </div>
-
           {open && (
             <div className="analysis-replies">
               {replies.map(r => (
-                <PostItem
-                  key={r.id}
-                  post={r}
-                  replies={[]}
-                  reactions={reactions}
-                  avatarSeed={avatarSeed}
-                  onReply={onReply}
-                  onToggleReaction={onToggleReaction}
-                  isReply
-                />
+                <PostItem key={r.id} post={r} replies={[]} reactions={reactions} avatarSeed={avatarSeed}
+                  onReply={onReply} onToggleReaction={onToggleReaction} isReply />
               ))}
             </div>
           )}
@@ -135,7 +122,9 @@ function PostItem({ post, replies, reactions, avatarSeed, onReply, onToggleReact
 }
 
 export default function AnalysisPanel({ textId, avatarSeed }) {
-  const { theme, posts, addPost, reactions, toggleReaction } = useAnalysis(textId);
+  const { theme: themeDoc, posts, addPost, reactions, toggleReaction } = useAnalysis(textId);
+  const themes = themeDoc?.themes ?? [];
+  const [selectedId, setSelectedId] = useState(null);
   const [formOpen, setFormOpen] = useState(false);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
@@ -144,6 +133,15 @@ export default function AnalysisPanel({ textId, avatarSeed }) {
   const [replyContext, setReplyContext] = useState(null);
   const textareaRef = useRef(null);
 
+  const selectedTheme = themes.find(t => t.id === selectedId) ?? themes[0];
+
+  const handleSelectTheme = (id) => {
+    setSelectedId(id);
+    setFormOpen(false);
+    setReplyContext(null);
+    setText('');
+  };
+
   const handleReply = (post) => {
     setReplyContext({ id: post.id, text: post.text, avatarSeed: post.avatarSeed });
     setFormOpen(true);
@@ -151,13 +149,14 @@ export default function AnalysisPanel({ textId, avatarSeed }) {
   };
 
   const submit = async () => {
-    if (!text.trim() || sending) return;
+    if (!text.trim() || sending || !selectedTheme) return;
     setSending(true);
     setError(null);
     try {
       await addPost({
         text,
         avatarSeed,
+        themeId: selectedTheme.id,
         replyTo: replyContext?.id ?? null,
         replyToText: replyContext ? replyContext.text.substring(0, 80) : null,
         replyToAvatarSeed: replyContext?.avatarSeed ?? null,
@@ -173,8 +172,9 @@ export default function AnalysisPanel({ textId, avatarSeed }) {
     }
   };
 
-  const topLevel = posts.filter(p => !p.replyTo);
-  const repliesByParent = posts.filter(p => p.replyTo).reduce((acc, r) => {
+  const themePosts = posts.filter(p => p.themeId === selectedTheme?.id);
+  const topLevel = themePosts.filter(p => !p.replyTo);
+  const repliesByParent = themePosts.filter(p => p.replyTo).reduce((acc, r) => {
     acc[r.replyTo] = acc[r.replyTo] ?? [];
     acc[r.replyTo].push(r);
     return acc;
@@ -184,18 +184,25 @@ export default function AnalysisPanel({ textId, avatarSeed }) {
 
   return (
     <div className="analysis-panel">
-      {theme && (
+      {themes.length > 0 && (
+        <div className="analysis-theme-tabs">
+          {themes.map(t => (
+            <button
+              key={t.id}
+              className={`analysis-theme-tab${selectedTheme?.id === t.id ? ' active' : ''}`}
+              onClick={() => handleSelectTheme(t.id)}
+            >{t.title}</button>
+          ))}
+        </div>
+      )}
+
+      {selectedTheme && (
         <div className={`analysis-theme${formOpen ? ' open' : ''}`} onClick={() => setFormOpen(o => !o)}>
           <div className="analysis-theme-body">
-            <p className="analysis-theme-title">{theme.title}</p>
-            {theme.description && (
-              <p className="analysis-theme-desc">{theme.description}</p>
-            )}
-            {theme.attachments?.length > 0 && (
+            <p className="analysis-theme-desc">{selectedTheme.description}</p>
+            {selectedTheme.attachments?.length > 0 && (
               <div className="analysis-theme-attachments" onClick={e => e.stopPropagation()}>
-                {theme.attachments.map((a, i) => (
-                  <AttachmentItem key={i} a={a} />
-                ))}
+                {selectedTheme.attachments.map((a, i) => <AttachmentItem key={i} a={a} />)}
               </div>
             )}
           </div>
@@ -203,7 +210,7 @@ export default function AnalysisPanel({ textId, avatarSeed }) {
         </div>
       )}
 
-      {formOpen && (
+      {formOpen && selectedTheme && (
         <div className="analysis-form">
           <AvatarIcon seed={avatarSeed} size={32} />
           <div className="analysis-form-inner">
@@ -243,7 +250,7 @@ export default function AnalysisPanel({ textId, avatarSeed }) {
 
       <div className="analysis-feed">
         {topLevel.length === 0 && (
-          <p className="analysis-empty">まだ投稿がありません。テーマをクリックして最初の考察をどうぞ。</p>
+          <p className="analysis-empty">まだ投稿がありません。テーマをクリックして考察をどうぞ。</p>
         )}
         {topLevel.map(post => (
           <PostItem

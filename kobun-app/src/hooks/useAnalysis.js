@@ -44,7 +44,7 @@ export default function useAnalysis(textId) {
     });
   }, [textId]);
 
-  const addPost = async ({ text, avatarSeed, replyTo, replyToText, replyToAvatarSeed }) => {
+  const addPost = async ({ text, avatarSeed, themeId, replyTo, replyToText, replyToAvatarSeed }) => {
     if (!text.trim() || !textId) return;
     const lastKey = `${LAST_KEY}:${textId}`;
     const last = Number(localStorage.getItem(lastKey) ?? 0);
@@ -52,6 +52,7 @@ export default function useAnalysis(textId) {
       throw new Error('rate_limit');
     }
     const data = { textId, text: text.trim(), avatarSeed, createdAt: serverTimestamp() };
+    if (themeId) data.themeId = themeId;
     if (replyTo) {
       data.replyTo = replyTo;
       data.replyToText = replyToText ?? '';
