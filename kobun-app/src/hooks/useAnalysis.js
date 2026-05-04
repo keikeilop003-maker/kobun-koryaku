@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { addDoc, collection, limit, onSnapshot, orderBy, query, serverTimestamp, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, limit, onSnapshot, orderBy, query, serverTimestamp, where } from 'firebase/firestore';
 import { db } from '../services/firebase';
 
 const LAST_KEY = 'kobun-analysis-last';
@@ -7,6 +7,7 @@ const RATE_MS = 60_000;
 
 export default function useAnalysis(textId) {
   const [posts, setPosts] = useState([]);
+  const [reactions, setReactions] = useState([]);
 
   useEffect(() => {
     if (!textId) return;
@@ -18,6 +19,17 @@ export default function useAnalysis(textId) {
     );
     return onSnapshot(q, snap => {
       setPosts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+  }, [textId]);
+
+  useEffect(() => {
+    if (!textId) return;
+    const q = query(
+      collection(db, 'analysisReactions'),
+      where('textId', '==', textId),
+    );
+    return onSnapshot(q, snap => {
+      setReactions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
   }, [textId]);
 
@@ -41,5 +53,18 @@ export default function useAnalysis(textId) {
     localStorage.setItem(lastKey, String(Date.now()));
   };
 
-  return { posts, addPost };
+  const toggleReaction = async ({ postId, avatarSeed, type }) => {
+    const existing = reactions.find(r => r.postId === postId && r.avatarSeed === avatarSeed && r.type === type);
+    if (existing) {
+      await deleteDoc(doc(db, 'analysisReactions', existing.id)).catch(e => {
+        console.error('[useAnalysis] deleteDoc reaction failed:', e.code, e.message);
+      });
+    } else {
+      await addDoc(collection(db, 'analysisReactions'), { postId, textId, avatarSeed, type }).catch(e => {
+        console.error('[useAnalysis] addDoc reaction failed:', e.code, e.message);
+      });
+    }
+  };
+
+  return { posts, addPost, reactions, toggleReaction };
 }

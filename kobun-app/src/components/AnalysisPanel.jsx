@@ -15,25 +15,82 @@ function timeAgo(ts) {
   return `${Math.floor(hr / 24)}日前`;
 }
 
-function AnalysisPost({ post, onReply }) {
+const ReplyIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+);
+
+function PostItem({ post, replies, reactions, avatarSeed, onReply, onToggleReaction, isReply }) {
+  const [open, setOpen] = useState(false);
+  const likeCount = reactions.filter(r => r.postId === post.id && r.type === 'like').length;
+  const doubtCount = reactions.filter(r => r.postId === post.id && r.type === 'doubt').length;
+  const myLike = reactions.some(r => r.postId === post.id && r.avatarSeed === avatarSeed && r.type === 'like');
+  const myDoubt = reactions.some(r => r.postId === post.id && r.avatarSeed === avatarSeed && r.type === 'doubt');
+  const hasReplies = replies.length > 0;
+
   return (
-    <div className="analysis-post">
-      {post.replyTo && (
-        <div className="analysis-quote-block">
-          <AvatarIcon seed={post.replyToAvatarSeed} size={14} />
-          <span className="analysis-quote-text">
-            {post.replyToText}{post.replyToText?.length >= 80 ? '…' : ''}
-          </span>
-        </div>
-      )}
+    <div className={`analysis-post${isReply ? ' analysis-post--reply' : ''}`}>
       <div className="analysis-post-main">
-        <AvatarIcon seed={post.avatarSeed} size={28} />
+        <div className="analysis-post-avatar">
+          <AvatarIcon seed={post.avatarSeed} size={isReply ? 22 : 28} />
+          {hasReplies && !isReply && <div className="analysis-thread-line" />}
+        </div>
         <div className="analysis-post-content">
-          <p className="analysis-post-text">{post.text}</p>
-          <div className="analysis-post-footer">
+          <p
+            className={`analysis-post-text${hasReplies && !isReply ? ' clickable' : ''}`}
+            onClick={() => hasReplies && !isReply && setOpen(o => !o)}
+          >
+            {post.text}
+          </p>
+          <div className="analysis-post-actions">
+            <button
+              className="analysis-action-btn"
+              onClick={e => { e.stopPropagation(); onReply(post); }}
+              title="返信"
+            >
+              <ReplyIcon />
+            </button>
+            <button
+              className={`analysis-action-btn${myLike ? ' active-like' : ''}`}
+              onClick={e => { e.stopPropagation(); onToggleReaction({ postId: post.id, avatarSeed, type: 'like' }); }}
+              title="いいね"
+            >
+              {myLike ? '♥' : '♡'}
+              {likeCount > 0 && <span className="analysis-action-count">{likeCount}</span>}
+            </button>
+            <button
+              className={`analysis-action-btn${myDoubt ? ' active-doubt' : ''}`}
+              onClick={e => { e.stopPropagation(); onToggleReaction({ postId: post.id, avatarSeed, type: 'doubt' }); }}
+              title="疑義"
+            >
+              ？
+              {doubtCount > 0 && <span className="analysis-action-count">{doubtCount}</span>}
+            </button>
             <span className="analysis-post-time">{timeAgo(post.createdAt)}</span>
-            <button className="analysis-reply-btn" onClick={onReply}>返信</button>
+            {hasReplies && !isReply && (
+              <button className="analysis-replies-toggle" onClick={() => setOpen(o => !o)}>
+                {open ? '▲' : `返信 ${replies.length}件`}
+              </button>
+            )}
           </div>
+
+          {open && (
+            <div className="analysis-replies">
+              {replies.map(r => (
+                <PostItem
+                  key={r.id}
+                  post={r}
+                  replies={[]}
+                  reactions={reactions}
+                  avatarSeed={avatarSeed}
+                  onReply={onReply}
+                  onToggleReaction={onToggleReaction}
+                  isReply
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -41,7 +98,8 @@ function AnalysisPost({ post, onReply }) {
 }
 
 export default function AnalysisPanel({ textId, avatarSeed, analysisTheme }) {
-  const { posts, addPost } = useAnalysis(textId);
+  const { posts, addPost, reactions, toggleReaction } = useAnalysis(textId);
+  const [formOpen, setFormOpen] = useState(false);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
@@ -51,7 +109,8 @@ export default function AnalysisPanel({ textId, avatarSeed, analysisTheme }) {
 
   const handleReply = (post) => {
     setReplyContext({ id: post.id, text: post.text, avatarSeed: post.avatarSeed });
-    textareaRef.current?.focus();
+    setFormOpen(true);
+    setTimeout(() => textareaRef.current?.focus(), 50);
   };
 
   const submit = async () => {
@@ -77,59 +136,76 @@ export default function AnalysisPanel({ textId, avatarSeed, analysisTheme }) {
     }
   };
 
+  const topLevel = posts.filter(p => !p.replyTo);
+  const repliesByParent = posts.filter(p => p.replyTo).reduce((acc, r) => {
+    acc[r.replyTo] = acc[r.replyTo] ?? [];
+    acc[r.replyTo].push(r);
+    return acc;
+  }, {});
+
   const remaining = MAX_CHARS - text.length;
 
   return (
     <div className="analysis-panel">
       {analysisTheme && (
-        <div className="analysis-theme">
-          <span className="analysis-theme-label">テーマ</span>
+        <div className={`analysis-theme${formOpen ? ' open' : ''}`} onClick={() => setFormOpen(o => !o)}>
           <p className="analysis-theme-text">{analysisTheme}</p>
+          <span className="analysis-theme-toggle">{formOpen ? '▲' : '✎'}</span>
         </div>
       )}
 
-      <div className="analysis-form">
-        <AvatarIcon seed={avatarSeed} size={32} />
-        <div className="analysis-form-inner">
-          {replyContext && (
-            <div className="analysis-reply-context">
-              <AvatarIcon seed={replyContext.avatarSeed} size={14} />
-              <span className="analysis-reply-text">
-                {replyContext.text.substring(0, 60)}{replyContext.text.length > 60 ? '…' : ''}
-              </span>
-              <button className="analysis-reply-dismiss" onClick={() => setReplyContext(null)}>✕</button>
+      {formOpen && (
+        <div className="analysis-form">
+          <AvatarIcon seed={avatarSeed} size={32} />
+          <div className="analysis-form-inner">
+            {replyContext && (
+              <div className="analysis-reply-context">
+                <AvatarIcon seed={replyContext.avatarSeed} size={14} />
+                <span className="analysis-reply-text">
+                  {replyContext.text.substring(0, 60)}{replyContext.text.length > 60 ? '…' : ''}
+                </span>
+                <button className="analysis-reply-dismiss" onClick={() => setReplyContext(null)}>✕</button>
+              </div>
+            )}
+            <textarea
+              ref={textareaRef}
+              className="analysis-textarea"
+              value={text}
+              onChange={e => setText(e.target.value)}
+              placeholder={replyContext ? '返信を入力…' : '意見・考察を投稿…'}
+              rows={3}
+              maxLength={MAX_CHARS}
+            />
+            <div className="analysis-form-footer">
+              <span className={`analysis-char-count${remaining < 50 ? ' warn' : ''}`}>{remaining}</span>
+              {error && <span className="analysis-error">{error}</span>}
+              {done && <span className="analysis-done">投稿しました</span>}
+              <button
+                className="analysis-send-btn"
+                onClick={submit}
+                disabled={sending || !text.trim() || remaining < 0}
+              >
+                {sending ? '投稿中…' : '投稿'}
+              </button>
             </div>
-          )}
-          <textarea
-            ref={textareaRef}
-            className="analysis-textarea"
-            value={text}
-            onChange={e => setText(e.target.value)}
-            placeholder="意見・考察を投稿…"
-            rows={3}
-            maxLength={MAX_CHARS}
-          />
-          <div className="analysis-form-footer">
-            <span className={`analysis-char-count${remaining < 50 ? ' warn' : ''}`}>{remaining}</span>
-            {error && <span className="analysis-error">{error}</span>}
-            {done && <span className="analysis-done">投稿しました</span>}
-            <button
-              className="analysis-send-btn"
-              onClick={submit}
-              disabled={sending || !text.trim() || remaining < 0}
-            >
-              {sending ? '投稿中…' : '投稿'}
-            </button>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="analysis-feed">
-        {posts.length === 0 && (
-          <p className="analysis-empty">まだ投稿がありません。最初の考察をどうぞ。</p>
+        {topLevel.length === 0 && (
+          <p className="analysis-empty">まだ投稿がありません。テーマをクリックして最初の考察をどうぞ。</p>
         )}
-        {posts.map(post => (
-          <AnalysisPost key={post.id} post={post} onReply={() => handleReply(post)} />
+        {topLevel.map(post => (
+          <PostItem
+            key={post.id}
+            post={post}
+            replies={repliesByParent[post.id] ?? []}
+            reactions={reactions}
+            avatarSeed={avatarSeed}
+            onReply={handleReply}
+            onToggleReaction={toggleReaction}
+          />
         ))}
       </div>
     </div>
