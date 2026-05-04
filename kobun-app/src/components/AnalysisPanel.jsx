@@ -68,7 +68,7 @@ function PostItem({ post, replies, reactions, avatarSeed, onReply, onToggleReact
     <div className={`analysis-post${isReply ? ' analysis-post--reply' : ''}`}>
       <div className="analysis-post-main">
         <div className="analysis-post-avatar">
-          <AvatarIcon seed={post.avatarSeed} size={isReply ? 22 : 28} />
+          <AvatarIcon seed={post.avatarSeed} size={isReply ? 22 : 28} equipped={post.equipped ?? null} />
           {hasReplies && !isReply && <div className="analysis-thread-line" />}
         </div>
         <div className="analysis-post-content">
@@ -110,7 +110,7 @@ function PostItem({ post, replies, reactions, avatarSeed, onReply, onToggleReact
   );
 }
 
-function ThemeItem({ theme, posts, reactions, avatarSeed, addPost, toggleReaction }) {
+function ThemeItem({ theme, posts, reactions, avatarSeed, equipped, addPost, toggleReaction }) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
@@ -142,6 +142,7 @@ function ThemeItem({ theme, posts, reactions, avatarSeed, addPost, toggleReactio
         replyTo: replyContext?.id ?? null,
         replyToText: replyContext ? replyContext.text.substring(0, 80) : null,
         replyToAvatarSeed: replyContext?.avatarSeed ?? null,
+        equipped: equipped ?? null,
       });
       setText('');
       setReplyContext(null);
@@ -183,7 +184,7 @@ function ThemeItem({ theme, posts, reactions, avatarSeed, addPost, toggleReactio
           ))}
 
           <div className="analysis-form-inline">
-            <AvatarIcon seed={avatarSeed} size={28} />
+            <AvatarIcon seed={avatarSeed} size={28} equipped={equipped} />
             <div className="analysis-form-inner">
               {replyContext && (
                 <div className="analysis-reply-context">
@@ -220,7 +221,7 @@ function ThemeItem({ theme, posts, reactions, avatarSeed, addPost, toggleReactio
   );
 }
 
-export default function AnalysisPanel({ textId, avatarSeed }) {
+export default function AnalysisPanel({ textId, avatarSeed, equipped }) {
   const { theme: themeDoc, posts, addPost, reactions, toggleReaction } = useAnalysis(textId);
   const themes = themeDoc?.themes ?? [];
 
@@ -233,6 +234,7 @@ export default function AnalysisPanel({ textId, avatarSeed }) {
           posts={posts.filter(p => p.themeId === theme.id)}
           reactions={reactions}
           avatarSeed={avatarSeed}
+          equipped={equipped}
           addPost={addPost}
           toggleReaction={toggleReaction}
         />

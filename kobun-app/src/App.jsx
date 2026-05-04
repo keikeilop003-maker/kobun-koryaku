@@ -5,9 +5,12 @@ import NormalQuestions from './components/NormalQuestions';
 import ScoreBoard from './components/ScoreBoard';
 import LoginScreen from './components/LoginScreen';
 import AvatarIcon from './components/AvatarIcon';
+import AvatarCustomizer from './components/AvatarCustomizer';
 import AnalysisPanel from './components/AnalysisPanel';
 import useHistory from './hooks/useHistory';
+import useProfile from './hooks/useProfile';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { TITLE_COLOR } from './data/items';
 import './styles/app.css';
 
 const LEGEND = [
@@ -19,6 +22,12 @@ const LEGEND = [
   { type: 'aux',      label: '助動',     cls: 'hl-aux' },
   { type: 'particle', label: '助',       cls: 'hl-particle' },
 ];
+
+function pointsForType(type) {
+  if (type === 'translation') return 15;
+  if (type === 'content') return 10;
+  return 5;
+}
 
 function AppInner() {
   const { user, logout } = useAuth();
@@ -33,10 +42,21 @@ function AppInner() {
   const [activeType, setActiveType] = useState('all');
   const [expandedNqId, setExpandedNqId] = useState(null);
   const [pinnedPhrase, setPinnedPhrase] = useState(null);
+  const [customizerOpen, setCustomizerOpen] = useState(false);
 
   const textId = textData?.id ?? selectedTextId ?? '';
   const { entries, record, clearAll } = useHistory(textId, user?.uid);
+  const { profile, awardPoints, unlockItem, equipItem } = useProfile(user?.uid);
   const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
+
+  const equipped = profile?.equipped ?? null;
+
+  const titleId = equipped?.title ?? null;
+  const titleColor = titleId ? TITLE_COLOR[titleId] : null;
+  const nameStyle = titleColor === 'rainbow'
+    ? {}
+    : titleColor ? { color: titleColor } : {};
+  const nameClass = titleColor === 'rainbow' ? 'user-name title-rainbow' : 'user-name';
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/index.json`)
@@ -93,6 +113,17 @@ function AppInner() {
     }
   }, [textData]);
 
+  const handleRecord = useCallback((entry) => {
+    if (entry.judgement === '正解') {
+      const existing = entries[entry.id];
+      const wasCorrect = existing?.attempts?.some(a => a.judgement === '正解');
+      if (!wasCorrect) {
+        awardPoints(pointsForType(entry.type)).catch(console.error);
+      }
+    }
+    record(entry);
+  }, [entries, awardPoints, record]);
+
   if (!textData) {
     return <div className="loading">読み込み中…</div>;
   }
@@ -115,8 +146,17 @@ function AppInner() {
           ))}
         </div>
         <div className="header-right">
-          <AvatarIcon seed={avatarSeed} size={28} />
-          <span className="user-name">{user.displayName}</span>
+          {profile && (
+            <span className="header-points" title="所持ポイント">{profile.points ?? 0}pt</span>
+          )}
+          <button
+            className="avatar-btn"
+            onClick={() => setCustomizerOpen(true)}
+            title="アバターカスタマイズ"
+          >
+            <AvatarIcon seed={avatarSeed} size={28} equipped={equipped} />
+          </button>
+          <span className={nameClass} style={nameStyle}>{user.displayName}</span>
           <button className="logout-btn" onClick={logout}>ログアウト</button>
         </div>
       </header>
@@ -166,7 +206,7 @@ function AppInner() {
               selectedSection={selectedSection}
               onFocusTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
               historyEntries={entries}
-              onRecord={record}
+              onRecord={handleRecord}
             />
           </div>
           <div style={{ display: rightTab === 'normal' ? 'block' : 'none' }}>
@@ -174,7 +214,7 @@ function AppInner() {
               questions={textData.normalQuestions}
               sections={textData.sections}
               historyEntries={entries}
-              onRecord={record}
+              onRecord={handleRecord}
               expandedNqId={expandedNqId}
               onExpandHandled={() => setExpandedNqId(null)}
               onFocusTarget={(sectionId, text) => setPinnedPhrase(sectionId && text ? { sectionId, text } : null)}
@@ -184,6 +224,7 @@ function AppInner() {
             <AnalysisPanel
               textId={textId}
               avatarSeed={avatarSeed}
+              equipped={equipped}
             />
           </div>
           <div style={{ display: rightTab === 'score' ? 'block' : 'none' }}>
@@ -196,6 +237,17 @@ function AppInner() {
           </div>
         </div>
       </div>
+
+      {customizerOpen && (
+        <AvatarCustomizer
+          seed={avatarSeed}
+          profile={profile}
+          displayName={user.displayName}
+          onUnlock={unlockItem}
+          onEquip={equipItem}
+          onClose={() => setCustomizerOpen(false)}
+        />
+      )}
     </div>
   );
 }

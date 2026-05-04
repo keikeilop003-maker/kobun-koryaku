@@ -44,7 +44,7 @@ export default function useAnalysis(textId) {
     });
   }, [textId]);
 
-  const addPost = async ({ text, avatarSeed, themeId, replyTo, replyToText, replyToAvatarSeed }) => {
+  const addPost = async ({ text, avatarSeed, themeId, replyTo, replyToText, replyToAvatarSeed, equipped }) => {
     if (!text.trim() || !textId) return;
     const lastKey = `${LAST_KEY}:${textId}`;
     const last = Number(localStorage.getItem(lastKey) ?? 0);
@@ -57,6 +57,13 @@ export default function useAnalysis(textId) {
       data.replyTo = replyTo;
       data.replyToText = replyToText ?? '';
       data.replyToAvatarSeed = replyToAvatarSeed ?? '';
+    }
+    if (equipped) {
+      data.equipped = {
+        frame: equipped.frame ?? null,
+        badge: equipped.badge ?? null,
+        avatarStyle: equipped.avatarStyle ?? 'pixel-art',
+      };
     }
     await addDoc(collection(db, 'analysisPosts'), data).catch(e => {
       console.error('[useAnalysis] addDoc failed:', e.code, e.message);
