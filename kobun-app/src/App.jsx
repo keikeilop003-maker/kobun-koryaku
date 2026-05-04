@@ -184,7 +184,6 @@ function AppInner() {
             <AnalysisPanel
               textId={textId}
               avatarSeed={avatarSeed}
-              analysisTheme={textData.analysisTheme}
             />
           </div>
           <div style={{ display: rightTab === 'score' ? 'block' : 'none' }}>

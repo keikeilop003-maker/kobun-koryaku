@@ -2,12 +2,21 @@ import { useEffect, useState } from 'react';
 import { addDoc, collection, deleteDoc, doc, limit, onSnapshot, orderBy, query, serverTimestamp, where } from 'firebase/firestore';
 import { db } from '../services/firebase';
 
+
 const LAST_KEY = 'kobun-analysis-last';
 const RATE_MS = 60_000;
 
 export default function useAnalysis(textId) {
+  const [theme, setTheme] = useState(null);
   const [posts, setPosts] = useState([]);
   const [reactions, setReactions] = useState([]);
+
+  useEffect(() => {
+    if (!textId) return;
+    return onSnapshot(doc(db, 'analysisThemes', textId), snap => {
+      setTheme(snap.exists() ? snap.data() : null);
+    });
+  }, [textId]);
 
   useEffect(() => {
     if (!textId) return;
@@ -66,5 +75,5 @@ export default function useAnalysis(textId) {
     }
   };
 
-  return { posts, addPost, reactions, toggleReaction };
+  return { theme, posts, addPost, reactions, toggleReaction };
 }

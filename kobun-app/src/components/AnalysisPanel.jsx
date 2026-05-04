@@ -97,8 +97,8 @@ function PostItem({ post, replies, reactions, avatarSeed, onReply, onToggleReact
   );
 }
 
-export default function AnalysisPanel({ textId, avatarSeed, analysisTheme }) {
-  const { posts, addPost, reactions, toggleReaction } = useAnalysis(textId);
+export default function AnalysisPanel({ textId, avatarSeed }) {
+  const { theme, posts, addPost, reactions, toggleReaction } = useAnalysis(textId);
   const [formOpen, setFormOpen] = useState(false);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
