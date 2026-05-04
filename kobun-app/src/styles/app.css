@@ -1185,53 +1185,39 @@ body {
   padding: 0 2px;
 }
 
-/* テーマタブバー */
-.analysis-theme-tabs {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-.analysis-theme-tab {
-  font-size: 0.78rem;
-  font-family: inherit;
-  background: #f5f5ff;
+/* テーマアコーディオン */
+.analysis-theme-item {
   border: 1.5px solid #c5cae9;
-  border-radius: 14px;
-  padding: 4px 12px;
-  cursor: pointer;
-  color: #555;
-  transition: background 0.12s, border-color 0.12s, color 0.12s;
-  white-space: nowrap;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
 }
-.analysis-theme-tab:hover  { background: #eef0fb; border-color: #9fa8da; }
-.analysis-theme-tab.active { background: #5c6bc0; border-color: #5c6bc0; color: #fff; }
+.analysis-theme-item.open { border-color: #7986cb; }
 
-.analysis-theme {
+.analysis-theme-header {
   display: flex;
   align-items: flex-start;
   gap: 10px;
   background: #eef0fb;
-  border-left: 4px solid #5c6bc0;
-  border-radius: 6px;
   padding: 12px 14px;
-  margin-bottom: 14px;
   cursor: pointer;
   user-select: none;
   transition: background 0.15s;
 }
-.analysis-theme:hover { background: #e3e6f8; }
-.analysis-theme.open  { background: #dde0f5; }
-.analysis-theme-body { flex: 1; }
+.analysis-theme-header:hover { background: #e3e6f8; }
+.analysis-theme-item.open .analysis-theme-header { background: #dde0f5; }
+
+.analysis-theme-header-body { flex: 1; }
 .analysis-theme-title {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: bold;
   color: #3949ab;
-  margin: 0 0 4px;
+  margin: 0 0 5px;
+  line-height: 1.4;
 }
 .analysis-theme-desc {
-  font-size: 0.85rem;
-  color: #444;
+  font-size: 0.82rem;
+  color: #555;
   line-height: 1.6;
   margin: 0 0 6px;
 }
@@ -1253,6 +1239,32 @@ body {
   transition: background 0.12s;
 }
 .analysis-theme-attachment:hover { background: #eef0fb; }
+.analysis-theme-toggle {
+  font-size: 0.8rem;
+  color: #7986cb;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.analysis-thread {
+  padding: 10px 14px;
+  border-top: 1px solid #e0e0f0;
+  background: #fafafe;
+}
+.analysis-empty-thread {
+  font-size: 0.82rem;
+  color: #bbb;
+  text-align: center;
+  padding: 12px 0;
+}
+.analysis-form-inline {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+  margin-top: 8px;
+}
 
 .analysis-attachment-yt {
   display: flex;
