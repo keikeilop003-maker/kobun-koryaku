@@ -1200,13 +1200,37 @@ body {
 }
 .analysis-theme:hover { background: #e3e6f8; }
 .analysis-theme.open  { background: #dde0f5; }
-.analysis-theme-text {
-  flex: 1;
-  font-size: 0.9rem;
-  color: #2c2c2c;
-  line-height: 1.6;
-  margin: 0;
+.analysis-theme-body { flex: 1; }
+.analysis-theme-title {
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #3949ab;
+  margin: 0 0 4px;
 }
+.analysis-theme-desc {
+  font-size: 0.85rem;
+  color: #444;
+  line-height: 1.6;
+  margin: 0 0 6px;
+}
+.analysis-theme-desc:last-child { margin-bottom: 0; }
+.analysis-theme-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+.analysis-theme-attachment {
+  font-size: 0.78rem;
+  color: #5c6bc0;
+  text-decoration: none;
+  background: #fff;
+  border: 1px solid #c5cae9;
+  border-radius: 12px;
+  padding: 2px 10px;
+  transition: background 0.12s;
+}
+.analysis-theme-attachment:hover { background: #eef0fb; }
 .analysis-theme-toggle {
   font-size: 0.85rem;
   color: #7986cb;

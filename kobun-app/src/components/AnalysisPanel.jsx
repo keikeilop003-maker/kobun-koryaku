@@ -149,7 +149,21 @@ export default function AnalysisPanel({ textId, avatarSeed, analysisTheme }) {
     <div className="analysis-panel">
       {analysisTheme && (
         <div className={`analysis-theme${formOpen ? ' open' : ''}`} onClick={() => setFormOpen(o => !o)}>
-          <p className="analysis-theme-text">{analysisTheme}</p>
+          <div className="analysis-theme-body">
+            <p className="analysis-theme-title">{analysisTheme.title}</p>
+            {analysisTheme.description && (
+              <p className="analysis-theme-desc">{analysisTheme.description}</p>
+            )}
+            {analysisTheme.attachments?.length > 0 && (
+              <div className="analysis-theme-attachments" onClick={e => e.stopPropagation()}>
+                {analysisTheme.attachments.map((a, i) => (
+                  <a key={i} href={a.url} target="_blank" rel="noopener noreferrer" className="analysis-theme-attachment">
+                    📎 {a.name}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
           <span className="analysis-theme-toggle">{formOpen ? '▲' : '✎'}</span>
         </div>
       )}
