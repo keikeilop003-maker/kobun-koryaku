@@ -15,6 +15,43 @@ function timeAgo(ts) {
   return `${Math.floor(hr / 24)}日前`;
 }
 
+function attachmentType(url) {
+  if (/youtube\.com|youtu\.be/.test(url)) return 'youtube';
+  if (/\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(url)) return 'image';
+  return 'link';
+}
+
+function youtubeId(url) {
+  const m = url.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
+function AttachmentItem({ a }) {
+  const type = attachmentType(a.url);
+  if (type === 'youtube') {
+    const vid = youtubeId(a.url);
+    return (
+      <a href={a.url} target="_blank" rel="noopener noreferrer" className="analysis-attachment-yt">
+        {vid && <img src={`https://img.youtube.com/vi/${vid}/mqdefault.jpg`} alt={a.name} className="analysis-attachment-yt-thumb" />}
+        <span className="analysis-attachment-yt-label">▶ {a.name}</span>
+      </a>
+    );
+  }
+  if (type === 'image') {
+    return (
+      <a href={a.url} target="_blank" rel="noopener noreferrer" className="analysis-attachment-img">
+        <img src={a.url} alt={a.name} className="analysis-attachment-img-preview" />
+        <span className="analysis-attachment-img-label">{a.name}</span>
+      </a>
+    );
+  }
+  return (
+    <a href={a.url} target="_blank" rel="noopener noreferrer" className="analysis-theme-attachment">
+      📎 {a.name}
+    </a>
+  );
+}
+
 const ReplyIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -157,9 +194,7 @@ export default function AnalysisPanel({ textId, avatarSeed }) {
             {theme.attachments?.length > 0 && (
               <div className="analysis-theme-attachments" onClick={e => e.stopPropagation()}>
                 {theme.attachments.map((a, i) => (
-                  <a key={i} href={a.url} target="_blank" rel="noopener noreferrer" className="analysis-theme-attachment">
-                    📎 {a.name}
-                  </a>
+                  <AttachmentItem key={i} a={a} />
                 ))}
               </div>
             )}
