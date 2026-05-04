@@ -13,9 +13,11 @@ export default function useAnalysis(textId) {
 
   useEffect(() => {
     if (!textId) return;
-    return onSnapshot(doc(db, 'analysisThemes', textId), snap => {
-      setTheme(snap.exists() ? snap.data() : null);
-    });
+    return onSnapshot(
+      doc(db, 'analysisThemes', textId),
+      snap => { setTheme(snap.exists() ? snap.data() : null); },
+      err => { console.error('[useAnalysis] theme error:', err.code); },
+    );
   }, [textId]);
 
   useEffect(() => {
