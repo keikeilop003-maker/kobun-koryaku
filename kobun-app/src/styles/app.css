@@ -1265,7 +1265,7 @@ body {
   background: #fff;
   border-radius: 14px;
   width: min(520px, 96vw);
-  max-height: 88vh;
+  height: min(600px, 88vh);
   display: flex;
   flex-direction: column;
   overflow: hidden;
