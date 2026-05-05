@@ -651,6 +651,67 @@ body {
 .nq-body button:hover:not(:disabled) { background: #4a6fa5; }
 .nq-body button:disabled { opacity: 0.6; cursor: not-allowed; }
 
+/* ===== Choice input ===== */
+.nq-choice-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nq-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nq-choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1.5px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.1s, border-color 0.1s;
+  user-select: none;
+}
+
+.nq-choice:hover:not(.choice-correct):not(.choice-wrong) {
+  background: #f5f3ee;
+  border-color: #aaa;
+}
+
+.nq-choice input[type="radio"] { accent-color: #2d3a5e; }
+
+.nq-choice.choice-correct {
+  background: #e8f5e9;
+  border-color: #2e7d32;
+  color: #1b5e20;
+  font-weight: bold;
+}
+
+.nq-choice.choice-wrong {
+  background: #ffebee;
+  border-color: #c62828;
+  color: #b71c1c;
+}
+
+.nq-choice-submit {
+  align-self: flex-start;
+  background: #2d3a5e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.nq-choice-submit:hover:not(:disabled) { background: #4a6fa5; }
+.nq-choice-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
 /* ===== ScoreBoard ===== */
 .scoreboard {
   padding: 16px;

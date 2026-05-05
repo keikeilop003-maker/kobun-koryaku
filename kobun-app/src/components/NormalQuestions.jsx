@@ -24,12 +24,41 @@ function JudgeBadge({ judgement }) {
   );
 }
 
+function ChoiceInput({ choices, value, onChange, disabled, answered, correctAnswer }) {
+  return (
+    <div className="nq-choices">
+      {choices.map((c, i) => {
+        let cls = 'nq-choice';
+        if (answered) {
+          if (c === correctAnswer) cls += ' choice-correct';
+          else if (c === value) cls += ' choice-wrong';
+        }
+        return (
+          <label key={i} className={cls}>
+            <input
+              type="radio"
+              name={`choice-${i}`}
+              value={c}
+              checked={value === c}
+              onChange={() => !disabled && onChange(c)}
+              disabled={disabled}
+            />
+            <span>{c}</span>
+          </label>
+        );
+      })}
+    </div>
+  );
+}
+
 function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened, onFocusTarget }) {
   const lastFeedback = historyEntry?.attempts?.at(-1)?.feedback ?? null;
   const [ans, setAns] = useState(lastFeedback?.userAnswer ?? '');
   const [result, setResult] = useState(lastFeedback ?? null);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(!!defaultOpen);
+
+  const isChoice = q.inputType === 'choice';
 
   useEffect(() => {
     if (defaultOpen) { setOpen(true); onOpened?.(); }
@@ -47,7 +76,9 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
     setLoading(true);
     setResult(null);
     let res;
-    if (q.local) {
+    if (isChoice) {
+      res = { judgement: ans === q.answer ? '正解' : '不正解', feedback: '' };
+    } else if (q.local) {
       res = localScore(ans, q.answer);
     } else if (q.type === 'translation') {
       res = await reviewTranslation({ targetText: q.targetText, sentence: section?.text ?? '', userAnswer: ans, correctAnswer: q.answer, explanation: q.explanation });
@@ -84,20 +115,40 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
             {q.targetText && (
               <div className="nq-target-text">「{q.targetText}」</div>
             )}
-            <div className="nq-input-row">
-              <textarea
-                value={ans}
-                onChange={e => setAns(e.target.value)}
-                onFocus={focusTarget}
-                onBlur={() => onFocusTarget?.(null, null)}
-                rows={4}
-              />
-              <div className="nq-action-col">
-                <button onClick={submit} disabled={loading}>
-                  {loading ? '添削中…' : '添削する'}
+            {isChoice ? (
+              <div className="nq-choice-area">
+                <ChoiceInput
+                  choices={q.choices}
+                  value={ans}
+                  onChange={setAns}
+                  disabled={!!result}
+                  answered={!!result}
+                  correctAnswer={q.answer}
+                />
+                <button
+                  className="nq-choice-submit"
+                  onClick={submit}
+                  disabled={!ans || !!result}
+                >
+                  答え合わせ
                 </button>
               </div>
-            </div>
+            ) : (
+              <div className="nq-input-row">
+                <textarea
+                  value={ans}
+                  onChange={e => setAns(e.target.value)}
+                  onFocus={focusTarget}
+                  onBlur={() => onFocusTarget?.(null, null)}
+                  rows={4}
+                />
+                <div className="nq-action-col">
+                  <button onClick={submit} disabled={loading}>
+                    {loading ? '添削中…' : '添削する'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {result && (
