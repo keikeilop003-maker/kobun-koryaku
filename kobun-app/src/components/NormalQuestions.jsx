@@ -154,7 +154,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
           {result && (
             <>
               <JudgeBadge judgement={result.judgement} />
-              <div className="hint">模範解答：<em>{q.answer}</em></div>
+              {!isChoice && <div className="hint">模範解答：<em>{q.answer}</em></div>}
               {q.explanation && <div className="explanation">{q.explanation}</div>}
             </>
           )}
