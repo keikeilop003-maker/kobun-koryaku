@@ -85,6 +85,17 @@ function AppInner() {
     setPinnedPhrase(null);
   };
 
+  const handleBackToSelect = () => {
+    setSelectedTextId(null);
+    setTextData(null);
+    setSelectedTarget(null);
+    setSelectedSection(null);
+    setRightTab('knowledge');
+    setActiveType('all');
+    setExpandedNqId(null);
+    setPinnedPhrase(null);
+  };
+
   const selectType = (type) => {
     setActiveType(type);
     setSelectedTarget(null);
@@ -159,21 +170,20 @@ function AppInner() {
 
       <div className="app-body">
         <div className="left-col">
-          {textbooks.length > 0 && (
-            <div className="textbook-nav">
-              <span className="textbook-nav-label">教材：</span>
+          {noSelection ? (
+            <div className="textbook-select-area">
               {textbooks.map(tb => (
                 <button
                   key={tb.id}
-                  className={`textbook-nav-btn${tb.id === selectedTextId ? ' active' : ''}`}
+                  className="textbook-card-btn"
                   onClick={() => handleSelectTextbook(tb.id)}
                 >
-                  {tb.title}
+                  <span className="tc-title">{tb.title}</span>
+                  <span className="tc-source">{tb.source}</span>
                 </button>
               ))}
             </div>
-          )}
-          {textData && (
+          ) : textData ? (
             <VerticalTextViewer
               sections={textData.sections}
               selectedTarget={selectedTarget}
@@ -181,19 +191,16 @@ function AppInner() {
               activeType={rightTab === 'knowledge' ? activeType : null}
               pinnedPhrase={rightTab === 'normal' ? pinnedPhrase : null}
             />
-          )}
+          ) : null}
         </div>
 
         <div className="right-col">
-          {noSelection ? (
-            <div className="select-prompt">
-              <p>左の教材ボタンから教材を選んでください。</p>
-            </div>
-          ) : isLoadingText ? (
+          {noSelection ? null : isLoadingText ? (
             <div className="loading">読み込み中…</div>
           ) : (
             <>
               <div className="tab-bar">
+                <button className="back-to-select-btn" onClick={handleBackToSelect}>◀ 教材選択</button>
                 <button className={rightTab === 'knowledge' ? 'active' : ''} onClick={() => setRightTab('knowledge')}>知識問題</button>
                 <button className={rightTab === 'normal' ? 'active' : ''} onClick={() => setRightTab('normal')}>
                   読解問題 <span className="tab-count">{textData.normalQuestions?.length ?? 0}</span>
