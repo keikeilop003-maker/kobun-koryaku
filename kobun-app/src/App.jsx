@@ -140,8 +140,13 @@ function AppInner() {
       <header className="app-header">
         <div className="header-left">
           <span className="app-title">古典ポータル</span>
-          {textData && <span className="text-source">{textData.source}</span>}
-          {textData && <span className="text-title">「{textData.title}」</span>}
+          {textData && (
+            <>
+              <button className="back-to-select-btn" onClick={handleBackToSelect}>◀ 教材選択</button>
+              <span className="text-source">{textData.source}</span>
+              <span className="text-title">「{textData.title}」</span>
+            </>
+          )}
         </div>
         <div className="legend">
           {LEGEND.map(l => (
@@ -200,7 +205,6 @@ function AppInner() {
           ) : (
             <>
               <div className="tab-bar">
-                <button className="back-to-select-btn" onClick={handleBackToSelect}>◀ 教材選択</button>
                 <button className={rightTab === 'knowledge' ? 'active' : ''} onClick={() => setRightTab('knowledge')}>知識問題</button>
                 <button className={rightTab === 'normal' ? 'active' : ''} onClick={() => setRightTab('normal')}>
                   読解問題 <span className="tab-count">{textData.normalQuestions?.length ?? 0}</span>
