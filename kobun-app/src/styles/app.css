@@ -1098,9 +1098,19 @@ body {
   flex-wrap: wrap;
   gap: 6px;
   padding: 8px 10px;
-  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
   background: #f5f3ee;
   flex-shrink: 0;
+}
+
+/* ===== Select Prompt ===== */
+.select-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #888;
+  font-size: 0.95rem;
 }
 
 .textbook-nav-label {

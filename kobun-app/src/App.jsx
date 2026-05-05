@@ -61,10 +61,7 @@ function AppInner() {
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/index.json`)
       .then(r => r.json())
-      .then(list => {
-        setTextbooks(list);
-        if (list.length > 0) setSelectedTextId(list[0].id);
-      })
+      .then(setTextbooks)
       .catch(console.error);
   }, []);
 
@@ -124,17 +121,16 @@ function AppInner() {
     record(entry);
   }, [entries, awardPoints, record]);
 
-  if (!textData) {
-    return <div className="loading">読み込み中…</div>;
-  }
+  const isLoadingText = selectedTextId !== null && textData === null;
+  const noSelection = selectedTextId === null;
 
   return (
     <div className="app-root">
       <header className="app-header">
         <div className="header-left">
           <span className="app-title">古典ポータル</span>
-          <span className="text-source">{textData.source}</span>
-          <span className="text-title">「{textData.title}」</span>
+          {textData && <span className="text-source">{textData.source}</span>}
+          {textData && <span className="text-title">「{textData.title}」</span>}
         </div>
         <div className="legend">
           {LEGEND.map(l => (
@@ -163,14 +159,7 @@ function AppInner() {
 
       <div className="app-body">
         <div className="left-col">
-          <VerticalTextViewer
-            sections={textData.sections}
-            selectedTarget={selectedTarget}
-            onSelectTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
-            activeType={rightTab === 'knowledge' ? activeType : null}
-            pinnedPhrase={rightTab === 'normal' ? pinnedPhrase : null}
-          />
-          {textbooks.length > 1 && (
+          {textbooks.length > 0 && (
             <div className="textbook-nav">
               <span className="textbook-nav-label">教材：</span>
               {textbooks.map(tb => (
@@ -184,57 +173,76 @@ function AppInner() {
               ))}
             </div>
           )}
+          {textData && (
+            <VerticalTextViewer
+              sections={textData.sections}
+              selectedTarget={selectedTarget}
+              onSelectTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
+              activeType={rightTab === 'knowledge' ? activeType : null}
+              pinnedPhrase={rightTab === 'normal' ? pinnedPhrase : null}
+            />
+          )}
         </div>
 
         <div className="right-col">
-          <div className="tab-bar">
-            <button className={rightTab === 'knowledge' ? 'active' : ''} onClick={() => setRightTab('knowledge')}>知識問題</button>
-            <button className={rightTab === 'normal' ? 'active' : ''} onClick={() => setRightTab('normal')}>
-              読解問題 <span className="tab-count">{textData.normalQuestions?.length ?? 0}</span>
-            </button>
-            <button className={rightTab === 'score' ? 'active' : ''} onClick={() => setRightTab('score')}>
-              学習記録 <span className="tab-count">{entryCount}</span>
-            </button>
-            <button className={rightTab === 'analysis' ? 'active' : ''} onClick={() => setRightTab('analysis')}>分析研究</button>
-          </div>
+          {noSelection ? (
+            <div className="select-prompt">
+              <p>左の教材ボタンから教材を選んでください。</p>
+            </div>
+          ) : isLoadingText ? (
+            <div className="loading">読み込み中…</div>
+          ) : (
+            <>
+              <div className="tab-bar">
+                <button className={rightTab === 'knowledge' ? 'active' : ''} onClick={() => setRightTab('knowledge')}>知識問題</button>
+                <button className={rightTab === 'normal' ? 'active' : ''} onClick={() => setRightTab('normal')}>
+                  読解問題 <span className="tab-count">{textData.normalQuestions?.length ?? 0}</span>
+                </button>
+                <button className={rightTab === 'score' ? 'active' : ''} onClick={() => setRightTab('score')}>
+                  学習記録 <span className="tab-count">{entryCount}</span>
+                </button>
+                <button className={rightTab === 'analysis' ? 'active' : ''} onClick={() => setRightTab('analysis')}>分析研究</button>
+              </div>
 
-          <div style={{ display: rightTab === 'knowledge' ? 'block' : 'none' }}>
-            <AnswerPanel
-              activeType={activeType}
-              sections={textData.sections}
-              selectedTarget={selectedTarget}
-              selectedSection={selectedSection}
-              onFocusTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
-              historyEntries={entries}
-              onRecord={handleRecord}
-            />
-          </div>
-          <div style={{ display: rightTab === 'normal' ? 'block' : 'none' }}>
-            <NormalQuestions
-              questions={textData.normalQuestions}
-              sections={textData.sections}
-              historyEntries={entries}
-              onRecord={handleRecord}
-              expandedNqId={expandedNqId}
-              onExpandHandled={() => setExpandedNqId(null)}
-              onFocusTarget={(sectionId, text) => setPinnedPhrase(sectionId && text ? { sectionId, text } : null)}
-            />
-          </div>
-          <div style={{ display: rightTab === 'analysis' ? 'block' : 'none' }}>
-            <AnalysisPanel
-              textId={textId}
-              avatarSeed={avatarSeed}
-              equipped={equipped}
-            />
-          </div>
-          <div style={{ display: rightTab === 'score' ? 'block' : 'none' }}>
-            <ScoreBoard
-              entries={entries}
-              onJump={handleJump}
-              onClear={clearAll}
-              textData={textData}
-            />
-          </div>
+              <div style={{ display: rightTab === 'knowledge' ? 'block' : 'none' }}>
+                <AnswerPanel
+                  activeType={activeType}
+                  sections={textData.sections}
+                  selectedTarget={selectedTarget}
+                  selectedSection={selectedSection}
+                  onFocusTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
+                  historyEntries={entries}
+                  onRecord={handleRecord}
+                />
+              </div>
+              <div style={{ display: rightTab === 'normal' ? 'block' : 'none' }}>
+                <NormalQuestions
+                  questions={textData.normalQuestions}
+                  sections={textData.sections}
+                  historyEntries={entries}
+                  onRecord={handleRecord}
+                  expandedNqId={expandedNqId}
+                  onExpandHandled={() => setExpandedNqId(null)}
+                  onFocusTarget={(sectionId, text) => setPinnedPhrase(sectionId && text ? { sectionId, text } : null)}
+                />
+              </div>
+              <div style={{ display: rightTab === 'analysis' ? 'block' : 'none' }}>
+                <AnalysisPanel
+                  textId={textId}
+                  avatarSeed={avatarSeed}
+                  equipped={equipped}
+                />
+              </div>
+              <div style={{ display: rightTab === 'score' ? 'block' : 'none' }}>
+                <ScoreBoard
+                  entries={entries}
+                  onJump={handleJump}
+                  onClear={clearAll}
+                  textData={textData}
+                />
+              </div>
+            </>
+          )}
         </div>
       </div>
 
