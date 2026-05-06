@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginScreen() {
-  const { signIn } = useAuth();
+  const { signIn, authError } = useAuth();
   const [error, setError] = useState(null);
+  const shownError = error || (authError ? `Login failed: ${authError.code ?? 'unknown'} ${authError.message ?? ''}` : null);
 
   const handleSignIn = async () => {
     try {
@@ -11,7 +12,8 @@ export default function LoginScreen() {
       await signIn();
     } catch (e) {
       if (e.code !== 'auth/popup-closed-by-user') {
-        setError('ログインに失敗しました。再度お試しください。');
+        console.error('[LoginScreen] signIn failed:', e);
+        setError(`Login failed: ${e.code ?? 'unknown'} ${e.message ?? ''}`);
       }
     }
   };
@@ -25,7 +27,7 @@ export default function LoginScreen() {
           <GoogleIcon />
           Googleでログイン
         </button>
-        {error && <p className="login-error">{error}</p>}
+        {shownError && <p className="login-error">{shownError}</p>}
       </div>
     </div>
   );

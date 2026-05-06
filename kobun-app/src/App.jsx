@@ -7,8 +7,11 @@ import LoginScreen from './components/LoginScreen';
 import AvatarIcon from './components/AvatarIcon';
 import AvatarCustomizer from './components/AvatarCustomizer';
 import AnalysisPanel from './components/AnalysisPanel';
+import AdminQuestionPanel from './components/AdminQuestionPanel';
 import useHistory from './hooks/useHistory';
 import useProfile from './hooks/useProfile';
+import useAdmin from './hooks/useAdmin';
+import useCustomTargets from './hooks/useCustomTargets';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { TITLE_COLOR } from './data/items';
 import './styles/app.css';
@@ -31,6 +34,7 @@ function pointsForType(type) {
 
 function AppInner() {
   const { user, logout } = useAuth();
+  const { isAdmin } = useAdmin(user);
   const avatarSeed = user?.uid ? user.uid.substring(0, 8) : 'anon';
 
   const [textbooks, setTextbooks] = useState([]);
@@ -43,13 +47,36 @@ function AppInner() {
   const [expandedNqId, setExpandedNqId] = useState(null);
   const [pinnedPhrase, setPinnedPhrase] = useState(null);
   const [customizerOpen, setCustomizerOpen] = useState(false);
+  const [adminSelection, setAdminSelection] = useState(null);
 
   const textId = textData?.id ?? selectedTextId ?? '';
+  const customTargets = useCustomTargets(textId);
   const { entries, record, clearAll } = useHistory(textId, user?.uid);
   const { profile, awardPoints, unlockItem, equipItem } = useProfile(user?.uid);
   const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
 
   const equipped = profile?.equipped ?? null;
+
+  const displayTextData = useMemo(() => {
+    if (!textData) return null;
+    const customBySection = customTargets.reduce((acc, item) => {
+      if (!item.sectionId || !item.target) return acc;
+      acc[item.sectionId] = acc[item.sectionId] ?? [];
+      acc[item.sectionId].push(item.target);
+      return acc;
+    }, {});
+
+    return {
+      ...textData,
+      sections: textData.sections.map(section => ({
+        ...section,
+        targets: [
+          ...(section.targets ?? []),
+          ...(customBySection[section.id] ?? []).sort((a, b) => (a.start ?? 99999) - (b.start ?? 99999)),
+        ],
+      })),
+    };
+  }, [textData, customTargets]);
 
   const titleId = equipped?.title ?? null;
   const titleColor = titleId ? TITLE_COLOR[titleId] : null;
@@ -83,6 +110,7 @@ function AppInner() {
     setActiveType('all');
     setExpandedNqId(null);
     setPinnedPhrase(null);
+    setAdminSelection(null);
   };
 
   const handleBackToSelect = () => {
@@ -94,6 +122,7 @@ function AppInner() {
     setActiveType('all');
     setExpandedNqId(null);
     setPinnedPhrase(null);
+    setAdminSelection(null);
   };
 
   const selectType = (type) => {
@@ -104,14 +133,14 @@ function AppInner() {
   };
 
   const handleJump = useCallback((entry) => {
-    if (!textData) return;
+    if (!displayTextData) return;
     if (entry.questionId) {
       setRightTab('normal');
       setExpandedNqId(entry.questionId);
       return;
     }
     if (entry.targetId) {
-      const section = textData.sections.find(s => s.id === entry.sectionId);
+      const section = displayTextData.sections.find(s => s.id === entry.sectionId);
       const target = section?.targets?.find(t => t.id === entry.targetId);
       if (!section || !target) return;
       setActiveType(entry.type);
@@ -119,7 +148,7 @@ function AppInner() {
       setSelectedTarget(target);
       setRightTab('knowledge');
     }
-  }, [textData]);
+  }, [displayTextData]);
 
   const handleRecord = useCallback((entry) => {
     if (entry.judgement === '正解') {
@@ -134,17 +163,18 @@ function AppInner() {
 
   const isLoadingText = selectedTextId !== null && textData === null;
   const noSelection = selectedTextId === null;
+  const currentTextData = displayTextData ?? textData;
 
   return (
     <div className="app-root">
       <header className="app-header">
         <div className="header-left">
           <span className="app-title">古典ポータル</span>
-          {textData && (
+          {currentTextData && (
             <>
               <button className="back-to-select-btn" onClick={handleBackToSelect}>◀ 教材選択</button>
-              <span className="text-source">{textData.source}</span>
-              <span className="text-title">「{textData.title}」</span>
+              <span className="text-source">{currentTextData.source}</span>
+              <span className="text-title">「{currentTextData.title}」</span>
             </>
           )}
         </div>
@@ -188,13 +218,14 @@ function AppInner() {
                 </button>
               ))}
             </div>
-          ) : textData ? (
+          ) : currentTextData ? (
             <VerticalTextViewer
-              sections={textData.sections}
+              sections={currentTextData.sections}
               selectedTarget={selectedTarget}
               onSelectTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
               activeType={rightTab === 'knowledge' ? activeType : null}
               pinnedPhrase={rightTab === 'normal' ? pinnedPhrase : null}
+              onTextSelection={isAdmin ? setAdminSelection : null}
             />
           ) : null}
         </div>
@@ -207,18 +238,19 @@ function AppInner() {
               <div className="tab-bar">
                 <button className={rightTab === 'knowledge' ? 'active' : ''} onClick={() => setRightTab('knowledge')}>知識問題</button>
                 <button className={rightTab === 'normal' ? 'active' : ''} onClick={() => setRightTab('normal')}>
-                  読解問題 <span className="tab-count">{textData.normalQuestions?.length ?? 0}</span>
+                  読解問題 <span className="tab-count">{currentTextData.normalQuestions?.length ?? 0}</span>
                 </button>
                 <button className={rightTab === 'score' ? 'active' : ''} onClick={() => setRightTab('score')}>
                   学習記録 <span className="tab-count">{entryCount}</span>
                 </button>
                 <button className={rightTab === 'analysis' ? 'active' : ''} onClick={() => setRightTab('analysis')}>分析研究</button>
+                {isAdmin && <button className={rightTab === 'admin' ? 'active' : ''} onClick={() => setRightTab('admin')}>Admin</button>}
               </div>
 
               <div style={{ display: rightTab === 'knowledge' ? 'block' : 'none' }}>
                 <AnswerPanel
                   activeType={activeType}
-                  sections={textData.sections}
+                  sections={currentTextData.sections}
                   selectedTarget={selectedTarget}
                   selectedSection={selectedSection}
                   onFocusTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
@@ -228,8 +260,8 @@ function AppInner() {
               </div>
               <div style={{ display: rightTab === 'normal' ? 'block' : 'none' }}>
                 <NormalQuestions
-                  questions={textData.normalQuestions}
-                  sections={textData.sections}
+                  questions={currentTextData.normalQuestions}
+                  sections={currentTextData.sections}
                   historyEntries={entries}
                   onRecord={handleRecord}
                   expandedNqId={expandedNqId}
@@ -249,9 +281,19 @@ function AppInner() {
                   entries={entries}
                   onJump={handleJump}
                   onClear={clearAll}
-                  textData={textData}
+                  textData={currentTextData}
                 />
               </div>
+              {isAdmin && (
+                <div style={{ display: rightTab === 'admin' ? 'block' : 'none' }}>
+                  <AdminQuestionPanel
+                    textId={textId}
+                    sections={currentTextData.sections}
+                    selection={adminSelection}
+                    user={user}
+                  />
+                </div>
+              )}
             </>
           )}
         </div>

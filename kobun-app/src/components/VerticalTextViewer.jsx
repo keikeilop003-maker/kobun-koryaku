@@ -8,8 +8,11 @@ function buildSegments(text, allTargets, activeType, pinnedPhrase) {
 
   const located = targets
     .map(t => {
+      const exactIdx = Number.isInteger(t.start) && text.slice(t.start, t.start + t.surface.length) === t.surface
+        ? t.start
+        : -1;
       const hint = Math.max(0, (t.start ?? 0) - 5);
-      const idx = text.indexOf(t.surface, hint);
+      const idx = exactIdx !== -1 ? exactIdx : text.indexOf(t.surface, hint);
       return { t, idx: idx !== -1 ? idx : text.indexOf(t.surface), pinned: false };
     })
     .filter(({ idx }) => idx !== -1);
@@ -39,8 +42,9 @@ function buildSegments(text, allTargets, activeType, pinnedPhrase) {
   return segments;
 }
 
-function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase }) {
+function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, onTextSelection }) {
   const scrollRef = useRef(null);
+  const textRef = useRef(null);
   const phrase = pinnedPhrase?.sectionId === section.id ? pinnedPhrase.text : null;
   const segments = buildSegments(section.text, section.targets ?? [], activeType, phrase);
 
@@ -53,11 +57,35 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
     selectedTarget?.id === t.id ||
     (selectedTarget?.groupId && selectedTarget.groupId === t.groupId);
 
+  const handleMouseUp = () => {
+    if (!onTextSelection || !textRef.current) return;
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed) return;
+    const selectedText = selection.toString().trim();
+    if (!selectedText) return;
+
+    const range = selection.getRangeAt(0);
+    if (!textRef.current.contains(range.commonAncestorContainer)) return;
+
+    const beforeRange = range.cloneRange();
+    beforeRange.selectNodeContents(textRef.current);
+    beforeRange.setEnd(range.startContainer, range.startOffset);
+    const start = beforeRange.toString().length;
+
+    onTextSelection({
+      sectionId: section.id,
+      sectionTitle: section.title,
+      text: selectedText,
+      start,
+      end: start + selectedText.length,
+    });
+  };
+
   return (
     <div className="section-card">
       <div className="section-title">{section.title}</div>
       <div className="vertical-text-scroll" ref={scrollRef}>
-        <div className="vertical-text">
+        <div className="vertical-text" ref={textRef} onMouseUp={handleMouseUp}>
           {segments.map((seg, i) =>
             seg.type === 'plain' ? (
               <span key={i}>{seg.text}</span>
@@ -79,7 +107,7 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
   );
 }
 
-export default function VerticalTextViewer({ sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase }) {
+export default function VerticalTextViewer({ sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, onTextSelection }) {
   return (
     <div className="vertical-viewer">
       {sections.map(section => (
@@ -90,6 +118,7 @@ export default function VerticalTextViewer({ sections, selectedTarget, onSelectT
           onSelectTarget={onSelectTarget}
           activeType={activeType}
           pinnedPhrase={pinnedPhrase}
+          onTextSelection={onTextSelection}
         />
       ))}
     </div>
