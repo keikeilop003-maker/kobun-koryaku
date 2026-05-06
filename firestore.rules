@@ -58,5 +58,23 @@ service cloud.firestore {
         && request.resource.data.anchor is map;
       allow update, delete: if isAdmin();
     }
+    match /hiddenTargets/{targetId} {
+      allow read: if request.auth != null;
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly([
+          'textId',
+          'sectionId',
+          'targetId',
+          'hiddenBy',
+          'hiddenByEmail',
+          'createdAt'
+        ])
+        && request.resource.data.hiddenBy == request.auth.uid
+        && request.resource.data.hiddenByEmail == request.auth.token.email
+        && request.resource.data.textId is string
+        && request.resource.data.sectionId is string
+        && request.resource.data.targetId is string;
+      allow update, delete: if isAdmin();
+    }
   }
 }

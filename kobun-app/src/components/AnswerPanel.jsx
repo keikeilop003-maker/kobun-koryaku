@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef, useMemo, useCallback, forwardRef, useImperativeHandle } from 'react';
+﻿import { useState, useEffect, useRef, useMemo, useCallback, forwardRef, useImperativeHandle } from 'react';
 import FeedbackCard from './FeedbackCard';
+import AdminTargetForm from './AdminTargetForm';
 import { reviewVocab, reviewAux, reviewVerb, reviewAdj, reviewParticle, reviewGrammar } from '../services/gemini';
 
 const TYPE_LABEL = {
@@ -12,6 +13,13 @@ const TYPE_LABEL = {
 };
 
 const SCORE_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar']);
+const ADMIN_ADD_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar']);
+
+function targetOrder(section, target) {
+  if (Number.isInteger(target.start)) return target.start;
+  const idx = section.text.indexOf(target.surface);
+  return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+}
 
 function inputCls(judgement, value) {
   if (!value?.trim() || !judgement) return '';
@@ -354,7 +362,7 @@ const GrammarForm = forwardRef(function GrammarForm({ target, section, onResult,
 });
 
 // ── QuestionCard ─────────────────────────────────────────────
-const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelected, initialFeedback, onHistoryUpdate, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelected, initialFeedback, onHistoryUpdate, onAdvance, initialInputs, onInputChange, onFocusTarget, isAdmin, onDeleteTarget }, ref) {
   const [feedback, setFeedback] = useState(initialFeedback ?? null);
   const cardRef = useRef(null);
   const formRef = useRef(null);
@@ -383,6 +391,15 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
       <div className="panel-header">
         <span className={`type-badge type-${target.type}`}>{TYPE_LABEL[target.type] ?? '問題'}</span>
         <QuestionHeader target={target} />
+        {isAdmin && (
+          <button
+            type="button"
+            className="admin-delete-target-btn"
+            onClick={() => onDeleteTarget?.(target, section)}
+          >
+            削除
+          </button>
+        )}
       </div>
       {target.type === 'vocab'    && <VocabForm    ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'aux'      && <AuxForm      ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
@@ -396,7 +413,22 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
 });
 
 // ── AnswerPanel ──────────────────────────────────────────────
-export default function AnswerPanel({ activeType, sections, selectedTarget, selectedSection, onFocusTarget, historyEntries, onRecord }) {
+export default function AnswerPanel({
+  activeType,
+  sections,
+  selectedTarget,
+  selectedSection,
+  onFocusTarget,
+  historyEntries,
+  onRecord,
+  isAdmin,
+  adminSelection,
+  addingType,
+  onStartAdd,
+  onCancelAdd,
+  onCreateTarget,
+  onDeleteTarget,
+}) {
   const cardRefs = useRef([]);
   const inputsMap = useRef({});
 
@@ -440,8 +472,30 @@ export default function AnswerPanel({ activeType, sections, selectedTarget, sele
       if (seenGroups.has(target.groupId)) return false;
       seenGroups.add(target.groupId);
       return true;
+    }).sort((a, b) => {
+      const sectionDiff = sections.findIndex(section => section.id === a.section.id) - sections.findIndex(section => section.id === b.section.id);
+      if (sectionDiff !== 0) return sectionDiff;
+      return targetOrder(a.section, a.target) - targetOrder(b.section, b.target);
     });
   }, [activeType, sections]);
+
+  const adminTools = isAdmin && ADMIN_ADD_TYPES.has(activeType) ? (
+    <>
+      <div className="admin-list-tools">
+        <button type="button" onClick={() => onStartAdd?.(activeType)}>問題追加</button>
+        {addingType === activeType && <span>左カラムで最初の文字、最後の文字の順にクリックしてください。</span>}
+      </div>
+      {addingType === activeType && (
+        <AdminTargetForm
+          type={activeType}
+          selection={adminSelection}
+          sections={sections}
+          onCancel={onCancelAdd}
+          onSave={onCreateTarget}
+        />
+      )}
+    </>
+  ) : null;
 
   if (activeType === 'all') {
     if (!selectedTarget) {
@@ -466,6 +520,8 @@ export default function AnswerPanel({ activeType, sections, selectedTarget, sele
           initialInputs={inputsMap.current[selectedTarget.id]}
           onInputChange={vals => { inputsMap.current[selectedTarget.id] = vals; }}
           onFocusTarget={() => onFocusTarget?.(selectedTarget, selectedSection)}
+          isAdmin={isAdmin}
+          onDeleteTarget={onDeleteTarget}
         />
       </div>
     );
@@ -473,9 +529,12 @@ export default function AnswerPanel({ activeType, sections, selectedTarget, sele
 
   if (questions.length === 0) {
     return (
-      <div className="answer-panel empty">
-        <div className="empty-message">
-          <p>この品詞の問題はありません</p>
+      <div className="answer-panel-list">
+        {adminTools}
+        <div className="answer-panel empty">
+          <div className="empty-message">
+            <p>この品詞の問題はありません</p>
+          </div>
         </div>
       </div>
     );
@@ -483,6 +542,7 @@ export default function AnswerPanel({ activeType, sections, selectedTarget, sele
 
   return (
     <div className="answer-panel-list">
+      {adminTools}
       {questions.map(({ target, section }, i) => (
         <QuestionCard
           key={target.id}
@@ -500,6 +560,8 @@ export default function AnswerPanel({ activeType, sections, selectedTarget, sele
           initialInputs={inputsMap.current[target.id]}
           onInputChange={vals => { inputsMap.current[target.id] = vals; }}
           onFocusTarget={() => onFocusTarget?.(target, section)}
+          isAdmin={isAdmin}
+          onDeleteTarget={onDeleteTarget}
         />
       ))}
     </div>

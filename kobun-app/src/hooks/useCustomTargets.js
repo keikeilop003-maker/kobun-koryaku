@@ -15,7 +15,14 @@ export default function useCustomTargets(textId) {
     return onSnapshot(
       q,
       (snap) => {
-        setItems(snap.docs.map((doc) => ({ docId: doc.id, ...doc.data() })));
+        setItems(snap.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            docId: doc.id,
+            ...data,
+            target: data.target ? { ...data.target, customDocId: doc.id, custom: true } : null,
+          };
+        }));
       },
       (err) => {
         console.error('[useCustomTargets] read failed:', err.code);

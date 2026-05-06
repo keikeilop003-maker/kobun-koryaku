@@ -7,12 +7,14 @@ import LoginScreen from './components/LoginScreen';
 import AvatarIcon from './components/AvatarIcon';
 import AvatarCustomizer from './components/AvatarCustomizer';
 import AnalysisPanel from './components/AnalysisPanel';
-import AdminQuestionPanel from './components/AdminQuestionPanel';
 import useHistory from './hooks/useHistory';
 import useProfile from './hooks/useProfile';
 import useAdmin from './hooks/useAdmin';
 import useCustomTargets from './hooks/useCustomTargets';
+import useHiddenTargets from './hooks/useHiddenTargets';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { addDoc, collection, deleteDoc, doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { db } from './services/firebase';
 import { TITLE_COLOR } from './data/items';
 import './styles/app.css';
 
@@ -32,6 +34,12 @@ function pointsForType(type) {
   return 5;
 }
 
+function targetOrder(section, target) {
+  if (Number.isInteger(target.start)) return target.start;
+  const idx = section.text.indexOf(target.surface);
+  return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+}
+
 function AppInner() {
   const { user, logout } = useAuth();
   const { isAdmin } = useAdmin(user);
@@ -48,9 +56,11 @@ function AppInner() {
   const [pinnedPhrase, setPinnedPhrase] = useState(null);
   const [customizerOpen, setCustomizerOpen] = useState(false);
   const [adminSelection, setAdminSelection] = useState(null);
+  const [addingType, setAddingType] = useState(null);
 
   const textId = textData?.id ?? selectedTextId ?? '';
   const customTargets = useCustomTargets(textId);
+  const hiddenTargetKeys = useHiddenTargets(textId);
   const { entries, record, clearAll } = useHistory(textId, user?.uid);
   const { profile, awardPoints, unlockItem, equipItem } = useProfile(user?.uid);
   const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
@@ -68,15 +78,17 @@ function AppInner() {
 
     return {
       ...textData,
-      sections: textData.sections.map(section => ({
-        ...section,
-        targets: [
-          ...(section.targets ?? []),
-          ...(customBySection[section.id] ?? []).sort((a, b) => (a.start ?? 99999) - (b.start ?? 99999)),
-        ],
-      })),
+      sections: textData.sections.map(section => {
+        const baseTargets = (section.targets ?? [])
+          .filter(target => !hiddenTargetKeys.has(`${section.id}:${target.id}`));
+        const targets = [
+          ...baseTargets,
+          ...(customBySection[section.id] ?? []),
+        ].sort((a, b) => targetOrder(section, a) - targetOrder(section, b));
+        return { ...section, targets };
+      }),
     };
-  }, [textData, customTargets]);
+  }, [textData, customTargets, hiddenTargetKeys]);
 
   const titleId = equipped?.title ?? null;
   const titleColor = titleId ? TITLE_COLOR[titleId] : null;
@@ -111,6 +123,7 @@ function AppInner() {
     setExpandedNqId(null);
     setPinnedPhrase(null);
     setAdminSelection(null);
+    setAddingType(null);
   };
 
   const handleBackToSelect = () => {
@@ -123,6 +136,7 @@ function AppInner() {
     setExpandedNqId(null);
     setPinnedPhrase(null);
     setAdminSelection(null);
+    setAddingType(null);
   };
 
   const selectType = (type) => {
@@ -130,6 +144,8 @@ function AppInner() {
     setSelectedTarget(null);
     setSelectedSection(null);
     setRightTab('knowledge');
+    setAddingType(null);
+    setAdminSelection(null);
   };
 
   const handleJump = useCallback((entry) => {
@@ -160,6 +176,53 @@ function AppInner() {
     }
     record(entry);
   }, [entries, awardPoints, record]);
+
+  const handleStartAdd = useCallback((type) => {
+    setAddingType(type);
+    setAdminSelection(null);
+    setSelectedTarget(null);
+    setSelectedSection(null);
+    setRightTab('knowledge');
+  }, []);
+
+  const handleCancelAdd = useCallback(() => {
+    setAddingType(null);
+    setAdminSelection(null);
+  }, []);
+
+  const handleCreateTarget = useCallback(async ({ sectionId, target, anchor }) => {
+    if (!isAdmin || !user || !textId) return;
+    await addDoc(collection(db, 'customTargets'), {
+      textId,
+      sectionId,
+      target,
+      anchor,
+      createdBy: user.uid,
+      createdByEmail: user.email,
+      createdAt: serverTimestamp(),
+    });
+    setAddingType(null);
+    setAdminSelection(null);
+  }, [isAdmin, textId, user]);
+
+  const handleDeleteTarget = useCallback(async (target, section) => {
+    if (!isAdmin || !user || !textId || !target || !section) return;
+    if (!window.confirm(`「${target.surface}」を削除しますか。`)) return;
+
+    if (target.customDocId) {
+      await deleteDoc(doc(db, 'customTargets', target.customDocId));
+      return;
+    }
+
+    await setDoc(doc(db, 'hiddenTargets', `${textId}__${section.id}__${target.id}`), {
+      textId,
+      sectionId: section.id,
+      targetId: target.id,
+      hiddenBy: user.uid,
+      hiddenByEmail: user.email,
+      createdAt: serverTimestamp(),
+    });
+  }, [isAdmin, textId, user]);
 
   const isLoadingText = selectedTextId !== null && textData === null;
   const noSelection = selectedTextId === null;
@@ -225,7 +288,9 @@ function AppInner() {
               onSelectTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
               activeType={rightTab === 'knowledge' ? activeType : null}
               pinnedPhrase={rightTab === 'normal' ? pinnedPhrase : null}
-              onTextSelection={isAdmin ? setAdminSelection : null}
+              selectionMode={isAdmin && Boolean(addingType)}
+              selectionRange={adminSelection}
+              onRangeSelect={setAdminSelection}
             />
           ) : null}
         </div>
@@ -244,7 +309,6 @@ function AppInner() {
                   学習記録 <span className="tab-count">{entryCount}</span>
                 </button>
                 <button className={rightTab === 'analysis' ? 'active' : ''} onClick={() => setRightTab('analysis')}>分析研究</button>
-                {isAdmin && <button className={rightTab === 'admin' ? 'active' : ''} onClick={() => setRightTab('admin')}>Admin</button>}
               </div>
 
               <div style={{ display: rightTab === 'knowledge' ? 'block' : 'none' }}>
@@ -256,6 +320,13 @@ function AppInner() {
                   onFocusTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
                   historyEntries={entries}
                   onRecord={handleRecord}
+                  isAdmin={isAdmin}
+                  adminSelection={adminSelection}
+                  addingType={addingType}
+                  onStartAdd={handleStartAdd}
+                  onCancelAdd={handleCancelAdd}
+                  onCreateTarget={handleCreateTarget}
+                  onDeleteTarget={handleDeleteTarget}
                 />
               </div>
               <div style={{ display: rightTab === 'normal' ? 'block' : 'none' }}>
@@ -284,16 +355,6 @@ function AppInner() {
                   textData={currentTextData}
                 />
               </div>
-              {isAdmin && (
-                <div style={{ display: rightTab === 'admin' ? 'block' : 'none' }}>
-                  <AdminQuestionPanel
-                    textId={textId}
-                    sections={currentTextData.sections}
-                    selection={adminSelection}
-                    user={user}
-                  />
-                </div>
-              )}
             </>
           )}
         </div>

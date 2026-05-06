@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import HighlightedToken from './HighlightedToken';
 
 function buildSegments(text, allTargets, activeType, pinnedPhrase) {
@@ -42,9 +42,10 @@ function buildSegments(text, allTargets, activeType, pinnedPhrase) {
   return segments;
 }
 
-function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, onTextSelection }) {
+function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
+  const [firstPoint, setFirstPoint] = useState(null);
   const phrase = pinnedPhrase?.sectionId === section.id ? pinnedPhrase.text : null;
   const segments = buildSegments(section.text, section.targets ?? [], activeType, phrase);
 
@@ -57,35 +58,58 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
     selectedTarget?.id === t.id ||
     (selectedTarget?.groupId && selectedTarget.groupId === t.groupId);
 
-  const handleMouseUp = () => {
-    if (!onTextSelection || !textRef.current) return;
-    const selection = window.getSelection();
-    if (!selection || selection.isCollapsed) return;
-    const selectedText = selection.toString().trim();
-    if (!selectedText) return;
+  const handleCharClick = (index) => {
+    if (!selectionMode) return;
+    if (!firstPoint || firstPoint.sectionId !== section.id) {
+      setFirstPoint({ sectionId: section.id, index });
+      return;
+    }
 
-    const range = selection.getRangeAt(0);
-    if (!textRef.current.contains(range.commonAncestorContainer)) return;
-
-    const beforeRange = range.cloneRange();
-    beforeRange.selectNodeContents(textRef.current);
-    beforeRange.setEnd(range.startContainer, range.startOffset);
-    const start = beforeRange.toString().length;
-
-    onTextSelection({
+    const start = Math.min(firstPoint.index, index);
+    const end = Math.max(firstPoint.index, index) + 1;
+    onRangeSelect?.({
       sectionId: section.id,
       sectionTitle: section.title,
-      text: selectedText,
+      text: section.text.slice(start, end),
       start,
-      end: start + selectedText.length,
+      end,
     });
+    setFirstPoint(null);
+  };
+
+  const selectedStart = selectionRange?.sectionId === section.id ? selectionRange.start : null;
+  const selectedEnd = selectionRange?.sectionId === section.id ? selectionRange.end : null;
+
+  if (selectionMode) {
+    return (
+      <div className="section-card section-card--selection">
+        <div className="section-title">{section.title}</div>
+        <div className="vertical-text-scroll" ref={scrollRef}>
+          <div className="vertical-text vertical-text--selecting" ref={textRef}>
+            {Array.from(section.text).map((char, index) => {
+              const isFirst = firstPoint?.sectionId === section.id && firstPoint.index === index;
+              const isSelected = selectedStart !== null && index >= selectedStart && index < selectedEnd;
+              return (
+                <span
+                  key={`${section.id}-${index}`}
+                  className={`range-char${isFirst ? ' range-char--first' : ''}${isSelected ? ' range-char--selected' : ''}`}
+                  onClick={() => handleCharClick(index)}
+                >
+                  {char}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
     <div className="section-card">
       <div className="section-title">{section.title}</div>
       <div className="vertical-text-scroll" ref={scrollRef}>
-        <div className="vertical-text" ref={textRef} onMouseUp={handleMouseUp}>
+        <div className="vertical-text" ref={textRef}>
           {segments.map((seg, i) =>
             seg.type === 'plain' ? (
               <span key={i}>{seg.text}</span>
@@ -107,7 +131,7 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
   );
 }
 
-export default function VerticalTextViewer({ sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, onTextSelection }) {
+export default function VerticalTextViewer({ sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect }) {
   return (
     <div className="vertical-viewer">
       {sections.map(section => (
@@ -118,7 +142,9 @@ export default function VerticalTextViewer({ sections, selectedTarget, onSelectT
           onSelectTarget={onSelectTarget}
           activeType={activeType}
           pinnedPhrase={pinnedPhrase}
-          onTextSelection={onTextSelection}
+          selectionMode={selectionMode}
+          selectionRange={selectionRange}
+          onRangeSelect={onRangeSelect}
         />
       ))}
     </div>
