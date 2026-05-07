@@ -12,8 +12,9 @@ import useProfile from './hooks/useProfile';
 import useAdmin from './hooks/useAdmin';
 import useCustomTargets from './hooks/useCustomTargets';
 import useHiddenTargets from './hooks/useHiddenTargets';
+import useEditedTargets from './hooks/useEditedTargets';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { addDoc, collection, deleteDoc, doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from './services/firebase';
 import { TITLE_COLOR } from './data/items';
 import './styles/app.css';
@@ -61,9 +62,14 @@ function AppInner() {
   const textId = textData?.id ?? selectedTextId ?? '';
   const customTargets = useCustomTargets(textId);
   const hiddenTargetKeys = useHiddenTargets(textId);
+  const editedTargetMap = useEditedTargets(textId);
   const { entries, record, clearAll } = useHistory(textId, user?.uid);
   const { profile, awardPoints, unlockItem, equipItem } = useProfile(user?.uid);
   const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
+  const visibleTextbooks = useMemo(
+    () => textbooks.filter(tb => isAdmin || tb.status !== 'draft'),
+    [textbooks, isAdmin],
+  );
 
   const equipped = profile?.equipped ?? null;
 
@@ -80,7 +86,11 @@ function AppInner() {
       ...textData,
       sections: textData.sections.map(section => {
         const baseTargets = (section.targets ?? [])
-          .filter(target => !hiddenTargetKeys.has(`${section.id}:${target.id}`));
+          .filter(target => !hiddenTargetKeys.has(`${section.id}:${target.id}`))
+          .map(target => {
+            const edit = editedTargetMap.get(`${section.id}:${target.id}`);
+            return edit?.target ? { ...target, ...edit.target, edited: true } : target;
+          });
         const targets = [
           ...baseTargets,
           ...(customBySection[section.id] ?? []),
@@ -88,7 +98,7 @@ function AppInner() {
         return { ...section, targets };
       }),
     };
-  }, [textData, customTargets, hiddenTargetKeys]);
+  }, [textData, customTargets, hiddenTargetKeys, editedTargetMap]);
 
   const titleId = equipped?.title ?? null;
   const titleColor = titleId ? TITLE_COLOR[titleId] : null;
@@ -115,6 +125,8 @@ function AppInner() {
 
   const handleSelectTextbook = (id) => {
     if (id === selectedTextId) return;
+    const textbook = textbooks.find(tb => tb.id === id);
+    if (textbook?.status === 'draft' && !isAdmin) return;
     setSelectedTextId(id);
     setSelectedTarget(null);
     setSelectedSection(null);
@@ -229,6 +241,44 @@ function AppInner() {
     }
   }, [isAdmin, textId, user]);
 
+  const handleUpdateTarget = useCallback(async (currentTarget, currentSection, { sectionId, target, anchor }) => {
+    if (!isAdmin || !user || !textId || !currentTarget || !currentSection) return;
+    try {
+      if (currentTarget.customDocId) {
+        await updateDoc(doc(db, 'customTargets', currentTarget.customDocId), {
+          sectionId,
+          target: { ...target, customDocId: currentTarget.customDocId, custom: true },
+          anchor,
+          updatedBy: user.uid,
+          updatedByEmail: user.email,
+          updatedAt: serverTimestamp(),
+        });
+        window.alert('更新しました');
+        return;
+      }
+
+      await setDoc(doc(db, 'editedTargets', `${textId}__${currentSection.id}__${currentTarget.id}`), {
+        textId,
+        sectionId: currentSection.id,
+        targetId: currentTarget.id,
+        target: {
+          ...target,
+          id: currentTarget.id,
+          type: currentTarget.type,
+          custom: false,
+        },
+        anchor,
+        updatedBy: user.uid,
+        updatedByEmail: user.email,
+        updatedAt: serverTimestamp(),
+      });
+      window.alert('更新しました');
+    } catch (err) {
+      console.error('[update target] failed:', err);
+      window.alert(`更新に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
+    }
+  }, [isAdmin, textId, user]);
+
   const isLoadingText = selectedTextId !== null && textData === null;
   const noSelection = selectedTextId === null;
   const currentTextData = displayTextData ?? textData;
@@ -275,12 +325,15 @@ function AppInner() {
         <div className="left-col">
           {noSelection ? (
             <div className="textbook-select-area">
-              {textbooks.map(tb => (
+              {visibleTextbooks.map(tb => (
                 <button
                   key={tb.id}
-                  className="textbook-card-btn"
+                  className={`textbook-card-btn textbook-card-btn--${tb.status === 'draft' ? 'draft' : 'published'}`}
                   onClick={() => handleSelectTextbook(tb.id)}
                 >
+                  <span className={`tc-status tc-status--${tb.status === 'draft' ? 'draft' : 'published'}`}>
+                    {tb.status === 'draft' ? '作成中' : '公開中'}
+                  </span>
                   <span className="tc-title">{tb.title}</span>
                   <span className="tc-source">{tb.source}</span>
                 </button>
@@ -332,6 +385,7 @@ function AppInner() {
                   onCancelAdd={handleCancelAdd}
                   onCreateTarget={handleCreateTarget}
                   onDeleteTarget={handleDeleteTarget}
+                  onUpdateTarget={handleUpdateTarget}
                 />
               </div>
               <div style={{ display: rightTab === 'normal' ? 'block' : 'none' }}>

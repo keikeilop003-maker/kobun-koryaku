@@ -362,8 +362,9 @@ const GrammarForm = forwardRef(function GrammarForm({ target, section, onResult,
 });
 
 // ── QuestionCard ─────────────────────────────────────────────
-const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelected, initialFeedback, onHistoryUpdate, onAdvance, initialInputs, onInputChange, onFocusTarget, isAdmin, onDeleteTarget }, ref) {
+const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelected, initialFeedback, onHistoryUpdate, onAdvance, initialInputs, onInputChange, onFocusTarget, isAdmin, onDeleteTarget, onUpdateTarget, sections }, ref) {
   const [feedback, setFeedback] = useState(initialFeedback ?? null);
+  const [editing, setEditing] = useState(false);
   const cardRef = useRef(null);
   const formRef = useRef(null);
 
@@ -392,19 +393,46 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
         <span className={`type-badge type-${target.type}`}>{TYPE_LABEL[target.type] ?? '問題'}</span>
         <QuestionHeader target={target} />
         {isAdmin && (
-          <button
-            type="button"
-            className="admin-delete-target-btn"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              onDeleteTarget?.(target, section);
-            }}
-          >
-            削除
-          </button>
+          <div className="admin-card-actions">
+            <button
+              type="button"
+              className="admin-edit-target-btn"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                setEditing((value) => !value);
+              }}
+            >
+              編集
+            </button>
+            <button
+              type="button"
+              className="admin-delete-target-btn"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onDeleteTarget?.(target, section);
+              }}
+            >
+              削除
+            </button>
+          </div>
         )}
       </div>
+      {editing && (
+        <AdminTargetForm
+          type={target.type}
+          sections={sections}
+          mode="edit"
+          initialTarget={target}
+          initialSectionId={section.id}
+          onCancel={() => setEditing(false)}
+          onSave={async (payload) => {
+            await onUpdateTarget?.(target, section, payload);
+            setEditing(false);
+          }}
+        />
+      )}
       {target.type === 'vocab'    && <VocabForm    ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'aux'      && <AuxForm      ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'verb'     && <VerbForm     ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
@@ -432,6 +460,7 @@ export default function AnswerPanel({
   onCancelAdd,
   onCreateTarget,
   onDeleteTarget,
+  onUpdateTarget,
 }) {
   const cardRefs = useRef([]);
   const inputsMap = useRef({});
@@ -526,6 +555,8 @@ export default function AnswerPanel({
           onFocusTarget={() => onFocusTarget?.(selectedTarget, selectedSection)}
           isAdmin={isAdmin}
           onDeleteTarget={onDeleteTarget}
+          onUpdateTarget={onUpdateTarget}
+          sections={sections}
         />
       </div>
     );
@@ -566,6 +597,8 @@ export default function AnswerPanel({
           onFocusTarget={() => onFocusTarget?.(target, section)}
           isAdmin={isAdmin}
           onDeleteTarget={onDeleteTarget}
+          onUpdateTarget={onUpdateTarget}
+          sections={sections}
         />
       ))}
     </div>

@@ -1,4 +1,4 @@
 [
-  { "id": "konosorane", "title": "児のそら寝", "source": "宇治拾遺物語" },
-  { "id": "tanba", "title": "丹波に出雲といふ所あり", "source": "徒然草" }
+  { "id": "konosorane", "title": "児のそら寝", "source": "宇治拾遺物語", "status": "published" },
+  { "id": "tanba", "title": "丹波に出雲といふ所あり", "source": "徒然草", "status": "draft" }
 ]

@@ -599,8 +599,14 @@ body {
   border: 1px solid #d5cfbf;
 }
 
-.admin-delete-target-btn {
+.admin-card-actions {
   margin-left: auto;
+  display: flex;
+  gap: 6px;
+}
+
+.admin-edit-target-btn,
+.admin-delete-target-btn {
   background: #fff5f5;
   color: #b71c1c;
   border: 1px solid #efb7b7;
@@ -609,6 +615,12 @@ body {
   font-family: inherit;
   font-size: 0.76rem;
   cursor: pointer;
+}
+
+.admin-edit-target-btn {
+  background: #f2f6ff;
+  color: #174c8f;
+  border-color: #b8cdef;
 }
 
 .section-card--selection {
@@ -1369,12 +1381,39 @@ body {
   font-family: inherit;
   text-align: left;
   transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  position: relative;
 }
 
 .textbook-card-btn:hover {
   background: #f0ede5;
   border-color: #2d3a5e;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.textbook-card-btn--draft {
+  border-style: dashed;
+  background: #fffaf0;
+}
+
+.tc-status {
+  align-self: flex-end;
+  font-size: 0.7rem;
+  font-weight: bold;
+  border-radius: 12px;
+  padding: 2px 9px;
+  margin-bottom: 2px;
+}
+
+.tc-status--published {
+  color: #1b5e20;
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+}
+
+.tc-status--draft {
+  color: #8a5a00;
+  background: #fff3cd;
+  border: 1px solid #f2cf78;
 }
 
 .tc-title {

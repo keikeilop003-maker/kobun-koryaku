@@ -9,17 +9,17 @@ const TYPE_LABELS = {
   particle: '助詞',
 };
 
-function defaultForm(type, selection) {
+function defaultForm(type, selection, initialTarget = null, initialSectionId = '') {
   return {
     type,
-    sectionId: selection?.sectionId ?? '',
-    surface: selection?.text ?? '',
-    answer: '',
-    meaning: '',
-    baseForm: '',
-    conjugationType: '',
-    formInText: '',
-    explanation: '',
+    sectionId: selection?.sectionId ?? initialSectionId ?? '',
+    surface: selection?.text ?? initialTarget?.surface ?? '',
+    answer: initialTarget?.answer ?? '',
+    meaning: initialTarget?.meaning ?? '',
+    baseForm: initialTarget?.baseForm ?? '',
+    conjugationType: initialTarget?.conjugationType ?? '',
+    formInText: initialTarget?.formInText ?? '',
+    explanation: initialTarget?.explanation ?? '',
   };
 }
 
@@ -27,12 +27,20 @@ function answerLabel(type) {
   if (type === 'aux') return '用法';
   if (type === 'particle') return '訳し方';
   if (type === 'vocab') return '意味';
-  if (type === 'grammar') return '解答';
   return '解答';
 }
 
-export default function AdminTargetForm({ type, selection, sections, onCancel, onSave }) {
-  const [form, setForm] = useState(() => defaultForm(type, selection));
+export default function AdminTargetForm({
+  type,
+  selection,
+  sections,
+  onCancel,
+  onSave,
+  mode = 'add',
+  initialTarget = null,
+  initialSectionId = '',
+}) {
+  const [form, setForm] = useState(() => defaultForm(type, selection, initialTarget, initialSectionId));
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -72,14 +80,16 @@ export default function AdminTargetForm({ type, selection, sections, onCancel, o
         ? selection.start
         : section?.text?.indexOf(surface) ?? -1;
       const target = {
-        id: `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        ...(initialTarget ?? {}),
+        id: initialTarget?.id ?? `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         type,
         surface,
         meaning: form.meaning.trim(),
         explanation: form.explanation.trim(),
         start: start >= 0 ? start : undefined,
-        custom: true,
       };
+
+      if (mode === 'add') target.custom = true;
 
       if (isConjugationType) {
         target.baseForm = form.baseForm.trim();
@@ -99,8 +109,8 @@ export default function AdminTargetForm({ type, selection, sections, onCancel, o
           end: start >= 0 ? start + surface.length : null,
         },
       });
-      setForm(defaultForm(type, null));
-      setMessage('追加しました');
+      if (mode === 'add') setForm(defaultForm(type, null));
+      setMessage(mode === 'edit' ? '更新しました' : '追加しました');
     } catch (err) {
       console.error('[AdminTargetForm] save failed:', err);
       setMessage('保存に失敗しました');
@@ -112,8 +122,8 @@ export default function AdminTargetForm({ type, selection, sections, onCancel, o
   return (
     <div className="admin-inline-form">
       <div className="admin-inline-title">
-        <strong>{TYPE_LABELS[type] ?? type}の問題追加</strong>
-        <span>左カラムで範囲を選ぶと、対象語に反映されます。</span>
+        <strong>{TYPE_LABELS[type] ?? type}{mode === 'edit' ? 'の問題編集' : 'の問題追加'}</strong>
+        <span>{mode === 'edit' ? '内容を修正して保存できます。' : '左カラムで範囲を選ぶと、対象語に反映されます。'}</span>
       </div>
 
       <div className="admin-form-grid">
@@ -166,7 +176,9 @@ export default function AdminTargetForm({ type, selection, sections, onCancel, o
       <div className="admin-inline-actions">
         {message && <span className="admin-message">{message}</span>}
         <button type="button" className="admin-secondary-btn" onClick={onCancel}>キャンセル</button>
-        <button type="button" onClick={save} disabled={!canSave || saving}>{saving ? '保存中...' : '追加'}</button>
+        <button type="button" onClick={save} disabled={!canSave || saving}>
+          {saving ? '保存中...' : (mode === 'edit' ? '更新' : '追加')}
+        </button>
       </div>
     </div>
   );

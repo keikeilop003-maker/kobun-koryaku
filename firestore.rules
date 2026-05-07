@@ -76,5 +76,27 @@ service cloud.firestore {
         && request.resource.data.targetId is string;
       allow update, delete: if isAdmin();
     }
+    match /editedTargets/{targetId} {
+      allow read: if request.auth != null;
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly([
+          'textId',
+          'sectionId',
+          'targetId',
+          'target',
+          'anchor',
+          'updatedBy',
+          'updatedByEmail',
+          'updatedAt'
+        ])
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.updatedByEmail == request.auth.token.email
+        && request.resource.data.textId is string
+        && request.resource.data.sectionId is string
+        && request.resource.data.targetId is string
+        && request.resource.data.target is map
+        && request.resource.data.anchor is map;
+      allow delete: if isAdmin();
+    }
   }
 }
