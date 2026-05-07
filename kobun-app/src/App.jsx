@@ -207,21 +207,26 @@ function AppInner() {
 
   const handleDeleteTarget = useCallback(async (target, section) => {
     if (!isAdmin || !user || !textId || !target || !section) return;
-    if (!window.confirm(`「${target.surface}」を削除しますか。`)) return;
+    try {
+      if (target.customDocId) {
+        await deleteDoc(doc(db, 'customTargets', target.customDocId));
+        window.alert('削除しました');
+        return;
+      }
 
-    if (target.customDocId) {
-      await deleteDoc(doc(db, 'customTargets', target.customDocId));
-      return;
+      await setDoc(doc(db, 'hiddenTargets', `${textId}__${section.id}__${target.id}`), {
+        textId,
+        sectionId: section.id,
+        targetId: target.id,
+        hiddenBy: user.uid,
+        hiddenByEmail: user.email,
+        createdAt: serverTimestamp(),
+      });
+      window.alert('削除しました');
+    } catch (err) {
+      console.error('[delete target] failed:', err);
+      window.alert(`削除に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
     }
-
-    await setDoc(doc(db, 'hiddenTargets', `${textId}__${section.id}__${target.id}`), {
-      textId,
-      sectionId: section.id,
-      targetId: target.id,
-      hiddenBy: user.uid,
-      hiddenByEmail: user.email,
-      createdAt: serverTimestamp(),
-    });
   }, [isAdmin, textId, user]);
 
   const isLoadingText = selectedTextId !== null && textData === null;

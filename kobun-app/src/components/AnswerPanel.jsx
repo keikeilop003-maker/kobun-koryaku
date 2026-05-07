@@ -395,7 +395,11 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
           <button
             type="button"
             className="admin-delete-target-btn"
-            onClick={() => onDeleteTarget?.(target, section)}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              onDeleteTarget?.(target, section);
+            }}
           >
             削除
           </button>
