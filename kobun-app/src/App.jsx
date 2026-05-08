@@ -96,7 +96,10 @@ function AppInner() {
     const customBySection = customTargets.reduce((acc, item) => {
       if (!item.sectionId || !item.target) return acc;
       acc[item.sectionId] = acc[item.sectionId] ?? [];
-      acc[item.sectionId].push(item.target);
+      const orderStart = Number.isInteger(item.target.start)
+        ? item.target.start
+        : Number.isInteger(item.anchor?.start) ? item.anchor.start : undefined;
+      acc[item.sectionId].push({ ...item.target, start: orderStart });
       return acc;
     }, {});
 
@@ -107,7 +110,12 @@ function AppInner() {
           .filter(target => !hiddenTargetKeys.has(`${section.id}:${target.id}`))
           .map(target => {
             const edit = editedTargetMap.get(`${section.id}:${target.id}`);
-            return edit?.target ? { ...target, ...edit.target, edited: true } : target;
+            if (!edit?.target) return target;
+            const editedTarget = { ...target, ...edit.target, edited: true };
+            if (!Number.isInteger(editedTarget.start) && Number.isInteger(edit.anchor?.start)) {
+              editedTarget.start = edit.anchor.start;
+            }
+            return editedTarget;
           });
         const targets = [
           ...baseTargets,
