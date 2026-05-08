@@ -59,6 +59,7 @@ function AppInner() {
   const [adminSelection, setAdminSelection] = useState(null);
   const [addingType, setAddingType] = useState(null);
   const [textbookOrder, setTextbookOrder] = useState([]);
+  const [textbookStatuses, setTextbookStatuses] = useState({});
 
   const textId = textData?.id ?? selectedTextId ?? '';
   const customTargets = useCustomTargets(textId);
@@ -67,15 +68,19 @@ function AppInner() {
   const { entries, record, clearAll } = useHistory(textId, user?.uid);
   const { profile, awardPoints, unlockItem, equipItem } = useProfile(user?.uid);
   const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
+  const statusTextbooks = useMemo(
+    () => textbooks.map(tb => ({ ...tb, status: textbookStatuses[tb.id] ?? tb.status ?? 'draft' })),
+    [textbooks, textbookStatuses],
+  );
   const orderedTextbooks = useMemo(() => {
     const orderIndex = new Map(textbookOrder.map((id, index) => [id, index]));
-    return [...textbooks].sort((a, b) => {
+    return [...statusTextbooks].sort((a, b) => {
       const aIndex = orderIndex.has(a.id) ? orderIndex.get(a.id) : Number.MAX_SAFE_INTEGER;
       const bIndex = orderIndex.has(b.id) ? orderIndex.get(b.id) : Number.MAX_SAFE_INTEGER;
       if (aIndex !== bIndex) return aIndex - bIndex;
-      return textbooks.indexOf(a) - textbooks.indexOf(b);
+      return statusTextbooks.findIndex(tb => tb.id === a.id) - statusTextbooks.findIndex(tb => tb.id === b.id);
     });
-  }, [textbooks, textbookOrder]);
+  }, [statusTextbooks, textbookOrder]);
   const visibleTextbooks = useMemo(
     () => orderedTextbooks.filter(tb => isAdmin || tb.status !== 'draft'),
     [orderedTextbooks, isAdmin],
@@ -136,6 +141,17 @@ function AppInner() {
   }, []);
 
   useEffect(() => {
+    return onSnapshot(
+      doc(db, 'appSettings', 'textbookStatus'),
+      snap => {
+        const statuses = snap.data()?.statuses;
+        setTextbookStatuses(statuses && typeof statuses === 'object' ? statuses : {});
+      },
+      err => { console.error('[textbook status] load failed:', err.code); },
+    );
+  }, []);
+
+  useEffect(() => {
     if (!selectedTextId) return;
     setTextData(null);
     fetch(`${import.meta.env.BASE_URL}data/${selectedTextId}.json`)
@@ -146,7 +162,7 @@ function AppInner() {
 
   const handleSelectTextbook = (id) => {
     if (id === selectedTextId) return;
-    const textbook = textbooks.find(tb => tb.id === id);
+    const textbook = statusTextbooks.find(tb => tb.id === id);
     if (textbook?.status === 'draft' && !isAdmin) return;
     setSelectedTextId(id);
     setSelectedTarget(null);
@@ -178,6 +194,25 @@ function AppInner() {
     } catch (err) {
       console.error('[textbook order] save failed:', err);
       window.alert(`並び替えの保存に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
+    }
+  };
+
+  const handleToggleTextbookStatus = async (id) => {
+    if (!isAdmin || !user) return;
+    const currentStatus = textbookStatuses[id] ?? textbooks.find(tb => tb.id === id)?.status ?? 'draft';
+    const nextStatus = currentStatus === 'draft' ? 'published' : 'draft';
+    const nextStatuses = { ...textbookStatuses, [id]: nextStatus };
+    setTextbookStatuses(nextStatuses);
+    try {
+      await setDoc(doc(db, 'appSettings', 'textbookStatus'), {
+        statuses: nextStatuses,
+        updatedBy: user.uid,
+        updatedByEmail: user.email,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (err) {
+      console.error('[textbook status] save failed:', err);
+      window.alert(`公開状態の保存に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
     }
   };
 
@@ -383,17 +418,25 @@ function AppInner() {
                   }}
                 >
                   {isAdmin && (
-                    <div className="textbook-order-tools" onClick={e => e.stopPropagation()}>
+                    <div className="textbook-admin-tools" onClick={e => e.stopPropagation()}>
+                      <div className="textbook-order-tools">
+                        <button
+                          title="上へ"
+                          onClick={() => handleMoveTextbook(tb.id, -1)}
+                          disabled={orderedTextbooks[0]?.id === tb.id}
+                        >↑</button>
+                        <button
+                          title="下へ"
+                          onClick={() => handleMoveTextbook(tb.id, 1)}
+                          disabled={orderedTextbooks.at(-1)?.id === tb.id}
+                        >↓</button>
+                      </div>
                       <button
-                        title="上へ"
-                        onClick={() => handleMoveTextbook(tb.id, -1)}
-                        disabled={orderedTextbooks[0]?.id === tb.id}
-                      >↑</button>
-                      <button
-                        title="下へ"
-                        onClick={() => handleMoveTextbook(tb.id, 1)}
-                        disabled={orderedTextbooks.at(-1)?.id === tb.id}
-                      >↓</button>
+                        className="textbook-status-toggle"
+                        onClick={() => handleToggleTextbookStatus(tb.id)}
+                      >
+                        {tb.status === 'draft' ? '公開にする' : '作成中にする'}
+                      </button>
                     </div>
                   )}
                   <span className={`tc-status tc-status--${tb.status === 'draft' ? 'draft' : 'published'}`}>

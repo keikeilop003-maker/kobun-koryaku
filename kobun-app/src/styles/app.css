@@ -1395,15 +1395,22 @@ body {
   background: #fffaf0;
 }
 
-.textbook-order-tools {
+.textbook-admin-tools {
   position: absolute;
   top: 10px;
   left: 10px;
   display: flex;
+  align-items: center;
   gap: 4px;
 }
 
-.textbook-order-tools button {
+.textbook-order-tools {
+  display: flex;
+  gap: 4px;
+}
+
+.textbook-order-tools button,
+.textbook-status-toggle {
   width: 26px;
   height: 26px;
   display: inline-flex;
@@ -1419,7 +1426,16 @@ body {
   line-height: 1;
 }
 
-.textbook-order-tools button:hover:not(:disabled) {
+.textbook-status-toggle {
+  width: auto;
+  padding: 0 8px;
+  font-size: 0.72rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.textbook-order-tools button:hover:not(:disabled),
+.textbook-status-toggle:hover {
   background: #e8eaf0;
   border-color: #2d3a5e;
 }

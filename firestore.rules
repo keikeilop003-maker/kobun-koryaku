@@ -41,14 +41,29 @@ service cloud.firestore {
     match /appSettings/{settingId} {
       allow read: if request.auth != null;
       allow write: if isAdmin()
-        && settingId == 'textbookOrder'
-        && request.resource.data.keys().hasOnly([
-          'order',
-          'updatedBy',
-          'updatedByEmail',
-          'updatedAt'
-        ])
-        && request.resource.data.order is list
+        && (
+          (
+            settingId == 'textbookOrder'
+            && request.resource.data.keys().hasOnly([
+              'order',
+              'updatedBy',
+              'updatedByEmail',
+              'updatedAt'
+            ])
+            && request.resource.data.order is list
+          )
+          ||
+          (
+            settingId == 'textbookStatus'
+            && request.resource.data.keys().hasOnly([
+              'statuses',
+              'updatedBy',
+              'updatedByEmail',
+              'updatedAt'
+            ])
+            && request.resource.data.statuses is map
+          )
+        )
         && request.resource.data.updatedBy == request.auth.uid
         && request.resource.data.updatedByEmail == request.auth.token.email;
     }
