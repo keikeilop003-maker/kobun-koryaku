@@ -55,7 +55,9 @@ function ReferenceBlock({ label, text }) {
   return (
     <div className="admin-modern-translation">
       <div className="admin-modern-label">{label}</div>
-      <p>{text}</p>
+      <div className="reference-text-scroll">
+        <p className="reference-vertical-text">{text}</p>
+      </div>
     </div>
   );
 }
