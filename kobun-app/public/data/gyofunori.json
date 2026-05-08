@@ -1,0 +1,259 @@
+{
+  "id": "gyofunori",
+  "title": "漁夫之利",
+  "source": "戦国策",
+  "sections": [
+    {
+      "id": "s1",
+      "title": "第一段",
+      "text": "蚌方出曝。而鷸啄其肉。蚌合而箝其喙。\n鷸曰、「今日不雨、明日不雨、即有死蚌。」\n蚌亦謂鷸曰、「今日不出、明日不出、即有死鷸。」\n両者不肯相舎。漁者得而并擒之。",
+      "modern": "ドブガイがちょうど（水中から）出てひなたぼっこをしていた。するとシギがその肉をついばんだ。ドブガイは（貝殻を）合わせてそのくちばしをはさんだ。シギが言うことには、「今日雨が降らなくて、明日も雨が降らなかったら、死んだドブガイがいる（お前は死んでしまう）だろう。」と。ドブガイもまたシギに言うことには、「今日放さないでいて、明日も放さなかったら、死んだシギがいる（お前は死んでしまう）だろう。」と。両者ともお互いに捨て放つことを承知しなかった。（そこにやってきた）漁師が手に入れてこれらをあわせて捕まえてしまった。",
+      "notes": "戦国時代、趙が燕を攻撃しようとしていたとき、蘇代が趙の恵王に攻撃を思いとどまるように進言するために用いた寓話。",
+      "targets": [
+        {
+          "id": "vocab-s1-1",
+          "type": "vocab",
+          "surface": "蚌",
+          "reading": "ばう",
+          "start": 0,
+          "end": 1,
+          "pos": "名詞",
+          "meaning": "ドブガイ。二枚貝。",
+          "detail": "この寓話では燕をたとえる。",
+          "answer": "ドブガイ"
+        },
+        {
+          "id": "vocab-s1-2",
+          "type": "vocab",
+          "surface": "鷸",
+          "reading": "いつ",
+          "start": 6,
+          "end": 7,
+          "pos": "名詞",
+          "meaning": "シギ。",
+          "detail": "この寓話では趙をたとえる。",
+          "answer": "シギ"
+        },
+        {
+          "id": "vocab-s1-3",
+          "type": "vocab",
+          "surface": "方",
+          "reading": "まさに",
+          "start": 1,
+          "end": 2,
+          "pos": "副詞",
+          "meaning": "ちょうど。まさに。",
+          "detail": "「蚌方出曝」＝ドブガイがちょうど出て日に当たっていた。",
+          "answer": "ちょうど・まさに"
+        },
+        {
+          "id": "vocab-s1-4",
+          "type": "vocab",
+          "surface": "曝",
+          "reading": "さらす",
+          "start": 3,
+          "end": 4,
+          "pos": "動詞",
+          "meaning": "日に当てる。さらす。",
+          "detail": "ここでは、貝が水中から出てひなたぼっこをしている様子。",
+          "answer": "日に当てる・さらす"
+        },
+        {
+          "id": "grammar-s1-1",
+          "type": "grammar",
+          "surface": "而",
+          "reading": "しかして",
+          "start": 5,
+          "end": 6,
+          "answer": "置き字。順接で「そして・すると」と読む。",
+          "explanation": "「而」は接続を表す字。ここでは「すると」と訳す。"
+        },
+        {
+          "id": "vocab-s1-5",
+          "type": "vocab",
+          "surface": "其",
+          "reading": "その",
+          "start": 8,
+          "end": 9,
+          "pos": "代名詞",
+          "meaning": "その。それ。",
+          "detail": "直前のものを指す語。ここでは蚌の肉を指す。",
+          "answer": "その・それ"
+        },
+        {
+          "id": "vocab-s1-6",
+          "type": "vocab",
+          "surface": "曰",
+          "reading": "いはく",
+          "start": 20,
+          "end": 21,
+          "pos": "動詞",
+          "meaning": "言うことには。",
+          "detail": "引用を導く漢文の定型表現。",
+          "answer": "言うことには"
+        },
+        {
+          "id": "grammar-s1-2",
+          "type": "grammar",
+          "surface": "不",
+          "reading": "ず",
+          "start": 25,
+          "end": 26,
+          "answer": "打消。返読して「…ず」と読む。",
+          "explanation": "「不雨」は「雨ふらず」と訓読する。"
+        },
+        {
+          "id": "grammar-s1-3",
+          "type": "grammar",
+          "surface": "即",
+          "reading": "すなはち",
+          "start": 33,
+          "end": 34,
+          "answer": "…ならば。すなわち。",
+          "explanation": "ここでは条件を受けて結果がすぐ続くことを示し、「…ならば」と訳す。"
+        },
+        {
+          "id": "vocab-s1-7",
+          "type": "vocab",
+          "surface": "亦",
+          "reading": "また",
+          "start": 41,
+          "end": 42,
+          "pos": "副詞",
+          "meaning": "…もまた。",
+          "detail": "蚌も鷸と同じように言い返すことを示す。",
+          "answer": "…もまた"
+        },
+        {
+          "id": "vocab-s1-8",
+          "type": "vocab",
+          "surface": "肯",
+          "reading": "がえんず",
+          "start": 67,
+          "end": 68,
+          "pos": "動詞",
+          "meaning": "承知して…しようとする。",
+          "detail": "「不肯」なので「承知しない」となる。",
+          "answer": "承知する"
+        },
+        {
+          "id": "grammar-s1-4",
+          "type": "grammar",
+          "surface": "相舎",
+          "reading": "あひすつ",
+          "start": 68,
+          "end": 70,
+          "answer": "互いに相手を捨て放つこと。",
+          "explanation": "「相」は「互いに」、「舎」は「捨てる・放す」の意。"
+        },
+        {
+          "id": "grammar-s1-5",
+          "type": "grammar",
+          "surface": "之",
+          "reading": "これ",
+          "start": 77,
+          "end": 78,
+          "answer": "これ。ここでは蚌と鷸の二つを指す。",
+          "explanation": "指示語として前に出たものを受ける。"
+        },
+        {
+          "id": "content-s1-1",
+          "type": "grammar",
+          "surface": "今日不雨、明日不雨、即有死蚌",
+          "start": 23,
+          "end": 37,
+          "answer": "今日雨が降らず、明日も雨が降らなければ、死んだドブガイがいるだろう。",
+          "explanation": "鷸が、蚌は水がなければ干からびて死ぬと脅している。"
+        },
+        {
+          "id": "content-s1-2",
+          "type": "grammar",
+          "surface": "今日不出、明日不出、即有死鷸",
+          "start": 47,
+          "end": 61,
+          "answer": "今日出さず、明日も出さなければ、死んだシギがいるだろう。",
+          "explanation": "蚌が、鷸はくちばしを挟まれたままでは飢えて死ぬと脅している。"
+        },
+        {
+          "id": "content-s1-3",
+          "type": "grammar",
+          "surface": "漁者得而并擒之",
+          "start": 71,
+          "end": 78,
+          "answer": "漁師が手に入れて、これらをあわせて捕まえた。",
+          "explanation": "争って譲らない二者が、第三者に利益を奪われる結末を示す。"
+        }
+      ]
+    }
+  ],
+  "normalQuestions": [
+    {
+      "id": "content-1",
+      "type": "content",
+      "title": "内容読解①",
+      "question": "鷸は、雨が降らないと蚌がどうなるといっているか。",
+      "sectionId": "s1",
+      "answer": "（干からびて）死んでしまう。",
+      "explanation": ""
+    },
+    {
+      "id": "trans-1",
+      "type": "translation",
+      "title": "現代語訳①",
+      "question": "「相舎」とはどういう意味か。",
+      "targetText": "相舎",
+      "sectionId": "s1",
+      "answer": "互いに相手を捨て放つこと。",
+      "explanation": ""
+    },
+    {
+      "id": "content-2",
+      "type": "content",
+      "local": true,
+      "title": "内容読解②",
+      "question": "「之」の指しているものを本文中から2つ、「○・○」の形で答えよ。（短答・AI採点なし）",
+      "sectionId": "s1",
+      "answer": "蚌・鷸",
+      "explanation": ""
+    },
+    {
+      "id": "content-3",
+      "type": "content",
+      "title": "内容読解③",
+      "question": "「即有死蚌」・「即有死鷸」とあるが、蚌と鷸はそれぞれ、どのような理由で死ぬことになると言われているのか。",
+      "sectionId": "s1",
+      "answer": "「蚌」は水中に棲む生物なので、まる二日間水のない状態だと干からびてしまうから。「鷸」はくちばしを挟まれたままだと食事をすることができず、飢え死にしてしまうから。",
+      "explanation": ""
+    },
+    {
+      "id": "content-4",
+      "type": "content",
+      "local": true,
+      "title": "内容読解④",
+      "question": "「蚌」は何をたとえているか。備考を参考に答えよ。（短答・AI採点なし）",
+      "sectionId": "s1",
+      "answer": "燕",
+      "explanation": ""
+    },
+    {
+      "id": "content-5",
+      "type": "content",
+      "local": true,
+      "title": "内容読解⑤",
+      "question": "「鷸」は何をたとえているか。備考を参考に答えよ。（短答・AI採点なし）",
+      "sectionId": "s1",
+      "answer": "趙",
+      "explanation": ""
+    },
+    {
+      "id": "content-6",
+      "type": "content",
+      "local": true,
+      "title": "内容読解⑥",
+      "question": "「漁者」は何をたとえているか。備考を参考に答えよ。（短答・AI採点なし）",
+      "sectionId": "s1",
+      "answer": "秦",
+      "explanation": ""
+    }
+  ]
+}

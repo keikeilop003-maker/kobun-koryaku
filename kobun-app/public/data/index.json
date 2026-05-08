@@ -1,5 +1,6 @@
 [
   { "id": "konosorane", "title": "児のそら寝", "source": "宇治拾遺物語", "status": "published" },
   { "id": "tanba", "title": "丹波に出雲といふ所あり", "source": "徒然草", "status": "draft" },
-  { "id": "tsurezure", "title": "つれづれなるままに", "source": "徒然草", "status": "draft" }
+  { "id": "tsurezure", "title": "つれづれなるままに", "source": "徒然草", "status": "draft" },
+  { "id": "gyofunori", "title": "漁夫之利", "source": "戦国策", "status": "draft" }
 ]
