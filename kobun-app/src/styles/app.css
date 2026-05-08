@@ -1395,6 +1395,40 @@ body {
   background: #fffaf0;
 }
 
+.textbook-order-tools {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  gap: 4px;
+}
+
+.textbook-order-tools button {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  background: #fff;
+  color: #2d3a5e;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.textbook-order-tools button:hover:not(:disabled) {
+  background: #e8eaf0;
+  border-color: #2d3a5e;
+}
+
+.textbook-order-tools button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .tc-status {
   align-self: flex-end;
   font-size: 0.7rem;
@@ -1875,6 +1909,106 @@ body {
   gap: 0;
   padding: 0 2px;
 }
+
+.analysis-admin-tools {
+  margin-bottom: 10px;
+  border: 1px solid #d7d9ee;
+  border-radius: 8px;
+  background: #fafafe;
+  padding: 10px;
+}
+
+.analysis-admin-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.analysis-admin-toolbar button,
+.analysis-admin-actions button {
+  background: #5c6bc0;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.analysis-admin-toolbar button:hover,
+.analysis-admin-actions button:hover:not(:disabled) {
+  background: #3949ab;
+}
+
+.analysis-admin-toolbar button:disabled,
+.analysis-admin-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.analysis-admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.analysis-admin-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #555;
+  font-size: 0.78rem;
+}
+
+.analysis-admin-form input,
+.analysis-admin-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #c5cae9;
+  border-radius: 4px;
+  background: #fff;
+  color: #333;
+  font-family: inherit;
+  font-size: 0.86rem;
+  padding: 7px 8px;
+}
+
+.analysis-admin-form input:focus,
+.analysis-admin-form textarea:focus {
+  outline: none;
+  border-color: #5c6bc0;
+}
+
+.analysis-admin-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 8px;
+}
+
+.analysis-admin-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.analysis-admin-actions .analysis-admin-secondary {
+  background: #eef0fb;
+  color: #555;
+}
+
+.analysis-admin-actions .analysis-admin-secondary:hover:not(:disabled) {
+  background: #dfe3f6;
+}
+
+.analysis-admin-done,
+.analysis-admin-error {
+  font-size: 0.78rem;
+}
+
+.analysis-admin-done { color: #2e7d32; }
+.analysis-admin-error { color: #b71c1c; }
 
 /* テーマアコーディオン */
 .analysis-theme-item {

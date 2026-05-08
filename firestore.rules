@@ -36,7 +36,21 @@ service cloud.firestore {
     }
     match /analysisThemes/{textId} {
       allow read: if request.auth != null;
-      allow write: if false;
+      allow write: if isAdmin();
+    }
+    match /appSettings/{settingId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin()
+        && settingId == 'textbookOrder'
+        && request.resource.data.keys().hasOnly([
+          'order',
+          'updatedBy',
+          'updatedByEmail',
+          'updatedAt'
+        ])
+        && request.resource.data.order is list
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.updatedByEmail == request.auth.token.email;
     }
     match /customTargets/{targetId} {
       allow read: if request.auth != null;

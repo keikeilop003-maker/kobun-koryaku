@@ -221,12 +221,82 @@ function ThemeItem({ theme, posts, reactions, avatarSeed, equipped, addPost, tog
   );
 }
 
-export default function AnalysisPanel({ textId, avatarSeed, equipped }) {
-  const { theme: themeDoc, posts, addPost, reactions, toggleReaction } = useAnalysis(textId);
+function AdminThemeForm({ onSave }) {
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [attachmentName, setAttachmentName] = useState('');
+  const [attachmentUrl, setAttachmentUrl] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const submit = async () => {
+    if (!title.trim() || saving) return;
+    setSaving(true);
+    setMessage('');
+    try {
+      const attachments = attachmentName.trim() && attachmentUrl.trim()
+        ? [{ name: attachmentName.trim(), url: attachmentUrl.trim() }]
+        : [];
+      await onSave({ title, description, attachments });
+      setTitle('');
+      setDescription('');
+      setAttachmentName('');
+      setAttachmentUrl('');
+      setOpen(false);
+      setMessage('追加しました');
+      setTimeout(() => setMessage(''), 2000);
+    } catch (e) {
+      console.error('[analysis theme] add failed:', e);
+      setMessage(`追加に失敗しました: ${e.code ?? e.message ?? 'unknown error'}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="analysis-admin-tools">
+      <div className="analysis-admin-toolbar">
+        <button onClick={() => setOpen(o => !o)}>{open ? '閉じる' : '項目追加'}</button>
+        {message && <span className={message.includes('失敗') ? 'analysis-admin-error' : 'analysis-admin-done'}>{message}</span>}
+      </div>
+      {open && (
+        <div className="analysis-admin-form">
+          <label>
+            タイトル
+            <input value={title} onChange={e => setTitle(e.target.value)} />
+          </label>
+          <label>
+            説明
+            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} />
+          </label>
+          <div className="analysis-admin-grid">
+            <label>
+              添付名
+              <input value={attachmentName} onChange={e => setAttachmentName(e.target.value)} />
+            </label>
+            <label>
+              URL
+              <input value={attachmentUrl} onChange={e => setAttachmentUrl(e.target.value)} />
+            </label>
+          </div>
+          <div className="analysis-admin-actions">
+            <button onClick={submit} disabled={saving || !title.trim()}>{saving ? '保存中…' : '保存'}</button>
+            <button className="analysis-admin-secondary" onClick={() => setOpen(false)} disabled={saving}>キャンセル</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function AnalysisPanel({ textId, avatarSeed, equipped, isAdmin }) {
+  const { theme: themeDoc, posts, addPost, reactions, toggleReaction, addTheme } = useAnalysis(textId);
   const themes = themeDoc?.themes ?? [];
 
   return (
     <div className="analysis-panel">
+      {isAdmin && <AdminThemeForm onSave={addTheme} />}
       {themes.map(theme => (
         <ThemeItem
           key={theme.id}

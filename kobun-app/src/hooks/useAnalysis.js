@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { addDoc, collection, deleteDoc, doc, limit, onSnapshot, orderBy, query, serverTimestamp, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, limit, onSnapshot, orderBy, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { db } from '../services/firebase';
 
 
@@ -85,5 +85,21 @@ export default function useAnalysis(textId) {
     }
   };
 
-  return { theme, posts, addPost, reactions, toggleReaction };
+  const addTheme = async ({ title, description, attachments }) => {
+    if (!textId || !title.trim()) return;
+    const currentThemes = Array.isArray(theme?.themes) ? theme.themes : [];
+    const newTheme = {
+      id: `theme-${Date.now()}`,
+      title: title.trim(),
+      description: description.trim(),
+      attachments: (attachments ?? []).filter(a => a.name?.trim() && a.url?.trim()),
+    };
+    await setDoc(doc(db, 'analysisThemes', textId), {
+      ...(theme ?? {}),
+      themes: [...currentThemes, newTheme],
+      updatedAt: serverTimestamp(),
+    }, { merge: true });
+  };
+
+  return { theme, posts, addPost, reactions, toggleReaction, addTheme };
 }

@@ -14,7 +14,7 @@ import useCustomTargets from './hooks/useCustomTargets';
 import useHiddenTargets from './hooks/useHiddenTargets';
 import useEditedTargets from './hooks/useEditedTargets';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { addDoc, collection, deleteDoc, doc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from './services/firebase';
 import { TITLE_COLOR } from './data/items';
 import './styles/app.css';
@@ -58,6 +58,7 @@ function AppInner() {
   const [customizerOpen, setCustomizerOpen] = useState(false);
   const [adminSelection, setAdminSelection] = useState(null);
   const [addingType, setAddingType] = useState(null);
+  const [textbookOrder, setTextbookOrder] = useState([]);
 
   const textId = textData?.id ?? selectedTextId ?? '';
   const customTargets = useCustomTargets(textId);
@@ -66,9 +67,18 @@ function AppInner() {
   const { entries, record, clearAll } = useHistory(textId, user?.uid);
   const { profile, awardPoints, unlockItem, equipItem } = useProfile(user?.uid);
   const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
+  const orderedTextbooks = useMemo(() => {
+    const orderIndex = new Map(textbookOrder.map((id, index) => [id, index]));
+    return [...textbooks].sort((a, b) => {
+      const aIndex = orderIndex.has(a.id) ? orderIndex.get(a.id) : Number.MAX_SAFE_INTEGER;
+      const bIndex = orderIndex.has(b.id) ? orderIndex.get(b.id) : Number.MAX_SAFE_INTEGER;
+      if (aIndex !== bIndex) return aIndex - bIndex;
+      return textbooks.indexOf(a) - textbooks.indexOf(b);
+    });
+  }, [textbooks, textbookOrder]);
   const visibleTextbooks = useMemo(
-    () => textbooks.filter(tb => isAdmin || tb.status !== 'draft'),
-    [textbooks, isAdmin],
+    () => orderedTextbooks.filter(tb => isAdmin || tb.status !== 'draft'),
+    [orderedTextbooks, isAdmin],
   );
 
   const equipped = profile?.equipped ?? null;
@@ -115,6 +125,17 @@ function AppInner() {
   }, []);
 
   useEffect(() => {
+    return onSnapshot(
+      doc(db, 'appSettings', 'textbookOrder'),
+      snap => {
+        const order = snap.data()?.order;
+        setTextbookOrder(Array.isArray(order) ? order : []);
+      },
+      err => { console.error('[textbook order] load failed:', err.code); },
+    );
+  }, []);
+
+  useEffect(() => {
     if (!selectedTextId) return;
     setTextData(null);
     fetch(`${import.meta.env.BASE_URL}data/${selectedTextId}.json`)
@@ -136,6 +157,28 @@ function AppInner() {
     setPinnedPhrase(null);
     setAdminSelection(null);
     setAddingType(null);
+  };
+
+  const handleMoveTextbook = async (id, direction) => {
+    if (!isAdmin || !user) return;
+    const currentOrder = orderedTextbooks.map(tb => tb.id);
+    const index = currentOrder.indexOf(id);
+    const nextIndex = index + direction;
+    if (index < 0 || nextIndex < 0 || nextIndex >= currentOrder.length) return;
+    const nextOrder = [...currentOrder];
+    [nextOrder[index], nextOrder[nextIndex]] = [nextOrder[nextIndex], nextOrder[index]];
+    setTextbookOrder(nextOrder);
+    try {
+      await setDoc(doc(db, 'appSettings', 'textbookOrder'), {
+        order: nextOrder,
+        updatedBy: user.uid,
+        updatedByEmail: user.email,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (err) {
+      console.error('[textbook order] save failed:', err);
+      window.alert(`並び替えの保存に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
+    }
   };
 
   const handleBackToSelect = () => {
@@ -326,17 +369,39 @@ function AppInner() {
           {noSelection ? (
             <div className="textbook-select-area">
               {visibleTextbooks.map(tb => (
-                <button
+                <div
                   key={tb.id}
+                  role="button"
+                  tabIndex={0}
                   className={`textbook-card-btn textbook-card-btn--${tb.status === 'draft' ? 'draft' : 'published'}`}
                   onClick={() => handleSelectTextbook(tb.id)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleSelectTextbook(tb.id);
+                    }
+                  }}
                 >
+                  {isAdmin && (
+                    <div className="textbook-order-tools" onClick={e => e.stopPropagation()}>
+                      <button
+                        title="上へ"
+                        onClick={() => handleMoveTextbook(tb.id, -1)}
+                        disabled={orderedTextbooks[0]?.id === tb.id}
+                      >↑</button>
+                      <button
+                        title="下へ"
+                        onClick={() => handleMoveTextbook(tb.id, 1)}
+                        disabled={orderedTextbooks.at(-1)?.id === tb.id}
+                      >↓</button>
+                    </div>
+                  )}
                   <span className={`tc-status tc-status--${tb.status === 'draft' ? 'draft' : 'published'}`}>
                     {tb.status === 'draft' ? '作成中' : '公開中'}
                   </span>
                   <span className="tc-title">{tb.title}</span>
                   <span className="tc-source">{tb.source}</span>
-                </button>
+                </div>
               ))}
             </div>
           ) : currentTextData ? (
@@ -404,6 +469,7 @@ function AppInner() {
                   textId={textId}
                   avatarSeed={avatarSeed}
                   equipped={equipped}
+                  isAdmin={isAdmin}
                 />
               </div>
               <div style={{ display: rightTab === 'score' ? 'block' : 'none' }}>
