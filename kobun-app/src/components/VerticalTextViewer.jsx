@@ -50,6 +50,11 @@ function getNotes(section, textNotes, isFirstSection) {
   return section.notes ?? section.remarks ?? section.memo ?? (isFirstSection ? textNotes : '') ?? '';
 }
 
+function isKanbunText(text) {
+  const normalized = text.replace(/[\s、。，．・「」『』（）()〈〉《》！？!?]/g, '');
+  return normalized.length > 0 && /^[\p{Script=Han}]+$/u.test(normalized);
+}
+
 function ReferenceBlock({ label, text }) {
   if (!text) return null;
   return (
@@ -83,6 +88,7 @@ function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSel
   const segments = buildSegments(section.text, section.targets ?? [], activeType, phrase);
   const kundoku = getKundoku(section);
   const notes = getNotes(section, textNotes, isFirstSection);
+  const isKanbun = isKanbunText(section.text);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -120,7 +126,7 @@ function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSel
       <div className="section-card section-card--selection">
         <div className="section-title">{section.title}</div>
         <div className="vertical-text-scroll" ref={scrollRef}>
-          <div className="vertical-text vertical-text--selecting" ref={textRef}>
+          <div className={`vertical-text vertical-text--selecting${isKanbun ? ' vertical-text--kanbun' : ''}`} ref={textRef}>
             {Array.from(section.text).map((char, index) => {
               const isFirst = firstPoint?.sectionId === section.id && firstPoint.index === index;
               const isSelected = selectedStart !== null && index >= selectedStart && index < selectedEnd;
@@ -155,7 +161,7 @@ function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSel
     <div className="section-card">
       <div className="section-title">{section.title}</div>
       <div className="vertical-text-scroll" ref={scrollRef}>
-        <div className="vertical-text" ref={textRef}>
+        <div className={`vertical-text${isKanbun ? ' vertical-text--kanbun' : ''}`} ref={textRef}>
           {segments.map((seg, i) =>
             seg.type === 'plain' ? (
               <span key={i}>{seg.text}</span>
