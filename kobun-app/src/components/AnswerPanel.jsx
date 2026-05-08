@@ -83,6 +83,10 @@ function UndoDeleteNotice({ deletedTargetNotice, onUndoDelete }) {
   );
 }
 
+function acceptedAnswers(target) {
+  return [target.answer, ...(target.alternativeAnswers ?? [])].filter(Boolean);
+}
+
 // ── 重要単語 ─────────────────────────────────────────────────
 const VocabForm = forwardRef(function VocabForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
   const [ans, setAns] = useState(initialInputs?.ans ?? '');
@@ -97,7 +101,7 @@ const VocabForm = forwardRef(function VocabForm({ target, section, onResult, ini
   const submit = async () => {
     if (!ans.trim()) return;
     setLoading(true);
-    const res = await reviewVocab({ userAnswer: ans, correctAnswer: target.answer, useAi: target.gradingMode === 'ai' });
+    const res = await reviewVocab({ userAnswer: ans, correctAnswer: target.answer, acceptedAnswers: acceptedAnswers(target), useAi: target.gradingMode === 'ai' });
     setLoading(false);
     setSubmitted(true);
     setResult(res);
@@ -142,7 +146,7 @@ const AuxForm = forwardRef(function AuxForm({ target, section, onResult, initial
   const score = useCallback(async () => {
     const v = ansRef.current;
     if (!v.trim()) return;
-    const res = await reviewAux({ surface: target.surface, sentence: section.text, userAnswer: v, correctAnswer: target.answer, explanation: target.explanation, useAi: target.gradingMode === 'ai' });
+    const res = await reviewAux({ surface: target.surface, sentence: section.text, userAnswer: v, correctAnswer: target.answer, acceptedAnswers: acceptedAnswers(target), explanation: target.explanation, useAi: target.gradingMode === 'ai' });
     setResult(res);
     onResult(res);
   }, [target, section, onResult]);
@@ -322,7 +326,7 @@ const ParticleForm = forwardRef(function ParticleForm({ target, section, onResul
   const score = useCallback(async () => {
     const v = ansRef.current;
     if (!v.trim()) return;
-    const res = await reviewParticle({ userAnswer: v, correctAnswer: target.answer, useAi: target.gradingMode === 'ai' });
+    const res = await reviewParticle({ userAnswer: v, correctAnswer: target.answer, acceptedAnswers: acceptedAnswers(target), useAi: target.gradingMode === 'ai' });
     setResult(res);
     onResult(res);
   }, [target, onResult]);
@@ -362,7 +366,7 @@ const GrammarForm = forwardRef(function GrammarForm({ target, section, onResult,
   const submit = async () => {
     if (!ans.trim()) return;
     setLoading(true);
-    const res = await reviewGrammar({ surface: target.surface, sentence: section.text, userAnswer: ans, correctAnswer: target.answer, explanation: target.explanation, useAi: target.gradingMode === 'ai' });
+    const res = await reviewGrammar({ surface: target.surface, sentence: section.text, userAnswer: ans, correctAnswer: target.answer, acceptedAnswers: acceptedAnswers(target), explanation: target.explanation, useAi: target.gradingMode === 'ai' });
     setLoading(false);
     setSubmitted(true);
     setResult(res);

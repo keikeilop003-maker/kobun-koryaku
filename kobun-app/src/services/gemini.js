@@ -242,17 +242,18 @@ async function review(type, payload) {
   }
 }
 
-export async function reviewVocab({ userAnswer, correctAnswer, useAi = false }) {
-  if (useAi) return review('vocab', { userAnswer, correctAnswer });
+export async function reviewVocab({ userAnswer, correctAnswer, acceptedAnswers, useAi = false }) {
+  if (useAi) return review('vocab', { userAnswer, correctAnswer, acceptedAnswers });
   return { judgement: localCompare(userAnswer, correctAnswer) };
 }
 
-export async function reviewAux({ surface, sentence, userAnswer, correctAnswer, explanation, useAi = false }) {
+export async function reviewAux({ surface, sentence, userAnswer, correctAnswer, acceptedAnswers, explanation, useAi = false }) {
   if (useAi) {
     return review('aux', {
       surface,
       ctx: contextWindow(sentence, surface, 30),
       correctAnswer,
+      acceptedAnswers,
       explanation: clip(explanation, 80),
       userAnswer,
     });
@@ -319,8 +320,8 @@ export async function reviewAdj({ surface, sentence, userBaseForm, userConjugati
   };
 }
 
-export async function reviewParticle({ userAnswer, correctAnswer, useAi = false }) {
-  if (useAi) return review('particle', { userAnswer, correctAnswer });
+export async function reviewParticle({ userAnswer, correctAnswer, acceptedAnswers, useAi = false }) {
+  if (useAi) return review('particle', { userAnswer, correctAnswer, acceptedAnswers });
   const judgement = localCompare(userAnswer, correctAnswer);
   return {
     judgement,
@@ -329,8 +330,8 @@ export async function reviewParticle({ userAnswer, correctAnswer, useAi = false 
   };
 }
 
-export async function reviewGrammar({ userAnswer, correctAnswer, useAi = false }) {
-  if (useAi) return review('grammar', { userAnswer, correctAnswer });
+export async function reviewGrammar({ userAnswer, correctAnswer, acceptedAnswers, useAi = false }) {
+  if (useAi) return review('grammar', { userAnswer, correctAnswer, acceptedAnswers });
   return { judgement: localCompare(userAnswer, correctAnswer) };
 }
 

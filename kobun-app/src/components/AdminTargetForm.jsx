@@ -16,6 +16,10 @@ function defaultForm(type, selection, initialTarget = null, initialSectionId = '
     surface: selection?.text ?? initialTarget?.surface ?? '',
     questionText: initialTarget?.questionText ?? '',
     gradingMode: initialTarget?.gradingMode ?? 'local',
+    alternativeAnswers: [
+      ...(initialTarget?.alternativeAnswers ?? []),
+      '', '', '', '', '',
+    ].slice(0, 5),
     particleQuestionType: initialTarget?.particleQuestionType
       ?? (initialTarget?.questionText?.includes('用法') ? 'usage' : 'translation'),
     answer: initialTarget?.answer ?? '',
@@ -79,6 +83,14 @@ export default function AdminTargetForm({
     setForm((current) => ({ ...current, [key]: value }));
     setMessage('');
   };
+  const updateAlternative = (index, value) => {
+    setForm((current) => {
+      const next = [...current.alternativeAnswers];
+      next[index] = value;
+      return { ...current, alternativeAnswers: next };
+    });
+    setMessage('');
+  };
 
   const isConjugationType = type === 'verb' || type === 'adj';
   const missingMessage = validationMessage(type, form, isConjugationType);
@@ -111,6 +123,9 @@ export default function AdminTargetForm({
       else delete target.meaning;
       if (form.questionText.trim()) target.questionText = form.questionText.trim();
       else delete target.questionText;
+      const alternativeAnswers = form.alternativeAnswers.map(item => item.trim()).filter(Boolean).slice(0, 5);
+      if (form.gradingMode === 'ai' && alternativeAnswers.length > 0) target.alternativeAnswers = alternativeAnswers;
+      else delete target.alternativeAnswers;
       if (type === 'particle') target.particleQuestionType = form.particleQuestionType;
       else delete target.particleQuestionType;
 
@@ -176,6 +191,19 @@ export default function AdminTargetForm({
             <option value="ai">AI採点</option>
           </select>
         </label>
+        {form.gradingMode === 'ai' && (
+          <fieldset className="admin-alt-answers">
+            <legend>別解（5個まで）</legend>
+            {form.alternativeAnswers.map((value, index) => (
+              <input
+                key={index}
+                value={value}
+                onChange={(e) => updateAlternative(index, e.target.value)}
+                placeholder={`別解${index + 1}`}
+              />
+            ))}
+          </fieldset>
+        )}
         {type === 'particle' && (
           <label>
             出題内容
