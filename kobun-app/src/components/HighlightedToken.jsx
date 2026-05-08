@@ -5,7 +5,7 @@ const TYPE_CONFIG = {
   verb:     { label: '動詞',     className: 'hl-verb' },
   adj:      { label: '形容詞',   className: 'hl-adj' },
   particle: { label: '助詞',     className: 'hl-particle' },
-  grammar:  { label: '文法',     className: 'hl-grammar' },
+  grammar:  { label: '文法・句法', className: 'hl-grammar' },
 };
 
 export default function HighlightedToken({ target, isSelected, onClick, showAsAll }) {

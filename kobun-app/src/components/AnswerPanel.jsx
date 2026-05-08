@@ -9,7 +9,7 @@ const TYPE_LABEL = {
   verb:     '動',
   adj:      '形',
   particle: '助',
-  grammar:  '重要文法',
+  grammar:  '文法・句法',
 };
 
 const SCORE_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar']);
@@ -317,7 +317,7 @@ const ParticleForm = forwardRef(function ParticleForm({ target, section, onResul
   );
 });
 
-// ── 重要文法 ─────────────────────────────────────────────────
+// ── 文法・句法 ───────────────────────────────────────────────
 const GrammarForm = forwardRef(function GrammarForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
   const [ans, setAns] = useState(initialInputs?.ans ?? '');
   const [loading, setLoading] = useState(false);

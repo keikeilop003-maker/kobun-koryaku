@@ -23,7 +23,7 @@ import './styles/app.css';
 const LEGEND = [
   { type: 'all',      label: '全語句',   cls: 'hl-all' },
   { type: 'vocab',    label: '重要単語', cls: 'hl-vocab' },
-  { type: 'grammar',  label: '重要文法', cls: 'hl-grammar' },
+  { type: 'grammar',  label: '文法・句法', cls: 'hl-grammar' },
   { type: 'verb',     label: '動',       cls: 'hl-verb' },
   { type: 'adj',      label: '形',       cls: 'hl-adj' },
   { type: 'aux',      label: '助動',     cls: 'hl-aux' },

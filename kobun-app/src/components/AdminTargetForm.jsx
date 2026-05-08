@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 const TYPE_LABELS = {
   vocab: '重要単語',
-  grammar: '重要文法',
+  grammar: '文法・句法',
   verb: '動詞',
   adj: '形容詞',
   aux: '助動詞',

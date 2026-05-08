@@ -42,12 +42,28 @@ function buildSegments(text, allTargets, activeType, pinnedPhrase) {
   return segments;
 }
 
+function getKundoku(section) {
+  return section.kundoku ?? section.kakikudashi ?? section.readingText ?? '';
+}
+
+function ReferenceBlock({ label, text }) {
+  if (!text) return null;
+  return (
+    <div className="admin-modern-translation">
+      <div className="admin-modern-label">{label}</div>
+      <p>{text}</p>
+    </div>
+  );
+}
+
 function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
   const [firstPoint, setFirstPoint] = useState(null);
+  const [showKundoku, setShowKundoku] = useState(false);
   const phrase = pinnedPhrase?.sectionId === section.id ? pinnedPhrase.text : null;
   const segments = buildSegments(section.text, section.targets ?? [], activeType, phrase);
+  const kundoku = getKundoku(section);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -101,11 +117,11 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
             })}
           </div>
         </div>
-        {showModern && section.modern && (
-          <div className="admin-modern-translation">
-            <div className="admin-modern-label">現代語訳</div>
-            <p>{section.modern}</p>
-          </div>
+        {showModern && (
+          <>
+            <ReferenceBlock label="書き下し文" text={kundoku} />
+            <ReferenceBlock label="現代語訳" text={section.modern} />
+          </>
         )}
       </div>
     );
@@ -133,12 +149,19 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
           )}
         </div>
       </div>
-      {showModern && section.modern && (
-        <div className="admin-modern-translation">
-          <div className="admin-modern-label">現代語訳</div>
-          <p>{section.modern}</p>
+      {showModern ? (
+        <>
+          <ReferenceBlock label="書き下し文" text={kundoku} />
+          <ReferenceBlock label="現代語訳" text={section.modern} />
+        </>
+      ) : kundoku ? (
+        <div className="student-kundoku-area">
+          <button className="kundoku-toggle-btn" onClick={() => setShowKundoku(value => !value)}>
+            {showKundoku ? '書き下し文を隠す' : '書き下し文を表示する'}
+          </button>
+          {showKundoku && <ReferenceBlock label="書き下し文" text={kundoku} />}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
