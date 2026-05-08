@@ -46,6 +46,10 @@ function getKundoku(section) {
   return section.kundoku ?? section.kakikudashi ?? section.readingText ?? '';
 }
 
+function getNotes(section, textNotes, isFirstSection) {
+  return section.notes ?? section.remarks ?? section.memo ?? (isFirstSection ? textNotes : '') ?? '';
+}
+
 function ReferenceBlock({ label, text }) {
   if (!text) return null;
   return (
@@ -56,7 +60,7 @@ function ReferenceBlock({ label, text }) {
   );
 }
 
-function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern }) {
+function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
   const [firstPoint, setFirstPoint] = useState(null);
@@ -64,6 +68,7 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
   const phrase = pinnedPhrase?.sectionId === section.id ? pinnedPhrase.text : null;
   const segments = buildSegments(section.text, section.targets ?? [], activeType, phrase);
   const kundoku = getKundoku(section);
+  const notes = getNotes(section, textNotes, isFirstSection);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -119,6 +124,7 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
         </div>
         {showModern && (
           <>
+            <ReferenceBlock label="備考" text={notes} />
             <ReferenceBlock label="書き下し文" text={kundoku} />
             <ReferenceBlock label="現代語訳" text={section.modern} />
           </>
@@ -151,28 +157,36 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
       </div>
       {showModern ? (
         <>
+          <ReferenceBlock label="備考" text={notes} />
           <ReferenceBlock label="書き下し文" text={kundoku} />
           <ReferenceBlock label="現代語訳" text={section.modern} />
         </>
-      ) : kundoku ? (
-        <div className="student-kundoku-area">
-          <button className="kundoku-toggle-btn" onClick={() => setShowKundoku(value => !value)}>
-            {showKundoku ? '書き下し文を隠す' : '書き下し文を表示する'}
-          </button>
-          {showKundoku && <ReferenceBlock label="書き下し文" text={kundoku} />}
-        </div>
-      ) : null}
+      ) : (
+        <>
+          <ReferenceBlock label="備考" text={notes} />
+          {kundoku ? (
+            <div className="student-kundoku-area">
+              <button className="kundoku-toggle-btn" onClick={() => setShowKundoku(value => !value)}>
+                {showKundoku ? '書き下し文を隠す' : '書き下し文を表示する'}
+              </button>
+              {showKundoku && <ReferenceBlock label="書き下し文" text={kundoku} />}
+            </div>
+          ) : null}
+        </>
+      )}
     </div>
   );
 }
 
-export default function VerticalTextViewer({ sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern }) {
+export default function VerticalTextViewer({ notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern }) {
   return (
     <div className="vertical-viewer">
-      {sections.map(section => (
+      {sections.map((section, index) => (
         <SectionCard
           key={section.id}
           section={section}
+          textNotes={notes}
+          isFirstSection={index === 0}
           selectedTarget={selectedTarget}
           onSelectTarget={onSelectTarget}
           activeType={activeType}

@@ -525,6 +525,7 @@ function AppInner() {
             </div>
           ) : currentTextData ? (
             <VerticalTextViewer
+              notes={currentTextData.notes}
               sections={currentTextData.sections}
               selectedTarget={selectedTarget}
               onSelectTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
