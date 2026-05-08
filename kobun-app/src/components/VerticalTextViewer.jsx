@@ -62,6 +62,18 @@ function ReferenceBlock({ label, text }) {
   );
 }
 
+function KundokuToggle({ kundoku, showKundoku, onToggle }) {
+  if (!kundoku) return null;
+  return (
+    <div className="student-kundoku-area">
+      <button className="kundoku-toggle-btn" onClick={onToggle}>
+        {showKundoku ? '書き下し文を隠す' : '書き下し文を表示する'}
+      </button>
+      {showKundoku && <ReferenceBlock label="書き下し文" text={kundoku} />}
+    </div>
+  );
+}
+
 function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
@@ -126,9 +138,13 @@ function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSel
         </div>
         {showModern && (
           <>
-            <ReferenceBlock label="備考" text={notes} />
-            <ReferenceBlock label="書き下し文" text={kundoku} />
+            <KundokuToggle
+              kundoku={kundoku}
+              showKundoku={showKundoku}
+              onToggle={() => setShowKundoku(value => !value)}
+            />
             <ReferenceBlock label="現代語訳" text={section.modern} />
+            <ReferenceBlock label="備考" text={notes} />
           </>
         )}
       </div>
@@ -159,21 +175,22 @@ function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSel
       </div>
       {showModern ? (
         <>
-          <ReferenceBlock label="備考" text={notes} />
-          <ReferenceBlock label="書き下し文" text={kundoku} />
+          <KundokuToggle
+            kundoku={kundoku}
+            showKundoku={showKundoku}
+            onToggle={() => setShowKundoku(value => !value)}
+          />
           <ReferenceBlock label="現代語訳" text={section.modern} />
+          <ReferenceBlock label="備考" text={notes} />
         </>
       ) : (
         <>
+          <KundokuToggle
+            kundoku={kundoku}
+            showKundoku={showKundoku}
+            onToggle={() => setShowKundoku(value => !value)}
+          />
           <ReferenceBlock label="備考" text={notes} />
-          {kundoku ? (
-            <div className="student-kundoku-area">
-              <button className="kundoku-toggle-btn" onClick={() => setShowKundoku(value => !value)}>
-                {showKundoku ? '書き下し文を隠す' : '書き下し文を表示する'}
-              </button>
-              {showKundoku && <ReferenceBlock label="書き下し文" text={kundoku} />}
-            </div>
-          ) : null}
         </>
       )}
     </div>
