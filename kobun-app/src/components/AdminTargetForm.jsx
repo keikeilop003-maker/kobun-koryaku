@@ -16,6 +16,8 @@ function defaultForm(type, selection, initialTarget = null, initialSectionId = '
     surface: selection?.text ?? initialTarget?.surface ?? '',
     questionText: initialTarget?.questionText ?? '',
     gradingMode: initialTarget?.gradingMode ?? 'local',
+    particleQuestionType: initialTarget?.particleQuestionType
+      ?? (initialTarget?.questionText?.includes('用法') ? 'usage' : 'translation'),
     answer: initialTarget?.answer ?? '',
     meaning: initialTarget?.meaning ?? '',
     baseForm: initialTarget?.baseForm ?? '',
@@ -25,11 +27,24 @@ function defaultForm(type, selection, initialTarget = null, initialSectionId = '
   };
 }
 
-function answerLabel(type) {
+function answerLabel(type, form) {
   if (type === 'aux') return '用法';
-  if (type === 'particle') return '訳し方';
+  if (type === 'particle') return form.particleQuestionType === 'usage' ? '用法' : '訳し方';
   if (type === 'vocab') return '意味';
   return '解答';
+}
+
+function validationMessage(type, form, isConjugationType) {
+  if (!form.sectionId) return '段を選んでください';
+  if (!form.surface.trim()) return '対象語を入力してください';
+  if (isConjugationType) {
+    if (!form.baseForm.trim()) return '基本形を入力してください';
+    if (!form.conjugationType.trim()) return '活用の行と種類を入力してください';
+    if (!form.formInText.trim()) return '文中の活用形を入力してください';
+    return '';
+  }
+  if (!form.answer.trim()) return `${answerLabel(type, form)}を入力してください`;
+  return '';
 }
 
 export default function AdminTargetForm({
@@ -66,14 +81,16 @@ export default function AdminTargetForm({
   };
 
   const isConjugationType = type === 'verb' || type === 'adj';
-  const canSave = form.sectionId && form.surface.trim() && (
-    isConjugationType
-      ? form.baseForm.trim() && form.conjugationType.trim() && form.formInText.trim()
-      : form.answer.trim()
-  );
+  const missingMessage = validationMessage(type, form, isConjugationType);
+  const canSave = !missingMessage;
+  const showMeaningField = type === 'verb' || type === 'adj';
 
   const save = async () => {
-    if (!canSave || saving) return;
+    if (saving) return;
+    if (!canSave) {
+      setMessage(missingMessage);
+      return;
+    }
     setSaving(true);
     setMessage('');
     try {
@@ -86,12 +103,16 @@ export default function AdminTargetForm({
         id: initialTarget?.id ?? `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         type,
         surface,
-        meaning: form.meaning.trim(),
         explanation: form.explanation.trim(),
         gradingMode: form.gradingMode,
         start: start >= 0 ? start : undefined,
       };
+      if (showMeaningField) target.meaning = form.meaning.trim();
+      else delete target.meaning;
       if (form.questionText.trim()) target.questionText = form.questionText.trim();
+      else delete target.questionText;
+      if (type === 'particle') target.particleQuestionType = form.particleQuestionType;
+      else delete target.particleQuestionType;
 
       if (mode === 'add') target.custom = true;
 
@@ -155,6 +176,15 @@ export default function AdminTargetForm({
             <option value="ai">AI採点</option>
           </select>
         </label>
+        {type === 'particle' && (
+          <label>
+            出題内容
+            <select value={form.particleQuestionType} onChange={(e) => update('particleQuestionType', e.target.value)}>
+              <option value="translation">訳し方</option>
+              <option value="usage">用法</option>
+            </select>
+          </label>
+        )}
 
         {isConjugationType ? (
           <>
@@ -173,15 +203,17 @@ export default function AdminTargetForm({
           </>
         ) : (
           <label>
-            {answerLabel(type)}
+            {answerLabel(type, form)}
             <input value={form.answer} onChange={(e) => update('answer', e.target.value)} />
           </label>
         )}
 
-        <label>
-          意味
-          <input value={form.meaning} onChange={(e) => update('meaning', e.target.value)} />
-        </label>
+        {showMeaningField && (
+          <label>
+            意味
+            <input value={form.meaning} onChange={(e) => update('meaning', e.target.value)} />
+          </label>
+        )}
         <label>
           解説
           <textarea rows={2} value={form.explanation} onChange={(e) => update('explanation', e.target.value)} />
@@ -191,7 +223,7 @@ export default function AdminTargetForm({
       <div className="admin-inline-actions">
         {message && <span className="admin-message">{message}</span>}
         <button type="button" className="admin-secondary-btn" onClick={onCancel}>キャンセル</button>
-        <button type="button" onClick={save} disabled={!canSave || saving}>
+        <button type="button" onClick={save} disabled={saving}>
           {saving ? '保存中...' : (mode === 'edit' ? '更新' : '追加')}
         </button>
       </div>

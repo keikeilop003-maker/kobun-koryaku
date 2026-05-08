@@ -62,7 +62,9 @@ function QuestionHeader({ target }) {
   const prefix = { aux: '助動詞', particle: '助詞' }[target.type] ?? '';
   const suffix = {
     vocab: 'の意味', aux: 'の用法', verb: 'の文法事項',
-    adj: 'の文法事項', particle: 'の訳し方', grammar: 'の文法的な働きと訳し方',
+    adj: 'の文法事項',
+    particle: target.particleQuestionType === 'usage' ? 'の用法' : 'の訳し方',
+    grammar: 'の文法的な働きと訳し方',
   }[target.type] ?? '';
   return (
     <span className="question-header-text">
