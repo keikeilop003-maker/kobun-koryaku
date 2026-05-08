@@ -15,6 +15,7 @@ function defaultForm(type, selection, initialTarget = null, initialSectionId = '
     sectionId: selection?.sectionId ?? initialSectionId ?? '',
     surface: selection?.text ?? initialTarget?.surface ?? '',
     questionText: initialTarget?.questionText ?? '',
+    gradingMode: initialTarget?.gradingMode ?? 'local',
     answer: initialTarget?.answer ?? '',
     meaning: initialTarget?.meaning ?? '',
     baseForm: initialTarget?.baseForm ?? '',
@@ -87,6 +88,7 @@ export default function AdminTargetForm({
         surface,
         meaning: form.meaning.trim(),
         explanation: form.explanation.trim(),
+        gradingMode: form.gradingMode,
         start: start >= 0 ? start : undefined,
       };
       if (form.questionText.trim()) target.questionText = form.questionText.trim();
@@ -145,6 +147,13 @@ export default function AdminTargetForm({
         <label>
           問題文
           <textarea rows={2} value={form.questionText} onChange={(e) => update('questionText', e.target.value)} />
+        </label>
+        <label>
+          採点方法
+          <select value={form.gradingMode} onChange={(e) => update('gradingMode', e.target.value)}>
+            <option value="local">ローカル採点</option>
+            <option value="ai">AI採点</option>
+          </select>
         </label>
 
         {isConjugationType ? (

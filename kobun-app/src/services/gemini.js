@@ -242,11 +242,21 @@ async function review(type, payload) {
   }
 }
 
-export async function reviewVocab({ userAnswer, correctAnswer }) {
+export async function reviewVocab({ userAnswer, correctAnswer, useAi = false }) {
+  if (useAi) return review('vocab', { userAnswer, correctAnswer });
   return { judgement: localCompare(userAnswer, correctAnswer) };
 }
 
-export async function reviewAux({ userAnswer, correctAnswer }) {
+export async function reviewAux({ surface, sentence, userAnswer, correctAnswer, explanation, useAi = false }) {
+  if (useAi) {
+    return review('aux', {
+      surface,
+      ctx: contextWindow(sentence, surface, 30),
+      correctAnswer,
+      explanation: clip(explanation, 80),
+      userAnswer,
+    });
+  }
   const judgement = localCompare(userAnswer, correctAnswer);
   return {
     judgement,
@@ -255,7 +265,20 @@ export async function reviewAux({ userAnswer, correctAnswer }) {
   };
 }
 
-export async function reviewVerb({ userBaseForm, userConjugationType, userFormInText, target }) {
+export async function reviewVerb({ surface, sentence, userBaseForm, userConjugationType, userFormInText, target, useAi = false }) {
+  if (useAi) {
+    return review('verb', {
+      surface,
+      ctx: contextWindow(sentence, surface, 30),
+      correctBaseForm: target.baseForm,
+      correctConjugationType: target.conjugationType,
+      correctFormInText: target.formInText,
+      explanation: clip(target.explanation, 80),
+      userBaseForm,
+      userConjugationType,
+      userFormInText,
+    });
+  }
   const bj = localCompare(userBaseForm, target.baseForm);
   const userConj = (userConjugationType ?? '').replace(/活用$/, '').trim();
   const targetConj = (target.conjugationType ?? '').replace(/活用$/, '').trim();
@@ -270,7 +293,20 @@ export async function reviewVerb({ userBaseForm, userConjugationType, userFormIn
   };
 }
 
-export async function reviewAdj({ userBaseForm, userConjugationType, userFormInText, target }) {
+export async function reviewAdj({ surface, sentence, userBaseForm, userConjugationType, userFormInText, target, useAi = false }) {
+  if (useAi) {
+    return review('adj', {
+      surface,
+      ctx: contextWindow(sentence, surface, 30),
+      correctBaseForm: target.baseForm,
+      correctConjugationType: target.conjugationType,
+      correctFormInText: target.formInText,
+      explanation: clip(target.explanation, 80),
+      userBaseForm,
+      userConjugationType,
+      userFormInText,
+    });
+  }
   const bj = localCompare(userBaseForm, target.baseForm);
   const cj = localCompare(userConjugationType, target.conjugationType);
   const fj = localCompare(userFormInText, target.formInText);
@@ -283,7 +319,8 @@ export async function reviewAdj({ userBaseForm, userConjugationType, userFormInT
   };
 }
 
-export async function reviewParticle({ userAnswer, correctAnswer }) {
+export async function reviewParticle({ userAnswer, correctAnswer, useAi = false }) {
+  if (useAi) return review('particle', { userAnswer, correctAnswer });
   const judgement = localCompare(userAnswer, correctAnswer);
   return {
     judgement,
@@ -292,7 +329,8 @@ export async function reviewParticle({ userAnswer, correctAnswer }) {
   };
 }
 
-export async function reviewGrammar({ userAnswer, correctAnswer }) {
+export async function reviewGrammar({ userAnswer, correctAnswer, useAi = false }) {
+  if (useAi) return review('grammar', { userAnswer, correctAnswer });
   return { judgement: localCompare(userAnswer, correctAnswer) };
 }
 

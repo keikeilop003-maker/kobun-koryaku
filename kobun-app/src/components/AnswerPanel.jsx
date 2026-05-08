@@ -95,7 +95,7 @@ const VocabForm = forwardRef(function VocabForm({ target, section, onResult, ini
   const submit = async () => {
     if (!ans.trim()) return;
     setLoading(true);
-    const res = await reviewVocab({ userAnswer: ans, correctAnswer: target.answer });
+    const res = await reviewVocab({ userAnswer: ans, correctAnswer: target.answer, useAi: target.gradingMode === 'ai' });
     setLoading(false);
     setSubmitted(true);
     setResult(res);
@@ -140,7 +140,7 @@ const AuxForm = forwardRef(function AuxForm({ target, section, onResult, initial
   const score = useCallback(async () => {
     const v = ansRef.current;
     if (!v.trim()) return;
-    const res = await reviewAux({ surface: target.surface, sentence: section.text, userAnswer: v, correctAnswer: target.answer, explanation: target.explanation });
+    const res = await reviewAux({ surface: target.surface, sentence: section.text, userAnswer: v, correctAnswer: target.answer, explanation: target.explanation, useAi: target.gradingMode === 'ai' });
     setResult(res);
     onResult(res);
   }, [target, section, onResult]);
@@ -186,7 +186,7 @@ const VerbForm = forwardRef(function VerbForm({ target, section, onResult, initi
   const score = useCallback(async () => {
     const b = baseRef.current, c = conjRef.current, f = formRef.current;
     if (!b && !c && !f) return;
-    const res = await reviewVerb({ surface: target.surface, sentence: section.text, userBaseForm: b, userConjugationType: c, userFormInText: f, target });
+    const res = await reviewVerb({ surface: target.surface, sentence: section.text, userBaseForm: b, userConjugationType: c, userFormInText: f, target, useAi: target.gradingMode === 'ai' });
     setBaseResult(res.baseForm);
     setConjResult(res.conjugationType);
     setFormResult(res.formInText);
@@ -257,7 +257,7 @@ const AdjForm = forwardRef(function AdjForm({ target, section, onResult, initial
   const score = useCallback(async () => {
     const b = baseRef.current, c = conjRef.current, f = formRef.current;
     if (!b && !c && !f) return;
-    const res = await reviewAdj({ surface: target.surface, sentence: section.text, userBaseForm: b, userConjugationType: c, userFormInText: f, target });
+    const res = await reviewAdj({ surface: target.surface, sentence: section.text, userBaseForm: b, userConjugationType: c, userFormInText: f, target, useAi: target.gradingMode === 'ai' });
     setBaseResult(res.baseForm);
     setConjResult(res.conjugationType);
     setFormResult(res.formInText);
@@ -320,7 +320,7 @@ const ParticleForm = forwardRef(function ParticleForm({ target, section, onResul
   const score = useCallback(async () => {
     const v = ansRef.current;
     if (!v.trim()) return;
-    const res = await reviewParticle({ userAnswer: v, correctAnswer: target.answer });
+    const res = await reviewParticle({ userAnswer: v, correctAnswer: target.answer, useAi: target.gradingMode === 'ai' });
     setResult(res);
     onResult(res);
   }, [target, onResult]);
@@ -360,7 +360,7 @@ const GrammarForm = forwardRef(function GrammarForm({ target, section, onResult,
   const submit = async () => {
     if (!ans.trim()) return;
     setLoading(true);
-    const res = await reviewGrammar({ surface: target.surface, sentence: section.text, userAnswer: ans, correctAnswer: target.answer, explanation: target.explanation });
+    const res = await reviewGrammar({ surface: target.surface, sentence: section.text, userAnswer: ans, correctAnswer: target.answer, explanation: target.explanation, useAi: target.gradingMode === 'ai' });
     setLoading(false);
     setSubmitted(true);
     setResult(res);
