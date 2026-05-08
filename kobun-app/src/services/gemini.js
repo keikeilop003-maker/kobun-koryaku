@@ -142,6 +142,10 @@ function stripParens(s) {
   return String(s).replace(/（[^）]*）/g, '').replace(/\([^)]*\)/g, '').trim();
 }
 
+function normalizeConjugationType(s) {
+  return String(s ?? '').replace(/活用$/g, '').trim();
+}
+
 function localCompare(userAnswer, correctAnswer) {
   const user = normalize(userAnswer);
   if (!user) return '不正解';
@@ -281,8 +285,8 @@ export async function reviewVerb({ surface, sentence, userBaseForm, userConjugat
     });
   }
   const bj = localCompare(userBaseForm, target.baseForm);
-  const userConj = (userConjugationType ?? '').replace(/活用$/, '').trim();
-  const targetConj = (target.conjugationType ?? '').replace(/活用$/, '').trim();
+  const userConj = normalizeConjugationType(userConjugationType);
+  const targetConj = normalizeConjugationType(target.conjugationType);
   const cj = localCompare(userConj, targetConj);
   const fj = localCompare(userFormInText, target.formInText);
   const allCorrect = bj === '正解' && cj === '正解' && fj === '正解';
@@ -309,7 +313,7 @@ export async function reviewAdj({ surface, sentence, userBaseForm, userConjugati
     });
   }
   const bj = localCompare(userBaseForm, target.baseForm);
-  const cj = localCompare(userConjugationType, target.conjugationType);
+  const cj = localCompare(normalizeConjugationType(userConjugationType), normalizeConjugationType(target.conjugationType));
   const fj = localCompare(userFormInText, target.formInText);
   const allCorrect = bj === '正解' && cj === '正解' && fj === '正解';
   return {
