@@ -609,6 +609,10 @@ body {
   background: #fff;
 }
 
+.admin-form-grid label:has(textarea) {
+  grid-column: span 2;
+}
+
 .admin-inline-actions {
   display: flex;
   align-items: center;
@@ -881,6 +885,60 @@ body {
   font-size: 0.9rem;
   color: #333;
   line-height: 1.7;
+}
+
+.nq-question-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.nq-question-row .nq-question {
+  flex: 1;
+  margin: 0;
+}
+
+.nq-admin-edit-btn,
+.nq-admin-question-actions button {
+  border: none;
+  border-radius: 4px;
+  background: #2d3a5e;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.76rem;
+  padding: 5px 10px;
+  white-space: nowrap;
+}
+
+.nq-admin-edit-btn:hover,
+.nq-admin-question-actions button:hover:not(:disabled) {
+  background: #4a6fa5;
+}
+
+.nq-admin-question-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nq-admin-question-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.nq-admin-question-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.nq-admin-question-actions .nq-admin-secondary {
+  background: #f3f0e8;
+  color: #555;
+}
+
+.nq-admin-question-actions .nq-admin-secondary:hover:not(:disabled) {
+  background: #e8e2d5;
 }
 
 .nq-target-text {

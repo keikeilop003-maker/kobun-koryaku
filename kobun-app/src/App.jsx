@@ -13,6 +13,7 @@ import useAdmin from './hooks/useAdmin';
 import useCustomTargets from './hooks/useCustomTargets';
 import useHiddenTargets from './hooks/useHiddenTargets';
 import useEditedTargets from './hooks/useEditedTargets';
+import useEditedNormalQuestions from './hooks/useEditedNormalQuestions';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { addDoc, collection, deleteDoc, doc, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from './services/firebase';
@@ -65,6 +66,7 @@ function AppInner() {
   const customTargets = useCustomTargets(textId);
   const hiddenTargetKeys = useHiddenTargets(textId);
   const editedTargetMap = useEditedTargets(textId);
+  const editedNormalQuestionMap = useEditedNormalQuestions(textId);
   const { entries, record, clearAll } = useHistory(textId, user?.uid);
   const { profile, awardPoints, unlockItem, equipItem } = useProfile(user?.uid);
   const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
@@ -112,8 +114,12 @@ function AppInner() {
         ].sort((a, b) => targetOrder(section, a) - targetOrder(section, b));
         return { ...section, targets };
       }),
+      normalQuestions: (textData.normalQuestions ?? []).map(question => {
+        const edit = editedNormalQuestionMap.get(question.id);
+        return edit?.question ? { ...question, question: edit.question, edited: true } : question;
+      }),
     };
-  }, [textData, customTargets, hiddenTargetKeys, editedTargetMap]);
+  }, [textData, customTargets, hiddenTargetKeys, editedTargetMap, editedNormalQuestionMap]);
 
   const titleId = equipped?.title ?? null;
   const titleColor = titleId ? TITLE_COLOR[titleId] : null;
@@ -357,6 +363,24 @@ function AppInner() {
     }
   }, [isAdmin, textId, user]);
 
+  const handleUpdateNormalQuestion = useCallback(async (question, questionText) => {
+    if (!isAdmin || !user || !textId || !question || !questionText.trim()) return;
+    try {
+      await setDoc(doc(db, 'editedNormalQuestions', `${textId}__${question.id}`), {
+        textId,
+        questionId: question.id,
+        question: questionText.trim(),
+        updatedBy: user.uid,
+        updatedByEmail: user.email,
+        updatedAt: serverTimestamp(),
+      });
+      window.alert('問題文を更新しました');
+    } catch (err) {
+      console.error('[update normal question] failed:', err);
+      window.alert(`問題文の更新に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
+    }
+  }, [isAdmin, textId, user]);
+
   const isLoadingText = selectedTextId !== null && textData === null;
   const noSelection = selectedTextId === null;
   const currentTextData = displayTextData ?? textData;
@@ -506,6 +530,8 @@ function AppInner() {
                   expandedNqId={expandedNqId}
                   onExpandHandled={() => setExpandedNqId(null)}
                   onFocusTarget={(sectionId, text) => setPinnedPhrase(sectionId && text ? { sectionId, text } : null)}
+                  isAdmin={isAdmin}
+                  onUpdateQuestion={handleUpdateNormalQuestion}
                 />
               </div>
               <div style={{ display: rightTab === 'analysis' ? 'block' : 'none' }}>

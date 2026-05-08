@@ -14,6 +14,7 @@ function defaultForm(type, selection, initialTarget = null, initialSectionId = '
     type,
     sectionId: selection?.sectionId ?? initialSectionId ?? '',
     surface: selection?.text ?? initialTarget?.surface ?? '',
+    questionText: initialTarget?.questionText ?? '',
     answer: initialTarget?.answer ?? '',
     meaning: initialTarget?.meaning ?? '',
     baseForm: initialTarget?.baseForm ?? '',
@@ -88,6 +89,7 @@ export default function AdminTargetForm({
         explanation: form.explanation.trim(),
         start: start >= 0 ? start : undefined,
       };
+      if (form.questionText.trim()) target.questionText = form.questionText.trim();
 
       if (mode === 'add') target.custom = true;
 
@@ -139,6 +141,10 @@ export default function AdminTargetForm({
         <label>
           対象語
           <input value={form.surface} onChange={(e) => update('surface', e.target.value)} />
+        </label>
+        <label>
+          問題文
+          <textarea rows={2} value={form.questionText} onChange={(e) => update('questionText', e.target.value)} />
         </label>
 
         {isConjugationType ? (

@@ -36,6 +36,9 @@ function JudgeIcon({ judgement }) {
 }
 
 function QuestionHeader({ target }) {
+  if (target.questionText) {
+    return <span className="question-header-text">{target.questionText}</span>;
+  }
   const surface = target.type === 'grammar' ? (target.questionSurface ?? target.surface) : target.surface;
   const prefix = { aux: '助動詞', particle: '助詞' }[target.type] ?? '';
   const suffix = {

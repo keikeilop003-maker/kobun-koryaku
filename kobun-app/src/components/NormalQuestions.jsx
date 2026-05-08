@@ -51,18 +51,25 @@ function ChoiceInput({ choices, value, onChange, disabled, answered, correctAnsw
   );
 }
 
-function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened, onFocusTarget }) {
+function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened, onFocusTarget, isAdmin, onUpdateQuestion }) {
   const lastFeedback = historyEntry?.attempts?.at(-1)?.feedback ?? null;
   const [ans, setAns] = useState(lastFeedback?.userAnswer ?? '');
   const [result, setResult] = useState(lastFeedback ?? null);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(!!defaultOpen);
+  const [editingQuestion, setEditingQuestion] = useState(false);
+  const [questionText, setQuestionText] = useState(q.question ?? '');
+  const [savingQuestion, setSavingQuestion] = useState(false);
 
   const isChoice = q.inputType === 'choice';
 
   useEffect(() => {
     if (defaultOpen) { setOpen(true); onOpened?.(); }
   }, [defaultOpen]); // eslint-disable-line
+
+  useEffect(() => {
+    setQuestionText(q.question ?? '');
+  }, [q.question]);
 
   const section = sections.find(s => s.id === q.sectionId);
 
@@ -101,6 +108,14 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
     }
   };
 
+  const saveQuestion = async () => {
+    if (!questionText.trim() || savingQuestion) return;
+    setSavingQuestion(true);
+    await onUpdateQuestion?.(q, questionText);
+    setSavingQuestion(false);
+    setEditingQuestion(false);
+  };
+
   return (
     <div className="normal-question-card">
       <div className="nq-header" onClick={() => setOpen(o => !o)}>
@@ -111,7 +126,31 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
       {open && (
         <div className="nq-body">
           <div className="nq-content-area">
-            <p className="nq-question">{q.question}</p>
+            {editingQuestion ? (
+              <div className="nq-admin-question-form">
+                <textarea value={questionText} onChange={e => setQuestionText(e.target.value)} rows={3} />
+                <div className="nq-admin-question-actions">
+                  <button onClick={saveQuestion} disabled={savingQuestion || !questionText.trim()}>
+                    {savingQuestion ? '保存中...' : '保存'}
+                  </button>
+                  <button className="nq-admin-secondary" onClick={() => { setQuestionText(q.question ?? ''); setEditingQuestion(false); }} disabled={savingQuestion}>
+                    キャンセル
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="nq-question-row">
+                <p className="nq-question">{q.question}</p>
+                {isAdmin && (
+                  <button
+                    className="nq-admin-edit-btn"
+                    onClick={() => setEditingQuestion(true)}
+                  >
+                    問題文編集
+                  </button>
+                )}
+              </div>
+            )}
             {q.targetText && (
               <div className="nq-target-text">「{q.targetText}」</div>
             )}
@@ -164,7 +203,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   );
 }
 
-export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onFocusTarget }) {
+export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onFocusTarget, isAdmin, onUpdateQuestion }) {
   if (!questions?.length) return null;
   const sorted = [...questions].sort((a, b) => {
     if (a.type === b.type) return 0;
@@ -183,6 +222,8 @@ export default function NormalQuestions({ questions, sections, historyEntries, o
           defaultOpen={expandedNqId === q.id}
           onOpened={onExpandHandled}
           onFocusTarget={onFocusTarget}
+          isAdmin={isAdmin}
+          onUpdateQuestion={onUpdateQuestion}
         />
       ))}
     </div>
