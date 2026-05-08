@@ -1,0 +1,289 @@
+{
+  "id": "tsurezure",
+  "title": "つれづれなるままに",
+  "source": "徒然草",
+  "sections": [
+    {
+      "id": "s1",
+      "title": "第一段",
+      "text": "つれづれなるままに、日暮らし、硯に向かひて、心にうつりゆくよしなしごとを、そこはかとなく書きつくれば、あやしうこそものぐるほしけれ。（序段）",
+      "modern": "することがなく手持ちぶさたなのに任せて、日が暮れるまで、硯に向かって、心に浮かんでは消えていくつまらないことを、とりとめもなく書きつけていると、不思議にも、心が乱れるような気分になる。",
+      "targets": [
+        {
+          "id": "vocab-s1-1",
+          "type": "vocab",
+          "surface": "つれづれなる",
+          "start": 0,
+          "end": 6,
+          "answer": "することがなくて手持ちぶさただ",
+          "explanation": "形容動詞「つれづれなり」。ここでは「することがなくて手持ちぶさただ」の意。"
+        },
+        {
+          "id": "particle-s1-1",
+          "type": "particle",
+          "surface": "に",
+          "start": 8,
+          "end": 9,
+          "pos": "格助詞",
+          "meaning": "原因・理由",
+          "detail": "「つれづれなるままに」の「に」。原因・理由を表す格助詞。",
+          "answer": "原因・理由"
+        },
+        {
+          "id": "verb-s1-1",
+          "type": "verb",
+          "surface": "暮らし",
+          "start": 9,
+          "end": 12,
+          "pos": "動詞（サ行四段活用）",
+          "meaning": "日が暮れるまで過ごす。",
+          "detail": "",
+          "baseForm": "暮らす",
+          "conjugationType": "サ行四段活用",
+          "formInText": "連用形",
+          "explanation": "「日暮らし」の「暮らし」。サ行四段活用動詞「暮らす」の連用形。"
+        },
+        {
+          "id": "particle-s1-2",
+          "type": "particle",
+          "surface": "に",
+          "start": 13,
+          "end": 14,
+          "pos": "格助詞",
+          "meaning": "対象",
+          "detail": "「硯に向かひて」の「に」。動作の向かう対象を表す格助詞。",
+          "answer": "対象"
+        },
+        {
+          "id": "verb-s1-2",
+          "type": "verb",
+          "surface": "向かひ",
+          "start": 14,
+          "end": 17,
+          "pos": "動詞（ハ行四段活用）",
+          "meaning": "向かう。",
+          "detail": "",
+          "baseForm": "向かふ",
+          "conjugationType": "ハ行四段活用",
+          "formInText": "連用形",
+          "explanation": "「硯に向かひて」の「向かひ」。ハ行四段活用動詞「向かふ」の連用形。"
+        },
+        {
+          "id": "particle-s1-3",
+          "type": "particle",
+          "surface": "て",
+          "start": 17,
+          "end": 18,
+          "pos": "接続助詞",
+          "meaning": "単純接続",
+          "detail": "「硯に向かひて」の「て」。単純な接続を表す接続助詞。",
+          "answer": "単純接続"
+        },
+        {
+          "id": "particle-s1-4",
+          "type": "particle",
+          "surface": "に",
+          "start": 19,
+          "end": 20,
+          "pos": "格助詞",
+          "meaning": "場所",
+          "detail": "「心にうつりゆく」の「に」。場所を表す格助詞。",
+          "answer": "場所"
+        },
+        {
+          "id": "verb-s1-3",
+          "type": "verb",
+          "surface": "うつりゆく",
+          "start": 20,
+          "end": 25,
+          "pos": "動詞（カ行四段活用）",
+          "meaning": "移っていく。浮かんでは消えていく。",
+          "detail": "",
+          "baseForm": "うつりゆく",
+          "conjugationType": "カ行四段活用",
+          "formInText": "連体形",
+          "explanation": "「心にうつりゆくよしなしごと」の「うつりゆく」。連体形で「よしなしごと」を修飾する。"
+        },
+        {
+          "id": "vocab-s1-2",
+          "type": "vocab",
+          "surface": "よしなしごと",
+          "start": 25,
+          "end": 31,
+          "answer": "つまらないこと。とりとめもないこと。",
+          "explanation": "形容詞「よしなし」からなる語。ここでは「つまらないこと」「とりとめもないこと」の意。"
+        },
+        {
+          "id": "particle-s1-5",
+          "type": "particle",
+          "surface": "を",
+          "start": 31,
+          "end": 32,
+          "pos": "格助詞",
+          "meaning": "対象",
+          "detail": "「よしなしごとを」の「を」。動作の対象を表す格助詞。",
+          "answer": "対象"
+        },
+        {
+          "id": "vocab-s1-3",
+          "type": "vocab",
+          "surface": "そこはかとなく",
+          "start": 32,
+          "end": 39,
+          "answer": "とりとめもなく。あてもなく。",
+          "explanation": "副詞的に用いられ、「とりとめもなく」の意。"
+        },
+        {
+          "id": "verb-s1-4",
+          "type": "verb",
+          "surface": "書きつくれ",
+          "start": 39,
+          "end": 44,
+          "pos": "動詞（カ行下二段活用）",
+          "meaning": "書きつける。",
+          "detail": "",
+          "baseForm": "書きつく",
+          "conjugationType": "カ行下二段活用",
+          "formInText": "已然形",
+          "explanation": "「書きつくれば」の「書きつくれ」。カ行下二段活用動詞「書きつく」の已然形。"
+        },
+        {
+          "id": "particle-s1-6",
+          "type": "particle",
+          "surface": "ば",
+          "start": 44,
+          "end": 45,
+          "pos": "接続助詞",
+          "meaning": "順接確定条件（偶然条件）",
+          "detail": "「書きつくれば」の「ば」。已然形に接続し、偶然条件を表す。",
+          "answer": "順接確定条件（偶然条件）"
+        },
+        {
+          "id": "adj-s1-1",
+          "type": "adj",
+          "surface": "あやしう",
+          "start": 45,
+          "end": 49,
+          "pos": "形容詞（シク活用）",
+          "meaning": "不思議だ。変だ。",
+          "detail": "①不都合だ。けしからぬ。②不思議だ。変だ。▼ここでは②の意。",
+          "baseForm": "あやし",
+          "conjugationType": "シク活用",
+          "formInText": "連用形（ウ音便）",
+          "explanation": "「あやしうこそ」の「あやしう」。シク活用形容詞「あやし」の連用形がウ音便化した形。"
+        },
+        {
+          "id": "vocab-s1-4",
+          "type": "vocab",
+          "surface": "あやしう",
+          "start": 45,
+          "end": 49,
+          "answer": "不思議だ。変だ。",
+          "explanation": "形容詞「あやし」。ここでは「不思議だ」「変だ」の意。"
+        },
+        {
+          "id": "particle-s1-7",
+          "type": "particle",
+          "surface": "こそ",
+          "start": 49,
+          "end": 51,
+          "pos": "係助詞",
+          "meaning": "強意",
+          "detail": "「あやしうこそ」の「こそ」。強意の係助詞で、文末を已然形で結ぶ。",
+          "answer": "強意"
+        },
+        {
+          "id": "adj-s1-2",
+          "type": "adj",
+          "surface": "ものぐるほしけれ",
+          "start": 51,
+          "end": 59,
+          "pos": "形容詞（シク活用）",
+          "meaning": "心が乱れるような気分になる。気が変になりそうだ。",
+          "detail": "",
+          "baseForm": "ものぐるほし",
+          "conjugationType": "シク活用",
+          "formInText": "已然形",
+          "explanation": "「ものぐるほしけれ」は、係助詞「こそ」を受けて已然形になっている。"
+        },
+        {
+          "id": "vocab-s1-5",
+          "type": "vocab",
+          "surface": "ものぐるほしけれ",
+          "start": 51,
+          "end": 59,
+          "answer": "心が乱れるような気分になる。気が変になりそうだ。",
+          "explanation": "形容詞「ものぐるほし」。ここでは「心が乱れるような気分になる」の意。"
+        },
+        {
+          "id": "grammar-s1-1",
+          "type": "grammar",
+          "surface": "あやしうこそものぐるほしけれ",
+          "questionSurface": "こそものぐるほしけれ",
+          "start": 45,
+          "end": 59,
+          "answer": "係り結び。係助詞「こそ」を受けて、文末の「ものぐるほしけれ」が已然形になっている。",
+          "explanation": "「こそ」は強意の係助詞で、結びは已然形になる。"
+        }
+      ]
+    }
+  ],
+  "normalQuestions": [
+    {
+      "id": "trans-1",
+      "type": "translation",
+      "title": "現代語訳①",
+      "question": "全文を現代語訳せよ。",
+      "targetText": "つれづれなるままに、日暮らし、硯に向かひて、心にうつりゆくよしなしごとを、そこはかとなく書きつくれば、あやしうこそものぐるほしけれ。",
+      "sectionId": "s1",
+      "answer": "することがなく手持ちぶさたなのに任せて、日が暮れるまで、硯に向かって、心に浮かんでは消えていくつまらないことを、とりとめもなく書きつけていると、不思議にも、心が乱れるような気分になる。",
+      "explanation": ""
+    },
+    {
+      "id": "content-1",
+      "type": "content",
+      "local": true,
+      "title": "内容読解①",
+      "question": "「つれづれなるままに」（四六・１）はどの言葉を修飾するのか、抜き出せ。（短答・AI採点なし）",
+      "sectionId": "s1",
+      "answer": "書きつくれば",
+      "explanation": ""
+    },
+    {
+      "id": "content-2",
+      "type": "content",
+      "title": "内容読解②",
+      "question": "「心にうつりゆく」（四六・２）とは具体的に何がどうなることを表しているか。",
+      "targetText": "心にうつりゆく",
+      "sectionId": "s1",
+      "answer": "つまらないことが心に浮かんでは消え、また浮かんでは消えていく状態。",
+      "explanation": ""
+    },
+    {
+      "id": "content-3",
+      "type": "content",
+      "title": "内容読解③",
+      "question": "「あやしうこそものぐるほしけれ」（四六・３）の係り結びを説明せよ。",
+      "targetText": "あやしうこそものぐるほしけれ",
+      "sectionId": "s1",
+      "answer": "強意の係助詞「こそ」が文中にあり、文末の「ものぐるほし」が已然形に活用している。",
+      "explanation": ""
+    },
+    {
+      "id": "content-4",
+      "type": "content",
+      "inputType": "choice",
+      "title": "内容読解④",
+      "question": "「ものぐるほしけれ」（四六・３）には以下のような意味があるが、この場面ではどのような意味が適当か。（選択肢）",
+      "choices": [
+        "①狂気じみている。",
+        "②訳がわからない。",
+        "③心が乱れるような気分がする。",
+        "④ただごとでないような共感を覚える。"
+      ],
+      "sectionId": "s1",
+      "answer": "③心が乱れるような気分がする。",
+      "explanation": ""
+    }
+  ]
+}
