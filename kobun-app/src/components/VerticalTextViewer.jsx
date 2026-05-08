@@ -42,7 +42,7 @@ function buildSegments(text, allTargets, activeType, pinnedPhrase) {
   return segments;
 }
 
-function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect }) {
+function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
   const [firstPoint, setFirstPoint] = useState(null);
@@ -101,6 +101,12 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
             })}
           </div>
         </div>
+        {showModern && section.modern && (
+          <div className="admin-modern-translation">
+            <div className="admin-modern-label">現代語訳</div>
+            <p>{section.modern}</p>
+          </div>
+        )}
       </div>
     );
   };
@@ -127,11 +133,17 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
           )}
         </div>
       </div>
+      {showModern && section.modern && (
+        <div className="admin-modern-translation">
+          <div className="admin-modern-label">現代語訳</div>
+          <p>{section.modern}</p>
+        </div>
+      )}
     </div>
   );
 }
 
-export default function VerticalTextViewer({ sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect }) {
+export default function VerticalTextViewer({ sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern }) {
   return (
     <div className="vertical-viewer">
       {sections.map(section => (
@@ -145,6 +157,7 @@ export default function VerticalTextViewer({ sections, selectedTarget, onSelectT
           selectionMode={selectionMode}
           selectionRange={selectionRange}
           onRangeSelect={onRangeSelect}
+          showModern={showModern}
         />
       ))}
     </div>

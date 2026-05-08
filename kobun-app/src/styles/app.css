@@ -200,6 +200,29 @@ body {
   max-height: 260px;
 }
 
+.admin-modern-translation {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-top: 1px solid #e5dfd2;
+  background: #faf8f4;
+  border-radius: 0 0 6px 6px;
+}
+
+.admin-modern-label {
+  font-size: 0.72rem;
+  font-weight: bold;
+  color: #4a6fa5;
+  margin-bottom: 6px;
+  letter-spacing: 0.08em;
+}
+
+.admin-modern-translation p {
+  margin: 0;
+  color: #444;
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
 /* ===== Highlight Tokens ===== */
 .highlight-token {
   cursor: pointer;

@@ -457,6 +457,7 @@ function AppInner() {
               selectionMode={isAdmin && Boolean(addingType)}
               selectionRange={adminSelection}
               onRangeSelect={setAdminSelection}
+              showModern={isAdmin}
             />
           ) : null}
         </div>
