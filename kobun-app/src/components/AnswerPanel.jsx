@@ -35,9 +35,28 @@ function JudgeIcon({ judgement }) {
   return <span className="judge-icon judge-wrong">✕</span>;
 }
 
+function HighlightQuestionText({ text, surface }) {
+  if (!text || !surface || !text.includes(surface)) return <>{text}</>;
+  const parts = text.split(surface);
+  return (
+    <>
+      {parts.map((part, index) => (
+        <span key={index}>
+          {part}
+          {index < parts.length - 1 && <span className="question-surface">{surface}</span>}
+        </span>
+      ))}
+    </>
+  );
+}
+
 function QuestionHeader({ target }) {
   if (target.questionText) {
-    return <span className="question-header-text">{target.questionText}</span>;
+    return (
+      <span className="question-header-text">
+        <HighlightQuestionText text={target.questionText} surface={target.questionSurface ?? target.surface} />
+      </span>
+    );
   }
   const surface = target.type === 'grammar' ? (target.questionSurface ?? target.surface) : target.surface;
   const prefix = { aux: '助動詞', particle: '助詞' }[target.type] ?? '';
@@ -49,6 +68,16 @@ function QuestionHeader({ target }) {
     <span className="question-header-text">
       {prefix}<span className="question-surface">「{surface}」</span>{suffix}
     </span>
+  );
+}
+
+function UndoDeleteNotice({ deletedTargetNotice, onUndoDelete }) {
+  if (!deletedTargetNotice) return null;
+  return (
+    <div className="admin-undo-notice">
+      <span>「{deletedTargetNotice.target?.surface ?? '問題'}」を削除しました。</span>
+      <button type="button" onClick={onUndoDelete}>元に戻す</button>
+    </div>
   );
 }
 
@@ -464,6 +493,8 @@ export default function AnswerPanel({
   onCreateTarget,
   onDeleteTarget,
   onUpdateTarget,
+  deletedTargetNotice,
+  onUndoDelete,
 }) {
   const cardRefs = useRef([]);
   const inputsMap = useRef({});
@@ -517,6 +548,7 @@ export default function AnswerPanel({
 
   const adminTools = isAdmin && ADMIN_ADD_TYPES.has(activeType) ? (
     <>
+      <UndoDeleteNotice deletedTargetNotice={deletedTargetNotice} onUndoDelete={onUndoDelete} />
       <div className="admin-list-tools">
         <button type="button" onClick={() => onStartAdd?.(activeType)}>問題追加</button>
         {addingType === activeType && <span>左カラムで最初の文字、最後の文字の順にクリックしてください。</span>}
@@ -532,6 +564,7 @@ export default function AnswerPanel({
       )}
     </>
   ) : null;
+  const undoNotice = isAdmin ? <UndoDeleteNotice deletedTargetNotice={deletedTargetNotice} onUndoDelete={onUndoDelete} /> : null;
 
   if (activeType === 'all') {
     if (!selectedTarget) {
@@ -546,6 +579,7 @@ export default function AnswerPanel({
     }
     return (
       <div className="answer-panel-list">
+        {undoNotice}
         <QuestionCard
           key={selectedTarget.id}
           target={selectedTarget}
@@ -568,7 +602,7 @@ export default function AnswerPanel({
   if (questions.length === 0) {
     return (
       <div className="answer-panel-list">
-        {adminTools}
+        {adminTools ?? undoNotice}
         <div className="answer-panel empty">
           <div className="empty-message">
             <p>この品詞の問題はありません</p>
@@ -580,7 +614,7 @@ export default function AnswerPanel({
 
   return (
     <div className="answer-panel-list">
-      {adminTools}
+      {adminTools ?? undoNotice}
       {questions.map(({ target, section }, i) => (
         <QuestionCard
           key={target.id}

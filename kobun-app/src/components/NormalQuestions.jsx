@@ -51,6 +51,21 @@ function ChoiceInput({ choices, value, onChange, disabled, answered, correctAnsw
   );
 }
 
+function HighlightQuestionText({ text, surface }) {
+  if (!text || !surface || !text.includes(surface)) return <>{text}</>;
+  const parts = text.split(surface);
+  return (
+    <>
+      {parts.map((part, index) => (
+        <span key={index}>
+          {part}
+          {index < parts.length - 1 && <span className="question-surface">{surface}</span>}
+        </span>
+      ))}
+    </>
+  );
+}
+
 function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened, onFocusTarget, isAdmin, onUpdateQuestion }) {
   const lastFeedback = historyEntry?.attempts?.at(-1)?.feedback ?? null;
   const [ans, setAns] = useState(lastFeedback?.userAnswer ?? '');
@@ -140,7 +155,9 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
               </div>
             ) : (
               <div className="nq-question-row">
-                <p className="nq-question">{q.question}</p>
+                <p className="nq-question">
+                  <HighlightQuestionText text={q.question} surface={q.targetText} />
+                </p>
                 {isAdmin && (
                   <button
                     className="nq-admin-edit-btn"

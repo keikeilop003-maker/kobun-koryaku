@@ -557,6 +557,37 @@ body {
   background: #faf8f4;
 }
 
+.admin-undo-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid #c8d8c8;
+  border-radius: 6px;
+  background: #f3fbf3;
+  color: #2e5f34;
+  font-size: 0.82rem;
+}
+
+.admin-undo-notice span {
+  flex: 1;
+}
+
+.admin-undo-notice button {
+  background: #2e7d32;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  padding: 5px 10px;
+}
+
+.admin-undo-notice button:hover {
+  background: #1b5e20;
+}
+
 .admin-list-tools button,
 .admin-inline-actions button {
   background: #2d3a5e;

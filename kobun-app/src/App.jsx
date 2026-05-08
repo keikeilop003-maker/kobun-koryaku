@@ -61,6 +61,7 @@ function AppInner() {
   const [addingType, setAddingType] = useState(null);
   const [textbookOrder, setTextbookOrder] = useState([]);
   const [textbookStatuses, setTextbookStatuses] = useState({});
+  const [lastDeletedTarget, setLastDeletedTarget] = useState(null);
 
   const textId = textData?.id ?? selectedTextId ?? '';
   const customTargets = useCustomTargets(textId);
@@ -179,6 +180,7 @@ function AppInner() {
     setPinnedPhrase(null);
     setAdminSelection(null);
     setAddingType(null);
+    setLastDeletedTarget(null);
   };
 
   const handleMoveTextbook = async (id, direction) => {
@@ -242,6 +244,7 @@ function AppInner() {
     setRightTab('knowledge');
     setAddingType(null);
     setAdminSelection(null);
+    setLastDeletedTarget(null);
   };
 
   const handleJump = useCallback((entry) => {
@@ -306,6 +309,12 @@ function AppInner() {
     try {
       if (target.customDocId) {
         await deleteDoc(doc(db, 'customTargets', target.customDocId));
+        setLastDeletedTarget({
+          kind: 'custom',
+          docId: target.customDocId,
+          sectionId: section.id,
+          target,
+        });
         window.alert('削除しました');
         return;
       }
@@ -318,12 +327,47 @@ function AppInner() {
         hiddenByEmail: user.email,
         createdAt: serverTimestamp(),
       });
+      setLastDeletedTarget({
+        kind: 'base',
+        sectionId: section.id,
+        target,
+      });
       window.alert('削除しました');
     } catch (err) {
       console.error('[delete target] failed:', err);
       window.alert(`削除に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
     }
   }, [isAdmin, textId, user]);
+
+  const handleUndoDeleteTarget = useCallback(async () => {
+    if (!isAdmin || !user || !textId || !lastDeletedTarget) return;
+    try {
+      if (lastDeletedTarget.kind === 'custom') {
+        const { customDocId, docId: _docId, ...restoredTarget } = lastDeletedTarget.target;
+        await setDoc(doc(db, 'customTargets', lastDeletedTarget.docId), {
+          textId,
+          sectionId: lastDeletedTarget.sectionId,
+          target: { ...restoredTarget, custom: true },
+          anchor: {
+            sectionId: lastDeletedTarget.sectionId,
+            text: lastDeletedTarget.target.surface,
+            start: Number.isInteger(lastDeletedTarget.target.start) ? lastDeletedTarget.target.start : null,
+            end: Number.isInteger(lastDeletedTarget.target.end) ? lastDeletedTarget.target.end : null,
+          },
+          createdBy: user.uid,
+          createdByEmail: user.email,
+          createdAt: serverTimestamp(),
+        });
+      } else {
+        await deleteDoc(doc(db, 'hiddenTargets', `${textId}__${lastDeletedTarget.sectionId}__${lastDeletedTarget.target.id}`));
+      }
+      setLastDeletedTarget(null);
+      window.alert('元に戻しました');
+    } catch (err) {
+      console.error('[undo delete target] failed:', err);
+      window.alert(`元に戻せませんでした: ${err.code ?? err.message ?? 'unknown error'}`);
+    }
+  }, [isAdmin, lastDeletedTarget, textId, user]);
 
   const handleUpdateTarget = useCallback(async (currentTarget, currentSection, { sectionId, target, anchor }) => {
     if (!isAdmin || !user || !textId || !currentTarget || !currentSection) return;
@@ -519,6 +563,8 @@ function AppInner() {
                   onCreateTarget={handleCreateTarget}
                   onDeleteTarget={handleDeleteTarget}
                   onUpdateTarget={handleUpdateTarget}
+                  deletedTargetNotice={lastDeletedTarget}
+                  onUndoDelete={handleUndoDeleteTarget}
                 />
               </div>
               <div style={{ display: rightTab === 'normal' ? 'block' : 'none' }}>
