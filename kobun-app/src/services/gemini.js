@@ -146,10 +146,18 @@ function normalizeConjugationType(s) {
   return String(s ?? '').replace(/活用$/g, '').trim();
 }
 
-function localCompare(userAnswer, correctAnswer) {
+function answerParts(answer) {
+  return String(answer)
+    .split(/[。．・、／/]/)
+    .map(p => p.trim())
+    .filter(Boolean);
+}
+
+function localCompare(userAnswer, correctAnswer, acceptedAnswers = []) {
   const user = normalize(userAnswer);
   if (!user) return '不正解';
-  const parts = String(correctAnswer).split(/[・、]/).map(p => p.trim()).filter(Boolean);
+  const candidates = [correctAnswer, ...(acceptedAnswers ?? [])].filter(Boolean);
+  const parts = candidates.flatMap(answer => [String(answer), ...answerParts(answer)]);
   for (const p of parts) {
     if (normalize(p) === user || normalize(stripParens(p)) === user) return '正解';
   }
@@ -248,7 +256,7 @@ async function review(type, payload) {
 
 export async function reviewVocab({ userAnswer, correctAnswer, acceptedAnswers, useAi = false }) {
   if (useAi) return review('vocab', { userAnswer, correctAnswer, acceptedAnswers });
-  return { judgement: localCompare(userAnswer, correctAnswer) };
+  return { judgement: localCompare(userAnswer, correctAnswer, acceptedAnswers) };
 }
 
 export async function reviewAux({ surface, sentence, userAnswer, correctAnswer, acceptedAnswers, explanation, useAi = false }) {
@@ -262,7 +270,7 @@ export async function reviewAux({ surface, sentence, userAnswer, correctAnswer, 
       userAnswer,
     });
   }
-  const judgement = localCompare(userAnswer, correctAnswer);
+  const judgement = localCompare(userAnswer, correctAnswer, acceptedAnswers);
   return {
     judgement,
     correctUsage: correctAnswer,
@@ -326,7 +334,7 @@ export async function reviewAdj({ surface, sentence, userBaseForm, userConjugati
 
 export async function reviewParticle({ userAnswer, correctAnswer, acceptedAnswers, useAi = false }) {
   if (useAi) return review('particle', { userAnswer, correctAnswer, acceptedAnswers });
-  const judgement = localCompare(userAnswer, correctAnswer);
+  const judgement = localCompare(userAnswer, correctAnswer, acceptedAnswers);
   return {
     judgement,
     correctUsage: correctAnswer,
@@ -336,7 +344,7 @@ export async function reviewParticle({ userAnswer, correctAnswer, acceptedAnswer
 
 export async function reviewGrammar({ userAnswer, correctAnswer, acceptedAnswers, useAi = false }) {
   if (useAi) return review('grammar', { userAnswer, correctAnswer, acceptedAnswers });
-  return { judgement: localCompare(userAnswer, correctAnswer) };
+  return { judgement: localCompare(userAnswer, correctAnswer, acceptedAnswers) };
 }
 
 export async function reviewTranslation({ targetText, sentence, userAnswer, correctAnswer, explanation }) {
