@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { collectionGroup, doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collectionGroup, deleteDoc, doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 
 function uidFromGroupedDoc(snap) {
@@ -130,5 +130,13 @@ export default function useAdminData(isAdmin, adminUser) {
     }, { merge: true });
   };
 
-  return { users, saveStudentCode, saveProfile };
+  const saveHistoryEntries = async (uid, textId, entries) => {
+    await setDoc(doc(db, 'users', uid, 'history', textId), { entries });
+  };
+
+  const clearHistoryText = async (uid, textId) => {
+    await deleteDoc(doc(db, 'users', uid, 'history', textId));
+  };
+
+  return { users, saveStudentCode, saveProfile, saveHistoryEntries, clearHistoryText };
 }

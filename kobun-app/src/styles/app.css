@@ -2769,6 +2769,72 @@ body {
 }
 .admin-message-row select { align-self: flex-start; }
 
+.admin-history-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-history-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  max-width: 980px;
+}
+
+.admin-history-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #2d3a5e;
+  font-size: 0.82rem;
+  font-weight: bold;
+}
+
+.admin-history-controls select {
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  color: #2c2c2c;
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 8px 10px;
+}
+
+.admin-history-summary {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: #666;
+  font-size: 0.84rem;
+}
+
+.admin-history-summary strong {
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+.admin-history-summary button,
+.admin-danger-btn {
+  border: 1px solid #d7a2a2;
+  border-radius: 6px;
+  background: #fff5f5;
+  color: #b71c1c;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  padding: 7px 12px;
+}
+
+.admin-history-summary button:hover,
+.admin-danger-btn:hover {
+  background: #ffe5e5;
+}
+
+.admin-history-table {
+  min-width: 860px;
+}
+
 /* ===== User Contact Modal ===== */
 .user-contact-overlay {
   position: fixed;

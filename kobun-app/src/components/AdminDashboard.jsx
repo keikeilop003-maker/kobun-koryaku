@@ -6,10 +6,13 @@ import { DEFAULT_EQUIPPED, ITEMS } from '../data/items';
 
 const TABS = [
   { id: 'users', label: 'ユーザー一覧' },
+  { id: 'history', label: '取り組み履歴' },
   { id: 'profile', label: 'プロフィール編集' },
   { id: 'codes', label: '利用番号申請' },
   { id: 'messages', label: 'メッセージ' },
 ];
+
+const HISTORY_LIMIT = 50;
 
 function fmtDate(value) {
   const ms = typeof value === 'number' ? value : value?.toMillis?.();
@@ -28,6 +31,39 @@ function userLabel(user) {
 
 function textTitle(textbooks, textId) {
   return textbooks.find(t => t.id === textId)?.title ?? textId;
+}
+
+function entryAttempts(entry) {
+  return Array.isArray(entry?.attempts) ? entry.attempts : [];
+}
+
+function isCorrectJudgement(judgement) {
+  return judgement === '正解' || judgement === '豁｣隗｣' || judgement === '雎・ｽ｣髫暦ｽ｣';
+}
+
+function historyRows(history, filter) {
+  const entries = history?.entries ?? {};
+  return Object.values(entries)
+    .map(entry => {
+      const attempts = entryAttempts(entry);
+      const last = attempts.at(-1);
+      const hasCorrect = attempts.some(attempt => isCorrectJudgement(attempt.judgement));
+      return {
+        ...entry,
+        attemptCount: attempts.length,
+        lastAt: Number(last?.at ?? 0),
+        lastJudgement: last?.judgement ?? '-',
+        lastAnswer: last?.feedback?.userAnswer ?? '',
+        hasCorrect,
+      };
+    })
+    .filter(entry => {
+      if (filter === 'review') return !entry.hasCorrect;
+      if (filter === 'recent') return entry.lastAt > 0;
+      return true;
+    })
+    .sort((a, b) => b.lastAt - a.lastAt)
+    .slice(0, HISTORY_LIMIT);
 }
 
 function UserTable({ users, textbooks }) {
@@ -71,6 +107,108 @@ function UserTable({ users, textbooks }) {
           )}
         </tbody>
       </table>
+    </div>
+  );
+}
+
+function HistoryManager({ users, textbooks, onSaveEntries, onClearText }) {
+  const [uid, setUid] = useState('');
+  const [textId, setTextId] = useState('');
+  const [filter, setFilter] = useState('review');
+  const [message, setMessage] = useState('');
+  const selectedUser = users.find(user => user.uid === uid) ?? users[0];
+  const histories = selectedUser?.histories ?? [];
+  const selectedHistory = histories.find(history => history.textId === textId) ?? histories[0];
+  const currentTextId = selectedHistory?.textId ?? '';
+  const rows = historyRows(selectedHistory, filter);
+
+  const selectUser = (nextUid) => {
+    setUid(nextUid);
+    setTextId('');
+    setMessage('');
+  };
+
+  const deleteEntry = async (entryId) => {
+    if (!selectedUser || !selectedHistory || !window.confirm('この問題の履歴を削除しますか？')) return;
+    const nextEntries = { ...(selectedHistory.entries ?? {}) };
+    delete nextEntries[entryId];
+    await onSaveEntries(selectedUser.uid, selectedHistory.textId, nextEntries);
+    setMessage('履歴を削除しました');
+  };
+
+  const clearText = async () => {
+    if (!selectedUser || !selectedHistory || !window.confirm('この教材の履歴をすべて削除しますか？')) return;
+    await onClearText(selectedUser.uid, selectedHistory.textId);
+    setMessage('教材の履歴をクリアしました');
+  };
+
+  if (!selectedUser) return <div className="admin-dash-empty">履歴のあるユーザーがまだありません</div>;
+
+  return (
+    <div className="admin-history-manager">
+      <div className="admin-history-controls">
+        <label>
+          ユーザー
+          <select value={selectedUser.uid} onChange={e => selectUser(e.target.value)}>
+            {users.map(user => <option key={user.uid} value={user.uid}>{userLabel(user)}</option>)}
+          </select>
+        </label>
+        <label>
+          教材
+          <select value={currentTextId} onChange={e => { setTextId(e.target.value); setMessage(''); }}>
+            {histories.map(history => (
+              <option key={history.textId} value={history.textId}>{textTitle(textbooks, history.textId)}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          表示
+          <select value={filter} onChange={e => setFilter(e.target.value)}>
+            <option value="review">要復習のみ</option>
+            <option value="recent">直近順</option>
+            <option value="all">全件から直近50件</option>
+          </select>
+        </label>
+      </div>
+
+      <div className="admin-history-summary">
+        <span>表示は最大{HISTORY_LIMIT}件です。</span>
+        <span>教材内の記録: {Object.keys(selectedHistory?.entries ?? {}).length}問</span>
+        {message && <strong>{message}</strong>}
+        {selectedHistory && <button onClick={clearText}>この教材の履歴をクリア</button>}
+      </div>
+
+      <div className="admin-dash-table-wrap">
+        <table className="admin-dash-table admin-history-table">
+          <thead>
+            <tr>
+              <th>問題</th>
+              <th>種別</th>
+              <th>最終判定</th>
+              <th>回数</th>
+              <th>最終回答</th>
+              <th>最終学習</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(entry => (
+              <tr key={entry.id}>
+                <td>{entry.surface || entry.questionId || entry.id}</td>
+                <td>{entry.type ?? '-'}</td>
+                <td>{entry.lastJudgement}</td>
+                <td>{entry.attemptCount}</td>
+                <td>{entry.lastAnswer || '-'}</td>
+                <td>{fmtDate(entry.lastAt)}</td>
+                <td><button className="admin-danger-btn" onClick={() => deleteEntry(entry.id)}>削除</button></td>
+              </tr>
+            ))}
+            {rows.length === 0 && (
+              <tr><td colSpan="7" className="admin-dash-empty">条件に合う履歴はありません</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -260,7 +398,13 @@ function MessageInbox({ messages, onStatus }) {
 
 export default function AdminDashboard({ isAdmin, currentUser, textbooks, onClose }) {
   const [tab, setTab] = useState('users');
-  const { users, saveStudentCode, saveProfile } = useAdminData(isAdmin, currentUser);
+  const {
+    users,
+    saveStudentCode,
+    saveProfile,
+    saveHistoryEntries,
+    clearHistoryText,
+  } = useAdminData(isAdmin, currentUser);
   const { messages, updateStatus } = useAllAdminMessages(isAdmin);
   const requestedUsers = users.filter(user => user.account?.requestedStudentCode || user.account?.studentCode);
 
@@ -269,7 +413,7 @@ export default function AdminDashboard({ isAdmin, currentUser, textbooks, onClos
       <div className="admin-dash-header">
         <div>
           <h1>管理者ページ</h1>
-          <p>利用状況、利用番号、プロフィール、問い合わせを管理します。</p>
+          <p>利用状況、履歴、利用番号、プロフィール、問い合わせを管理します。</p>
         </div>
         <button onClick={onClose}>教材選択へ戻る</button>
       </div>
@@ -281,6 +425,14 @@ export default function AdminDashboard({ isAdmin, currentUser, textbooks, onClos
         ))}
       </div>
       {tab === 'users' && <UserTable users={users} textbooks={textbooks} />}
+      {tab === 'history' && (
+        <HistoryManager
+          users={users.filter(user => user.histories.length > 0)}
+          textbooks={textbooks}
+          onSaveEntries={saveHistoryEntries}
+          onClearText={clearHistoryText}
+        />
+      )}
       {tab === 'profile' && <ProfileEditor users={users} onSave={saveProfile} />}
       {tab === 'codes' && <CodeRequests users={requestedUsers} onSave={saveStudentCode} />}
       {tab === 'messages' && <MessageInbox messages={messages} onStatus={updateStatus} />}
