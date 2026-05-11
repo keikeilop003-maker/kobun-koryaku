@@ -134,8 +134,8 @@ export default function AdminTargetForm({
         surface,
         explanation: form.explanation.trim(),
         gradingMode: form.gradingMode,
-        start: start >= 0 ? start : undefined,
       };
+      if (start >= 0) target.start = start;
       if (showMeaningField) target.meaning = form.meaning.trim();
       else delete target.meaning;
       if (form.questionText.trim()) target.questionText = form.questionText.trim();
