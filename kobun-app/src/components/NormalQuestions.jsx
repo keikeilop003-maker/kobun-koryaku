@@ -51,19 +51,34 @@ function ChoiceInput({ choices, value, onChange, disabled, answered, correctAnsw
   );
 }
 
-function HighlightQuestionText({ text, surface }) {
-  if (!text || !surface || !text.includes(surface)) return <>{text}</>;
-  const parts = text.split(surface);
-  return (
-    <>
-      {parts.map((part, index) => (
-        <span key={index}>
-          {part}
-          {index < parts.length - 1 && <span className="question-surface">{surface}</span>}
-        </span>
-      ))}
-    </>
-  );
+function boldWords(surfaces, fallbackSurface) {
+  const values = Array.isArray(surfaces) ? surfaces : [surfaces ?? fallbackSurface];
+  return [...new Set(values.map(value => value?.trim()).filter(Boolean))]
+    .sort((a, b) => b.length - a.length);
+}
+
+function HighlightQuestionText({ text, surface, surfaces }) {
+  const words = boldWords(surfaces, surface);
+  if (!text || words.length === 0 || !words.some(word => text.includes(word))) return <>{text}</>;
+  const nodes = [];
+  let buffer = '';
+  let index = 0;
+  while (index < text.length) {
+    const word = words.find(item => text.startsWith(item, index));
+    if (word) {
+      if (buffer) {
+        nodes.push(buffer);
+        buffer = '';
+      }
+      nodes.push(<span key={`bold-${index}`} className="question-surface">{word}</span>);
+      index += word.length;
+    } else {
+      buffer += text[index];
+      index += 1;
+    }
+  }
+  if (buffer) nodes.push(buffer);
+  return <>{nodes}</>;
 }
 
 function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened, onFocusTarget, isAdmin, onUpdateQuestion }) {
@@ -156,7 +171,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
             ) : (
               <div className="nq-question-row">
                 <p className="nq-question">
-                  <HighlightQuestionText text={q.question} surface={q.targetText} />
+                  <HighlightQuestionText text={q.question} surface={q.targetText} surfaces={q.questionSurfaces} />
                 </p>
                 {isAdmin && (
                   <button

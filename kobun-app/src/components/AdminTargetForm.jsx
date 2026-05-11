@@ -9,13 +9,22 @@ const TYPE_LABELS = {
   particle: '助詞',
 };
 
+const BOLD_WORD_LIMIT = 4;
+
+function defaultQuestionSurfaces(initialTarget) {
+  const saved = Array.isArray(initialTarget?.questionSurfaces)
+    ? initialTarget.questionSurfaces
+    : [initialTarget?.questionSurface ?? ''];
+  return [...saved, '', '', '', ''].slice(0, BOLD_WORD_LIMIT);
+}
+
 function defaultForm(type, selection, initialTarget = null, initialSectionId = '') {
   return {
     type,
     sectionId: selection?.sectionId ?? initialSectionId ?? '',
     surface: selection?.text ?? initialTarget?.surface ?? '',
     questionText: initialTarget?.questionText ?? '',
-    questionSurface: initialTarget?.questionSurface ?? '',
+    questionSurfaces: defaultQuestionSurfaces(initialTarget),
     gradingMode: initialTarget?.gradingMode ?? 'local',
     alternativeAnswers: [
       ...(initialTarget?.alternativeAnswers ?? []),
@@ -91,6 +100,14 @@ export default function AdminTargetForm({
     });
     setMessage('');
   };
+  const updateQuestionSurface = (index, value) => {
+    setForm((current) => {
+      const next = [...current.questionSurfaces];
+      next[index] = value;
+      return { ...current, questionSurfaces: next };
+    });
+    setMessage('');
+  };
 
   const isConjugationType = type === 'verb' || type === 'adj';
   const missingMessage = validationMessage(type, form, isConjugationType);
@@ -123,8 +140,14 @@ export default function AdminTargetForm({
       else delete target.meaning;
       if (form.questionText.trim()) target.questionText = form.questionText.trim();
       else delete target.questionText;
-      if (form.questionSurface.trim()) target.questionSurface = form.questionSurface.trim();
-      else delete target.questionSurface;
+      const questionSurfaces = form.questionSurfaces.map(item => item.trim()).filter(Boolean).slice(0, BOLD_WORD_LIMIT);
+      if (questionSurfaces.length > 0) {
+        target.questionSurfaces = questionSurfaces;
+        target.questionSurface = questionSurfaces[0];
+      } else {
+        delete target.questionSurfaces;
+        delete target.questionSurface;
+      }
       const alternativeAnswers = form.alternativeAnswers.map(item => item.trim()).filter(Boolean).slice(0, 5);
       if (alternativeAnswers.length > 0) target.alternativeAnswers = alternativeAnswers;
       else delete target.alternativeAnswers;
@@ -188,7 +211,16 @@ export default function AdminTargetForm({
         </label>
         <label>
           太字にする語
-          <input value={form.questionSurface} onChange={(e) => update('questionSurface', e.target.value)} />
+          <div className="admin-bold-words">
+            {form.questionSurfaces.map((value, index) => (
+              <input
+                key={index}
+                value={value}
+                onChange={(e) => updateQuestionSurface(index, e.target.value)}
+                placeholder={`語${index + 1}`}
+              />
+            ))}
+          </div>
         </label>
         <label>
           採点方法
