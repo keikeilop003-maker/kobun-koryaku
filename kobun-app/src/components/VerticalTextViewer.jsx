@@ -219,9 +219,10 @@ function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSel
 }
 
 export default function VerticalTextViewer({ notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern }) {
+  const visibleSections = sections.filter(section => !section.sectionless);
   return (
     <div className="vertical-viewer">
-      {sections.map((section, index) => (
+      {visibleSections.map((section, index) => (
         <SectionCard
           key={section.id}
           section={section}
