@@ -9,6 +9,7 @@ import AvatarCustomizer from './components/AvatarCustomizer';
 import AnalysisPanel from './components/AnalysisPanel';
 import AdminDashboard from './components/AdminDashboard';
 import UserMessageModal from './components/UserMessageModal';
+import RegistrationScreen from './components/RegistrationScreen';
 import useHistory from './hooks/useHistory';
 import useProfile from './hooks/useProfile';
 import useAdmin from './hooks/useAdmin';
@@ -50,8 +51,8 @@ function targetOrder(section, target) {
 
 function AppInner() {
   const { user, logout } = useAuth();
-  const { isAdmin } = useAdmin(user);
-  const { account, requestStudentCode } = useAccount(user);
+  const { isAdmin, loading: adminLoading } = useAdmin(user);
+  const { account, loading: accountLoading, registerAccount } = useAccount(user);
   const avatarSeed = user?.uid ? user.uid.substring(0, 8) : 'anon';
 
   const [textbooks, setTextbooks] = useState([]);
@@ -464,6 +465,17 @@ function AppInner() {
   const noSelection = selectedTextId === null;
   const currentTextData = displayTextData ?? textData;
 
+  if (accountLoading || adminLoading) return <div className="loading">読み込み中…</div>;
+  if (!isAdmin && account && !account.registrationCompleted && !account.studentCode) {
+    return (
+      <RegistrationScreen
+        user={user}
+        onRegister={registerAccount}
+        onLogout={logout}
+      />
+    );
+  }
+
   return (
     <div className="app-root">
       <header className="app-header">
@@ -670,8 +682,6 @@ function AppInner() {
       {contactOpen && (
         <UserMessageModal
           user={user}
-          account={account}
-          onRequestStudentCode={requestStudentCode}
           onClose={() => setContactOpen(false)}
         />
       )}

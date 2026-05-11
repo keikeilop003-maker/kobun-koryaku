@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { MESSAGE_STATUS, useMyAdminMessages } from '../hooks/useAdminMessages';
-import { STUDENT_CODE_RE } from '../hooks/useAccount';
 
 function fmtDate(value) {
   const ms = value?.toMillis?.() ?? 0;
@@ -13,23 +12,10 @@ function fmtDate(value) {
   }).format(new Date(ms));
 }
 
-export default function UserMessageModal({ user, account, onRequestStudentCode, onClose }) {
+export default function UserMessageModal({ user, onClose }) {
   const { messages, sendMessage } = useMyAdminMessages(user);
-  const [code, setCode] = useState(account?.requestedStudentCode ?? account?.studentCode ?? '');
   const [text, setText] = useState('');
   const [status, setStatus] = useState('');
-
-  const submitCode = async () => {
-    const normalized = code.trim().toUpperCase();
-    setStatus('');
-    if (!STUDENT_CODE_RE.test(normalized)) {
-      setStatus('利用番号は 1A00 から 1H99 の形式で入力してください');
-      return;
-    }
-    await onRequestStudentCode(normalized);
-    setCode(normalized);
-    setStatus('利用番号を申請しました');
-  };
 
   const submitMessage = async () => {
     setStatus('');
@@ -45,24 +31,10 @@ export default function UserMessageModal({ user, account, onRequestStudentCode, 
         <div className="user-contact-header">
           <div>
             <h2>管理者へ連絡</h2>
-            <p>利用番号の申請と問い合わせを送信できます。</p>
+            <p>管理者への問い合わせを送信できます。</p>
           </div>
           <button onClick={onClose}>×</button>
         </div>
-
-        <section className="user-contact-section">
-          <h3>利用番号</h3>
-          <div className="user-contact-code">
-            <input
-              value={code}
-              onChange={e => setCode(e.target.value.toUpperCase())}
-              placeholder="1A00"
-              maxLength={4}
-            />
-            <button onClick={submitCode}>申請する</button>
-          </div>
-          <p>現在の登録: {account?.studentCode ?? '未登録'} / 申請中: {account?.requestedStudentCode ?? '-'}</p>
-        </section>
 
         <section className="user-contact-section">
           <h3>問い合わせ</h3>

@@ -1831,6 +1831,128 @@ body {
   margin-top: 16px;
 }
 
+/* ===== Registration Screen ===== */
+.registration-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f3ee;
+  padding: 20px;
+}
+
+.registration-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 440px;
+  padding: 36px 34px;
+  width: 100%;
+}
+
+.registration-card h1 {
+  color: #2d3a5e;
+  font-size: 1.55rem;
+}
+
+.registration-lead {
+  color: #555;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.registration-user {
+  border: 1px solid #e1dcca;
+  border-radius: 8px;
+  background: #faf8f4;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+}
+
+.registration-user strong {
+  color: #2d3a5e;
+  font-size: 0.92rem;
+}
+
+.registration-user span,
+.registration-hint {
+  color: #777;
+  font-size: 0.8rem;
+}
+
+.registration-card label {
+  color: #2d3a5e;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.86rem;
+  font-weight: bold;
+  gap: 6px;
+}
+
+.registration-card input {
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  color: #2c2c2c;
+  font-family: inherit;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  padding: 10px 12px;
+  text-transform: uppercase;
+}
+
+.registration-card input:focus {
+  border-color: #4a6fa5;
+  box-shadow: 0 0 0 2px rgba(74,111,165,0.15);
+  outline: none;
+}
+
+.registration-error {
+  color: #b71c1c;
+  font-size: 0.82rem;
+}
+
+.registration-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.registration-actions button {
+  border: none;
+  border-radius: 6px;
+  background: #2d3a5e;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 9px 16px;
+}
+
+.registration-actions button:hover:not(:disabled) {
+  background: #4a6fa5;
+}
+
+.registration-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.registration-actions .registration-secondary {
+  background: #f0ede6;
+  border: 1px solid #d5cfbf;
+  color: #555;
+}
+
+.registration-actions .registration-secondary:hover:not(:disabled) {
+  background: #e5dfd2;
+}
+
 /* ===== Avatar ===== */
 .avatar-icon {
   border-radius: 50%;

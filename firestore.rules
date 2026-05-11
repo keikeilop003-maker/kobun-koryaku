@@ -28,7 +28,9 @@ service cloud.firestore {
           'lastSeenAt',
           'requestedStudentCode',
           'studentCodeStatus',
-          'requestedAt'
+          'requestedAt',
+          'registrationCompleted',
+          'registeredAt'
         ])
         && request.resource.data.uid == uid
         && request.resource.data.email == request.auth.token.email
@@ -39,6 +41,10 @@ service cloud.firestore {
         && (
           !request.resource.data.keys().hasAny(['studentCodeStatus'])
           || request.resource.data.studentCodeStatus == 'requested'
+        )
+        && (
+          !request.resource.data.keys().hasAny(['registrationCompleted'])
+          || request.resource.data.registrationCompleted == true
         );
       allow update: if isOwner(uid)
         && request.resource.data.uid == uid
@@ -50,7 +56,9 @@ service cloud.firestore {
           'lastSeenAt',
           'requestedStudentCode',
           'studentCodeStatus',
-          'requestedAt'
+          'requestedAt',
+          'registrationCompleted',
+          'registeredAt'
         ])
         && (
           !request.resource.data.keys().hasAny(['requestedStudentCode'])
@@ -59,6 +67,10 @@ service cloud.firestore {
         && (
           !request.resource.data.diff(resource.data).affectedKeys().hasAny(['studentCodeStatus'])
           || request.resource.data.studentCodeStatus == 'requested'
+        )
+        && (
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['registrationCompleted'])
+          || request.resource.data.registrationCompleted == true
         );
       allow update: if isAdmin()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([

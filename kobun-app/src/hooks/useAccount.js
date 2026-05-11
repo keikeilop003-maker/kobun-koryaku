@@ -8,11 +8,15 @@ const ACCOUNT_REF = (uid) => doc(db, 'users', uid, 'account', 'main');
 
 export default function useAccount(user) {
   const [account, setAccount] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user?.uid) {
+      setAccount(null);
+      setLoading(false);
       return undefined;
     }
+    setLoading(true);
 
     const ref = ACCOUNT_REF(user.uid);
     setDoc(ref, {
@@ -26,12 +30,18 @@ export default function useAccount(user) {
 
     return onSnapshot(
       ref,
-      snap => setAccount(snap.exists() ? snap.data() : null),
-      err => console.error('[useAccount] load failed:', err.code ?? err.message),
+      snap => {
+        setAccount(snap.exists() ? snap.data() : null);
+        setLoading(false);
+      },
+      err => {
+        console.error('[useAccount] load failed:', err.code ?? err.message);
+        setLoading(false);
+      },
     );
   }, [user?.uid, user?.email, user?.displayName]);
 
-  const requestStudentCode = async (code) => {
+  const registerAccount = async (code) => {
     if (!user?.uid) return;
     const normalized = code.trim().toUpperCase();
     if (!STUDENT_CODE_RE.test(normalized)) throw new Error('invalid_student_code');
@@ -41,10 +51,12 @@ export default function useAccount(user) {
       displayName: user.displayName ?? '',
       requestedStudentCode: normalized,
       studentCodeStatus: 'requested',
+      registrationCompleted: true,
+      registeredAt: serverTimestamp(),
       requestedAt: serverTimestamp(),
       lastSeenAt: serverTimestamp(),
     }, { merge: true });
   };
 
-  return { account, requestStudentCode };
+  return { account, loading, registerAccount };
 }
