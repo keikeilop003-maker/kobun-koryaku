@@ -15,6 +15,7 @@ function defaultForm(type, selection, initialTarget = null, initialSectionId = '
     sectionId: selection?.sectionId ?? initialSectionId ?? '',
     surface: selection?.text ?? initialTarget?.surface ?? '',
     questionText: initialTarget?.questionText ?? '',
+    questionSurface: initialTarget?.questionSurface ?? '',
     gradingMode: initialTarget?.gradingMode ?? 'local',
     alternativeAnswers: [
       ...(initialTarget?.alternativeAnswers ?? []),
@@ -39,8 +40,7 @@ function answerLabel(type, form) {
 }
 
 function validationMessage(type, form, isConjugationType) {
-  if (!form.sectionId) return '段を選んでください';
-  if (!form.surface.trim()) return '対象語を入力してください';
+  if (!form.surface.trim() && !form.questionText.trim()) return '問題文または対象語を入力してください';
   if (isConjugationType) {
     if (!form.baseForm.trim()) return '基本形を入力してください';
     if (!form.conjugationType.trim()) return '活用の行と種類を入力してください';
@@ -107,9 +107,9 @@ export default function AdminTargetForm({
     setMessage('');
     try {
       const surface = form.surface.trim();
-      const start = selection?.sectionId === form.sectionId && selection?.text === surface
+      const start = surface && selection?.sectionId === form.sectionId && selection?.text === surface
         ? selection.start
-        : section?.text?.indexOf(surface) ?? -1;
+        : surface ? section?.text?.indexOf(surface) ?? -1 : -1;
       const target = {
         ...(initialTarget ?? {}),
         id: initialTarget?.id ?? `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -123,6 +123,8 @@ export default function AdminTargetForm({
       else delete target.meaning;
       if (form.questionText.trim()) target.questionText = form.questionText.trim();
       else delete target.questionText;
+      if (form.questionSurface.trim()) target.questionSurface = form.questionSurface.trim();
+      else delete target.questionSurface;
       const alternativeAnswers = form.alternativeAnswers.map(item => item.trim()).filter(Boolean).slice(0, 5);
       if (alternativeAnswers.length > 0) target.alternativeAnswers = alternativeAnswers;
       else delete target.alternativeAnswers;
@@ -183,6 +185,10 @@ export default function AdminTargetForm({
         <label>
           問題文
           <textarea rows={2} value={form.questionText} onChange={(e) => update('questionText', e.target.value)} />
+        </label>
+        <label>
+          太字にする語
+          <input value={form.questionSurface} onChange={(e) => update('questionSurface', e.target.value)} />
         </label>
         <label>
           採点方法

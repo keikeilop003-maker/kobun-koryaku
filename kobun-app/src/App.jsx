@@ -20,6 +20,8 @@ import { db } from './services/firebase';
 import { TITLE_COLOR } from './data/items';
 import './styles/app.css';
 
+const SECTIONLESS_CUSTOM_SECTION_ID = '__custom_sectionless__';
+
 const LEGEND = [
   { type: 'all',      label: '全語句',   cls: 'hl-all' },
   { type: 'vocab',    label: '重要単語', cls: 'hl-vocab' },
@@ -38,6 +40,7 @@ function pointsForType(type) {
 
 function targetOrder(section, target) {
   if (Number.isInteger(target.start)) return target.start;
+  if (!target.surface) return Number.MAX_SAFE_INTEGER;
   const idx = section.text.indexOf(target.surface);
   return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
 }
@@ -94,35 +97,47 @@ function AppInner() {
   const displayTextData = useMemo(() => {
     if (!textData) return null;
     const customBySection = customTargets.reduce((acc, item) => {
-      if (!item.sectionId || !item.target) return acc;
-      acc[item.sectionId] = acc[item.sectionId] ?? [];
+      if (!item.target) return acc;
+      const sectionId = item.sectionId || SECTIONLESS_CUSTOM_SECTION_ID;
+      acc[sectionId] = acc[sectionId] ?? [];
       const orderStart = Number.isInteger(item.target.start)
         ? item.target.start
         : Number.isInteger(item.anchor?.start) ? item.anchor.start : undefined;
-      acc[item.sectionId].push({ ...item.target, start: orderStart });
+      acc[sectionId].push({ ...item.target, start: orderStart });
       return acc;
     }, {});
+    const sectionlessTargets = customBySection[SECTIONLESS_CUSTOM_SECTION_ID] ?? [];
 
     return {
       ...textData,
-      sections: textData.sections.map(section => {
-        const baseTargets = (section.targets ?? [])
-          .filter(target => !hiddenTargetKeys.has(`${section.id}:${target.id}`))
-          .map(target => {
-            const edit = editedTargetMap.get(`${section.id}:${target.id}`);
-            if (!edit?.target) return target;
-            const editedTarget = { ...target, ...edit.target, edited: true };
-            if (!Number.isInteger(editedTarget.start) && Number.isInteger(edit.anchor?.start)) {
-              editedTarget.start = edit.anchor.start;
-            }
-            return editedTarget;
-          });
-        const targets = [
-          ...baseTargets,
-          ...(customBySection[section.id] ?? []),
-        ].sort((a, b) => targetOrder(section, a) - targetOrder(section, b));
-        return { ...section, targets };
-      }),
+      sections: [
+        ...textData.sections.map(section => {
+          const baseTargets = (section.targets ?? [])
+            .filter(target => !hiddenTargetKeys.has(`${section.id}:${target.id}`))
+            .map(target => {
+              const edit = editedTargetMap.get(`${section.id}:${target.id}`);
+              if (!edit?.target) return target;
+              const editedTarget = { ...target, ...edit.target, edited: true };
+              if (!Number.isInteger(editedTarget.start) && Number.isInteger(edit.anchor?.start)) {
+                editedTarget.start = edit.anchor.start;
+              }
+              return editedTarget;
+            });
+          const targets = [
+            ...baseTargets,
+            ...(customBySection[section.id] ?? []),
+          ].sort((a, b) => targetOrder(section, a) - targetOrder(section, b));
+          return { ...section, targets };
+        }),
+        ...(sectionlessTargets.length > 0
+          ? [{
+              id: SECTIONLESS_CUSTOM_SECTION_ID,
+              title: '追加問題',
+              text: '',
+              targets: sectionlessTargets,
+            }]
+          : []),
+      ],
       normalQuestions: (textData.normalQuestions ?? []).map(question => {
         const edit = editedNormalQuestionMap.get(question.id);
         return edit?.question ? { ...question, question: edit.question, edited: true } : question;

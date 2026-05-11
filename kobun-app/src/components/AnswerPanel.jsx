@@ -17,6 +17,7 @@ const ADMIN_ADD_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'gra
 
 function targetOrder(section, target) {
   if (Number.isInteger(target.start)) return target.start;
+  if (!target.surface) return Number.MAX_SAFE_INTEGER;
   const idx = section.text.indexOf(target.surface);
   return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
 }
