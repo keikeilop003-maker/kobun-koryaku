@@ -7,9 +7,12 @@ import LoginScreen from './components/LoginScreen';
 import AvatarIcon from './components/AvatarIcon';
 import AvatarCustomizer from './components/AvatarCustomizer';
 import AnalysisPanel from './components/AnalysisPanel';
+import AdminDashboard from './components/AdminDashboard';
+import UserMessageModal from './components/UserMessageModal';
 import useHistory from './hooks/useHistory';
 import useProfile from './hooks/useProfile';
 import useAdmin from './hooks/useAdmin';
+import useAccount from './hooks/useAccount';
 import useCustomTargets from './hooks/useCustomTargets';
 import useHiddenTargets from './hooks/useHiddenTargets';
 import useEditedTargets from './hooks/useEditedTargets';
@@ -48,6 +51,7 @@ function targetOrder(section, target) {
 function AppInner() {
   const { user, logout } = useAuth();
   const { isAdmin } = useAdmin(user);
+  const { account, requestStudentCode } = useAccount(user);
   const avatarSeed = user?.uid ? user.uid.substring(0, 8) : 'anon';
 
   const [textbooks, setTextbooks] = useState([]);
@@ -60,6 +64,8 @@ function AppInner() {
   const [expandedNqId, setExpandedNqId] = useState(null);
   const [pinnedPhrase, setPinnedPhrase] = useState(null);
   const [customizerOpen, setCustomizerOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [adminSelection, setAdminSelection] = useState(null);
   const [addingType, setAddingType] = useState(null);
   const [textbookOrder, setTextbookOrder] = useState([]);
@@ -198,6 +204,7 @@ function AppInner() {
     if (id === selectedTextId) return;
     const textbook = statusTextbooks.find(tb => tb.id === id);
     if (textbook?.status === 'draft' && !isAdmin) return;
+    setShowAdminDashboard(false);
     setSelectedTextId(id);
     setSelectedTarget(null);
     setSelectedSection(null);
@@ -252,6 +259,7 @@ function AppInner() {
   };
 
   const handleBackToSelect = () => {
+    setShowAdminDashboard(false);
     setSelectedTextId(null);
     setTextData(null);
     setSelectedTarget(null);
@@ -479,6 +487,10 @@ function AppInner() {
           ))}
         </div>
         <div className="header-right">
+          {account?.studentCode && (
+            <span className="header-student-code" title="利用番号">{account.studentCode}</span>
+          )}
+          <button className="contact-admin-btn" onClick={() => setContactOpen(true)}>管理者へ連絡</button>
           {profile && (
             <span className="header-points" title="所持ポイント">{profile.points ?? 0}pt</span>
           )}
@@ -495,9 +507,23 @@ function AppInner() {
       </header>
 
       <div className="app-body">
+        {showAdminDashboard ? (
+          <AdminDashboard
+            isAdmin={isAdmin}
+            currentUser={user}
+            textbooks={textbooks}
+            onClose={() => setShowAdminDashboard(false)}
+          />
+        ) : (
+        <>
         <div className="left-col">
           {noSelection ? (
             <div className="textbook-select-area">
+              {isAdmin && (
+                <button className="admin-open-dashboard-btn" onClick={() => setShowAdminDashboard(true)}>
+                  管理者ページ
+                </button>
+              )}
               {visibleTextbooks.map(tb => (
                 <div
                   key={tb.id}
@@ -627,6 +653,8 @@ function AppInner() {
             </>
           )}
         </div>
+        </>
+        )}
       </div>
 
       {customizerOpen && (
@@ -637,6 +665,14 @@ function AppInner() {
           onUnlock={unlockItem}
           onEquip={equipItem}
           onClose={() => setCustomizerOpen(false)}
+        />
+      )}
+      {contactOpen && (
+        <UserMessageModal
+          user={user}
+          account={account}
+          onRequestStudentCode={requestStudentCode}
+          onClose={() => setContactOpen(false)}
         />
       )}
     </div>

@@ -6,14 +6,79 @@ service cloud.firestore {
         && request.auth.token.email != null
         && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
     }
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+    function isValidStudentCode(code) {
+      return code is string && code.matches('^1[A-H][0-9]{2}$');
+    }
 
     match /admins/{email} {
       allow read: if request.auth != null && request.auth.token.email == email;
       allow write: if false;
     }
 
-    match /users/{uid}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+    match /users/{uid}/account/main {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly([
+          'uid',
+          'email',
+          'displayName',
+          'lastSeenAt',
+          'requestedStudentCode',
+          'studentCodeStatus',
+          'requestedAt'
+        ])
+        && request.resource.data.uid == uid
+        && request.resource.data.email == request.auth.token.email
+        && (
+          !request.resource.data.keys().hasAny(['requestedStudentCode'])
+          || isValidStudentCode(request.resource.data.requestedStudentCode)
+        )
+        && (
+          !request.resource.data.keys().hasAny(['studentCodeStatus'])
+          || request.resource.data.studentCodeStatus == 'requested'
+        );
+      allow update: if isOwner(uid)
+        && request.resource.data.uid == uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'uid',
+          'email',
+          'displayName',
+          'lastSeenAt',
+          'requestedStudentCode',
+          'studentCodeStatus',
+          'requestedAt'
+        ])
+        && (
+          !request.resource.data.keys().hasAny(['requestedStudentCode'])
+          || isValidStudentCode(request.resource.data.requestedStudentCode)
+        )
+        && (
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['studentCodeStatus'])
+          || request.resource.data.studentCodeStatus == 'requested'
+        );
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'studentCode',
+          'studentCodeStatus',
+          'studentCodeReviewedAt',
+          'studentCodeReviewedBy',
+          'studentCodeReviewedByEmail'
+        ])
+        && isValidStudentCode(request.resource.data.studentCode)
+        && request.resource.data.studentCodeStatus in ['approved', 'rejected', 'requested'];
+      allow delete: if false;
+    }
+    match /users/{uid}/profile/main {
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if isOwner(uid) || isAdmin();
+    }
+    match /users/{uid}/history/{textId} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if isOwner(uid);
     }
     match /whispers/{whisperId} {
       allow read: if request.auth != null;
@@ -66,6 +131,27 @@ service cloud.firestore {
         )
         && request.resource.data.updatedBy == request.auth.uid
         && request.resource.data.updatedByEmail == request.auth.token.email;
+    }
+    match /adminMessages/{messageId} {
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly([
+          'uid',
+          'email',
+          'displayName',
+          'text',
+          'status',
+          'createdAt'
+        ])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.status == 'open'
+        && request.resource.data.text is string
+        && request.resource.data.text.size() <= 500;
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
+        && request.resource.data.status in ['open', 'working', 'closed'];
+      allow delete: if false;
     }
     match /customTargets/{targetId} {
       allow read: if request.auth != null;
