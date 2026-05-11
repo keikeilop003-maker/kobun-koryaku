@@ -134,6 +134,7 @@ function AppInner() {
               id: SECTIONLESS_CUSTOM_SECTION_ID,
               title: '追加問題',
               text: '',
+              sectionless: true,
               targets: sectionlessTargets,
             }]
           : []),

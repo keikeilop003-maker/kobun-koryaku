@@ -22,6 +22,12 @@ function targetOrder(section, target) {
   return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
 }
 
+function sectionOrder(sections, section) {
+  if (section?.sectionless) return Number.MAX_SAFE_INTEGER;
+  const index = sections.findIndex(item => item.id === section?.id);
+  return index === -1 ? Number.MAX_SAFE_INTEGER - 1 : index;
+}
+
 function inputCls(judgement, value) {
   if (!value?.trim() || !judgement) return '';
   if (judgement === '正解') return 'input-correct';
@@ -483,7 +489,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
           sections={sections}
           mode="edit"
           initialTarget={target}
-          initialSectionId={section.id}
+          initialSectionId={section.sectionless ? '' : section.id}
           onCancel={() => setEditing(false)}
           onSave={async (payload) => {
             await onUpdateTarget?.(target, section, payload);
@@ -566,7 +572,7 @@ export default function AnswerPanel({
       seenGroups.add(target.groupId);
       return true;
     }).sort((a, b) => {
-      const sectionDiff = sections.findIndex(section => section.id === a.section.id) - sections.findIndex(section => section.id === b.section.id);
+      const sectionDiff = sectionOrder(sections, a.section) - sectionOrder(sections, b.section);
       if (sectionDiff !== 0) return sectionDiff;
       return targetOrder(a.section, a.target) - targetOrder(b.section, b.target);
     });
