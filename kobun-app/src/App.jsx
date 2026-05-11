@@ -103,7 +103,10 @@ function AppInner() {
       const orderStart = Number.isInteger(item.target.start)
         ? item.target.start
         : Number.isInteger(item.anchor?.start) ? item.anchor.start : undefined;
-      acc[sectionId].push({ ...item.target, start: orderStart });
+      acc[sectionId].push({
+        ...item.target,
+        ...(Number.isInteger(orderStart) ? { start: orderStart } : {}),
+      });
       return acc;
     }, {});
     const sectionlessTargets = customBySection[SECTIONLESS_CUSTOM_SECTION_ID] ?? [];
