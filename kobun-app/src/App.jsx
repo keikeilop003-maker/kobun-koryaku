@@ -21,7 +21,7 @@ import useEditedNormalQuestions from './hooks/useEditedNormalQuestions';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { addDoc, collection, deleteDoc, doc, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from './services/firebase';
-import { TITLE_COLOR } from './data/items';
+import { TITLE_COLOR, normalizeEquipped } from './data/items';
 import './styles/app.css';
 
 const SECTIONLESS_CUSTOM_SECTION_ID = '__custom_sectionless__';
@@ -99,7 +99,7 @@ function AppInner() {
     [orderedTextbooks, isAdmin],
   );
 
-  const equipped = profile?.equipped ?? null;
+  const equipped = profile?.equipped ? normalizeEquipped(profile.equipped) : null;
 
   const displayTextData = useMemo(() => {
     if (!textData) return null;

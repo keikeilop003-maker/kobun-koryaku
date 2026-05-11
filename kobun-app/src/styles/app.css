@@ -1959,12 +1959,17 @@ body {
   background: #e8eaf0;
   flex-shrink: 0;
   display: block;
+  position: relative;
+  z-index: 2;
 }
 
 .avatar-wrapper {
   position: relative;
   display: inline-flex;
   flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
 }
 
 .avatar-wrapper .avatar-icon {
@@ -1978,6 +1983,77 @@ body {
   line-height: 1;
   pointer-events: none;
   filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3));
+  z-index: 5;
+}
+
+.avatar-background,
+.avatar-aura {
+  position: absolute;
+  inset: -8%;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.avatar-background { z-index: 0; }
+.avatar-aura { z-index: 1; }
+
+.bg-paper .avatar-background {
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255,255,255,0.9), transparent 28%),
+    linear-gradient(135deg, #f5ead2, #dbc49b);
+  box-shadow: inset 0 0 0 1px rgba(120,91,44,0.2);
+}
+.bg-sakura .avatar-background {
+  background:
+    radial-gradient(circle at 22% 22%, #ffd6e7 0 14%, transparent 15%),
+    radial-gradient(circle at 72% 28%, #fff3f8 0 12%, transparent 13%),
+    linear-gradient(135deg, #f9b4ca, #fff1d5);
+}
+.bg-night .avatar-background {
+  background:
+    radial-gradient(circle at 68% 25%, #fff8c6 0 11%, transparent 12%),
+    linear-gradient(135deg, #17213d, #3d4e7d);
+}
+.bg-bamboo .avatar-background {
+  background:
+    linear-gradient(90deg, transparent 0 30%, rgba(38,114,72,0.45) 31% 36%, transparent 37%),
+    linear-gradient(135deg, #d8e8bf, #6da269);
+}
+.bg-scroll .avatar-background {
+  background:
+    repeating-linear-gradient(90deg, rgba(88,63,31,0.1) 0 3px, transparent 3px 9px),
+    linear-gradient(135deg, #f4dfad, #b9834f);
+}
+.bg-river .avatar-background {
+  background:
+    radial-gradient(circle at 28% 74%, rgba(255,255,255,0.7), transparent 24%),
+    linear-gradient(135deg, #b8e1e6, #4b8da0);
+}
+.bg-palace .avatar-background {
+  background:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.16) 0 2px, transparent 2px 8px),
+    linear-gradient(135deg, #8c2342, #d8a33f);
+}
+
+.aura-soft .avatar-aura {
+  box-shadow: 0 0 14px 5px rgba(255,213,128,0.48);
+}
+.aura-ink .avatar-aura {
+  box-shadow: 0 0 0 3px rgba(45,58,94,0.22), 0 0 14px 4px rgba(45,58,94,0.24);
+}
+.aura-spark .avatar-aura {
+  background:
+    radial-gradient(circle at 18% 20%, #fff59d 0 5%, transparent 6%),
+    radial-gradient(circle at 82% 76%, #fff59d 0 4%, transparent 5%);
+  animation: aura-spark 1.8s ease-in-out infinite;
+}
+.aura-flame .avatar-aura {
+  box-shadow: 0 0 16px 5px rgba(255,112,67,0.5);
+  animation: aura-flame 1.6s ease-in-out infinite;
+}
+.aura-legend .avatar-aura {
+  box-shadow: 0 0 0 3px rgba(249,168,37,0.32), 0 0 20px 7px rgba(92,107,192,0.4);
+  animation: aura-legend 3s linear infinite;
 }
 
 /* フレーム */
@@ -1986,6 +2062,9 @@ body {
 }
 .frame-gold .avatar-icon {
   box-shadow: 0 0 0 2.5px #f9a825, 0 0 0 5px #fff9c4, 0 0 8px 3px rgba(249,168,37,0.6);
+}
+.frame-ink .avatar-icon {
+  box-shadow: 0 0 0 2.5px #2d3a5e, 0 0 0 5px #cfd4df;
 }
 .frame-fire .avatar-icon {
   box-shadow: 0 0 0 2.5px #e53935, 0 0 0 5px #ff8a65;
@@ -2008,6 +2087,21 @@ body {
   67%  { box-shadow: 0 0 0 3px #1565c0, 0 0 8px 2px #1565c0; }
   83%  { box-shadow: 0 0 0 3px #6a1b9a, 0 0 8px 2px #6a1b9a; }
   100% { box-shadow: 0 0 0 3px #e53935, 0 0 8px 2px #e53935; }
+}
+
+@keyframes aura-spark {
+  0%, 100% { opacity: 0.45; transform: scale(0.96); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+@keyframes aura-flame {
+  0%, 100% { transform: scale(0.98); opacity: 0.7; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+@keyframes aura-legend {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
 }
 
 /* 称号色 */
@@ -2043,8 +2137,8 @@ body {
 .customizer-modal {
   background: #fff;
   border-radius: 14px;
-  width: min(520px, 96vw);
-  height: min(600px, 88vh);
+  width: min(640px, 96vw);
+  height: min(680px, 90vh);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -2108,19 +2202,25 @@ body {
   font-size: 1rem;
 }
 
+.customizer-hint {
+  color: #888;
+  font-size: 0.76rem;
+}
+
 .customizer-tabs {
   display: flex;
+  flex-wrap: wrap;
   border-bottom: 1px solid #eee;
   flex-shrink: 0;
 }
 
 .customizer-tab {
-  flex: 1;
+  flex: 1 1 95px;
   padding: 9px 4px;
   border: none;
   background: none;
   font-family: inherit;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   cursor: pointer;
   color: #777;
   border-bottom: 3px solid transparent;
@@ -2140,9 +2240,15 @@ body {
   padding: 14px 16px;
 }
 
+.customizer-message {
+  color: #d93025;
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+
 .customizer-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
   gap: 10px;
 }
 
@@ -2151,9 +2257,10 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  min-height: 142px;
   padding: 10px 6px;
   border: 1.5px solid #e0e0e0;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   background: #fff;
   transition: border-color 0.12s, box-shadow 0.12s, background 0.12s;
@@ -2176,6 +2283,15 @@ body {
   background: #f1f8f1;
 }
 
+.customizer-item.rarity-rare:not(.equipped) {
+  border-color: #b39ddb;
+}
+
+.customizer-item.rarity-special:not(.equipped) {
+  border-color: #f6c453;
+  background: #fffaf0;
+}
+
 .customizer-item:disabled {
   opacity: 0.55;
   cursor: not-allowed;
@@ -2186,16 +2302,66 @@ body {
   line-height: 1;
 }
 
+.customizer-emoji-preview {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.customizer-title-preview {
+  align-items: center;
+  display: flex;
+  font-size: 0.82rem;
+  font-weight: bold;
+  justify-content: center;
+  min-height: 32px;
+  text-align: center;
+}
+
+.customizer-frame-preview,
+.customizer-swatch,
+.customizer-aura-preview {
+  display: inline-block;
+  height: 34px;
+  width: 34px;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.customizer-frame-preview.frame-silver { border: 4px solid #9e9e9e; }
+.customizer-frame-preview.frame-gold { border: 4px solid #f9a825; box-shadow: 0 0 8px rgba(249,168,37,0.55); }
+.customizer-frame-preview.frame-ink { border: 4px solid #2d3a5e; box-shadow: inset 0 0 0 2px #cfd4df; }
+.customizer-frame-preview.frame-fire { border: 4px solid #e53935; box-shadow: 0 0 8px rgba(229,57,53,0.55); }
+.customizer-frame-preview.frame-rainbow { background: conic-gradient(#e53935,#f9a825,#2e7d32,#1565c0,#6a1b9a,#e53935); }
+
+.customizer-swatch-paper { background: linear-gradient(135deg, #f5ead2, #dbc49b); }
+.customizer-swatch-sakura { background: linear-gradient(135deg, #f9b4ca, #fff1d5); }
+.customizer-swatch-night { background: radial-gradient(circle at 68% 25%, #fff8c6 0 12%, transparent 13%), linear-gradient(135deg, #17213d, #3d4e7d); }
+.customizer-swatch-bamboo { background: linear-gradient(135deg, #d8e8bf, #6da269); }
+.customizer-swatch-scroll { background: repeating-linear-gradient(90deg, rgba(88,63,31,0.1) 0 3px, transparent 3px 9px), linear-gradient(135deg, #f4dfad, #b9834f); }
+.customizer-swatch-river { background: linear-gradient(135deg, #b8e1e6, #4b8da0); }
+.customizer-swatch-palace { background: linear-gradient(135deg, #8c2342, #d8a33f); }
+
+.customizer-aura-soft { box-shadow: 0 0 14px 5px rgba(255,213,128,0.55); }
+.customizer-aura-ink { box-shadow: 0 0 0 3px rgba(45,58,94,0.22), 0 0 14px rgba(45,58,94,0.34); }
+.customizer-aura-spark { background: radial-gradient(circle at 18% 20%, #fff59d 0 8%, transparent 9%), radial-gradient(circle at 82% 76%, #fff59d 0 7%, transparent 8%); }
+.customizer-aura-flame { box-shadow: 0 0 16px 5px rgba(255,112,67,0.58); }
+.customizer-aura-legend { box-shadow: 0 0 0 3px rgba(249,168,37,0.32), 0 0 18px 6px rgba(92,107,192,0.42); }
+
 .customizer-item-name {
   font-size: 0.75rem;
   color: #333;
   text-align: center;
   font-weight: bold;
+  line-height: 1.35;
 }
 
-.customizer-item-cost {
-  font-size: 0.7rem;
-  color: #888;
+.customizer-item-theme,
+.customizer-item-rarity {
+  color: #777;
+  font-size: 0.66rem;
+  line-height: 1.25;
+  min-height: 0.85rem;
+  text-align: center;
 }
 
 .customizer-item-status {
@@ -2207,7 +2373,20 @@ body {
 
 .customizer-item-status.equipped { background: #3949ab; color: #fff; }
 .customizer-item-status.owned    { background: #e8f5e9; color: #2e7d32; }
+.customizer-item-status.available { background: #fff3e0; color: #bf5f00; }
 .customizer-item-status.locked   { background: #f5f5f5; color: #888; }
+
+.customizer-source-note {
+  color: #666;
+  font-size: 0.76rem;
+  line-height: 1.6;
+  margin-top: 12px;
+}
+
+.customizer-source-note a {
+  color: #3949ab;
+  font-weight: bold;
+}
 
 .customizer-unequip {
   display: block;

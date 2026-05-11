@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import useAdminData from '../hooks/useAdminData';
 import { MESSAGE_STATUS, useAllAdminMessages } from '../hooks/useAdminMessages';
 import { STUDENT_CODE_RE } from '../hooks/useAccount';
-import { DEFAULT_EQUIPPED, ITEMS } from '../data/items';
+import { DEFAULT_EQUIPPED, ITEMS, SLOT_LABELS } from '../data/items';
 
 const TABS = [
   { id: 'users', label: 'ユーザー一覧' },
@@ -273,7 +273,7 @@ function ProfileForm({ selected, users, onSelect, onSave }) {
       <div className="admin-profile-grid">
         {Object.keys(DEFAULT_EQUIPPED).map(slot => (
           <label key={slot}>
-            装備: {slot}
+            装備: {SLOT_LABELS[slot] ?? slot}
             <select
               value={form.equipped?.[slot] ?? ''}
               onChange={e => setForm({ ...form, equipped: { ...form.equipped, [slot]: e.target.value || null } })}
@@ -294,7 +294,7 @@ function ProfileForm({ selected, users, onSelect, onSave }) {
               onChange={() => toggleItem(item.id)}
             />
             <span>{item.name}</span>
-            <small>{item.slot}</small>
+            <small>{SLOT_LABELS[item.slot] ?? item.slot} / {item.cost}pt</small>
           </label>
         ))}
       </div>
