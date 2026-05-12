@@ -1029,6 +1029,10 @@ body {
   background: #a64c4c;
 }
 
+.nq-admin-delete-btn--header {
+  flex-shrink: 0;
+}
+
 .nq-admin-question-form {
   display: flex;
   flex-direction: column;

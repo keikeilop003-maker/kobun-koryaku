@@ -154,8 +154,8 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   };
 
   const deleteQuestion = async (event) => {
-    event.preventDefault();
-    event.stopPropagation();
+    event?.preventDefault();
+    event?.stopPropagation();
     if (deletingQuestion || deleteStartedRef.current) return;
     deleteStartedRef.current = true;
     setDeletingQuestion(true);
@@ -172,6 +172,18 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
       <div className="nq-header" onClick={() => setOpen(o => !o)}>
         <span className={`type-badge type-${q.type}`}>{q.type === 'translation' ? '現代語訳' : '内容読解'}</span>
         <span className="nq-title">{q.displayTitle ?? q.title}</span>
+        {isAdmin && (
+          <button
+            type="button"
+            className="nq-admin-delete-btn nq-admin-delete-btn--header"
+            onMouseDown={(event) => event.stopPropagation()}
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={deleteQuestion}
+            disabled={deletingQuestion}
+          >
+            {deletingQuestion ? '削除中...' : '削除'}
+          </button>
+        )}
         <span className="nq-toggle">{open ? '▲' : '▼'}</span>
       </div>
       {open && (
@@ -206,18 +218,6 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
                       }}
                     >
                       編集
-                    </button>
-                    <button
-                      type="button"
-                      className="nq-admin-delete-btn"
-                      onPointerDown={(event) => {
-                        event.preventDefault();
-                        deleteQuestion(event);
-                      }}
-                      onClick={deleteQuestion}
-                      disabled={deletingQuestion}
-                    >
-                      {deletingQuestion ? '削除中...' : '削除'}
                     </button>
                   </div>
                 )}
