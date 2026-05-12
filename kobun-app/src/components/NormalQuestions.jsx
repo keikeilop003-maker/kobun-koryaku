@@ -96,6 +96,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   const [questionText, setQuestionText] = useState(q.question ?? '');
   const [savingQuestion, setSavingQuestion] = useState(false);
   const [deletingQuestion, setDeletingQuestion] = useState(false);
+  const deleteStartedRef = useRef(false);
 
   const isChoice = q.inputType === 'choice';
 
@@ -155,11 +156,13 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   const deleteQuestion = async (event) => {
     event.preventDefault();
     event.stopPropagation();
-    if (deletingQuestion) return;
+    if (deletingQuestion || deleteStartedRef.current) return;
+    deleteStartedRef.current = true;
     setDeletingQuestion(true);
     try {
       await onDeleteQuestion?.(q);
     } finally {
+      deleteStartedRef.current = false;
       setDeletingQuestion(false);
     }
   };
@@ -207,6 +210,10 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
                     <button
                       type="button"
                       className="nq-admin-delete-btn"
+                      onPointerDown={(event) => {
+                        event.preventDefault();
+                        deleteQuestion(event);
+                      }}
                       onClick={deleteQuestion}
                       disabled={deletingQuestion}
                     >
