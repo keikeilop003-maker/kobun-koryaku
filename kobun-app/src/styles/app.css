@@ -995,7 +995,14 @@ body {
   margin: 0;
 }
 
+.nq-admin-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 6px;
+}
+
 .nq-admin-edit-btn,
+.nq-admin-delete-btn,
 .nq-admin-question-actions button {
   border: none;
   border-radius: 4px;
@@ -1009,8 +1016,17 @@ body {
 }
 
 .nq-admin-edit-btn:hover,
+.nq-admin-delete-btn:hover,
 .nq-admin-question-actions button:hover:not(:disabled) {
   background: #4a6fa5;
+}
+
+.nq-admin-delete-btn {
+  background: #8a3b3b;
+}
+
+.nq-admin-delete-btn:hover {
+  background: #a64c4c;
 }
 
 .nq-admin-question-form {

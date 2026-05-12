@@ -81,7 +81,7 @@ function HighlightQuestionText({ text, surface, surfaces }) {
   return <>{nodes}</>;
 }
 
-function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened, onFocusTarget, isAdmin, onUpdateQuestion }) {
+function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened, onFocusTarget, isAdmin, onUpdateQuestion, onDeleteQuestion }) {
   const lastFeedback = historyEntry?.attempts?.at(-1)?.feedback ?? null;
   const [ans, setAns] = useState(lastFeedback?.userAnswer ?? '');
   const [result, setResult] = useState(lastFeedback ?? null);
@@ -174,12 +174,20 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
                   <HighlightQuestionText text={q.question} surface={q.targetText} surfaces={q.questionSurfaces} />
                 </p>
                 {isAdmin && (
-                  <button
-                    className="nq-admin-edit-btn"
-                    onClick={() => setEditingQuestion(true)}
-                  >
-                    問題文編集
-                  </button>
+                  <div className="nq-admin-actions">
+                    <button
+                      className="nq-admin-edit-btn"
+                      onClick={() => setEditingQuestion(true)}
+                    >
+                      編集
+                    </button>
+                    <button
+                      className="nq-admin-delete-btn"
+                      onClick={() => onDeleteQuestion?.(q)}
+                    >
+                      削除
+                    </button>
+                  </div>
                 )}
               </div>
             )}
@@ -235,7 +243,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   );
 }
 
-export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onFocusTarget, isAdmin, onUpdateQuestion }) {
+export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onFocusTarget, isAdmin, onUpdateQuestion, onDeleteQuestion }) {
   if (!questions?.length) return null;
   const sorted = [...questions].sort((a, b) => {
     if (a.type === b.type) return 0;
@@ -256,6 +264,7 @@ export default function NormalQuestions({ questions, sections, historyEntries, o
           onFocusTarget={onFocusTarget}
           isAdmin={isAdmin}
           onUpdateQuestion={onUpdateQuestion}
+          onDeleteQuestion={onDeleteQuestion}
         />
       ))}
     </div>

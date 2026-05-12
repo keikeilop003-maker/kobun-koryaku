@@ -18,6 +18,7 @@ import useCustomTargets from './hooks/useCustomTargets';
 import useHiddenTargets from './hooks/useHiddenTargets';
 import useEditedTargets from './hooks/useEditedTargets';
 import useEditedNormalQuestions from './hooks/useEditedNormalQuestions';
+import useHiddenNormalQuestions from './hooks/useHiddenNormalQuestions';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { addDoc, collection, deleteDoc, doc, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from './services/firebase';
@@ -78,6 +79,7 @@ function AppInner() {
   const hiddenTargetKeys = useHiddenTargets(textId);
   const editedTargetMap = useEditedTargets(textId);
   const editedNormalQuestionMap = useEditedNormalQuestions(textId);
+  const hiddenNormalQuestionIds = useHiddenNormalQuestions(textId);
   const { entries, record, clearAll } = useHistory(textId, user?.uid);
   const { profile, awardPoints, unlockItem, equipItem } = useProfile(user?.uid);
   const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
@@ -149,12 +151,14 @@ function AppInner() {
             }]
           : []),
       ],
-      normalQuestions: (textData.normalQuestions ?? []).map(question => {
-        const edit = editedNormalQuestionMap.get(question.id);
-        return edit?.question ? { ...question, question: edit.question, edited: true } : question;
-      }),
+      normalQuestions: (textData.normalQuestions ?? [])
+        .filter(question => !hiddenNormalQuestionIds.has(question.id))
+        .map(question => {
+          const edit = editedNormalQuestionMap.get(question.id);
+          return edit?.question ? { ...question, question: edit.question, edited: true } : question;
+        }),
     };
-  }, [textData, customTargets, hiddenTargetKeys, editedTargetMap, editedNormalQuestionMap]);
+  }, [textData, customTargets, hiddenTargetKeys, editedTargetMap, editedNormalQuestionMap, hiddenNormalQuestionIds]);
 
   const titleId = equipped?.title ?? null;
   const titleColor = titleId ? TITLE_COLOR[titleId] : null;
@@ -461,6 +465,24 @@ function AppInner() {
     }
   }, [isAdmin, textId, user]);
 
+  const handleDeleteNormalQuestion = useCallback(async (question) => {
+    if (!isAdmin || !user || !textId || !question?.id) return;
+    if (!window.confirm('この読解問題を削除しますか？')) return;
+    try {
+      await setDoc(doc(db, 'hiddenNormalQuestions', `${textId}__${question.id}`), {
+        textId,
+        questionId: question.id,
+        hiddenBy: user.uid,
+        hiddenByEmail: user.email,
+        createdAt: serverTimestamp(),
+      });
+      window.alert('読解問題を削除しました');
+    } catch (err) {
+      console.error('[delete normal question] failed:', err);
+      window.alert(`読解問題の削除に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
+    }
+  }, [isAdmin, textId, user]);
+
   const isLoadingText = selectedTextId !== null && textData === null;
   const noSelection = selectedTextId === null;
   const currentTextData = displayTextData ?? textData;
@@ -644,6 +666,7 @@ function AppInner() {
                   onFocusTarget={(sectionId, text) => setPinnedPhrase(sectionId && text ? { sectionId, text } : null)}
                   isAdmin={isAdmin}
                   onUpdateQuestion={handleUpdateNormalQuestion}
+                  onDeleteQuestion={handleDeleteNormalQuestion}
                 />
               </div>
               <div style={{ display: rightTab === 'analysis' ? 'block' : 'none' }}>
