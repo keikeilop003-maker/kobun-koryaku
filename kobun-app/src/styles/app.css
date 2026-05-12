@@ -1040,6 +1040,7 @@ body {
   gap: 8px;
 }
 
+.nq-admin-delete-btn:disabled,
 .nq-admin-question-actions button:disabled {
   opacity: 0.55;
   cursor: not-allowed;

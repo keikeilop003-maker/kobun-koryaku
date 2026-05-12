@@ -51,6 +51,11 @@ function ChoiceInput({ choices, value, onChange, disabled, answered, correctAnsw
   );
 }
 
+function circledNumber(index) {
+  const circled = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩', '⑪', '⑫', '⑬', '⑭', '⑮', '⑯', '⑰', '⑱', '⑲', '⑳'];
+  return circled[index - 1] ?? `(${index})`;
+}
+
 function boldWords(surfaces, fallbackSurface) {
   const values = Array.isArray(surfaces) ? surfaces : [surfaces ?? fallbackSurface];
   return [...new Set(values.map(value => value?.trim()).filter(Boolean))]
@@ -90,6 +95,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   const [editingQuestion, setEditingQuestion] = useState(false);
   const [questionText, setQuestionText] = useState(q.question ?? '');
   const [savingQuestion, setSavingQuestion] = useState(false);
+  const [deletingQuestion, setDeletingQuestion] = useState(false);
 
   const isChoice = q.inputType === 'choice';
 
@@ -128,7 +134,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
       onRecord?.({
         id: `nq_${q.id}`,
         type: q.type,
-        surface: q.title,
+        surface: q.displayTitle ?? q.title,
         sectionId: q.sectionId,
         targetId: null,
         questionId: q.id,
@@ -146,11 +152,23 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
     setEditingQuestion(false);
   };
 
+  const deleteQuestion = async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (deletingQuestion) return;
+    setDeletingQuestion(true);
+    try {
+      await onDeleteQuestion?.(q);
+    } finally {
+      setDeletingQuestion(false);
+    }
+  };
+
   return (
     <div className="normal-question-card">
       <div className="nq-header" onClick={() => setOpen(o => !o)}>
         <span className={`type-badge type-${q.type}`}>{q.type === 'translation' ? '現代語訳' : '内容読解'}</span>
-        <span className="nq-title">{q.title}</span>
+        <span className="nq-title">{q.displayTitle ?? q.title}</span>
         <span className="nq-toggle">{open ? '▲' : '▼'}</span>
       </div>
       {open && (
@@ -176,16 +194,23 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
                 {isAdmin && (
                   <div className="nq-admin-actions">
                     <button
+                      type="button"
                       className="nq-admin-edit-btn"
-                      onClick={() => setEditingQuestion(true)}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        setEditingQuestion(true);
+                      }}
                     >
                       編集
                     </button>
                     <button
+                      type="button"
                       className="nq-admin-delete-btn"
-                      onClick={() => onDeleteQuestion?.(q)}
+                      onClick={deleteQuestion}
+                      disabled={deletingQuestion}
                     >
-                      削除
+                      {deletingQuestion ? '削除中...' : '削除'}
                     </button>
                   </div>
                 )}
@@ -245,9 +270,14 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
 
 export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onFocusTarget, isAdmin, onUpdateQuestion, onDeleteQuestion }) {
   if (!questions?.length) return null;
+  const counters = {};
   const sorted = [...questions].sort((a, b) => {
     if (a.type === b.type) return 0;
     return a.type === 'translation' ? -1 : 1;
+  }).map((q) => {
+    const label = q.type === 'translation' ? '現代語訳' : '内容読解';
+    counters[q.type] = (counters[q.type] ?? 0) + 1;
+    return { ...q, displayTitle: `${label}${circledNumber(counters[q.type])}` };
   });
   return (
     <div className="normal-questions">
