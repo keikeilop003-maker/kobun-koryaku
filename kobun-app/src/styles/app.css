@@ -222,10 +222,6 @@ body {
   font-size: 0.95rem;
   line-height: 2;
   letter-spacing: 0.06em;
-  max-height: 260px;
-}
-
-.kundoku-vertical-text--kanbun {
   height: var(--source-text-height, 520px);
   max-height: none;
 }
@@ -307,14 +303,13 @@ body {
   font-size: 1.05rem;
   line-height: 2.1;
   letter-spacing: 0.08em;
-  max-height: 260px;
+  height: var(--source-text-height, 520px);
+  max-height: none;
 }
 
 .vertical-text--kanbun {
   font-size: 1.47rem;
   line-height: 1.7;
-  height: var(--source-text-height, 520px);
-  max-height: none;
 }
 
 .admin-modern-translation {
