@@ -96,7 +96,7 @@ body {
 }
 
 .left-col {
-  flex: 0 0 40.6%;
+  flex: 0 0 48.72%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -407,7 +407,7 @@ body {
   text-orientation: mixed;
   white-space: pre-wrap;
   font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
-  font-size: 1.05rem;
+  font-size: 1.26rem;
   line-height: 2.1;
   letter-spacing: 0.08em;
   height: var(--source-text-height, 520px);
@@ -417,7 +417,7 @@ body {
 }
 
 .vertical-text--kanbun {
-  font-size: 1.47rem;
+  font-size: 1.764rem;
   line-height: 1.7;
 }
 
