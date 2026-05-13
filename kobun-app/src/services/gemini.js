@@ -7,6 +7,7 @@ const isMock = !API_KEY || API_KEY === 'your_gemini_api_key_here';
 const SYSTEM_INSTRUCTION = `あなたは古文の教師。生徒解答を添削。
 判定値は「正解」「部分正解」「不正解」のいずれか。
 現代語訳では、助詞・語尾・同義表現の違いがあっても意味がほぼ同じなら「正解」とする。
+「部分正解」「不正解」の場合は、判定理由を1〜3行で簡潔に示す。
 コメントは100字以内。指定JSONスキーマのみ返す。前置き・コードフェンス禁止。`;
 
 const SCHEMAS = {
@@ -116,15 +117,19 @@ const SCHEMAS = {
     type: 'object',
     properties: {
       judgement: { type: 'string' },
+      reason: { type: 'string' },
+      comment: { type: 'string' },
     },
-    required: ['judgement'],
+    required: ['judgement', 'reason'],
   },
   content: {
     type: 'object',
     properties: {
       judgement: { type: 'string' },
+      reason: { type: 'string' },
+      comment: { type: 'string' },
     },
-    required: ['judgement'],
+    required: ['judgement', 'reason'],
   },
 };
 
@@ -426,7 +431,7 @@ export async function reviewTranslation({ targetText, sentence, userAnswer, corr
   };
   const result = await review('translation', payload);
   if (result?.judgement !== '正解' && localCompareTranslationLenient(userAnswer, correctAnswer, acceptedAnswers) === '正解') {
-    return { ...result, judgement: '正解' };
+    return { ...result, judgement: '正解', reason: '' };
   }
   return result;
 }

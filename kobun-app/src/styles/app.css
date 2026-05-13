@@ -1114,6 +1114,19 @@ body {
 .nq-input-row textarea { flex: 1; }
 .nq-judge-row { display: flex; align-items: center; gap: 0.4rem; }
 
+.nq-feedback-reason {
+  background: #fff7e6;
+  border-left: 3px solid #d68a1f;
+  color: #5a3a0b;
+  font-size: 0.86rem;
+  line-height: 1.65;
+  padding: 8px 10px;
+}
+
+.nq-feedback-reason p {
+  margin: 0;
+}
+
 .nq-body textarea {
   font-family: inherit;
   font-size: 0.9rem;

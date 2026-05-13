@@ -24,6 +24,18 @@ function JudgeBadge({ judgement }) {
   );
 }
 
+function feedbackReason(result, q, isChoice) {
+  if (!result || result.judgement === '正解') return '';
+  const text = [result.reason, result.comment, result.feedback]
+    .filter(Boolean)
+    .join('\n')
+    .trim();
+  if (text) return text.split(/\r?\n/).map(line => line.trim()).filter(Boolean).slice(0, 3).join('\n');
+  if (isChoice) return `選んだ答えが正答「${q.answer}」と一致していません。`;
+  if (result.judgement === '部分正解') return '大意は近いですが、模範解答と比べて不足している要素があります。';
+  return '模範解答と比べて、重要な内容が一致していません。';
+}
+
 function ChoiceInput({ choices, value, onChange, disabled, answered, correctAnswer }) {
   return (
     <div className="nq-choices">
@@ -216,6 +228,8 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
     }
   };
 
+  const reasonText = feedbackReason(result, q, isChoice);
+
   return (
     <div className="normal-question-card">
       <div className="nq-header" onClick={() => setOpen(o => !o)}>
@@ -342,6 +356,13 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
           {result && (
             <>
               <JudgeBadge judgement={result.judgement} />
+              {reasonText && (
+                <div className="nq-feedback-reason">
+                  {reasonText.split('\n').map((line, index) => (
+                    <p key={index}>{line}</p>
+                  ))}
+                </div>
+              )}
               {!isChoice && <div className="hint">模範解答：<em>{q.answer}</em></div>}
               {q.explanation && <div className="explanation">{q.explanation}</div>}
             </>
