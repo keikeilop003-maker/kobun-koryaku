@@ -110,6 +110,8 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   const [open, setOpen] = useState(!!defaultOpen);
   const [editingQuestion, setEditingQuestion] = useState(false);
   const [questionText, setQuestionText] = useState(q.question ?? '');
+  const [answerText, setAnswerText] = useState(q.answer ?? '');
+  const [alternativeAnswers, setAlternativeAnswers] = useState(() => [...(q.alternativeAnswers ?? []), '', '', '', '', ''].slice(0, 5));
   const [savingQuestion, setSavingQuestion] = useState(false);
   const [deletingQuestion, setDeletingQuestion] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -124,6 +126,14 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   useEffect(() => {
     setQuestionText(q.question ?? '');
   }, [q.question]);
+
+  useEffect(() => {
+    setAnswerText(q.answer ?? '');
+  }, [q.answer]);
+
+  useEffect(() => {
+    setAlternativeAnswers([...(q.alternativeAnswers ?? []), '', '', '', '', ''].slice(0, 5));
+  }, [q.alternativeAnswers]);
 
   useEffect(() => {
     setConfirmingDelete(false);
@@ -146,7 +156,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
     } else if (q.local) {
       res = localScore(ans, q.answer);
     } else if (q.type === 'translation') {
-      res = await reviewTranslation({ targetText: q.targetText, sentence: section?.text ?? '', userAnswer: ans, correctAnswer: q.answer, explanation: q.explanation });
+      res = await reviewTranslation({ targetText: q.targetText, sentence: section?.text ?? '', userAnswer: ans, correctAnswer: q.answer, acceptedAnswers: q.alternativeAnswers, explanation: q.explanation });
     } else {
       res = await reviewContent({ question: q.question, userAnswer: ans, correctAnswer: q.answer, explanation: q.explanation });
     }
@@ -168,10 +178,23 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
 
   const saveQuestion = async () => {
     if (!questionText.trim() || savingQuestion) return;
+    if (q.type === 'translation' && !answerText.trim()) return;
     setSavingQuestion(true);
-    await onUpdateQuestion?.(q, questionText);
+    await onUpdateQuestion?.(q, {
+      question: questionText,
+      answer: answerText,
+      alternativeAnswers,
+    });
     setSavingQuestion(false);
     setEditingQuestion(false);
+  };
+
+  const updateAlternativeAnswer = (index, value) => {
+    setAlternativeAnswers((current) => {
+      const next = [...current];
+      next[index] = value;
+      return next;
+    });
   };
 
   const deleteQuestion = async (event) => {
@@ -223,9 +246,31 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
           <div className="nq-content-area">
             {editingQuestion ? (
               <div className="nq-admin-question-form">
-                <textarea value={questionText} onChange={e => setQuestionText(e.target.value)} rows={3} />
+                <label>
+                  問題文
+                  <textarea value={questionText} onChange={e => setQuestionText(e.target.value)} rows={3} />
+                </label>
+                {q.type === 'translation' && (
+                  <>
+                    <label>
+                      模範解答
+                      <textarea value={answerText} onChange={e => setAnswerText(e.target.value)} rows={3} />
+                    </label>
+                    <fieldset className="nq-admin-alt-answers">
+                      <legend>別解（5個まで）</legend>
+                      {alternativeAnswers.map((value, index) => (
+                        <input
+                          key={index}
+                          value={value}
+                          onChange={(e) => updateAlternativeAnswer(index, e.target.value)}
+                          placeholder={`別解${index + 1}`}
+                        />
+                      ))}
+                    </fieldset>
+                  </>
+                )}
                 <div className="nq-admin-question-actions">
-                  <button onClick={saveQuestion} disabled={savingQuestion || !questionText.trim()}>
+                  <button onClick={saveQuestion} disabled={savingQuestion || !questionText.trim() || (q.type === 'translation' && !answerText.trim())}>
                     {savingQuestion ? '保存中...' : '保存'}
                   </button>
                   <button className="nq-admin-secondary" onClick={() => { setQuestionText(q.question ?? ''); setEditingQuestion(false); }} disabled={savingQuestion}>

@@ -155,7 +155,14 @@ function AppInner() {
         .filter(question => !hiddenNormalQuestionIds.has(question.id))
         .map(question => {
           const edit = editedNormalQuestionMap.get(question.id);
-          return edit?.question ? { ...question, question: edit.question, edited: true } : question;
+          if (!edit) return question;
+          return {
+            ...question,
+            ...(edit.question ? { question: edit.question } : {}),
+            ...(edit.answer ? { answer: edit.answer } : {}),
+            ...(Array.isArray(edit.alternativeAnswers) ? { alternativeAnswers: edit.alternativeAnswers } : {}),
+            edited: true,
+          };
         }),
     };
   }, [textData, customTargets, hiddenTargetKeys, editedTargetMap, editedNormalQuestionMap, hiddenNormalQuestionIds]);
@@ -447,13 +454,22 @@ function AppInner() {
     }
   }, [isAdmin, textId, user]);
 
-  const handleUpdateNormalQuestion = useCallback(async (question, questionText) => {
-    if (!isAdmin || !user || !textId || !question || !questionText.trim()) return;
+  const handleUpdateNormalQuestion = useCallback(async (question, updates) => {
+    const payload = typeof updates === 'string' ? { question: updates } : (updates ?? {});
+    const questionText = payload.question?.trim();
+    const answerText = payload.answer?.trim();
+    const alternativeAnswers = (payload.alternativeAnswers ?? []).map(item => item.trim()).filter(Boolean).slice(0, 5);
+    if (!isAdmin || !user || !textId || !question || !questionText) return;
+    if (question.type === 'translation' && !answerText) return;
     try {
       await setDoc(doc(db, 'editedNormalQuestions', `${textId}__${question.id}`), {
         textId,
         questionId: question.id,
-        question: questionText.trim(),
+        question: questionText,
+        ...(question.type === 'translation' ? {
+          answer: answerText,
+          alternativeAnswers,
+        } : {}),
         updatedBy: user.uid,
         updatedByEmail: user.email,
         updatedAt: serverTimestamp(),

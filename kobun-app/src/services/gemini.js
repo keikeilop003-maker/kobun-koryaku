@@ -364,11 +364,12 @@ export async function reviewGrammar({ userAnswer, correctAnswer, acceptedAnswers
   return { judgement: localCompare(userAnswer, correctAnswer, acceptedAnswers) };
 }
 
-export async function reviewTranslation({ targetText, sentence, userAnswer, correctAnswer, explanation }) {
+export async function reviewTranslation({ targetText, sentence, userAnswer, correctAnswer, acceptedAnswers, explanation }) {
   return review('translation', {
     targetText,
     ctx: contextWindow(sentence, targetText, 30),
     correctAnswer,
+    acceptedAnswers,
     explanation: clip(explanation, 80),
     userAnswer,
   });
