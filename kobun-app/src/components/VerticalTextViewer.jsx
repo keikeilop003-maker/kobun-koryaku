@@ -71,28 +71,33 @@ function ReferenceBlock({ label, text }) {
   );
 }
 
-function KundokuTextBlock({ text }) {
+function KundokuTextBlock({ text, isKanbun, style }) {
   if (!text) return null;
   return (
     <div className="kundoku-text-scroll">
-      <p className="kundoku-vertical-text">{text}</p>
+      <p
+        className={`kundoku-vertical-text${isKanbun ? ' kundoku-vertical-text--kanbun' : ''}`}
+        style={style}
+      >
+        {text}
+      </p>
     </div>
   );
 }
 
-function KundokuToggle({ kundoku, showKundoku, onToggle }) {
+function KundokuToggle({ kundoku, showKundoku, onToggle, isKanbun, sourceTextStyle }) {
   if (!kundoku) return null;
   return (
     <div className="student-kundoku-area">
       <button className="kundoku-toggle-btn" onClick={onToggle}>
         {showKundoku ? '書き下し文を隠す' : '書き下し文を表示する'}
       </button>
-      {showKundoku && <KundokuTextBlock text={kundoku} />}
+      {showKundoku && <KundokuTextBlock text={kundoku} isKanbun={isKanbun} style={sourceTextStyle} />}
     </div>
   );
 }
 
-function SourceKundokuRow({ children, kundoku, showKundoku, onToggle }) {
+function SourceKundokuRow({ children, kundoku, showKundoku, onToggle, isKanbun, sourceTextStyle }) {
   return (
     <div className="source-kundoku-row">
       <div className="source-text-pane">{children}</div>
@@ -100,16 +105,63 @@ function SourceKundokuRow({ children, kundoku, showKundoku, onToggle }) {
         kundoku={kundoku}
         showKundoku={showKundoku}
         onToggle={onToggle}
+        isKanbun={isKanbun}
+        sourceTextStyle={sourceTextStyle}
       />
     </div>
   );
 }
 
-function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern }) {
+function SectionEditor({ section, kundoku, onCancel, onSave }) {
+  const [sourceText, setSourceText] = useState(section.text ?? '');
+  const [kundokuText, setKundokuText] = useState(kundoku ?? '');
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const save = async () => {
+    if (saving) return;
+    setSaving(true);
+    setMessage('');
+    try {
+      await onSave?.({
+        text: sourceText,
+        kundoku: kundokuText,
+      });
+      setMessage('保存しました');
+      onCancel?.();
+    } catch (err) {
+      console.error('[SectionEditor] save failed:', err);
+      setMessage('保存に失敗しました');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="admin-section-editor">
+      <label>
+        原文
+        <textarea rows={8} value={sourceText} onChange={(e) => setSourceText(e.target.value)} />
+      </label>
+      <label>
+        書き下し文
+        <textarea rows={8} value={kundokuText} onChange={(e) => setKundokuText(e.target.value)} />
+      </label>
+      <div className="admin-inline-actions">
+        {message && <span className="admin-message">{message}</span>}
+        <button type="button" className="admin-secondary-btn" onClick={onCancel}>キャンセル</button>
+        <button type="button" onClick={save} disabled={saving}>{saving ? '保存中...' : '保存'}</button>
+      </div>
+    </div>
+  );
+}
+
+function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
   const [firstPoint, setFirstPoint] = useState(null);
   const [showKundoku, setShowKundoku] = useState(false);
+  const [editingSection, setEditingSection] = useState(false);
   const phrase = pinnedPhrase?.sectionId === section.id ? pinnedPhrase.text : null;
   const segments = buildSegments(section.text, section.targets ?? [], activeType, phrase);
   const kundoku = getKundoku(section);
@@ -158,6 +210,8 @@ function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSel
           kundoku={kundoku}
           showKundoku={showKundoku}
           onToggle={() => setShowKundoku(value => !value)}
+          isKanbun={isKanbun}
+          sourceTextStyle={sourceTextStyle}
         >
           <div className="vertical-text-scroll" ref={scrollRef}>
             <div
@@ -194,10 +248,27 @@ function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSel
   return (
     <div className="section-card">
       <div className="section-title">{section.title}</div>
+      {isAdmin && !section.sectionless && (
+        <div className="admin-section-tools">
+          <button type="button" onClick={() => setEditingSection(value => !value)}>
+            {editingSection ? '編集を閉じる' : '原文・書き下し文を編集'}
+          </button>
+        </div>
+      )}
+      {editingSection && (
+        <SectionEditor
+          section={section}
+          kundoku={kundoku}
+          onCancel={() => setEditingSection(false)}
+          onSave={(updates) => onUpdateSection?.(section, updates)}
+        />
+      )}
       <SourceKundokuRow
         kundoku={kundoku}
         showKundoku={showKundoku}
         onToggle={() => setShowKundoku(value => !value)}
+        isKanbun={isKanbun}
+        sourceTextStyle={sourceTextStyle}
       >
         <div className="vertical-text-scroll" ref={scrollRef}>
           <div
@@ -237,7 +308,7 @@ function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSel
   );
 }
 
-export default function VerticalTextViewer({ notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern }) {
+export default function VerticalTextViewer({ notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection }) {
   const visibleSections = sections.filter(section => !section.sectionless);
   return (
     <div className="vertical-viewer">
@@ -255,6 +326,8 @@ export default function VerticalTextViewer({ notes, sections, selectedTarget, on
           selectionRange={selectionRange}
           onRangeSelect={onRangeSelect}
           showModern={showModern}
+          isAdmin={isAdmin}
+          onUpdateSection={onUpdateSection}
         />
       ))}
     </div>

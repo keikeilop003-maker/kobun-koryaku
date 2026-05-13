@@ -18,6 +18,7 @@ import useAccount from './hooks/useAccount';
 import useCustomTargets from './hooks/useCustomTargets';
 import useHiddenTargets from './hooks/useHiddenTargets';
 import useEditedTargets from './hooks/useEditedTargets';
+import useEditedSections from './hooks/useEditedSections';
 import useEditedNormalQuestions from './hooks/useEditedNormalQuestions';
 import useHiddenNormalQuestions from './hooks/useHiddenNormalQuestions';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -80,6 +81,7 @@ function AppInner() {
   const customTargets = useCustomTargets(textId);
   const hiddenTargetKeys = useHiddenTargets(textId);
   const editedTargetMap = useEditedTargets(textId);
+  const editedSectionMap = useEditedSections(textId);
   const editedNormalQuestionMap = useEditedNormalQuestions(textId);
   const hiddenNormalQuestionIds = useHiddenNormalQuestions(textId);
   const { entries, record, clearAll } = useHistory(textId, user?.uid);
@@ -126,6 +128,14 @@ function AppInner() {
       ...textData,
       sections: [
         ...textData.sections.map(section => {
+          const sectionEdit = editedSectionMap.get(section.id)?.section;
+          const displaySection = sectionEdit
+            ? {
+                ...section,
+                ...(typeof sectionEdit.text === 'string' ? { text: sectionEdit.text } : {}),
+                ...(typeof sectionEdit.kundoku === 'string' ? { kundoku: sectionEdit.kundoku } : {}),
+              }
+            : section;
           const baseTargets = (section.targets ?? [])
             .filter(target => !hiddenTargetKeys.has(`${section.id}:${target.id}`))
             .map(target => {
@@ -140,8 +150,8 @@ function AppInner() {
           const targets = [
             ...baseTargets,
             ...(customBySection[section.id] ?? []),
-          ].sort((a, b) => targetOrder(section, a) - targetOrder(section, b));
-          return { ...section, targets };
+          ].sort((a, b) => targetOrder(displaySection, a) - targetOrder(displaySection, b));
+          return { ...displaySection, targets, editedSection: Boolean(sectionEdit) };
         }),
         ...(sectionlessTargets.length > 0
           ? [{
@@ -167,7 +177,7 @@ function AppInner() {
           };
         }),
     };
-  }, [textData, customTargets, hiddenTargetKeys, editedTargetMap, editedNormalQuestionMap, hiddenNormalQuestionIds]);
+  }, [textData, customTargets, hiddenTargetKeys, editedTargetMap, editedSectionMap, editedNormalQuestionMap, hiddenNormalQuestionIds]);
 
   const titleId = equipped?.title ?? null;
   const titleColor = titleId ? TITLE_COLOR[titleId] : null;
@@ -458,6 +468,21 @@ function AppInner() {
     }
   }, [isAdmin, textId, user]);
 
+  const handleUpdateSection = useCallback(async (section, updates) => {
+    if (!isAdmin || !user || !textId || !section?.id) return;
+    await setDoc(doc(db, 'editedSections', `${textId}__${section.id}`), {
+      textId,
+      sectionId: section.id,
+      section: {
+        text: updates.text ?? '',
+        kundoku: updates.kundoku ?? '',
+      },
+      updatedBy: user.uid,
+      updatedByEmail: user.email,
+      updatedAt: serverTimestamp(),
+    });
+  }, [isAdmin, textId, user]);
+
   const handleUpdateNormalQuestion = useCallback(async (question, updates) => {
     const payload = typeof updates === 'string' ? { question: updates } : (updates ?? {});
     const questionText = payload.question?.trim();
@@ -643,6 +668,8 @@ function AppInner() {
               selectionRange={adminSelection}
               onRangeSelect={setAdminSelection}
               showModern={isAdmin}
+              isAdmin={isAdmin}
+              onUpdateSection={handleUpdateSection}
             />
           ) : null}
         </div>

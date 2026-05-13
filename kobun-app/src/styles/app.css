@@ -222,7 +222,72 @@ body {
   font-size: 0.95rem;
   line-height: 2;
   letter-spacing: 0.06em;
-  max-height: 220px;
+  max-height: 260px;
+}
+
+.kundoku-vertical-text--kanbun {
+  height: var(--source-text-height, 520px);
+  max-height: none;
+}
+
+.admin-section-tools {
+  display: flex;
+  justify-content: flex-end;
+  margin: -4px 0 10px;
+}
+
+.admin-section-tools button {
+  border: 1px solid #b8cdef;
+  border-radius: 4px;
+  background: #f2f6ff;
+  color: #174c8f;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: bold;
+  padding: 5px 10px;
+}
+
+.admin-section-tools button:hover {
+  background: #e5eefc;
+}
+
+.admin-section-editor {
+  border: 1px solid #ddd8cc;
+  border-radius: 6px;
+  background: #faf8f4;
+  margin-bottom: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-section-editor label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #2d3a5e;
+  font-size: 0.82rem;
+  font-weight: bold;
+}
+
+.admin-section-editor textarea {
+  width: 100%;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  color: #2c2c2c;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.admin-section-editor textarea:focus {
+  outline: none;
+  border-color: #4a6fa5;
+  box-shadow: 0 0 0 2px rgba(74,111,165,0.15);
 }
 
 .vertical-text-scroll {

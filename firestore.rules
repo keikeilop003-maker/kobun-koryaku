@@ -243,6 +243,29 @@ service cloud.firestore {
         && request.resource.data.anchor is map;
       allow delete: if isAdmin();
     }
+    match /editedSections/{sectionId} {
+      allow read: if request.auth != null;
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly([
+          'textId',
+          'sectionId',
+          'section',
+          'updatedBy',
+          'updatedByEmail',
+          'updatedAt'
+        ])
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.updatedByEmail == request.auth.token.email
+        && request.resource.data.textId is string
+        && request.resource.data.sectionId is string
+        && request.resource.data.section is map
+        && request.resource.data.section.keys().hasOnly(['text', 'kundoku'])
+        && request.resource.data.section.text is string
+        && request.resource.data.section.text.size() <= 20000
+        && request.resource.data.section.kundoku is string
+        && request.resource.data.section.kundoku.size() <= 20000;
+      allow delete: if isAdmin();
+    }
     match /editedNormalQuestions/{questionId} {
       allow read: if request.auth != null;
       allow create, update: if isAdmin()
