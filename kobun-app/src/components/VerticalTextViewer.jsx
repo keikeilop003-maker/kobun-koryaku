@@ -161,7 +161,7 @@ function SectionEditor({ section, kundoku, onCancel, onSave }) {
   );
 }
 
-function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection }) {
+function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
   const [firstPoint, setFirstPoint] = useState(null);
@@ -170,7 +170,6 @@ function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSel
   const phrase = pinnedPhrase?.sectionId === section.id ? pinnedPhrase.text : null;
   const segments = buildSegments(section.text, section.targets ?? [], activeType, phrase);
   const kundoku = getKundoku(section);
-  const notes = getNotes(section, textNotes, isFirstSection);
   const isKanbun = isKanbunText(section.text);
   const sourceTextStyle = sectionTextStyle(section.text, kundoku);
 
@@ -241,7 +240,6 @@ function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSel
         {showModern && (
           <>
             <ReferenceBlock label="現代語訳" text={section.modern} />
-            <ReferenceBlock label="備考" text={notes} />
           </>
         )}
       </div>
@@ -300,39 +298,79 @@ function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSel
       {showModern ? (
         <>
           <ReferenceBlock label="現代語訳" text={section.modern} />
-          <ReferenceBlock label="備考" text={notes} />
         </>
+      ) : null}
+    </div>
+  );
+}
+
+function NotesTab({ notes, sections }) {
+  const visibleSections = sections.filter(section => !section.sectionless);
+  const items = visibleSections
+    .map((section, index) => ({
+      id: section.id,
+      title: section.title,
+      text: getNotes(section, notes, index === 0),
+    }))
+    .filter(item => item.text);
+
+  return (
+    <div className="notes-tab-content">
+      {items.length > 0 ? (
+        items.map(item => (
+          <div className="notes-section-card" key={item.id}>
+            <div className="section-title">{item.title}</div>
+            <ReferenceBlock label="備考" text={item.text} />
+          </div>
+        ))
       ) : (
-        <>
-          <ReferenceBlock label="備考" text={notes} />
-        </>
+        <p className="notes-empty">備考はありません。</p>
       )}
     </div>
   );
 }
 
 export default function VerticalTextViewer({ notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection }) {
+  const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
   return (
     <div className="vertical-viewer">
-      {visibleSections.map((section, index) => (
-        <SectionCard
-          key={section.id}
-          section={section}
-          textNotes={notes}
-          isFirstSection={index === 0}
-          selectedTarget={selectedTarget}
-          onSelectTarget={onSelectTarget}
-          activeType={activeType}
-          pinnedPhrase={pinnedPhrase}
-          selectionMode={selectionMode}
-          selectionRange={selectionRange}
-          onRangeSelect={onRangeSelect}
-          showModern={showModern}
-          isAdmin={isAdmin}
-          onUpdateSection={onUpdateSection}
-        />
-      ))}
+      <div className="left-view-tabs">
+        <button
+          type="button"
+          className={activeTab === 'source' ? 'active' : ''}
+          onClick={() => setActiveTab('source')}
+        >
+          原文
+        </button>
+        <button
+          type="button"
+          className={activeTab === 'notes' ? 'active' : ''}
+          onClick={() => setActiveTab('notes')}
+        >
+          備考
+        </button>
+      </div>
+      {activeTab === 'source' ? (
+        visibleSections.map((section) => (
+          <SectionCard
+            key={section.id}
+            section={section}
+            selectedTarget={selectedTarget}
+            onSelectTarget={onSelectTarget}
+            activeType={activeType}
+            pinnedPhrase={pinnedPhrase}
+            selectionMode={selectionMode}
+            selectionRange={selectionRange}
+            onRangeSelect={onRangeSelect}
+            showModern={showModern}
+            isAdmin={isAdmin}
+            onUpdateSection={onUpdateSection}
+          />
+        ))
+      ) : (
+        <NotesTab notes={notes} sections={sections} />
+      )}
     </div>
   );
 }

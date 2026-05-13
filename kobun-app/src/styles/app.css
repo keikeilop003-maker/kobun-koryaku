@@ -165,6 +165,58 @@ body {
   gap: 20px;
 }
 
+.left-view-tabs {
+  display: flex;
+  gap: 6px;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #f5f1e8;
+  padding-bottom: 4px;
+}
+
+.left-view-tabs button {
+  border: 1px solid #d5cfbf;
+  border-radius: 6px;
+  background: #fff;
+  color: #555;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.84rem;
+  padding: 7px 14px;
+}
+
+.left-view-tabs button.active {
+  background: #2d3a5e;
+  border-color: #2d3a5e;
+  color: #fff;
+}
+
+.notes-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.notes-section-card {
+  background: #fff;
+  border: 1px solid #ddd8cc;
+  border-radius: 8px;
+  padding: 16px 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.notes-empty {
+  background: #fff;
+  border: 1px solid #ddd8cc;
+  border-radius: 8px;
+  color: #777;
+  font-size: 0.9rem;
+  margin: 0;
+  padding: 18px;
+  text-align: center;
+}
+
 .section-card {
   background: #fff;
   border: 1px solid #ddd8cc;
