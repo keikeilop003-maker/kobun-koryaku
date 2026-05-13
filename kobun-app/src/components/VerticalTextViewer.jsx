@@ -1,6 +1,28 @@
 import { useEffect, useRef, useState } from 'react';
 import HighlightedToken from './HighlightedToken';
 
+function findIgnoringLineBreaks(text, phrase) {
+  const needle = phrase.replace(/[\r\n]/g, '');
+  if (!needle) return null;
+  const indexMap = [];
+  let normalized = '';
+  let sourceIndex = 0;
+  for (const char of text) {
+    if (char === '\r' || char === '\n') {
+      sourceIndex += char.length;
+      continue;
+    }
+    indexMap.push(sourceIndex);
+    normalized += char;
+    sourceIndex += char.length;
+  }
+  const normalizedIndex = normalized.indexOf(needle);
+  if (normalizedIndex === -1) return null;
+  const start = indexMap[normalizedIndex];
+  const end = indexMap[normalizedIndex + needle.length - 1] + 1;
+  return { start, end };
+}
+
 function buildSegments(text, allTargets, activeType, pinnedPhrase) {
   const targets = activeType === 'all'
     ? allTargets
@@ -13,14 +35,20 @@ function buildSegments(text, allTargets, activeType, pinnedPhrase) {
         : -1;
       const hint = Math.max(0, (t.start ?? 0) - 5);
       const idx = exactIdx !== -1 ? exactIdx : text.indexOf(t.surface, hint);
-      return { t, idx: idx !== -1 ? idx : text.indexOf(t.surface), pinned: false };
+      const resolvedIdx = idx !== -1 ? idx : text.indexOf(t.surface);
+      return { t, idx: resolvedIdx, end: resolvedIdx + t.surface.length, pinned: false };
     })
     .filter(({ idx }) => idx !== -1);
 
   if (pinnedPhrase) {
-    const idx = text.indexOf(pinnedPhrase);
-    if (idx !== -1) {
-      located.push({ t: { id: '__pinned__', surface: pinnedPhrase }, idx, pinned: true });
+    const match = findIgnoringLineBreaks(text, pinnedPhrase);
+    if (match) {
+      located.push({
+        t: { id: '__pinned__', surface: text.slice(match.start, match.end) },
+        idx: match.start,
+        end: match.end,
+        pinned: true,
+      });
     }
   }
 
@@ -28,7 +56,7 @@ function buildSegments(text, allTargets, activeType, pinnedPhrase) {
 
   const segments = [];
   let pos = 0;
-  for (const { t, idx, pinned } of located) {
+  for (const { t, idx, end, pinned } of located) {
     if (idx < pos) continue;
     if (idx > pos) segments.push({ type: 'plain', text: text.slice(pos, idx) });
     if (pinned) {
@@ -36,7 +64,7 @@ function buildSegments(text, allTargets, activeType, pinnedPhrase) {
     } else {
       segments.push({ type: 'target', target: t, showAsAll: activeType === 'all' });
     }
-    pos = idx + t.surface.length;
+    pos = end;
   }
   if (pos < text.length) segments.push({ type: 'plain', text: text.slice(pos) });
   return segments;
