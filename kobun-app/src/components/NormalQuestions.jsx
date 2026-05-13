@@ -82,35 +82,65 @@ function boldTargets(surfaces, fallbackSurface) {
     .sort((a, b) => b.text.length - a.text.length);
 }
 
-function HighlightQuestionText({ text, surface, surfaces }) {
+function quotedRanges(text) {
+  if (!text) return [];
+  const ranges = [];
+  const pattern = /「([^」]+)」/g;
+  let match;
+  while ((match = pattern.exec(text)) !== null) {
+    ranges.push({
+      start: match.index + 1,
+      end: match.index + match[0].length - 1,
+    });
+  }
+  return ranges;
+}
+
+function boldRanges(text, surface, surfaces) {
   const targets = boldTargets(surfaces, surface);
+  const ranges = quotedRanges(text);
   const seen = new Map();
-  if (!text || targets.length === 0 || !targets.some(target => text.includes(target.text))) return <>{text}</>;
-  const nodes = [];
-  let buffer = '';
   let index = 0;
   while (index < text.length) {
     const matchedText = targets.find((item) => text.startsWith(item.text, index))?.text;
-    if (matchedText) {
-      const matchingTargets = targets.filter((item) => item.text === matchedText);
-      const count = (seen.get(matchedText) ?? 0) + 1;
-      seen.set(matchedText, count);
-      if (buffer) {
-        nodes.push(buffer);
-        buffer = '';
-      }
-      if (matchingTargets.some((item) => !item.occurrence || item.occurrence === count)) {
-        nodes.push(<span key={`bold-${index}`} className="question-surface">{matchedText}</span>);
-      } else {
-        nodes.push(matchedText);
-      }
-      index += matchedText.length;
-    } else {
-      buffer += text[index];
+    if (!matchedText) {
       index += 1;
+      continue;
     }
+    const matchingTargets = targets.filter((item) => item.text === matchedText);
+    const count = (seen.get(matchedText) ?? 0) + 1;
+    seen.set(matchedText, count);
+    if (matchingTargets.some((item) => !item.occurrence || item.occurrence === count)) {
+      ranges.push({ start: index, end: index + matchedText.length });
+    }
+    index += matchedText.length;
   }
-  if (buffer) nodes.push(buffer);
+  return ranges
+    .filter(range => range.start < range.end)
+    .sort((a, b) => a.start - b.start || b.end - a.end)
+    .reduce((acc, range) => {
+      const last = acc.at(-1);
+      if (!last || range.start >= last.end) acc.push(range);
+      else last.end = Math.max(last.end, range.end);
+      return acc;
+    }, []);
+}
+
+function HighlightQuestionText({ text, surface, surfaces }) {
+  const ranges = boldRanges(text, surface, surfaces);
+  if (!text || ranges.length === 0) return <>{text}</>;
+  const nodes = [];
+  let pos = 0;
+  for (const range of ranges) {
+    if (range.start > pos) nodes.push(text.slice(pos, range.start));
+    nodes.push(
+      <span key={`bold-${range.start}`} className="question-surface">
+        {text.slice(range.start, range.end)}
+      </span>
+    );
+    pos = range.end;
+  }
+  if (pos < text.length) nodes.push(text.slice(pos));
   return <>{nodes}</>;
 }
 

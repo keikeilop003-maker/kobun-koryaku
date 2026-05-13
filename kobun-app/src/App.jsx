@@ -45,6 +45,14 @@ function pointsForType(type) {
   return 5;
 }
 
+function normalQuestionPinnedPhrase(question) {
+  if (!['translation', 'content'].includes(question?.type)) return null;
+  const targetText = question.targetText?.trim();
+  if (targetText) return targetText;
+  const quoted = question.question?.match(/「([^」]+)」/)?.[1]?.trim();
+  return quoted || null;
+}
+
 function targetOrder(section, target) {
   if (Number.isInteger(target.start)) return target.start;
   if (!target.surface) return Number.MAX_SAFE_INTEGER;
@@ -721,7 +729,10 @@ function AppInner() {
                   onRecord={handleRecord}
                   expandedNqId={expandedNqId}
                   onExpandHandled={() => setExpandedNqId(null)}
-                  onOpenQuestionChange={(question) => setPinnedPhrase(question?.type === 'translation' && question?.sectionId && question?.targetText ? { sectionId: question.sectionId, text: question.targetText } : null)}
+                  onOpenQuestionChange={(question) => {
+                    const phrase = normalQuestionPinnedPhrase(question);
+                    setPinnedPhrase(question?.sectionId && phrase ? { sectionId: question.sectionId, text: phrase } : null);
+                  }}
                   isAdmin={isAdmin}
                   onUpdateQuestion={handleUpdateNormalQuestion}
                   onDeleteQuestion={handleDeleteNormalQuestion}
