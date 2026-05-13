@@ -113,6 +113,8 @@ function PostItem({ post, replies, reactions, avatarSeed, onReply, onToggleReact
 function ThemeItem({ theme, posts, reactions, avatarSeed, equipped, addPost, toggleReaction, isAdmin, onUpdateTheme, onDeleteTheme }) {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
@@ -156,6 +158,26 @@ function ThemeItem({ theme, posts, reactions, avatarSeed, equipped, addPost, tog
     }
   };
 
+  const handleDeleteTheme = async (event) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+    if (deleting) return;
+    if (!confirmingDelete) {
+      setConfirmingDelete(true);
+      return;
+    }
+    setDeleting(true);
+    try {
+      await onDeleteTheme?.(theme.id);
+    } catch (e) {
+      console.error('[analysis theme] delete failed:', e);
+      setError(`テーマ削除に失敗しました: ${e.code ?? e.message ?? 'unknown error'}`);
+    } finally {
+      setDeleting(false);
+      setConfirmingDelete(false);
+    }
+  };
+
   const remaining = MAX_CHARS - text.length;
 
   return (
@@ -179,13 +201,18 @@ function ThemeItem({ theme, posts, reactions, avatarSeed, equipped, addPost, tog
             <div className="analysis-theme-admin-actions">
               <button onClick={() => setEditing(value => !value)}>{editing ? '編集を閉じる' : 'テーマ編集'}</button>
               <button
-                className="analysis-admin-danger"
-                onClick={async () => {
-                  if (!window.confirm('このテーマを削除しますか？関連する投稿は残ります。')) return;
-                  await onDeleteTheme?.(theme.id);
+                className={`analysis-admin-danger${confirmingDelete ? ' analysis-admin-danger--confirm' : ''}`}
+                onPointerDown={handleDeleteTheme}
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
                 }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') handleDeleteTheme(event);
+                }}
+                disabled={deleting}
               >
-                テーマ削除
+                {deleting ? '削除中…' : confirmingDelete ? 'もう一度押す' : 'テーマ削除'}
               </button>
             </div>
           )}

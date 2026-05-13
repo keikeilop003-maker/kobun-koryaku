@@ -2657,6 +2657,19 @@ body {
   background: #a64c4c;
 }
 
+.analysis-theme-admin-actions .analysis-admin-danger--confirm {
+  background: #c62828;
+}
+
+.analysis-theme-admin-actions .analysis-admin-danger--confirm:hover {
+  background: #d84343;
+}
+
+.analysis-theme-admin-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .analysis-admin-done,
 .analysis-admin-error {
   font-size: 0.78rem;
