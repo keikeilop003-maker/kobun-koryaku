@@ -164,6 +164,7 @@ function SectionEditor({ section, kundoku, onCancel, onSave }) {
 function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
+  const pinnedRef = useRef(null);
   const [firstPoint, setFirstPoint] = useState(null);
   const [showKundoku, setShowKundoku] = useState(false);
   const [editingSection, setEditingSection] = useState(false);
@@ -177,6 +178,16 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
     const el = scrollRef.current;
     if (el) el.scrollLeft = el.scrollWidth - el.clientWidth;
   }, []);
+
+  useEffect(() => {
+    if (!phrase) return;
+    const token = pinnedRef.current;
+    if (!token) return;
+    const timer = window.setTimeout(() => {
+      token.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [pinnedPhrase, phrase]);
 
   const isSelected = t =>
     selectedTarget?.id === t.id ||
@@ -281,7 +292,7 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
               seg.type === 'plain' ? (
                 <span key={i}>{seg.text}</span>
               ) : seg.type === 'pinned' ? (
-                <span key={i} className="pinned-translation">{seg.text}</span>
+                <span key={i} className="pinned-translation" ref={pinnedRef}>{seg.text}</span>
               ) : (
                 <HighlightedToken
                   key={`${seg.target.id}-${seg.showAsAll}`}
@@ -389,25 +400,27 @@ function NotesTab({ notes, sections, isAdmin, onUpdateSection }) {
 export default function VerticalTextViewer({ notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection }) {
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
+  const visibleTab = pinnedPhrase ? 'source' : activeTab;
+
   return (
     <div className="vertical-viewer">
       <div className="left-view-tabs">
         <button
           type="button"
-          className={activeTab === 'source' ? 'active' : ''}
+          className={visibleTab === 'source' ? 'active' : ''}
           onClick={() => setActiveTab('source')}
         >
           原文
         </button>
         <button
           type="button"
-          className={activeTab === 'notes' ? 'active' : ''}
+          className={visibleTab === 'notes' ? 'active' : ''}
           onClick={() => setActiveTab('notes')}
         >
           備考
         </button>
       </div>
-      {activeTab === 'source' ? (
+      {visibleTab === 'source' ? (
         visibleSections.map((section) => (
           <SectionCard
             key={section.id}

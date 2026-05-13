@@ -721,7 +721,7 @@ function AppInner() {
                   onRecord={handleRecord}
                   expandedNqId={expandedNqId}
                   onExpandHandled={() => setExpandedNqId(null)}
-                  onOpenQuestionChange={(question) => setPinnedPhrase(question?.sectionId && question?.targetText ? { sectionId: question.sectionId, text: question.targetText } : null)}
+                  onOpenQuestionChange={(question) => setPinnedPhrase(question?.type === 'translation' && question?.sectionId && question?.targetText ? { sectionId: question.sectionId, text: question.targetText } : null)}
                   isAdmin={isAdmin}
                   onUpdateQuestion={handleUpdateNormalQuestion}
                   onDeleteQuestion={handleDeleteNormalQuestion}
