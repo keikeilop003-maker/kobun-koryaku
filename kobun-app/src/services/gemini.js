@@ -146,6 +146,10 @@ function normalizeConjugationType(s) {
   return String(s ?? '').replace(/活用$/g, '').trim();
 }
 
+function normalizeConjugationForm(s) {
+  return String(s ?? '').replace(/形$/g, '').trim();
+}
+
 function answerParts(answer) {
   return String(answer)
     .split(/[。．・、／/]/)
@@ -167,6 +171,19 @@ function localCompare(userAnswer, correctAnswer, acceptedAnswers = []) {
     if (n.includes(user) || user.includes(n) || ns.includes(user) || user.includes(ns)) return '部分正解';
   }
   return '不正解';
+}
+
+function localCompareConjugationForm(userAnswer, correctAnswer, acceptedAnswers = []) {
+  const user = normalize(normalizeConjugationForm(userAnswer));
+  if (!user) return '不正解';
+  const candidates = [correctAnswer, ...(acceptedAnswers ?? [])].filter(Boolean);
+  const parts = candidates.flatMap(answer => [String(answer), ...answerParts(answer)]);
+  for (const p of parts) {
+    const normalizedPart = normalize(p);
+    const normalizedWithoutForm = normalize(normalizeConjugationForm(p));
+    if (normalizedPart === user || normalizedWithoutForm === user) return '正解';
+  }
+  return localCompare(userAnswer, correctAnswer, acceptedAnswers);
 }
 
 // ======================================
@@ -296,7 +313,7 @@ export async function reviewVerb({ surface, sentence, userBaseForm, userConjugat
   const userConj = normalizeConjugationType(userConjugationType);
   const targetConj = normalizeConjugationType(target.conjugationType);
   const cj = localCompare(userConj, targetConj);
-  const fj = localCompare(userFormInText, target.formInText);
+  const fj = localCompareConjugationForm(userFormInText, target.formInText);
   const allCorrect = bj === '正解' && cj === '正解' && fj === '正解';
   return {
     baseForm:       { judgement: bj, correctAnswer: target.baseForm,       comment: '' },
