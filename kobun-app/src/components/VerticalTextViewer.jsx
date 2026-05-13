@@ -83,6 +83,19 @@ function KundokuToggle({ kundoku, showKundoku, onToggle }) {
   );
 }
 
+function SourceKundokuRow({ children, kundoku, showKundoku, onToggle }) {
+  return (
+    <div className="source-kundoku-row">
+      <div className="source-text-pane">{children}</div>
+      <KundokuToggle
+        kundoku={kundoku}
+        showKundoku={showKundoku}
+        onToggle={onToggle}
+      />
+    </div>
+  );
+}
+
 function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
@@ -132,34 +145,35 @@ function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSel
     return (
       <div className="section-card section-card--selection">
         <div className="section-title">{section.title}</div>
-        <div className="vertical-text-scroll" ref={scrollRef}>
-          <div
-            className={`vertical-text vertical-text--selecting${isKanbun ? ' vertical-text--kanbun' : ''}`}
-            ref={textRef}
-            style={sourceTextStyle}
-          >
-            {Array.from(section.text).map((char, index) => {
-              const isFirst = firstPoint?.sectionId === section.id && firstPoint.index === index;
-              const isSelected = selectedStart !== null && index >= selectedStart && index < selectedEnd;
-              return (
-                <span
-                  key={`${section.id}-${index}`}
-                  className={`range-char${isFirst ? ' range-char--first' : ''}${isSelected ? ' range-char--selected' : ''}`}
-                  onClick={() => handleCharClick(index)}
-                >
-                  {char}
-                </span>
-              );
-            })}
+        <SourceKundokuRow
+          kundoku={kundoku}
+          showKundoku={showKundoku}
+          onToggle={() => setShowKundoku(value => !value)}
+        >
+          <div className="vertical-text-scroll" ref={scrollRef}>
+            <div
+              className={`vertical-text vertical-text--selecting${isKanbun ? ' vertical-text--kanbun' : ''}`}
+              ref={textRef}
+              style={sourceTextStyle}
+            >
+              {Array.from(section.text).map((char, index) => {
+                const isFirst = firstPoint?.sectionId === section.id && firstPoint.index === index;
+                const isSelected = selectedStart !== null && index >= selectedStart && index < selectedEnd;
+                return (
+                  <span
+                    key={`${section.id}-${index}`}
+                    className={`range-char${isFirst ? ' range-char--first' : ''}${isSelected ? ' range-char--selected' : ''}`}
+                    onClick={() => handleCharClick(index)}
+                  >
+                    {char}
+                  </span>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        </SourceKundokuRow>
         {showModern && (
           <>
-            <KundokuToggle
-              kundoku={kundoku}
-              showKundoku={showKundoku}
-              onToggle={() => setShowKundoku(value => !value)}
-            />
             <ReferenceBlock label="現代語訳" text={section.modern} />
             <ReferenceBlock label="備考" text={notes} />
           </>
@@ -171,46 +185,42 @@ function SectionCard({ section, textNotes, isFirstSection, selectedTarget, onSel
   return (
     <div className="section-card">
       <div className="section-title">{section.title}</div>
-      <div className="vertical-text-scroll" ref={scrollRef}>
-        <div
-          className={`vertical-text${isKanbun ? ' vertical-text--kanbun' : ''}`}
-          ref={textRef}
-          style={sourceTextStyle}
-        >
-          {segments.map((seg, i) =>
-            seg.type === 'plain' ? (
-              <span key={i}>{seg.text}</span>
-            ) : seg.type === 'pinned' ? (
-              <span key={i} className="pinned-translation">{seg.text}</span>
-            ) : (
-              <HighlightedToken
-                key={`${seg.target.id}-${seg.showAsAll}`}
-                target={seg.target}
-                isSelected={isSelected(seg.target)}
-                onClick={t => onSelectTarget(t, section)}
-                showAsAll={seg.showAsAll}
-              />
-            )
-          )}
+      <SourceKundokuRow
+        kundoku={kundoku}
+        showKundoku={showKundoku}
+        onToggle={() => setShowKundoku(value => !value)}
+      >
+        <div className="vertical-text-scroll" ref={scrollRef}>
+          <div
+            className={`vertical-text${isKanbun ? ' vertical-text--kanbun' : ''}`}
+            ref={textRef}
+            style={sourceTextStyle}
+          >
+            {segments.map((seg, i) =>
+              seg.type === 'plain' ? (
+                <span key={i}>{seg.text}</span>
+              ) : seg.type === 'pinned' ? (
+                <span key={i} className="pinned-translation">{seg.text}</span>
+              ) : (
+                <HighlightedToken
+                  key={`${seg.target.id}-${seg.showAsAll}`}
+                  target={seg.target}
+                  isSelected={isSelected(seg.target)}
+                  onClick={t => onSelectTarget(t, section)}
+                  showAsAll={seg.showAsAll}
+                />
+              )
+            )}
+          </div>
         </div>
-      </div>
+      </SourceKundokuRow>
       {showModern ? (
         <>
-          <KundokuToggle
-            kundoku={kundoku}
-            showKundoku={showKundoku}
-            onToggle={() => setShowKundoku(value => !value)}
-          />
           <ReferenceBlock label="現代語訳" text={section.modern} />
           <ReferenceBlock label="備考" text={notes} />
         </>
       ) : (
         <>
-          <KundokuToggle
-            kundoku={kundoku}
-            showKundoku={showKundoku}
-            onToggle={() => setShowKundoku(value => !value)}
-          />
           <ReferenceBlock label="備考" text={notes} />
         </>
       )}

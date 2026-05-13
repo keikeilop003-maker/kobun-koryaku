@@ -182,6 +182,28 @@ body {
   padding-left: 8px;
 }
 
+.source-kundoku-row {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.source-text-pane {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.source-kundoku-row .student-kundoku-area {
+  flex: 0 0 auto;
+  max-width: 45%;
+  margin-top: 0;
+}
+
+.source-kundoku-row .admin-modern-translation {
+  margin-top: 0;
+}
+
 .vertical-text-scroll {
   overflow-x: auto;
   overflow-y: hidden;
