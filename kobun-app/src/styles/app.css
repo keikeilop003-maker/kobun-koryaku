@@ -316,15 +316,13 @@ body {
   margin-top: 8px;
   scrollbar-width: thin;
   scrollbar-color: #ccc transparent;
-  display: flex;
-  justify-content: flex-end;
 }
 
 .kundoku-vertical-text {
   writing-mode: vertical-rl;
   text-orientation: mixed;
   white-space: pre-wrap;
-  margin: 0;
+  margin: 0 0 0 auto;
   color: #222;
   font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
   font-size: 0.95rem;
@@ -332,6 +330,7 @@ body {
   letter-spacing: 0.06em;
   height: var(--source-text-height, 520px);
   max-height: none;
+  width: fit-content;
 }
 
 .admin-section-tools {
@@ -401,8 +400,6 @@ body {
   /* scrollbar always visible so layout is stable */
   scrollbar-width: thin;
   scrollbar-color: #ccc transparent;
-  display: flex;
-  justify-content: flex-end;
 }
 
 .vertical-text {
@@ -415,6 +412,8 @@ body {
   letter-spacing: 0.08em;
   height: var(--source-text-height, 520px);
   max-height: none;
+  margin-left: auto;
+  width: fit-content;
 }
 
 .vertical-text--kanbun {
