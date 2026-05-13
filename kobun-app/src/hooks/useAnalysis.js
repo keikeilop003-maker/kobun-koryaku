@@ -101,5 +101,35 @@ export default function useAnalysis(textId) {
     }, { merge: true });
   };
 
-  return { theme, posts, addPost, reactions, toggleReaction, addTheme };
+  const updateTheme = async (themeId, { title, description, attachments }) => {
+    if (!textId || !themeId || !title.trim()) return;
+    const currentThemes = Array.isArray(theme?.themes) ? theme.themes : [];
+    const nextThemes = currentThemes.map((item) => (
+      item.id === themeId
+        ? {
+            ...item,
+            title: title.trim(),
+            description: description.trim(),
+            attachments: (attachments ?? []).filter(a => a.name?.trim() && a.url?.trim()),
+          }
+        : item
+    ));
+    await setDoc(doc(db, 'analysisThemes', textId), {
+      ...(theme ?? {}),
+      themes: nextThemes,
+      updatedAt: serverTimestamp(),
+    }, { merge: true });
+  };
+
+  const deleteTheme = async (themeId) => {
+    if (!textId || !themeId) return;
+    const currentThemes = Array.isArray(theme?.themes) ? theme.themes : [];
+    await setDoc(doc(db, 'analysisThemes', textId), {
+      ...(theme ?? {}),
+      themes: currentThemes.filter((item) => item.id !== themeId),
+      updatedAt: serverTimestamp(),
+    }, { merge: true });
+  };
+
+  return { theme, posts, addPost, reactions, toggleReaction, addTheme, updateTheme, deleteTheme };
 }

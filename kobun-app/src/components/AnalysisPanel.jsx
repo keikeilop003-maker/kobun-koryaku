@@ -110,8 +110,9 @@ function PostItem({ post, replies, reactions, avatarSeed, onReply, onToggleReact
   );
 }
 
-function ThemeItem({ theme, posts, reactions, avatarSeed, equipped, addPost, toggleReaction }) {
+function ThemeItem({ theme, posts, reactions, avatarSeed, equipped, addPost, toggleReaction, isAdmin, onUpdateTheme, onDeleteTheme }) {
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
@@ -174,6 +175,30 @@ function ThemeItem({ theme, posts, reactions, avatarSeed, equipped, addPost, tog
 
       {open && (
         <div className="analysis-thread">
+          {isAdmin && (
+            <div className="analysis-theme-admin-actions">
+              <button onClick={() => setEditing(value => !value)}>{editing ? '編集を閉じる' : 'テーマ編集'}</button>
+              <button
+                className="analysis-admin-danger"
+                onClick={async () => {
+                  if (!window.confirm('このテーマを削除しますか？関連する投稿は残ります。')) return;
+                  await onDeleteTheme?.(theme.id);
+                }}
+              >
+                テーマ削除
+              </button>
+            </div>
+          )}
+          {editing && (
+            <AdminThemeForm
+              mode="edit"
+              initialTheme={theme}
+              onSave={async (payload) => {
+                await onUpdateTheme?.(theme.id, payload);
+                setEditing(false);
+              }}
+            />
+          )}
           {topLevel.length === 0 && (
             <p className="analysis-empty-thread">まだ投稿がありません。最初の考察をどうぞ。</p>
           )}
@@ -221,14 +246,15 @@ function ThemeItem({ theme, posts, reactions, avatarSeed, equipped, addPost, tog
   );
 }
 
-function AdminThemeForm({ onSave }) {
+function AdminThemeForm({ onSave, mode = 'add', initialTheme = null }) {
   const [open, setOpen] = useState(false);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [attachmentName, setAttachmentName] = useState('');
-  const [attachmentUrl, setAttachmentUrl] = useState('');
+  const [title, setTitle] = useState(initialTheme?.title ?? '');
+  const [description, setDescription] = useState(initialTheme?.description ?? '');
+  const [attachmentName, setAttachmentName] = useState(initialTheme?.attachments?.[0]?.name ?? '');
+  const [attachmentUrl, setAttachmentUrl] = useState(initialTheme?.attachments?.[0]?.url ?? '');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const isEdit = mode === 'edit';
 
   const submit = async () => {
     if (!title.trim() || saving) return;
@@ -239,16 +265,18 @@ function AdminThemeForm({ onSave }) {
         ? [{ name: attachmentName.trim(), url: attachmentUrl.trim() }]
         : [];
       await onSave({ title, description, attachments });
-      setTitle('');
-      setDescription('');
-      setAttachmentName('');
-      setAttachmentUrl('');
+      if (!isEdit) {
+        setTitle('');
+        setDescription('');
+        setAttachmentName('');
+        setAttachmentUrl('');
+      }
       setOpen(false);
-      setMessage('追加しました');
+      setMessage(isEdit ? '更新しました' : '追加しました');
       setTimeout(() => setMessage(''), 2000);
     } catch (e) {
-      console.error('[analysis theme] add failed:', e);
-      setMessage(`追加に失敗しました: ${e.code ?? e.message ?? 'unknown error'}`);
+      console.error('[analysis theme] save failed:', e);
+      setMessage(`${isEdit ? '更新' : '追加'}に失敗しました: ${e.code ?? e.message ?? 'unknown error'}`);
     } finally {
       setSaving(false);
     }
@@ -257,7 +285,7 @@ function AdminThemeForm({ onSave }) {
   return (
     <div className="analysis-admin-tools">
       <div className="analysis-admin-toolbar">
-        <button onClick={() => setOpen(o => !o)}>{open ? '閉じる' : '項目追加'}</button>
+        <button onClick={() => setOpen(o => !o)}>{open ? '閉じる' : (isEdit ? '編集フォーム' : '項目追加')}</button>
         {message && <span className={message.includes('失敗') ? 'analysis-admin-error' : 'analysis-admin-done'}>{message}</span>}
       </div>
       {open && (
@@ -281,7 +309,7 @@ function AdminThemeForm({ onSave }) {
             </label>
           </div>
           <div className="analysis-admin-actions">
-            <button onClick={submit} disabled={saving || !title.trim()}>{saving ? '保存中…' : '保存'}</button>
+            <button onClick={submit} disabled={saving || !title.trim()}>{saving ? '保存中…' : (isEdit ? '更新' : '保存')}</button>
             <button className="analysis-admin-secondary" onClick={() => setOpen(false)} disabled={saving}>キャンセル</button>
           </div>
         </div>
@@ -291,7 +319,7 @@ function AdminThemeForm({ onSave }) {
 }
 
 export default function AnalysisPanel({ textId, avatarSeed, equipped, isAdmin }) {
-  const { theme: themeDoc, posts, addPost, reactions, toggleReaction, addTheme } = useAnalysis(textId);
+  const { theme: themeDoc, posts, addPost, reactions, toggleReaction, addTheme, updateTheme, deleteTheme } = useAnalysis(textId);
   const themes = themeDoc?.themes ?? [];
 
   return (
@@ -307,6 +335,9 @@ export default function AnalysisPanel({ textId, avatarSeed, equipped, isAdmin })
           equipped={equipped}
           addPost={addPost}
           toggleReaction={toggleReaction}
+          isAdmin={isAdmin}
+          onUpdateTheme={updateTheme}
+          onDeleteTheme={deleteTheme}
         />
       ))}
       {themes.length === 0 && (
