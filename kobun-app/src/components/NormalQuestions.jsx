@@ -96,6 +96,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   const [questionText, setQuestionText] = useState(q.question ?? '');
   const [savingQuestion, setSavingQuestion] = useState(false);
   const [deletingQuestion, setDeletingQuestion] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const deleteStartedRef = useRef(false);
 
   const isChoice = q.inputType === 'choice';
@@ -107,6 +108,10 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   useEffect(() => {
     setQuestionText(q.question ?? '');
   }, [q.question]);
+
+  useEffect(() => {
+    setConfirmingDelete(false);
+  }, [q.id]);
 
   const section = sections.find(s => s.id === q.sectionId);
 
@@ -157,6 +162,10 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
     event?.preventDefault();
     event?.stopPropagation();
     if (deletingQuestion || deleteStartedRef.current) return;
+    if (!confirmingDelete) {
+      setConfirmingDelete(true);
+      return;
+    }
     deleteStartedRef.current = true;
     setDeletingQuestion(true);
     try {
@@ -164,6 +173,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
     } finally {
       deleteStartedRef.current = false;
       setDeletingQuestion(false);
+      setConfirmingDelete(false);
     }
   };
 
@@ -175,13 +185,19 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
         {isAdmin && (
           <button
             type="button"
-            className="nq-admin-delete-btn nq-admin-delete-btn--header"
+            className={`nq-admin-delete-btn nq-admin-delete-btn--header${confirmingDelete ? ' nq-admin-delete-btn--confirm' : ''}`}
             onMouseDown={(event) => event.stopPropagation()}
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={deleteQuestion}
+            onPointerDown={deleteQuestion}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') deleteQuestion(event);
+            }}
             disabled={deletingQuestion}
           >
-            {deletingQuestion ? '削除中...' : '削除'}
+            {deletingQuestion ? '削除中...' : confirmingDelete ? 'もう一度押す' : '削除'}
           </button>
         )}
         <span className="nq-toggle">{open ? '▲' : '▼'}</span>

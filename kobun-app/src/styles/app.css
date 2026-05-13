@@ -1033,6 +1033,14 @@ body {
   flex-shrink: 0;
 }
 
+.nq-admin-delete-btn--confirm {
+  background: #c62828;
+}
+
+.nq-admin-delete-btn--confirm:hover {
+  background: #d84343;
+}
+
 .nq-admin-question-form {
   display: flex;
   flex-direction: column;

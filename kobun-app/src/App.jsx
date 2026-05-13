@@ -470,7 +470,6 @@ function AppInner() {
       window.alert('削除に必要な情報を取得できませんでした。ページを再読み込みしてからもう一度お試しください。');
       return;
     }
-    if (!window.confirm('この読解問題を削除しますか？')) return;
     try {
       await setDoc(doc(db, 'hiddenNormalQuestions', `${textId}__${question.id}`), {
         textId,
