@@ -79,11 +79,13 @@ function AppInner() {
   const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
+  const [viewAsStudent, setViewAsStudent] = useState(false);
   const [adminSelection, setAdminSelection] = useState(null);
   const [addingType, setAddingType] = useState(null);
   const [textbookOrder, setTextbookOrder] = useState([]);
   const [textbookStatuses, setTextbookStatuses] = useState({});
   const [lastDeletedTarget, setLastDeletedTarget] = useState(null);
+  const effectiveIsAdmin = isAdmin && !viewAsStudent;
 
   const textId = textData?.id ?? selectedTextId ?? '';
   const customTargets = useCustomTargets(textId);
@@ -109,8 +111,8 @@ function AppInner() {
     });
   }, [statusTextbooks, textbookOrder]);
   const visibleTextbooks = useMemo(
-    () => orderedTextbooks.filter(tb => isAdmin || tb.status !== 'draft'),
-    [orderedTextbooks, isAdmin],
+    () => orderedTextbooks.filter(tb => effectiveIsAdmin || tb.status !== 'draft'),
+    [orderedTextbooks, effectiveIsAdmin],
   );
 
   const equipped = profile?.equipped ? normalizeEquipped(profile.equipped) : null;
@@ -238,7 +240,7 @@ function AppInner() {
   const handleSelectTextbook = (id) => {
     if (id === selectedTextId) return;
     const textbook = statusTextbooks.find(tb => tb.id === id);
-    if (textbook?.status === 'draft' && !isAdmin) return;
+    if (textbook?.status === 'draft' && !effectiveIsAdmin) return;
     setShowAdminDashboard(false);
     setSelectedTextId(id);
     setSelectedTarget(null);
@@ -253,7 +255,7 @@ function AppInner() {
   };
 
   const handleMoveTextbook = async (id, direction) => {
-    if (!isAdmin || !user) return;
+    if (!effectiveIsAdmin || !user) return;
     const currentOrder = orderedTextbooks.map(tb => tb.id);
     const index = currentOrder.indexOf(id);
     const nextIndex = index + direction;
@@ -275,7 +277,7 @@ function AppInner() {
   };
 
   const handleToggleTextbookStatus = async (id) => {
-    if (!isAdmin || !user) return;
+    if (!effectiveIsAdmin || !user) return;
     const currentStatus = textbookStatuses[id] ?? textbooks.find(tb => tb.id === id)?.status ?? 'draft';
     const nextStatus = currentStatus === 'draft' ? 'published' : 'draft';
     const nextStatuses = { ...textbookStatuses, [id]: nextStatus };
@@ -360,7 +362,7 @@ function AppInner() {
   }, []);
 
   const handleCreateTarget = useCallback(async ({ sectionId, target, anchor }) => {
-    if (!isAdmin || !user || !textId) return;
+    if (!effectiveIsAdmin || !user || !textId) return;
     await addDoc(collection(db, 'customTargets'), {
       textId,
       sectionId,
@@ -372,10 +374,10 @@ function AppInner() {
     });
     setAddingType(null);
     setAdminSelection(null);
-  }, [isAdmin, textId, user]);
+  }, [effectiveIsAdmin, textId, user]);
 
   const handleDeleteTarget = useCallback(async (target, section) => {
-    if (!isAdmin || !user || !textId || !target || !section) return;
+    if (!effectiveIsAdmin || !user || !textId || !target || !section) return;
     try {
       if (target.customDocId) {
         await deleteDoc(doc(db, 'customTargets', target.customDocId));
@@ -407,10 +409,10 @@ function AppInner() {
       console.error('[delete target] failed:', err);
       window.alert(`削除に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
     }
-  }, [isAdmin, textId, user]);
+  }, [effectiveIsAdmin, textId, user]);
 
   const handleUndoDeleteTarget = useCallback(async () => {
-    if (!isAdmin || !user || !textId || !lastDeletedTarget) return;
+    if (!effectiveIsAdmin || !user || !textId || !lastDeletedTarget) return;
     try {
       if (lastDeletedTarget.kind === 'custom') {
         const { customDocId, docId: _docId, ...restoredTarget } = lastDeletedTarget.target;
@@ -437,10 +439,10 @@ function AppInner() {
       console.error('[undo delete target] failed:', err);
       window.alert(`元に戻せませんでした: ${err.code ?? err.message ?? 'unknown error'}`);
     }
-  }, [isAdmin, lastDeletedTarget, textId, user]);
+  }, [effectiveIsAdmin, lastDeletedTarget, textId, user]);
 
   const handleUpdateTarget = useCallback(async (currentTarget, currentSection, { sectionId, target, anchor }) => {
-    if (!isAdmin || !user || !textId || !currentTarget || !currentSection) return;
+    if (!effectiveIsAdmin || !user || !textId || !currentTarget || !currentSection) return;
     try {
       if (currentTarget.customDocId) {
         await updateDoc(doc(db, 'customTargets', currentTarget.customDocId), {
@@ -475,10 +477,10 @@ function AppInner() {
       console.error('[update target] failed:', err);
       window.alert(`更新に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
     }
-  }, [isAdmin, textId, user]);
+  }, [effectiveIsAdmin, textId, user]);
 
   const handleUpdateSection = useCallback(async (section, updates) => {
-    if (!isAdmin || !user || !textId || !section?.id) return;
+    if (!effectiveIsAdmin || !user || !textId || !section?.id) return;
     await setDoc(doc(db, 'editedSections', `${textId}__${section.id}`), {
       textId,
       sectionId: section.id,
@@ -491,14 +493,14 @@ function AppInner() {
       updatedByEmail: user.email,
       updatedAt: serverTimestamp(),
     });
-  }, [isAdmin, textId, user]);
+  }, [effectiveIsAdmin, textId, user]);
 
   const handleUpdateNormalQuestion = useCallback(async (question, updates) => {
     const payload = typeof updates === 'string' ? { question: updates } : (updates ?? {});
     const questionText = payload.question?.trim();
     const answerText = payload.answer?.trim();
     const alternativeAnswers = (payload.alternativeAnswers ?? []).map(item => item.trim()).filter(Boolean).slice(0, 5);
-    if (!isAdmin || !user || !textId || !question || !questionText) return;
+    if (!effectiveIsAdmin || !user || !textId || !question || !questionText) return;
     if (question.type === 'translation' && !answerText) return;
     try {
       await setDoc(doc(db, 'editedNormalQuestions', `${textId}__${question.id}`), {
@@ -518,10 +520,10 @@ function AppInner() {
       console.error('[update normal question] failed:', err);
       window.alert(`問題文の更新に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
     }
-  }, [isAdmin, textId, user]);
+  }, [effectiveIsAdmin, textId, user]);
 
   const handleDeleteNormalQuestion = useCallback(async (question) => {
-    if (!isAdmin || !user || !textId || !question?.id) {
+    if (!effectiveIsAdmin || !user || !textId || !question?.id) {
       window.alert('削除に必要な情報を取得できませんでした。ページを再読み込みしてからもう一度お試しください。');
       return;
     }
@@ -538,11 +540,34 @@ function AppInner() {
       console.error('[delete normal question] failed:', err);
       window.alert(`読解問題の削除に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
     }
-  }, [isAdmin, textId, user]);
+  }, [effectiveIsAdmin, textId, user]);
 
   const isLoadingText = selectedTextId !== null && textData === null;
   const noSelection = selectedTextId === null;
   const currentTextData = displayTextData ?? textData;
+  const toggleStudentView = () => {
+    setViewAsStudent(next => {
+      const enabled = !next;
+      if (enabled) {
+        setShowAdminDashboard(false);
+        setAddingType(null);
+        setAdminSelection(null);
+        setLastDeletedTarget(null);
+        const selectedTextbook = statusTextbooks.find(tb => tb.id === selectedTextId);
+        if (selectedTextbook?.status === 'draft') {
+          setSelectedTextId(null);
+          setTextData(null);
+          setSelectedTarget(null);
+          setSelectedSection(null);
+          setRightTab('knowledge');
+          setActiveType('all');
+          setExpandedNqId(null);
+          setPinnedPhrase(null);
+        }
+      }
+      return enabled;
+    });
+  };
 
   if (accountLoading || adminLoading) return <div className="loading">読み込み中…</div>;
   if (!isAdmin && account && !account.registrationCompleted && !account.studentCode) {
@@ -578,6 +603,15 @@ function AppInner() {
           ))}
         </div>
         <div className="header-right">
+          {isAdmin && (
+            <button
+              className={`view-mode-toggle${viewAsStudent ? ' active' : ''}`}
+              onClick={toggleStudentView}
+              title="管理者アカウントのまま表示モードを切り替えます"
+            >
+              {viewAsStudent ? '管理者Viewへ' : '一般ユーザーView'}
+            </button>
+          )}
           {account?.studentCode && (
             <span className="header-student-code" title="利用番号">{account.studentCode}</span>
           )}
@@ -605,7 +639,7 @@ function AppInner() {
       </header>
 
       <div className="app-body">
-        {showAdminDashboard ? (
+        {isAdmin && !viewAsStudent && showAdminDashboard ? (
           <AdminDashboard
             isAdmin={isAdmin}
             currentUser={user}
@@ -617,7 +651,7 @@ function AppInner() {
         <div className="left-col">
           {noSelection ? (
             <div className="textbook-select-area">
-              {isAdmin && (
+              {effectiveIsAdmin && (
                 <button className="admin-open-dashboard-btn" onClick={() => setShowAdminDashboard(true)}>
                   管理者ページ
                 </button>
@@ -636,7 +670,7 @@ function AppInner() {
                     }
                   }}
                 >
-                  {isAdmin && (
+                  {effectiveIsAdmin && (
                     <div className="textbook-admin-tools" onClick={e => e.stopPropagation()}>
                       <div className="textbook-order-tools">
                         <button
@@ -674,11 +708,11 @@ function AppInner() {
               onSelectTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
               activeType={rightTab === 'knowledge' ? activeType : null}
               pinnedPhrase={rightTab === 'normal' ? pinnedPhrase : null}
-              selectionMode={isAdmin && Boolean(addingType)}
+              selectionMode={effectiveIsAdmin && Boolean(addingType)}
               selectionRange={adminSelection}
               onRangeSelect={setAdminSelection}
-              showModern={isAdmin}
-              isAdmin={isAdmin}
+              showModern={effectiveIsAdmin}
+              isAdmin={effectiveIsAdmin}
               onUpdateSection={handleUpdateSection}
             />
           ) : null}
@@ -709,7 +743,7 @@ function AppInner() {
                   onFocusTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
                   historyEntries={entries}
                   onRecord={handleRecord}
-                  isAdmin={isAdmin}
+                  isAdmin={effectiveIsAdmin}
                   adminSelection={adminSelection}
                   addingType={addingType}
                   onStartAdd={handleStartAdd}
@@ -733,7 +767,7 @@ function AppInner() {
                     const phrase = normalQuestionPinnedPhrase(question);
                     setPinnedPhrase(question?.sectionId && phrase ? { sectionId: question.sectionId, text: phrase } : null);
                   }}
-                  isAdmin={isAdmin}
+                  isAdmin={effectiveIsAdmin}
                   onUpdateQuestion={handleUpdateNormalQuestion}
                   onDeleteQuestion={handleDeleteNormalQuestion}
                 />
@@ -743,7 +777,7 @@ function AppInner() {
                   textId={textId}
                   avatarSeed={avatarSeed}
                   equipped={equipped}
-                  isAdmin={isAdmin}
+                  isAdmin={effectiveIsAdmin}
                 />
               </div>
               <div style={{ display: rightTab === 'score' ? 'block' : 'none' }}>

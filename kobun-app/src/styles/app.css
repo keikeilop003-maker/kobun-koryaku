@@ -2086,6 +2086,29 @@ body {
 }
 .contact-admin-btn:hover { background: rgba(255,255,255,0.2); }
 
+.view-mode-toggle {
+  background: #f5f3ee;
+  border: 1px solid rgba(255,255,255,0.45);
+  border-radius: 4px;
+  color: #2d3a5e;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: bold;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+.view-mode-toggle.active {
+  background: #fff5d6;
+  border-color: #f2cf78;
+  color: #7a5200;
+}
+
+.view-mode-toggle:hover {
+  filter: brightness(0.96);
+}
+
 .avatar-btn {
   background: none;
   border: none;
