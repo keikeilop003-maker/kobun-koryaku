@@ -42,27 +42,43 @@ function JudgeIcon({ judgement }) {
   return <span className="judge-icon judge-wrong">✕</span>;
 }
 
-function boldWords(surfaces, fallbackSurface) {
+function boldTargets(surfaces, fallbackSurface) {
   const values = Array.isArray(surfaces) ? surfaces : [surfaces ?? fallbackSurface];
-  return [...new Set(values.map(value => value?.trim()).filter(Boolean))]
-    .sort((a, b) => b.length - a.length);
+  return values
+    .map((value) => {
+      if (typeof value === 'string') return { text: value.trim(), occurrence: null };
+      return {
+        text: (value?.text ?? value?.surface ?? '').trim(),
+        occurrence: Number.isInteger(value?.occurrence) && value.occurrence > 0 ? value.occurrence : null,
+      };
+    })
+    .filter((value) => value.text)
+    .sort((a, b) => b.text.length - a.text.length);
 }
 
 function HighlightQuestionText({ text, surface, surfaces }) {
-  const words = boldWords(surfaces, surface);
-  if (!text || words.length === 0 || !words.some(word => text.includes(word))) return <>{text}</>;
+  const targets = boldTargets(surfaces, surface);
+  const seen = new Map();
+  if (!text || targets.length === 0 || !targets.some(target => text.includes(target.text))) return <>{text}</>;
   const nodes = [];
   let buffer = '';
   let index = 0;
   while (index < text.length) {
-    const word = words.find(item => text.startsWith(item, index));
-    if (word) {
+    const matchedText = targets.find((item) => text.startsWith(item.text, index))?.text;
+    if (matchedText) {
+      const matchingTargets = targets.filter((item) => item.text === matchedText);
+      const count = (seen.get(matchedText) ?? 0) + 1;
+      seen.set(matchedText, count);
       if (buffer) {
         nodes.push(buffer);
         buffer = '';
       }
-      nodes.push(<span key={`bold-${index}`} className="question-surface">{word}</span>);
-      index += word.length;
+      if (matchingTargets.some((item) => !item.occurrence || item.occurrence === count)) {
+        nodes.push(<span key={`bold-${index}`} className="question-surface">{matchedText}</span>);
+      } else {
+        nodes.push(matchedText);
+      }
+      index += matchedText.length;
     } else {
       buffer += text[index];
       index += 1;

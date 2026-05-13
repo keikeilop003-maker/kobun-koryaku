@@ -11,11 +11,21 @@ const TYPE_LABELS = {
 
 const BOLD_WORD_LIMIT = 4;
 
+function normalizeQuestionSurface(value) {
+  if (typeof value === 'string') return { text: value, occurrence: '' };
+  return {
+    text: value?.text ?? value?.surface ?? '',
+    occurrence: Number.isInteger(value?.occurrence) ? String(value.occurrence) : '',
+  };
+}
+
 function defaultQuestionSurfaces(initialTarget) {
   const saved = Array.isArray(initialTarget?.questionSurfaces)
     ? initialTarget.questionSurfaces
     : [initialTarget?.questionSurface ?? ''];
-  return [...saved, '', '', '', ''].slice(0, BOLD_WORD_LIMIT);
+  return [...saved.map(normalizeQuestionSurface), {}, {}, {}, {}]
+    .slice(0, BOLD_WORD_LIMIT)
+    .map(normalizeQuestionSurface);
 }
 
 function defaultForm(type, selection, initialTarget = null, initialSectionId = '') {
@@ -100,10 +110,10 @@ export default function AdminTargetForm({
     });
     setMessage('');
   };
-  const updateQuestionSurface = (index, value) => {
+  const updateQuestionSurface = (index, key, value) => {
     setForm((current) => {
       const next = [...current.questionSurfaces];
-      next[index] = value;
+      next[index] = { ...next[index], [key]: value };
       return { ...current, questionSurfaces: next };
     });
     setMessage('');
@@ -141,10 +151,22 @@ export default function AdminTargetForm({
       else delete target.meaning;
       if (form.questionText.trim()) target.questionText = form.questionText.trim();
       else delete target.questionText;
-      const questionSurfaces = form.questionSurfaces.map(item => item.trim()).filter(Boolean).slice(0, BOLD_WORD_LIMIT);
+      const questionSurfaces = form.questionSurfaces
+        .map((item) => {
+          const text = item.text.trim();
+          if (!text) return null;
+          const occurrence = Number.parseInt(item.occurrence, 10);
+          return Number.isInteger(occurrence) && occurrence > 0
+            ? { text, occurrence }
+            : text;
+        })
+        .filter(Boolean)
+        .slice(0, BOLD_WORD_LIMIT);
       if (questionSurfaces.length > 0) {
         target.questionSurfaces = questionSurfaces;
-        target.questionSurface = questionSurfaces[0];
+        target.questionSurface = typeof questionSurfaces[0] === 'string'
+          ? questionSurfaces[0]
+          : questionSurfaces[0].text;
       } else {
         delete target.questionSurfaces;
         delete target.questionSurface;
@@ -214,12 +236,21 @@ export default function AdminTargetForm({
           太字にする語
           <div className="admin-bold-words">
             {form.questionSurfaces.map((value, index) => (
-              <input
-                key={index}
-                value={value}
-                onChange={(e) => updateQuestionSurface(index, e.target.value)}
-                placeholder={`語${index + 1}`}
-              />
+              <div className="admin-bold-word-row" key={index}>
+                <input
+                  value={value.text}
+                  onChange={(e) => updateQuestionSurface(index, 'text', e.target.value)}
+                  placeholder={`語${index + 1}`}
+                />
+                <input
+                  type="number"
+                  min="1"
+                  value={value.occurrence}
+                  onChange={(e) => updateQuestionSurface(index, 'occurrence', e.target.value)}
+                  placeholder="何個目"
+                  aria-label={`語${index + 1}を太字にする出現番号`}
+                />
+              </div>
             ))}
           </div>
         </label>

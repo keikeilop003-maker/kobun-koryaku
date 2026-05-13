@@ -710,6 +710,12 @@ body {
   gap: 8px;
 }
 
+.admin-bold-word-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 76px;
+  gap: 6px;
+}
+
 .admin-inline-actions {
   display: flex;
   align-items: center;
