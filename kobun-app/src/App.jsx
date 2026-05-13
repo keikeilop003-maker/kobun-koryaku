@@ -692,7 +692,7 @@ function AppInner() {
                   onRecord={handleRecord}
                   expandedNqId={expandedNqId}
                   onExpandHandled={() => setExpandedNqId(null)}
-                  onFocusTarget={(sectionId, text) => setPinnedPhrase(sectionId && text ? { sectionId, text } : null)}
+                  onOpenQuestionChange={(question) => setPinnedPhrase(question?.sectionId && question?.targetText ? { sectionId: question.sectionId, text: question.targetText } : null)}
                   isAdmin={isAdmin}
                   onUpdateQuestion={handleUpdateNormalQuestion}
                   onDeleteQuestion={handleDeleteNormalQuestion}

@@ -114,12 +114,11 @@ function HighlightQuestionText({ text, surface, surfaces }) {
   return <>{nodes}</>;
 }
 
-function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpened, onFocusTarget, isAdmin, onUpdateQuestion, onDeleteQuestion }) {
+function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen, isAdmin, onUpdateQuestion, onDeleteQuestion }) {
   const lastFeedback = historyEntry?.attempts?.at(-1)?.feedback ?? null;
   const [ans, setAns] = useState(lastFeedback?.userAnswer ?? '');
   const [result, setResult] = useState(lastFeedback ?? null);
   const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(!!defaultOpen);
   const [editingQuestion, setEditingQuestion] = useState(false);
   const [questionText, setQuestionText] = useState(q.question ?? '');
   const [answerText, setAnswerText] = useState(q.answer ?? '');
@@ -130,10 +129,6 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   const deleteStartedRef = useRef(false);
 
   const isChoice = q.inputType === 'choice';
-
-  useEffect(() => {
-    if (defaultOpen) { setOpen(true); onOpened?.(); }
-  }, [defaultOpen]); // eslint-disable-line
 
   useEffect(() => {
     setQuestionText(q.question ?? '');
@@ -152,11 +147,6 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   }, [q.id]);
 
   const section = sections.find(s => s.id === q.sectionId);
-
-  const focusTarget = () => {
-    if (!q.targetText) return;
-    onFocusTarget?.(q.sectionId, q.targetText);
-  };
 
   const submit = async () => {
     if (!ans.trim()) return;
@@ -232,7 +222,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
 
   return (
     <div className="normal-question-card">
-      <div className="nq-header" onClick={() => setOpen(o => !o)}>
+      <div className="nq-header" onClick={onToggleOpen}>
         <span className={`type-badge type-${q.type}`}>{q.type === 'translation' ? '現代語訳' : '内容読解'}</span>
         <span className="nq-title">{q.displayTitle ?? q.title}</span>
         {isAdmin && (
@@ -340,8 +330,6 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
                 <textarea
                   value={ans}
                   onChange={e => setAns(e.target.value)}
-                  onFocus={focusTarget}
-                  onBlur={() => onFocusTarget?.(null, null)}
                   rows={4}
                 />
                 <div className="nq-action-col">
@@ -373,10 +361,20 @@ function QuestionItem({ q, sections, onRecord, historyEntry, defaultOpen, onOpen
   );
 }
 
-export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onFocusTarget, isAdmin, onUpdateQuestion, onDeleteQuestion }) {
-  if (!questions?.length) return null;
+export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onOpenQuestionChange, isAdmin, onUpdateQuestion, onDeleteQuestion }) {
+  const safeQuestions = questions ?? [];
+  const [openQuestionId, setOpenQuestionId] = useState(null);
+  useEffect(() => {
+    if (!expandedNqId) return;
+    const question = safeQuestions.find(q => q.id === expandedNqId);
+    setOpenQuestionId(expandedNqId);
+    onOpenQuestionChange?.(question ?? null);
+    onExpandHandled?.();
+  }, [expandedNqId, safeQuestions, onOpenQuestionChange, onExpandHandled]);
+
+  if (!safeQuestions.length) return null;
   const counters = {};
-  const sorted = [...questions].sort((a, b) => {
+  const sorted = [...safeQuestions].sort((a, b) => {
     if (a.type === b.type) return 0;
     return a.type === 'translation' ? -1 : 1;
   }).map((q) => {
@@ -384,6 +382,15 @@ export default function NormalQuestions({ questions, sections, historyEntries, o
     counters[q.type] = (counters[q.type] ?? 0) + 1;
     return { ...q, displayTitle: `${label}${circledNumber(counters[q.type])}` };
   });
+
+  const toggleQuestion = (question) => {
+    setOpenQuestionId((current) => {
+      const nextId = current === question.id ? null : question.id;
+      onOpenQuestionChange?.(nextId ? question : null);
+      return nextId;
+    });
+  };
+
   return (
     <div className="normal-questions">
       <div className="nq-section-title">通常問題</div>
@@ -394,9 +401,8 @@ export default function NormalQuestions({ questions, sections, historyEntries, o
           sections={sections}
           onRecord={onRecord}
           historyEntry={historyEntries?.[`nq_${q.id}`]}
-          defaultOpen={expandedNqId === q.id}
-          onOpened={onExpandHandled}
-          onFocusTarget={onFocusTarget}
+          open={openQuestionId === q.id}
+          onToggleOpen={() => toggleQuestion(q)}
           isAdmin={isAdmin}
           onUpdateQuestion={onUpdateQuestion}
           onDeleteQuestion={onDeleteQuestion}
