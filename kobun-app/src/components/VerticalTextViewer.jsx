@@ -71,6 +71,15 @@ function ReferenceBlock({ label, text }) {
   );
 }
 
+function KundokuTextBlock({ text }) {
+  if (!text) return null;
+  return (
+    <div className="kundoku-text-scroll">
+      <p className="kundoku-vertical-text">{text}</p>
+    </div>
+  );
+}
+
 function KundokuToggle({ kundoku, showKundoku, onToggle }) {
   if (!kundoku) return null;
   return (
@@ -78,7 +87,7 @@ function KundokuToggle({ kundoku, showKundoku, onToggle }) {
       <button className="kundoku-toggle-btn" onClick={onToggle}>
         {showKundoku ? '書き下し文を隠す' : '書き下し文を表示する'}
       </button>
-      {showKundoku && <ReferenceBlock label="書き下し文" text={kundoku} />}
+      {showKundoku && <KundokuTextBlock text={kundoku} />}
     </div>
   );
 }
