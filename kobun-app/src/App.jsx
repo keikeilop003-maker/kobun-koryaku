@@ -10,6 +10,7 @@ import AnalysisPanel from './components/AnalysisPanel';
 import AdminDashboard from './components/AdminDashboard';
 import UserMessageModal from './components/UserMessageModal';
 import RegistrationScreen from './components/RegistrationScreen';
+import AccountSettingsModal from './components/AccountSettingsModal';
 import useHistory from './hooks/useHistory';
 import useProfile from './hooks/useProfile';
 import useAdmin from './hooks/useAdmin';
@@ -53,7 +54,7 @@ function targetOrder(section, target) {
 function AppInner() {
   const { user, logout } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin(user);
-  const { account, loading: accountLoading, registerAccount } = useAccount(user);
+  const { account, loading: accountLoading, registerAccount, updatePublicProfile } = useAccount(user);
   const avatarSeed = user?.uid ? user.uid.substring(0, 8) : 'anon';
 
   const [textbooks, setTextbooks] = useState([]);
@@ -66,6 +67,7 @@ function AppInner() {
   const [expandedNqId, setExpandedNqId] = useState(null);
   const [pinnedPhrase, setPinnedPhrase] = useState(null);
   const [customizerOpen, setCustomizerOpen] = useState(false);
+  const [accountSettingsOpen, setAccountSettingsOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [adminSelection, setAdminSelection] = useState(null);
@@ -173,6 +175,8 @@ function AppInner() {
     ? {}
     : titleColor ? { color: titleColor } : {};
   const nameClass = titleColor === 'rainbow' ? 'user-name title-rainbow' : 'user-name';
+  const publicDisplayName = account?.username?.trim() || user.displayName || 'ユーザー';
+  const publicBio = account?.bio?.trim() ?? '';
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/index.json`)
@@ -553,7 +557,14 @@ function AppInner() {
           >
             <AvatarIcon seed={avatarSeed} size={28} equipped={equipped} />
           </button>
-          <span className={nameClass} style={nameStyle}>{user.displayName}</span>
+          <button
+            className="profile-settings-btn"
+            onClick={() => setAccountSettingsOpen(true)}
+            title="プロフィール設定"
+          >
+            <span className={nameClass} style={nameStyle}>{publicDisplayName}</span>
+            {publicBio && <span className="user-bio">{publicBio}</span>}
+          </button>
           <button className="logout-btn" onClick={logout}>ログアウト</button>
         </div>
       </header>
@@ -714,10 +725,18 @@ function AppInner() {
         <AvatarCustomizer
           seed={avatarSeed}
           profile={profile}
-          displayName={user.displayName}
+          displayName={publicDisplayName}
           onUnlock={unlockItem}
           onEquip={equipItem}
           onClose={() => setCustomizerOpen(false)}
+        />
+      )}
+      {accountSettingsOpen && (
+        <AccountSettingsModal
+          account={account}
+          fallbackName={user.displayName}
+          onSave={updatePublicProfile}
+          onClose={() => setAccountSettingsOpen(false)}
         />
       )}
       {contactOpen && (

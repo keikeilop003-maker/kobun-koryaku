@@ -26,7 +26,7 @@ function fmtDate(value) {
 }
 
 function userLabel(user) {
-  return user.account?.displayName || user.account?.email || user.uid;
+  return user.account?.username || user.account?.displayName || user.account?.email || user.uid;
 }
 
 function textTitle(textbooks, textId) {
@@ -73,6 +73,8 @@ function UserTable({ users, textbooks }) {
         <thead>
           <tr>
             <th>ユーザー</th>
+            <th>ユーザーネーム</th>
+            <th>ひとこと</th>
             <th>Gmail</th>
             <th>利用番号</th>
             <th>ポイント</th>
@@ -86,6 +88,8 @@ function UserTable({ users, textbooks }) {
           {users.map(user => (
             <tr key={user.uid}>
               <td>{userLabel(user)}</td>
+              <td>{user.account?.username || '-'}</td>
+              <td>{user.account?.bio || '-'}</td>
               <td>{user.account?.email ?? '-'}</td>
               <td>{user.account?.studentCode ?? user.account?.requestedStudentCode ?? '-'}</td>
               <td>{user.profile?.points ?? 0} pt</td>
@@ -103,7 +107,7 @@ function UserTable({ users, textbooks }) {
             </tr>
           ))}
           {users.length === 0 && (
-            <tr><td colSpan="8" className="admin-dash-empty">ユーザー情報がまだありません</td></tr>
+            <tr><td colSpan="10" className="admin-dash-empty">ユーザー情報がまだありません</td></tr>
           )}
         </tbody>
       </table>

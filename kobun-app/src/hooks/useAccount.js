@@ -58,5 +58,20 @@ export default function useAccount(user) {
     }, { merge: true });
   };
 
-  return { account, loading, registerAccount };
+  const updatePublicProfile = async ({ username, bio }) => {
+    if (!user?.uid) return;
+    const nextUsername = username.trim().slice(0, 24);
+    const nextBio = bio.trim().slice(0, 80);
+    await setDoc(ACCOUNT_REF(user.uid), {
+      uid: user.uid,
+      email: user.email ?? '',
+      displayName: user.displayName ?? '',
+      username: nextUsername,
+      bio: nextBio,
+      publicProfileUpdatedAt: serverTimestamp(),
+      lastSeenAt: serverTimestamp(),
+    }, { merge: true });
+  };
+
+  return { account, loading, registerAccount, updatePublicProfile };
 }
