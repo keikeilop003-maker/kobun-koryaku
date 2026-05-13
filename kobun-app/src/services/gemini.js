@@ -6,6 +6,7 @@ const isMock = !API_KEY || API_KEY === 'your_gemini_api_key_here';
 
 const SYSTEM_INSTRUCTION = `あなたは古文の教師。生徒解答を添削。
 判定値は「正解」「部分正解」「不正解」のいずれか。
+現代語訳では、助詞・語尾・同義表現の違いがあっても意味がほぼ同じなら「正解」とする。
 コメントは100字以内。指定JSONスキーマのみ返す。前置き・コードフェンス禁止。`;
 
 const SCHEMAS = {
@@ -169,6 +170,56 @@ function localCompare(userAnswer, correctAnswer, acceptedAnswers = []) {
     const n = normalize(p);
     const ns = normalize(stripParens(p));
     if (n.includes(user) || user.includes(n) || ns.includes(user) || user.includes(ns)) return '部分正解';
+  }
+  return '不正解';
+}
+
+function canonicalTranslation(s) {
+  return normalize(stripParens(s))
+    .replace(/[「」『』（）()]/g, '')
+    .replace(/ところ/g, '所')
+    .replace(/場所/g, '所')
+    .replace(/箇所/g, '所')
+    .replace(/事/g, 'こと')
+    .replace(/物/g, 'もの');
+}
+
+function editDistance(a, b) {
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i += 1) {
+    let diagonal = prev[0];
+    prev[0] = i;
+    for (let j = 1; j <= b.length; j += 1) {
+      const temp = prev[j];
+      prev[j] = a[i - 1] === b[j - 1]
+        ? diagonal
+        : Math.min(prev[j - 1], prev[j], diagonal) + 1;
+      diagonal = temp;
+    }
+  }
+  return prev[b.length];
+}
+
+function similarity(a, b) {
+  const max = Math.max(a.length, b.length);
+  if (max === 0) return 1;
+  return 1 - (editDistance(a, b) / max);
+}
+
+function localCompareTranslationLenient(userAnswer, correctAnswer, acceptedAnswers = []) {
+  if (localCompare(userAnswer, correctAnswer, acceptedAnswers) === '正解') return '正解';
+  const user = canonicalTranslation(userAnswer);
+  if (!user) return '不正解';
+  const candidates = [correctAnswer, ...(acceptedAnswers ?? [])].filter(Boolean);
+  const parts = candidates.flatMap(answer => [String(answer), ...answerParts(answer)]);
+  for (const p of parts) {
+    const answer = canonicalTranslation(p);
+    if (!answer) continue;
+    if (answer === user) return '正解';
+    const shorter = Math.min(answer.length, user.length);
+    const longer = Math.max(answer.length, user.length);
+    if (shorter >= 4 && longer > 0 && shorter / longer >= 0.8 && (answer.includes(user) || user.includes(answer))) return '正解';
+    if (shorter >= 5 && similarity(answer, user) >= 0.82) return '正解';
   }
   return '不正解';
 }
@@ -365,14 +416,19 @@ export async function reviewGrammar({ userAnswer, correctAnswer, acceptedAnswers
 }
 
 export async function reviewTranslation({ targetText, sentence, userAnswer, correctAnswer, acceptedAnswers, explanation }) {
-  return review('translation', {
+  const payload = {
     targetText,
     ctx: contextWindow(sentence, targetText, 30),
     correctAnswer,
     acceptedAnswers,
     explanation: clip(explanation, 80),
     userAnswer,
-  });
+  };
+  const result = await review('translation', payload);
+  if (result?.judgement !== '正解' && localCompareTranslationLenient(userAnswer, correctAnswer, acceptedAnswers) === '正解') {
+    return { ...result, judgement: '正解' };
+  }
+  return result;
 }
 
 export async function reviewContent({ question, userAnswer, correctAnswer, explanation }) {
