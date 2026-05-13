@@ -304,15 +304,64 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
   );
 }
 
-function NotesTab({ notes, sections }) {
+function NotesEditor({ section, initialText, onSave }) {
+  const [editing, setEditing] = useState(false);
+  const [text, setText] = useState(initialText ?? '');
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    setText(initialText ?? '');
+  }, [initialText]);
+
+  const save = async () => {
+    if (saving) return;
+    setSaving(true);
+    setMessage('');
+    try {
+      await onSave?.(section, { notes: text });
+      setEditing(false);
+      setMessage('保存しました');
+      setTimeout(() => setMessage(''), 2000);
+    } catch (err) {
+      console.error('[NotesEditor] save failed:', err);
+      setMessage('保存に失敗しました');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!editing) {
+    return (
+      <div className="notes-admin-actions">
+        {message && <span className="admin-message">{message}</span>}
+        <button type="button" onClick={() => setEditing(true)}>備考を編集</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="notes-editor">
+      <textarea rows={6} value={text} onChange={(e) => setText(e.target.value)} />
+      <div className="admin-inline-actions">
+        {message && <span className="admin-message">{message}</span>}
+        <button type="button" className="admin-secondary-btn" onClick={() => { setText(initialText ?? ''); setEditing(false); }} disabled={saving}>キャンセル</button>
+        <button type="button" onClick={save} disabled={saving}>{saving ? '保存中...' : '保存'}</button>
+      </div>
+    </div>
+  );
+}
+
+function NotesTab({ notes, sections, isAdmin, onUpdateSection }) {
   const visibleSections = sections.filter(section => !section.sectionless);
   const items = visibleSections
     .map((section, index) => ({
       id: section.id,
       title: section.title,
+      section,
       text: getNotes(section, notes, index === 0),
     }))
-    .filter(item => item.text);
+    .filter(item => isAdmin || item.text);
 
   return (
     <div className="notes-tab-content">
@@ -320,7 +369,14 @@ function NotesTab({ notes, sections }) {
         items.map(item => (
           <div className="notes-section-card" key={item.id}>
             <div className="section-title">{item.title}</div>
-            <ReferenceBlock label="備考" text={item.text} />
+            {item.text ? <ReferenceBlock label="備考" text={item.text} /> : <p className="notes-empty notes-empty--inline">備考はありません。</p>}
+            {isAdmin && (
+              <NotesEditor
+                section={item.section}
+                initialText={item.text}
+                onSave={onUpdateSection}
+              />
+            )}
           </div>
         ))
       ) : (
@@ -369,7 +425,7 @@ export default function VerticalTextViewer({ notes, sections, selectedTarget, on
           />
         ))
       ) : (
-        <NotesTab notes={notes} sections={sections} />
+        <NotesTab notes={notes} sections={sections} isAdmin={isAdmin} onUpdateSection={onUpdateSection} />
       )}
     </div>
   );

@@ -134,6 +134,7 @@ function AppInner() {
                 ...section,
                 ...(typeof sectionEdit.text === 'string' ? { text: sectionEdit.text } : {}),
                 ...(typeof sectionEdit.kundoku === 'string' ? { kundoku: sectionEdit.kundoku } : {}),
+                ...(typeof sectionEdit.notes === 'string' ? { notes: sectionEdit.notes } : {}),
               }
             : section;
           const baseTargets = (section.targets ?? [])
@@ -474,8 +475,9 @@ function AppInner() {
       textId,
       sectionId: section.id,
       section: {
-        text: updates.text ?? '',
-        kundoku: updates.kundoku ?? '',
+        text: Object.prototype.hasOwnProperty.call(updates, 'text') ? updates.text : (section.text ?? ''),
+        kundoku: Object.prototype.hasOwnProperty.call(updates, 'kundoku') ? updates.kundoku : (section.kundoku ?? ''),
+        notes: Object.prototype.hasOwnProperty.call(updates, 'notes') ? updates.notes : (section.notes ?? ''),
       },
       updatedBy: user.uid,
       updatedByEmail: user.email,

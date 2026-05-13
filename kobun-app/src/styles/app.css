@@ -217,6 +217,60 @@ body {
   text-align: center;
 }
 
+.notes-empty--inline {
+  border-style: dashed;
+  margin-bottom: 10px;
+}
+
+.notes-admin-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.notes-admin-actions button,
+.notes-editor button {
+  border: none;
+  border-radius: 4px;
+  background: #2d3a5e;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  padding: 6px 10px;
+}
+
+.notes-admin-actions button:hover,
+.notes-editor button:hover:not(:disabled) {
+  background: #4a6fa5;
+}
+
+.notes-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.notes-editor textarea {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.notes-editor .admin-secondary-btn {
+  background: #f3f0e8;
+  color: #555;
+  border: 1px solid #d5cfbf;
+}
+
 .section-card {
   background: #fff;
   border: 1px solid #ddd8cc;
