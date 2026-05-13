@@ -87,9 +87,9 @@ function longestLineLength(text) {
   return Math.max(...text.split(/\r?\n/).map(line => Array.from(line).length), 0);
 }
 
-function sectionTextStyle(sourceText, kundokuText) {
+function sectionTextStyle(sourceText, kundokuText, heightScale = 1) {
   const longest = Math.max(longestLineLength(sourceText), longestLineLength(kundokuText), 8);
-  return { '--source-text-height': `${(longest + 1) * 1.1}em` };
+  return { '--source-text-height': `${(longest + 1) * 1.1 * heightScale}em` };
 }
 
 function ReferenceBlock({ label, text }) {
@@ -189,7 +189,7 @@ function SectionEditor({ section, kundoku, onCancel, onSave }) {
   );
 }
 
-function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection }) {
+function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, sourceHeightScale }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
   const pinnedRef = useRef(null);
@@ -200,7 +200,7 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
   const segments = buildSegments(section.text, section.targets ?? [], activeType, phrase);
   const kundoku = getKundoku(section);
   const isKanbun = isKanbunText(section.text);
-  const sourceTextStyle = sectionTextStyle(section.text, kundoku);
+  const sourceTextStyle = sectionTextStyle(section.text, kundoku, sourceHeightScale);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -425,10 +425,11 @@ function NotesTab({ notes, sections, isAdmin, onUpdateSection }) {
   );
 }
 
-export default function VerticalTextViewer({ notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection }) {
+export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection }) {
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
   const visibleTab = pinnedPhrase ? 'source' : activeTab;
+  const sourceHeightScale = textId === 'gyofunori' ? 0.7 : 1;
 
   return (
     <div className="vertical-viewer">
@@ -463,6 +464,7 @@ export default function VerticalTextViewer({ notes, sections, selectedTarget, on
             showModern={showModern}
             isAdmin={isAdmin}
             onUpdateSection={onUpdateSection}
+            sourceHeightScale={sourceHeightScale}
           />
         ))
       ) : (
