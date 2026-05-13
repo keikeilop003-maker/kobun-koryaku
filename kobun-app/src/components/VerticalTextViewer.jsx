@@ -60,8 +60,8 @@ function longestLineLength(text) {
 }
 
 function sectionTextStyle(sourceText, kundokuText) {
-  const longest = Math.max(longestLineLength(sourceText), longestLineLength(kundokuText), 18);
-  return { '--source-text-height': `${(longest + 2) * 1.35}em` };
+  const longest = Math.max(longestLineLength(sourceText), longestLineLength(kundokuText), 8);
+  return { '--source-text-height': `${(longest + 1) * 1.1}em` };
 }
 
 function ReferenceBlock({ label, text }) {
