@@ -195,14 +195,14 @@ body {
   writing-mode: vertical-rl;
   text-orientation: mixed;
   white-space: pre-wrap;
-  font-size: 1.05rem;
+  font-size: 0.735rem;
   line-height: 2.1;
   letter-spacing: 0.08em;
   max-height: 260px;
 }
 
 .vertical-text--kanbun {
-  font-size: 2.1rem;
+  font-size: 1.47rem;
   line-height: 1.7;
   height: var(--source-text-height, 520px);
   max-height: none;
