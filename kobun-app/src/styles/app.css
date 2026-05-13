@@ -448,12 +448,13 @@ body {
   writing-mode: vertical-rl;
   text-orientation: mixed;
   white-space: pre-wrap;
-  margin: 0;
+  margin: 0 0 0 auto;
   color: #444;
   font-size: 0.95rem;
   line-height: 2;
   letter-spacing: 0.06em;
   max-height: 220px;
+  width: fit-content;
 }
 
 .student-kundoku-area {
