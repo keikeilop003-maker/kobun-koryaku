@@ -429,7 +429,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
   const visibleTab = pinnedPhrase ? 'source' : activeTab;
-  const sourceHeightScale = textId === 'gyofunori' ? 0.7 : 1;
+  const sourceHeightScale = textId === 'gyofunori' ? 0.63 : 1;
 
   return (
     <div className="vertical-viewer">
