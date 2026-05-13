@@ -28,6 +28,7 @@ import { TITLE_COLOR, normalizeEquipped } from './data/items';
 import './styles/app.css';
 
 const SECTIONLESS_CUSTOM_SECTION_ID = '__custom_sectionless__';
+const AVATAR_CUSTOMIZER_ENABLED = false;
 
 const LEGEND = [
   { type: 'all',      label: '全語句',   cls: 'hl-all' },
@@ -621,7 +622,10 @@ function AppInner() {
           )}
           <button
             className="avatar-btn"
-            onClick={() => setCustomizerOpen(true)}
+            onClick={() => {
+              if (AVATAR_CUSTOMIZER_ENABLED) setCustomizerOpen(true);
+            }}
+            disabled={!AVATAR_CUSTOMIZER_ENABLED}
             title="アバターカスタマイズ"
           >
             <AvatarIcon seed={avatarSeed} size={28} equipped={equipped} />
@@ -796,7 +800,7 @@ function AppInner() {
         )}
       </div>
 
-      {customizerOpen && (
+      {AVATAR_CUSTOMIZER_ENABLED && customizerOpen && (
         <AvatarCustomizer
           seed={avatarSeed}
           profile={profile}

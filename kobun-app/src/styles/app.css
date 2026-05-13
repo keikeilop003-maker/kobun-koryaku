@@ -2120,6 +2120,11 @@ body {
   transition: opacity 0.15s;
 }
 .avatar-btn:hover { opacity: 0.8; }
+.avatar-btn:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+.avatar-btn:disabled:hover { opacity: 0.55; }
 
 /* ===== Login Screen ===== */
 .login-screen {
