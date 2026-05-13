@@ -783,6 +783,7 @@
         {
           "id": "particle-s2-1",
           "type": "particle",
+          "particleQuestionType": "translation",
           "surface": "ば",
           "start": 153,
           "end": 154,
@@ -792,6 +793,7 @@
         {
           "id": "particle-s2-2",
           "type": "particle",
+          "particleQuestionType": "translation",
           "surface": "ば",
           "start": 183,
           "end": 184,
@@ -801,6 +803,7 @@
         {
           "id": "particle-s2-3",
           "type": "particle",
+          "particleQuestionType": "translation",
           "surface": "ば",
           "start": 203,
           "end": 204,
@@ -810,6 +813,7 @@
         {
           "id": "particle-s2-4",
           "type": "particle",
+          "particleQuestionType": "translation",
           "surface": "ば",
           "start": 230,
           "end": 231,
@@ -819,6 +823,7 @@
         {
           "id": "particle-s2-5",
           "type": "particle",
+          "particleQuestionType": "translation",
           "surface": "の",
           "start": 27,
           "end": 28,
@@ -828,6 +833,7 @@
         {
           "id": "particle-s2-6",
           "type": "particle",
+          "particleQuestionType": "translation",
           "surface": "の",
           "start": 149,
           "end": 150,
@@ -837,6 +843,7 @@
         {
           "id": "particle-s2-7",
           "type": "particle",
+          "particleQuestionType": "translation",
           "surface": "の",
           "start": 199,
           "end": 200,

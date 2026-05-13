@@ -26,6 +26,7 @@
         {
           "id": "particle-s1-1",
           "type": "particle",
+          "particleQuestionType": "usage",
           "surface": "に",
           "start": 8,
           "end": 9,
@@ -51,6 +52,7 @@
         {
           "id": "particle-s1-2",
           "type": "particle",
+          "particleQuestionType": "usage",
           "surface": "に",
           "start": 13,
           "end": 14,
@@ -76,6 +78,7 @@
         {
           "id": "particle-s1-3",
           "type": "particle",
+          "particleQuestionType": "usage",
           "surface": "て",
           "start": 17,
           "end": 18,
@@ -87,6 +90,7 @@
         {
           "id": "particle-s1-4",
           "type": "particle",
+          "particleQuestionType": "usage",
           "surface": "に",
           "start": 19,
           "end": 20,
@@ -125,6 +129,7 @@
         {
           "id": "particle-s1-5",
           "type": "particle",
+          "particleQuestionType": "usage",
           "surface": "を",
           "start": 31,
           "end": 32,
@@ -159,6 +164,7 @@
         {
           "id": "particle-s1-6",
           "type": "particle",
+          "particleQuestionType": "usage",
           "surface": "ば",
           "start": 44,
           "end": 45,
@@ -193,6 +199,7 @@
         {
           "id": "particle-s1-7",
           "type": "particle",
+          "particleQuestionType": "usage",
           "surface": "こそ",
           "start": 49,
           "end": 51,
