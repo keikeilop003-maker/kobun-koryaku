@@ -87,9 +87,10 @@ function longestLineLength(text) {
   return Math.max(...text.split(/\r?\n/).map(line => Array.from(line).length), 0);
 }
 
-function sectionTextStyle(sourceText, kundokuText, heightScale = 1) {
+function sectionTextStyle(sourceText, kundokuText, heightScale = 1, isKanbun = false) {
   const longest = Math.max(longestLineLength(sourceText), longestLineLength(kundokuText), 8);
-  return { '--source-text-height': `${(longest + 1) * 1.1 * heightScale}em` };
+  const sourceFontSizeRem = isKanbun ? 1.764 : 1.26;
+  return { '--source-text-height': `${(longest + 1) * 1.1 * sourceFontSizeRem * heightScale}rem` };
 }
 
 function ReferenceBlock({ label, text }) {
@@ -200,7 +201,7 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
   const segments = buildSegments(section.text, section.targets ?? [], activeType, phrase);
   const kundoku = getKundoku(section);
   const isKanbun = isKanbunText(section.text);
-  const sourceTextStyle = sectionTextStyle(section.text, kundoku, sourceHeightScale);
+  const sourceTextStyle = sectionTextStyle(section.text, kundoku, sourceHeightScale, isKanbun);
 
   useEffect(() => {
     const el = scrollRef.current;
