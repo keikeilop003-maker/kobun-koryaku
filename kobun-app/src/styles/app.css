@@ -1284,6 +1284,7 @@ body {
 
 .kaeriten-source-input {
   writing-mode: horizontal-tb;
+  appearance: auto;
   position: absolute;
   left: -1.05em;
   bottom: -0.58em;
@@ -1299,6 +1300,10 @@ body {
   padding: 0;
   text-align: center;
   z-index: 2;
+}
+
+.kaeriten-source-input option {
+  font-size: 1rem;
 }
 
 .kaeriten-source-hyphen {
@@ -1385,6 +1390,12 @@ body {
 .kaeriten-source-admin-label {
   color: #2d3a5e;
   font-weight: bold;
+}
+
+.kaeriten-line-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .admin-kaeriten-editor {

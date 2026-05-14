@@ -1,28 +1,24 @@
+const MARK_OPTIONS = ['', '一', '二', '三', 'レ', '上', '下'];
+
 export function kaeritenChars(surface) {
-  return Array.from(surface ?? '').filter(char => !/[\s、。，．「」『』（）()]/.test(char));
+  return Array.from(surface ?? '').filter(char => /[\p{Script=Han}]/u.test(char));
 }
 
 export function normalizeKaeritenMark(value) {
-  return String(value ?? '')
-    .trim()
+  const text = String(value ?? '').trim();
+  if (!text) return '';
+  const normalized = text
     .replace(/レ点/g, 'レ')
     .replace(/一点/g, '一')
     .replace(/二点/g, '二')
     .replace(/三点/g, '三')
-    .replace(/四点/g, '四')
     .replace(/上点/g, '上')
-    .replace(/中点/g, '中')
     .replace(/下点/g, '下')
-    .replace(/甲点/g, '甲')
-    .replace(/乙点/g, '乙')
-    .replace(/丙点/g, '丙')
-    .replace(/丁点/g, '丁')
     .replace(/[1１]/g, '一')
     .replace(/[2２]/g, '二')
     .replace(/[3３]/g, '三')
-    .replace(/[4４]/g, '四')
-    .replace(/[,\s、。・／/|｜:：;；]+/g, '')
-    .replace(/[（）()「」『』［］\[\]【】]/g, '');
+    .replace(/[,\s、。・|/／]/g, '');
+  return MARK_OPTIONS.includes(normalized) ? normalized : '';
 }
 
 export function emptyKaeritenAnswer(surface) {
@@ -47,7 +43,7 @@ export function parseKaeritenAnswer(value, surface = '') {
   }
   const chars = kaeritenChars(surface);
   const legacyMarks = text
-    ? text.split(/[,\s、。・／/|｜:：;；]+/).filter(Boolean)
+    ? text.split(/[,\s、。・|/／]+/).filter(Boolean)
     : [];
   return normalizeKaeritenAnswer({
     marks: chars.map((_, index) => legacyMarks[index] ?? ''),
@@ -61,7 +57,7 @@ function legacyHyphenIndexes(text, length) {
   for (const char of Array.from(text)) {
     if (char === '-' && seenMarks > 0 && seenMarks < length) {
       indexes.push(seenMarks - 1);
-    } else if (!/[\s,、。・／/|｜:：;；-]/.test(char)) {
+    } else if (!/[\s,、。・|/／-]/.test(char)) {
       seenMarks += 1;
     }
   }

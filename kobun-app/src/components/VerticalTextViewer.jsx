@@ -3,6 +3,8 @@ import HighlightedToken from './HighlightedToken';
 import { reviewKaeriten } from '../services/gemini';
 import { emptyKaeritenAnswer, kaeritenChars, needsHyphen, parseKaeritenAnswer, serializeKaeritenAnswer } from '../utils/kaeriten';
 
+const KAERITEN_MARK_OPTIONS = ['', '一', '二', '三', 'レ', '上', '下'];
+
 function findIgnoringLineBreaks(text, phrase) {
   const needle = phrase.replace(/[\r\n]/g, '');
   if (!needle) return null;
@@ -152,6 +154,10 @@ function isKaeritenSourceChar(char) {
   return /^[\p{Script=Han}]$/u.test(char);
 }
 
+function normalizeSelectedKaeritenMark(value) {
+  return KAERITEN_MARK_OPTIONS.includes(value) ? value : '';
+}
+
 function findTargetRange(section, target) {
   const text = section.text ?? '';
   const surface = target.surface ?? '';
@@ -187,7 +193,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   const [adminMarks, setAdminMarks] = useState(() => chars.map((_, index) => answer.marks[index] ?? ''));
   const [adminHyphens, setAdminHyphens] = useState(() => new Set(answer.hyphens));
   const [hyphenMode, setHyphenMode] = useState(false);
-  const [judgement, setJudgement] = useState('');
+  const [lineJudgements, setLineJudgements] = useState({});
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const answerHasHyphen = needsHyphen(target.answer, target.surface);
@@ -213,7 +219,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
       setMessage('');
     } else {
       setMarks(updater);
-      setJudgement('');
+      setLineJudgements({});
     }
   };
 
@@ -230,22 +236,50 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
       setMessage('');
     } else {
       setHyphens(update);
-      setJudgement('');
+      setLineJudgements({});
     }
   };
 
-  const submit = async () => {
-    const current = userAnswer();
+  const sourceChars = Array.from(section.text ?? '');
+  const markLineIndexes = [];
+  let scanLineIndex = 0;
+  let scanMarkIndex = -1;
+  sourceChars.forEach((char, index) => {
+    const inTarget = index >= range.start && index < range.end;
+    if (inTarget && isKaeritenSourceChar(char)) {
+      scanMarkIndex += 1;
+      markLineIndexes[scanMarkIndex] = scanLineIndex;
+    }
+    if (char === '\n') scanLineIndex += 1;
+  });
+  const lineIndexes = [...new Set(markLineIndexes)].filter(Number.isInteger);
+
+  const lineAnswer = (lineIndex, sourceMarks, sourceHyphens) => {
+    const keep = new Set(markLineIndexes
+      .map((item, index) => item === lineIndex ? index : null)
+      .filter(Number.isInteger));
+    return serializeKaeritenAnswer({
+      marks: sourceMarks.map((mark, index) => keep.has(index) ? mark : ''),
+      hyphens: [...sourceHyphens].filter(index => keep.has(index) && keep.has(index + 1)),
+    }, target.surface);
+  };
+
+  const submitLine = async (lineIndex) => {
+    const current = lineAnswer(lineIndex, marks, hyphens);
+    const correct = lineAnswer(lineIndex, answer.marks, new Set(answer.hyphens));
     const result = await reviewKaeriten({
       userAnswer: current,
-      correctAnswer: target.answer,
-      acceptedAnswers: target.alternativeAnswers,
+      correctAnswer: correct,
+      acceptedAnswers: [],
     });
-    setJudgement(result?.judgement ?? '');
+    setLineJudgements(currentState => ({
+      ...currentState,
+      [lineIndex]: result?.judgement ?? '',
+    }));
     onRecord?.({
-      id: target.id,
+      id: `${target.id}-line-${lineIndex + 1}`,
       type: target.type,
-      surface: target.surface,
+      surface: `${target.surface} ${lineIndex + 1}行目`,
       sectionId: section?.id ?? null,
       targetId: target.id,
       questionId: null,
@@ -285,22 +319,28 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   };
 
   let markIndex = -1;
-  const nodes = Array.from(section.text ?? '').map((char, index) => {
+  let currentLineIndex = 0;
+  const nodes = sourceChars.map((char, index) => {
+    if (char === '\n') currentLineIndex += 1;
     const inTarget = index >= range.start && index < range.end;
     if (!inTarget || !isKaeritenSourceChar(char)) return <span key={index}>{char}</span>;
     markIndex += 1;
     const currentIndex = markIndex;
     const hasHyphenSlot = currentIndex < chars.length - 1;
+    const lineIndex = markLineIndexes[currentIndex] ?? currentLineIndex;
     return (
-      <span className="kaeriten-source-unit" key={index}>
+      <span className="kaeriten-source-unit" data-line={lineIndex} key={index}>
         <span className="kaeriten-source-char">{char}</span>
-        <input
+        <select
           className="kaeriten-source-input"
-          value={selectedMarks[currentIndex] ?? ''}
-          maxLength={2}
+          value={normalizeSelectedKaeritenMark(selectedMarks[currentIndex] ?? '')}
           onChange={(event) => updateMark(currentIndex, event.target.value)}
           aria-label={`${char}の返り点`}
-        />
+        >
+          {KAERITEN_MARK_OPTIONS.map(option => (
+            <option key={option || 'blank'} value={option}>{option}</option>
+          ))}
+        </select>
         {hasHyphenSlot && (
           <button
             type="button"
@@ -336,8 +376,16 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
           </>
         ) : (
           <>
-            <button type="button" onClick={submit}>採点</button>
-            {judgement && <strong className={`kaeriten-inline-judge ${judgement === '正解' ? 'correct' : 'wrong'}`}>{judgement}</strong>}
+            {lineIndexes.map(lineIndex => (
+              <span className="kaeriten-line-check" key={lineIndex}>
+                <button type="button" onClick={() => submitLine(lineIndex)}>{lineIndex + 1}行目を採点</button>
+                {lineJudgements[lineIndex] && (
+                  <strong className={`kaeriten-inline-judge ${lineJudgements[lineIndex] === '正解' ? 'correct' : 'wrong'}`}>
+                    {lineJudgements[lineIndex]}
+                  </strong>
+                )}
+              </span>
+            ))}
           </>
         )}
       </div>
