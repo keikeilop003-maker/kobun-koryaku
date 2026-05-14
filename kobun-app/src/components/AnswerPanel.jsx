@@ -761,6 +761,20 @@ export default function AnswerPanel({
     );
   }
 
+  if (activeType === 'kaeriten') {
+    return (
+      <div className="answer-panel-list">
+        {adminTools ?? undoNotice}
+        <div className="answer-panel empty">
+          <div className="empty-message">
+            <p>原文カラム上で返り点を入力してください</p>
+            {isAdmin && <p>模範解答も原文カラム上で登録できます</p>}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (questions.length === 0) {
     return (
       <div className="answer-panel-list">

@@ -720,6 +720,8 @@ function AppInner() {
               showModern={effectiveIsAdmin}
               isAdmin={effectiveIsAdmin}
               onUpdateSection={handleUpdateSection}
+              onUpdateTarget={handleUpdateTarget}
+              onRecord={handleRecord}
             />
           ) : null}
         </div>

@@ -362,11 +362,9 @@ export default function AdminTargetForm({
         ) : type === 'kaeriten' ? (
           <label>
             返り点
-            <KaeritenAnswerEditor
-              surface={form.surface}
-              value={form.answer}
-              onChange={(value) => update('answer', value)}
-            />
+            <div className="admin-kaeriten-empty">
+              返り点の模範解答は、追加後に原文カラム上で登録してください。
+            </div>
           </label>
         ) : (
           <label>

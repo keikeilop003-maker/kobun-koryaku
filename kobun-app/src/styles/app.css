@@ -1125,6 +1125,148 @@ body {
   color: #fff;
 }
 
+.kaeriten-inline-exercise {
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+  vertical-align: top;
+  margin: 0 8px;
+  padding: 10px;
+  border: 1px solid #d8e6c3;
+  border-radius: 6px;
+  background: #fbfff5;
+  color: #1f3510;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+  line-height: 1.4;
+}
+
+.kaeriten-inline-units {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.kaeriten-inline-unit-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.kaeriten-inline-unit {
+  position: relative;
+  width: 42px;
+  height: 58px;
+  border: 1px solid #e3decf;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.kaeriten-inline-unit span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #222;
+  font-size: 1.45rem;
+}
+
+.kaeriten-inline-unit input {
+  position: absolute;
+  left: -5px;
+  bottom: -6px;
+  width: 24px;
+  height: 22px;
+  border: 1px solid #9cad79;
+  border-radius: 3px;
+  background: #f8fff0;
+  color: #1f3510;
+  font-size: 0.82rem;
+  line-height: 1;
+  padding: 1px 2px;
+  text-align: center;
+}
+
+.kaeriten-inline-hyphen {
+  width: 22px;
+  height: 22px;
+  border: 1px dashed #b7c59b;
+  border-radius: 3px;
+  background: #fafcf6;
+  color: #2e4f12;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.kaeriten-inline-hyphen:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.kaeriten-inline-hyphen.active {
+  border-style: solid;
+  background: #c5e1a5;
+}
+
+.kaeriten-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.kaeriten-inline-actions button {
+  border: 1px solid #b8cdef;
+  border-radius: 4px;
+  background: #f2f6ff;
+  color: #174c8f;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: bold;
+  padding: 6px 12px;
+}
+
+.kaeriten-inline-actions button.active {
+  background: #2d3a5e;
+  border-color: #2d3a5e;
+  color: #fff;
+}
+
+.kaeriten-inline-actions button:disabled {
+  cursor: progress;
+  opacity: 0.65;
+}
+
+.kaeriten-inline-judge {
+  font-size: 0.88rem;
+}
+
+.kaeriten-inline-judge.correct {
+  color: #2e7d32;
+}
+
+.kaeriten-inline-judge.wrong {
+  color: #b71c1c;
+}
+
+.kaeriten-inline-admin {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid #d8e6c3;
+  padding-top: 8px;
+}
+
+.kaeriten-inline-admin-title {
+  color: #2d3a5e;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: bold;
+}
+
 .admin-kaeriten-editor {
   display: flex;
   flex-direction: column;

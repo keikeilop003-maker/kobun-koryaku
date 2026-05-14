@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import HighlightedToken from './HighlightedToken';
+import { reviewKaeriten } from '../services/gemini';
+import { emptyKaeritenAnswer, kaeritenChars, needsHyphen, parseKaeritenAnswer, serializeKaeritenAnswer } from '../utils/kaeriten';
 
 function findIgnoringLineBreaks(text, phrase) {
   const needle = phrase.replace(/[\r\n]/g, '');
@@ -146,6 +148,177 @@ function SourceKundokuRow({ children, kundoku, showKundoku, onToggle, isKanbun, 
   );
 }
 
+function KaeritenInlineExercise({ target, section, isAdmin, onRecord, onUpdateTarget }) {
+  const chars = kaeritenChars(target.surface);
+  const initialUser = parseKaeritenAnswer('', target.surface);
+  const answer = parseKaeritenAnswer(target.answer || emptyKaeritenAnswer(target.surface), target.surface);
+  const [marks, setMarks] = useState(() => chars.map((_, index) => initialUser.marks[index] ?? ''));
+  const [hyphens, setHyphens] = useState(() => new Set(initialUser.hyphens));
+  const [adminMarks, setAdminMarks] = useState(() => chars.map((_, index) => answer.marks[index] ?? ''));
+  const [adminHyphens, setAdminHyphens] = useState(() => new Set(answer.hyphens));
+  const [hyphenMode, setHyphenMode] = useState(false);
+  const [judgement, setJudgement] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+  const answerHasHyphen = needsHyphen(target.answer, target.surface);
+
+  const userAnswer = (nextMarks = marks, nextHyphens = hyphens) => serializeKaeritenAnswer({
+    marks: nextMarks,
+    hyphens: [...nextHyphens],
+  }, target.surface);
+
+  const adminAnswer = (nextMarks = adminMarks, nextHyphens = adminHyphens) => serializeKaeritenAnswer({
+    marks: nextMarks,
+    hyphens: [...nextHyphens],
+  }, target.surface);
+
+  const updateMark = (index, value) => {
+    setMarks(current => current.map((item, itemIndex) => itemIndex === index ? value : item));
+    setJudgement('');
+  };
+
+  const toggleHyphen = (index) => {
+    if (!hyphenMode) return;
+    setHyphens(current => {
+      const next = new Set(current);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+    setJudgement('');
+  };
+
+  const updateAdminMark = (index, value) => {
+    setAdminMarks(current => current.map((item, itemIndex) => itemIndex === index ? value : item));
+    setMessage('');
+  };
+
+  const toggleAdminHyphen = (index) => {
+    setAdminHyphens(current => {
+      const next = new Set(current);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+    setMessage('');
+  };
+
+  const submit = async () => {
+    const result = await reviewKaeriten({
+      userAnswer: userAnswer(),
+      correctAnswer: target.answer,
+      acceptedAnswers: target.alternativeAnswers,
+    });
+    setJudgement(result?.judgement ?? '');
+    onRecord?.({
+      id: target.id,
+      type: target.type,
+      surface: target.surface,
+      sectionId: section?.id ?? null,
+      targetId: target.id,
+      questionId: null,
+      judgement: result?.judgement ?? '不正解',
+      feedback: {
+        ...result,
+        userAnswer: userAnswer(),
+      },
+    });
+  };
+
+  const saveAnswer = async () => {
+    if (saving) return;
+    setSaving(true);
+    setMessage('');
+    try {
+      await onUpdateTarget?.(target, section, {
+        sectionId: section.id,
+        target: {
+          ...target,
+          answer: adminAnswer(),
+        },
+        anchor: {
+          sectionId: section.id,
+          text: target.surface,
+          start: Number.isInteger(target.start) ? target.start : section.text.indexOf(target.surface),
+          end: Number.isInteger(target.start) ? target.start + target.surface.length : section.text.indexOf(target.surface) + target.surface.length,
+        },
+      });
+      setMessage('保存しました');
+    } catch (err) {
+      console.error('[kaeriten inline save] failed:', err);
+      setMessage('保存に失敗しました');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const renderUnits = ({ values, hyphenSet, onMark, onHyphen, hyphenEnabled }) => (
+    <div className="kaeriten-inline-units">
+      {chars.map((char, index) => (
+        <div className="kaeriten-inline-unit-wrap" key={`${char}-${index}`}>
+          <div className="kaeriten-inline-unit">
+            <span>{char}</span>
+            <input
+              value={values[index] ?? ''}
+              maxLength={2}
+              onChange={(event) => onMark(index, event.target.value)}
+              aria-label={`${char}の返り点`}
+            />
+          </div>
+          {index < chars.length - 1 && (
+            <button
+              type="button"
+              className={`kaeriten-inline-hyphen${hyphenSet.has(index) ? ' active' : ''}`}
+              disabled={!hyphenEnabled}
+              onClick={() => onHyphen(index)}
+            >
+              {hyphenSet.has(index) ? '-' : ''}
+            </button>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <span className="kaeriten-inline-exercise">
+      {renderUnits({
+        values: marks,
+        hyphenSet: hyphens,
+        onMark: updateMark,
+        onHyphen: toggleHyphen,
+        hyphenEnabled: hyphenMode,
+      })}
+      {answerHasHyphen && <span className="kaeriten-hyphen-note">※ハイフンを使用する必要があります</span>}
+      <span className="kaeriten-inline-actions">
+        {answerHasHyphen && (
+          <button type="button" className={hyphenMode ? 'active' : ''} onClick={() => setHyphenMode(value => !value)}>
+            ハイフンを入力
+          </button>
+        )}
+        <button type="button" onClick={submit}>採点</button>
+        {judgement && <strong className={`kaeriten-inline-judge ${judgement === '正解' ? 'correct' : 'wrong'}`}>{judgement}</strong>}
+      </span>
+      {isAdmin && (
+        <span className="kaeriten-inline-admin">
+          <span className="kaeriten-inline-admin-title">模範解答</span>
+          {renderUnits({
+            values: adminMarks,
+            hyphenSet: adminHyphens,
+            onMark: updateAdminMark,
+            onHyphen: toggleAdminHyphen,
+            hyphenEnabled: true,
+          })}
+          <span className="kaeriten-inline-actions">
+            <button type="button" onClick={saveAnswer} disabled={saving}>{saving ? '保存中...' : '模範解答を保存'}</button>
+            {message && <span className="admin-message">{message}</span>}
+          </span>
+        </span>
+      )}
+    </span>
+  );
+}
+
 function SectionEditor({ section, kundoku, onCancel, onSave }) {
   const [sourceText, setSourceText] = useState(section.text ?? '');
   const [kundokuText, setKundokuText] = useState(kundoku ?? '');
@@ -190,7 +363,7 @@ function SectionEditor({ section, kundoku, onCancel, onSave }) {
   );
 }
 
-function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, sourceHeightScale }) {
+function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, sourceHeightScale }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
   const pinnedRef = useRef(null);
@@ -322,6 +495,15 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
                 <span key={i}>{seg.text}</span>
               ) : seg.type === 'pinned' ? (
                 <span key={i} className="pinned-translation" ref={pinnedRef}>{seg.text}</span>
+              ) : seg.target.type === 'kaeriten' && activeType === 'kaeriten' ? (
+                <KaeritenInlineExercise
+                  key={`${seg.target.id}-kaeriten`}
+                  target={seg.target}
+                  section={section}
+                  isAdmin={isAdmin}
+                  onUpdateTarget={onUpdateTarget}
+                  onRecord={onRecord}
+                />
               ) : (
                 <HighlightedToken
                   key={`${seg.target.id}-${seg.showAsAll}`}
@@ -426,7 +608,7 @@ function NotesTab({ notes, sections, isAdmin, onUpdateSection }) {
   );
 }
 
-export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection }) {
+export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord }) {
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
   const visibleTab = pinnedPhrase ? 'source' : activeTab;
@@ -465,6 +647,8 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
             showModern={showModern}
             isAdmin={isAdmin}
             onUpdateSection={onUpdateSection}
+            onUpdateTarget={onUpdateTarget}
+            onRecord={onRecord}
             sourceHeightScale={sourceHeightScale}
           />
         ))
