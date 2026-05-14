@@ -34,11 +34,11 @@ const LEGEND = [
   { type: 'all',      label: '全語句',   cls: 'hl-all' },
   { type: 'vocab',    label: '重要単語', cls: 'hl-vocab' },
   { type: 'grammar',  label: '文法・句法', cls: 'hl-grammar' },
-  { type: 'kaeriten', label: '返り点',   cls: 'hl-kaeriten' },
   { type: 'verb',     label: '動',       cls: 'hl-verb' },
   { type: 'adj',      label: '形',       cls: 'hl-adj' },
   { type: 'aux',      label: '助動',     cls: 'hl-aux' },
   { type: 'particle', label: '助',       cls: 'hl-particle' },
+  { type: 'kaeriten', label: '返り点',   cls: 'hl-kaeriten' },
 ];
 
 function pointsForType(type) {
