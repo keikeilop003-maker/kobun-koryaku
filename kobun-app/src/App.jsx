@@ -722,6 +722,7 @@ function AppInner() {
               onUpdateSection={handleUpdateSection}
               onUpdateTarget={handleUpdateTarget}
               onRecord={handleRecord}
+              onCreateTarget={handleCreateTarget}
             />
           ) : null}
         </div>

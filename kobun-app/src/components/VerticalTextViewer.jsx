@@ -148,6 +148,241 @@ function SourceKundokuRow({ children, kundoku, showKundoku, onToggle, isKanbun, 
   );
 }
 
+function isKaeritenSourceChar(char) {
+  return /^[\p{Script=Han}]$/u.test(char);
+}
+
+function findTargetRange(section, target) {
+  const text = section.text ?? '';
+  const surface = target.surface ?? '';
+  if (Number.isInteger(target.start) && text.slice(target.start, target.start + surface.length) === surface) {
+    return { start: target.start, end: target.start + surface.length };
+  }
+  const index = text.indexOf(surface);
+  if (index !== -1) return { start: index, end: index + surface.length };
+  return { start: 0, end: text.length };
+}
+
+function createSectionKaeritenTarget(section) {
+  const surface = section.text ?? '';
+  return {
+    id: `kaeriten-${section.id}-${Date.now()}`,
+    type: 'kaeriten',
+    surface,
+    questionText: '返り点を振りなさい。',
+    answer: serializeKaeritenAnswer(emptyKaeritenAnswer(surface), surface),
+    gradingMode: 'local',
+    start: 0,
+    end: surface.length,
+  };
+}
+
+function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTarget, isKanbun, sourceTextStyle }) {
+  const range = findTargetRange(section, target);
+  const chars = kaeritenChars(target.surface);
+  const initialUser = parseKaeritenAnswer('', target.surface);
+  const answer = parseKaeritenAnswer(target.answer || emptyKaeritenAnswer(target.surface), target.surface);
+  const [marks, setMarks] = useState(() => chars.map((_, index) => initialUser.marks[index] ?? ''));
+  const [hyphens, setHyphens] = useState(() => new Set(initialUser.hyphens));
+  const [adminMarks, setAdminMarks] = useState(() => chars.map((_, index) => answer.marks[index] ?? ''));
+  const [adminHyphens, setAdminHyphens] = useState(() => new Set(answer.hyphens));
+  const [hyphenMode, setHyphenMode] = useState(false);
+  const [judgement, setJudgement] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+  const answerHasHyphen = needsHyphen(target.answer, target.surface);
+  const editingAnswer = isAdmin;
+
+  const selectedMarks = editingAnswer ? adminMarks : marks;
+  const selectedHyphens = editingAnswer ? adminHyphens : hyphens;
+
+  const userAnswer = (nextMarks = marks, nextHyphens = hyphens) => serializeKaeritenAnswer({
+    marks: nextMarks,
+    hyphens: [...nextHyphens],
+  }, target.surface);
+
+  const adminAnswer = (nextMarks = adminMarks, nextHyphens = adminHyphens) => serializeKaeritenAnswer({
+    marks: nextMarks,
+    hyphens: [...nextHyphens],
+  }, target.surface);
+
+  const updateMark = (index, value) => {
+    const updater = current => current.map((item, itemIndex) => itemIndex === index ? value : item);
+    if (editingAnswer) {
+      setAdminMarks(updater);
+      setMessage('');
+    } else {
+      setMarks(updater);
+      setJudgement('');
+    }
+  };
+
+  const toggleHyphen = (index) => {
+    if (!editingAnswer && !hyphenMode) return;
+    const update = current => {
+      const next = new Set(current);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    };
+    if (editingAnswer) {
+      setAdminHyphens(update);
+      setMessage('');
+    } else {
+      setHyphens(update);
+      setJudgement('');
+    }
+  };
+
+  const submit = async () => {
+    const current = userAnswer();
+    const result = await reviewKaeriten({
+      userAnswer: current,
+      correctAnswer: target.answer,
+      acceptedAnswers: target.alternativeAnswers,
+    });
+    setJudgement(result?.judgement ?? '');
+    onRecord?.({
+      id: target.id,
+      type: target.type,
+      surface: target.surface,
+      sectionId: section?.id ?? null,
+      targetId: target.id,
+      questionId: null,
+      judgement: result?.judgement ?? '不正解',
+      feedback: {
+        ...result,
+        userAnswer: current,
+      },
+    });
+  };
+
+  const saveAnswer = async () => {
+    if (saving) return;
+    setSaving(true);
+    setMessage('');
+    try {
+      await onUpdateTarget?.(target, section, {
+        sectionId: section.id,
+        target: {
+          ...target,
+          answer: adminAnswer(),
+        },
+        anchor: {
+          sectionId: section.id,
+          text: target.surface,
+          start: range.start,
+          end: range.end,
+        },
+      });
+      setMessage('保存しました');
+    } catch (err) {
+      console.error('[kaeriten source save] failed:', err);
+      setMessage('保存に失敗しました');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  let markIndex = -1;
+  const nodes = Array.from(section.text ?? '').map((char, index) => {
+    const inTarget = index >= range.start && index < range.end;
+    if (!inTarget || !isKaeritenSourceChar(char)) return <span key={index}>{char}</span>;
+    markIndex += 1;
+    const currentIndex = markIndex;
+    const hasHyphenSlot = currentIndex < chars.length - 1;
+    return (
+      <span className="kaeriten-source-unit" key={index}>
+        <span className="kaeriten-source-char">{char}</span>
+        <input
+          className="kaeriten-source-input"
+          value={selectedMarks[currentIndex] ?? ''}
+          maxLength={2}
+          onChange={(event) => updateMark(currentIndex, event.target.value)}
+          aria-label={`${char}の返り点`}
+        />
+        {hasHyphenSlot && (
+          <button
+            type="button"
+            className={`kaeriten-source-hyphen${selectedHyphens.has(currentIndex) ? ' active' : ''}`}
+            disabled={!editingAnswer && !hyphenMode}
+            onClick={() => toggleHyphen(currentIndex)}
+            aria-label={`${char}の後ろにハイフン`}
+          >
+            {selectedHyphens.has(currentIndex) ? '-' : ''}
+          </button>
+        )}
+      </span>
+    );
+  });
+
+  return (
+    <>
+      <div className={`vertical-text vertical-text--kaeriten-source${isKanbun ? ' vertical-text--kanbun' : ''}`} style={sourceTextStyle}>
+        {nodes}
+      </div>
+      <div className="kaeriten-source-controls">
+        {answerHasHyphen && !editingAnswer && <span className="kaeriten-hyphen-note">※ハイフンを使用する必要があります</span>}
+        {!editingAnswer && answerHasHyphen && (
+          <button type="button" className={hyphenMode ? 'active' : ''} onClick={() => setHyphenMode(value => !value)}>
+            ハイフンを入力
+          </button>
+        )}
+        {editingAnswer ? (
+          <>
+            <span className="kaeriten-source-admin-label">模範解答登録中</span>
+            <button type="button" onClick={saveAnswer} disabled={saving}>{saving ? '保存中...' : '模範解答を保存'}</button>
+            {message && <span className="admin-message">{message}</span>}
+          </>
+        ) : (
+          <>
+            <button type="button" onClick={submit}>採点</button>
+            {judgement && <strong className={`kaeriten-inline-judge ${judgement === '正解' ? 'correct' : 'wrong'}`}>{judgement}</strong>}
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
+function KaeritenSourceSetup({ section, onCreateTarget }) {
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const create = async () => {
+    if (saving) return;
+    setSaving(true);
+    setMessage('');
+    const target = createSectionKaeritenTarget(section);
+    try {
+      await onCreateTarget?.({
+        sectionId: section.id,
+        target,
+        anchor: {
+          sectionId: section.id,
+          text: target.surface,
+          start: 0,
+          end: target.surface.length,
+        },
+      });
+      setMessage('返り点問題を作成しました');
+    } catch (err) {
+      console.error('[kaeriten source create] failed:', err);
+      setMessage('作成に失敗しました');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="kaeriten-source-setup">
+      <p>この段には返り点問題がまだ登録されていません。</p>
+      <button type="button" onClick={create} disabled={saving}>{saving ? '作成中...' : 'この段を返り点問題にする'}</button>
+      {message && <span className="admin-message">{message}</span>}
+    </div>
+  );
+}
+
 function KaeritenInlineExercise({ target, section, isAdmin, onRecord, onUpdateTarget }) {
   const chars = kaeritenChars(target.surface);
   const initialUser = parseKaeritenAnswer('', target.surface);
@@ -363,7 +598,7 @@ function SectionEditor({ section, kundoku, onCancel, onSave }) {
   );
 }
 
-function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, sourceHeightScale }) {
+function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, sourceHeightScale }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
   const pinnedRef = useRef(null);
@@ -375,6 +610,7 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
   const kundoku = getKundoku(section);
   const isKanbun = isKanbunText(section.text);
   const sourceTextStyle = sectionTextStyle(section.text, kundoku, sourceHeightScale, isKanbun);
+  const kaeritenTarget = (section.targets ?? []).find(target => target.type === 'kaeriten');
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -485,36 +721,59 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
         sourceTextStyle={sourceTextStyle}
       >
         <div className="vertical-text-scroll" ref={scrollRef}>
-          <div
-            className={`vertical-text${isKanbun ? ' vertical-text--kanbun' : ''}`}
-            ref={textRef}
-            style={sourceTextStyle}
-          >
-            {segments.map((seg, i) =>
-              seg.type === 'plain' ? (
-                <span key={i}>{seg.text}</span>
-              ) : seg.type === 'pinned' ? (
-                <span key={i} className="pinned-translation" ref={pinnedRef}>{seg.text}</span>
-              ) : seg.target.type === 'kaeriten' && activeType === 'kaeriten' ? (
-                <KaeritenInlineExercise
-                  key={`${seg.target.id}-kaeriten`}
-                  target={seg.target}
-                  section={section}
-                  isAdmin={isAdmin}
-                  onUpdateTarget={onUpdateTarget}
-                  onRecord={onRecord}
-                />
-              ) : (
-                <HighlightedToken
-                  key={`${seg.target.id}-${seg.showAsAll}`}
-                  target={seg.target}
-                  isSelected={isSelected(seg.target)}
-                  onClick={t => onSelectTarget(t, section)}
-                  showAsAll={seg.showAsAll}
-                />
-              )
-            )}
-          </div>
+          {activeType === 'kaeriten' && kaeritenTarget ? (
+            <KaeritenSourceExercise
+              target={kaeritenTarget}
+              section={section}
+              isAdmin={isAdmin}
+              onUpdateTarget={onUpdateTarget}
+              onRecord={onRecord}
+              isKanbun={isKanbun}
+              sourceTextStyle={sourceTextStyle}
+            />
+          ) : activeType === 'kaeriten' && isAdmin && !section.sectionless ? (
+            <>
+              <div
+                className={`vertical-text${isKanbun ? ' vertical-text--kanbun' : ''}`}
+                ref={textRef}
+                style={sourceTextStyle}
+              >
+                {section.text}
+              </div>
+              <KaeritenSourceSetup section={section} onCreateTarget={onCreateTarget} />
+            </>
+          ) : (
+            <div
+              className={`vertical-text${isKanbun ? ' vertical-text--kanbun' : ''}`}
+              ref={textRef}
+              style={sourceTextStyle}
+            >
+              {segments.map((seg, i) =>
+                seg.type === 'plain' ? (
+                  <span key={i}>{seg.text}</span>
+                ) : seg.type === 'pinned' ? (
+                  <span key={i} className="pinned-translation" ref={pinnedRef}>{seg.text}</span>
+                ) : seg.target.type === 'kaeriten' && activeType === 'kaeriten' ? (
+                  <KaeritenInlineExercise
+                    key={`${seg.target.id}-kaeriten`}
+                    target={seg.target}
+                    section={section}
+                    isAdmin={isAdmin}
+                    onUpdateTarget={onUpdateTarget}
+                    onRecord={onRecord}
+                  />
+                ) : (
+                  <HighlightedToken
+                    key={`${seg.target.id}-${seg.showAsAll}`}
+                    target={seg.target}
+                    isSelected={isSelected(seg.target)}
+                    onClick={t => onSelectTarget(t, section)}
+                    showAsAll={seg.showAsAll}
+                  />
+                )
+              )}
+            </div>
+          )}
         </div>
       </SourceKundokuRow>
       {showModern ? (
@@ -608,7 +867,7 @@ function NotesTab({ notes, sections, isAdmin, onUpdateSection }) {
   );
 }
 
-export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord }) {
+export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget }) {
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
   const visibleTab = pinnedPhrase ? 'source' : activeTab;
@@ -649,6 +908,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
             onUpdateSection={onUpdateSection}
             onUpdateTarget={onUpdateTarget}
             onRecord={onRecord}
+            onCreateTarget={onCreateTarget}
             sourceHeightScale={sourceHeightScale}
           />
         ))
