@@ -1274,8 +1274,8 @@ body {
 .kaeriten-source-unit {
   position: relative;
   display: inline-block;
-  min-width: 1.15em;
-  min-height: 1.15em;
+  min-width: 1.35em;
+  min-height: 1.45em;
 }
 
 .kaeriten-source-char {
@@ -1285,16 +1285,16 @@ body {
 .kaeriten-source-input {
   writing-mode: horizontal-tb;
   position: absolute;
-  left: -0.72em;
-  bottom: -0.38em;
-  width: 1.35em;
-  height: 1.2em;
+  left: -1.05em;
+  bottom: -0.58em;
+  width: 1.9em;
+  height: 1.55em;
   border: 1px solid #9cad79;
   border-radius: 3px;
   background: #f8fff0;
   color: #1f3510;
   font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
-  font-size: 0.38em;
+  font-size: 0.52em;
   line-height: 1;
   padding: 0;
   text-align: center;
@@ -1302,19 +1302,20 @@ body {
 }
 
 .kaeriten-source-hyphen {
-  writing-mode: horizontal-tb;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
   position: absolute;
-  left: -0.52em;
-  top: 50%;
-  width: 1.05em;
-  height: 1.05em;
-  transform: translateY(-50%);
+  left: 50%;
+  bottom: -0.82em;
+  width: 1.2em;
+  height: 1.45em;
+  transform: translateX(-50%);
   border: 1px dashed #b7c59b;
   border-radius: 3px;
   background: #fafcf6;
   color: #2e4f12;
   cursor: pointer;
-  font-size: 0.32em;
+  font-size: 0.42em;
   font-weight: bold;
   line-height: 1;
   padding: 0;
