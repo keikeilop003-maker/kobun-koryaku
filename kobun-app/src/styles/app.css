@@ -513,6 +513,7 @@ body {
 .hl-adj      { background: #ffe0b2; border-bottom-color: #e65100; }
 .hl-particle { background: #f8bbd0; border-bottom-color: #c2185b; }
 .hl-grammar  { background: #e1bee7; border-bottom-color: #6a1b9a; }
+.hl-kaeriten { background: #c5e1a5; border-bottom-color: #558b2f; }
 
 /* Legend colors (same palette) */
 .legend-item.hl-all      { background: #e0e0e0; color: #424242; border-color: #9e9e9e; }
@@ -522,6 +523,7 @@ body {
 .legend-item.hl-adj      { background: #ffe0b2; color: #bf360c; border-color: #e65100; }
 .legend-item.hl-particle { background: #f8bbd0; color: #880e4f; border-color: #c2185b; }
 .legend-item.hl-grammar  { background: #e1bee7; color: #4a148c; border-color: #6a1b9a; }
+.legend-item.hl-kaeriten { background: #c5e1a5; color: #2e4f12; border-color: #558b2f; }
 
 /* ===== Answer Panel ===== */
 .answer-panel-list {
@@ -598,6 +600,7 @@ body {
 .type-badge.type-adj      { background: #ffe0b2; color: #bf360c; border-color: #e65100; }
 .type-badge.type-particle { background: #f8bbd0; color: #880e4f; border-color: #c2185b; }
 .type-badge.type-grammar  { background: #e1bee7; color: #4a148c; border-color: #6a1b9a; }
+.type-badge.type-kaeriten { background: #c5e1a5; color: #2e4f12; border-color: #558b2f; }
 .type-badge.type-translation { background: #fff3e0; color: #e65100; border-color: #fb8c00; }
 .type-badge.type-content  { background: #e0f7fa; color: #006064; border-color: #0097a7; }
 

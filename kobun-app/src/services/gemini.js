@@ -113,6 +113,13 @@ const SCHEMAS = {
     },
     required: ['judgement'],
   },
+  kaeriten: {
+    type: 'object',
+    properties: {
+      judgement: { type: 'string' },
+    },
+    required: ['judgement'],
+  },
   translation: {
     type: 'object',
     properties: {
@@ -177,6 +184,39 @@ function localCompare(userAnswer, correctAnswer, acceptedAnswers = []) {
     if (n.includes(user) || user.includes(n) || ns.includes(user) || user.includes(ns)) return '部分正解';
   }
   return '不正解';
+}
+
+function normalizeKaeriten(s) {
+  return String(s ?? '')
+    .trim()
+    .replace(/レ点/g, 'レ')
+    .replace(/一点/g, '一')
+    .replace(/二点/g, '二')
+    .replace(/三点/g, '三')
+    .replace(/四点/g, '四')
+    .replace(/上点/g, '上')
+    .replace(/中点/g, '中')
+    .replace(/下点/g, '下')
+    .replace(/甲点/g, '甲')
+    .replace(/乙点/g, '乙')
+    .replace(/丙点/g, '丙')
+    .replace(/丁点/g, '丁')
+    .replace(/[1１]/g, '一')
+    .replace(/[2２]/g, '二')
+    .replace(/[3３]/g, '三')
+    .replace(/[4４]/g, '四')
+    .replace(/[,\s、。・／/|｜:：;；-]+/g, '')
+    .replace(/[（）()「」『』［］\[\]【】]/g, '');
+}
+
+function localCompareKaeriten(userAnswer, correctAnswer, acceptedAnswers = []) {
+  const user = normalizeKaeriten(userAnswer);
+  if (!user) return '不正解';
+  const candidates = [correctAnswer, ...(acceptedAnswers ?? [])].filter(Boolean);
+  for (const answer of candidates) {
+    if (normalizeKaeriten(answer) === user) return '正解';
+  }
+  return localCompare(userAnswer, correctAnswer, acceptedAnswers);
 }
 
 function canonicalTranslation(s) {
@@ -418,6 +458,11 @@ export async function reviewParticle({ userAnswer, correctAnswer, acceptedAnswer
 export async function reviewGrammar({ userAnswer, correctAnswer, acceptedAnswers, useAi = false }) {
   if (useAi) return review('grammar', { userAnswer, correctAnswer, acceptedAnswers });
   return { judgement: localCompare(userAnswer, correctAnswer, acceptedAnswers) };
+}
+
+export async function reviewKaeriten({ userAnswer, correctAnswer, acceptedAnswers, useAi = false }) {
+  if (useAi) return review('kaeriten', { userAnswer, correctAnswer, acceptedAnswers });
+  return { judgement: localCompareKaeriten(userAnswer, correctAnswer, acceptedAnswers) };
 }
 
 export async function reviewTranslation({ targetText, sentence, userAnswer, correctAnswer, acceptedAnswers, explanation }) {

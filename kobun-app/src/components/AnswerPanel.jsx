@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect, useRef, useMemo, useCallback, forwardRef, useImperativeHandle } from 'react';
 import FeedbackCard from './FeedbackCard';
 import AdminTargetForm from './AdminTargetForm';
-import { reviewVocab, reviewAux, reviewVerb, reviewAdj, reviewParticle, reviewGrammar } from '../services/gemini';
+import { reviewVocab, reviewAux, reviewVerb, reviewAdj, reviewParticle, reviewGrammar, reviewKaeriten } from '../services/gemini';
 
 const TYPE_LABEL = {
   vocab:    '重要単語',
@@ -10,10 +10,11 @@ const TYPE_LABEL = {
   adj:      '形',
   particle: '助',
   grammar:  '文法・句法',
+  kaeriten: '返り点',
 };
 
-const SCORE_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar']);
-const ADMIN_ADD_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar']);
+const SCORE_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar', 'kaeriten']);
+const ADMIN_ADD_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar', 'kaeriten']);
 
 function targetOrder(section, target) {
   if (Number.isInteger(target.start)) return target.start;
@@ -100,13 +101,14 @@ function QuestionHeader({ target }) {
       </span>
     );
   }
-  const surface = target.type === 'grammar' ? (target.questionSurface ?? target.surface) : target.surface;
+  const surface = target.type === 'grammar' || target.type === 'kaeriten' ? (target.questionSurface ?? target.surface) : target.surface;
   const prefix = { aux: '助動詞', particle: '助詞' }[target.type] ?? '';
   const suffix = {
     vocab: 'の意味', aux: 'の用法', verb: 'の文法事項',
     adj: 'の文法事項',
     particle: target.particleQuestionType === 'usage' ? 'の用法' : 'の訳し方',
     grammar: 'の文法的な働きと訳し方',
+    kaeriten: 'に返り点を振る',
   }[target.type] ?? '';
   return (
     <span className="question-header-text">
@@ -441,6 +443,62 @@ const GrammarForm = forwardRef(function GrammarForm({ target, section, onResult,
   );
 });
 
+// ── 返り点 ───────────────────────────────────────────────
+const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+  const [ans, setAns] = useState(initialInputs?.ans ?? '');
+  const [submitted, setSubmitted] = useState(initialInputs?.submitted ?? false);
+  const [result, setResult] = useState(initialResult ?? null);
+  const textareaRef = useRef(null);
+  const btnRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({ focus: () => textareaRef.current?.focus() }));
+
+  const submit = async () => {
+    if (!ans.trim()) return;
+    const res = await reviewKaeriten({
+      userAnswer: ans,
+      correctAnswer: target.answer,
+      acceptedAnswers: acceptedAnswers(target),
+    });
+    setSubmitted(true);
+    setResult(res);
+    onInputChange?.({ ans, submitted: true });
+    onResult(res);
+  };
+  const handleTextareaKeyDown = e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); btnRef.current?.focus(); }
+  };
+  const handleBtnKeyDown = e => {
+    if (e.key === 'Enter' && submitted) { e.preventDefault(); onAdvance?.(); }
+  };
+
+  return (
+    <div className="form-group kaeriten-form" onFocus={() => onFocusTarget?.()}>
+      <div className="form-textarea-row">
+        <textarea
+          ref={textareaRef}
+          value={ans}
+          onChange={e => { const v = e.target.value; setAns(v); onInputChange?.({ ans: v, submitted }); }}
+          onKeyDown={handleTextareaKeyDown}
+          rows={3}
+          placeholder="例：レ／一・二／上・下 など"
+        />
+        <button ref={btnRef} onClick={submit} onKeyDown={handleBtnKeyDown}>採点</button>
+      </div>
+      {submitted && (
+        <>
+          <div className="judge-row-standalone">
+            <JudgeIcon judgement={result?.judgement} />
+            {result?.judgement && <span className="judgement-text">{result.judgement}</span>}
+          </div>
+          <div className="hint">模範解答：<em>{target.answer}</em></div>
+          {target.explanation && <div className="explanation">{target.explanation}</div>}
+        </>
+      )}
+    </div>
+  );
+});
+
 // ── QuestionCard ─────────────────────────────────────────────
 const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelected, initialFeedback, onHistoryUpdate, onAdvance, initialInputs, onInputChange, onFocusTarget, isAdmin, onDeleteTarget, onUpdateTarget, sections }, ref) {
   const [feedback, setFeedback] = useState(initialFeedback ?? null);
@@ -519,6 +577,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
       {target.type === 'adj'      && <AdjForm      ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'particle' && <ParticleForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'grammar'  && <GrammarForm  ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'kaeriten' && <KaeritenForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {feedback && !isScoreType && <FeedbackCard type={target.type} data={feedback} />}
     </div>
   );

@@ -7,6 +7,7 @@ const TYPE_LABELS = {
   adj: '形容詞',
   aux: '助動詞',
   particle: '助詞',
+  kaeriten: '返り点',
 };
 
 const BOLD_WORD_LIMIT = 4;
@@ -55,6 +56,7 @@ function answerLabel(type, form) {
   if (type === 'aux') return '用法';
   if (type === 'particle') return form.particleQuestionType === 'usage' ? '用法' : '訳し方';
   if (type === 'vocab') return '意味';
+  if (type === 'kaeriten') return '返り点';
   return '解答';
 }
 
