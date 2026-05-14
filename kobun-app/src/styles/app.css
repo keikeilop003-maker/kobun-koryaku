@@ -1020,6 +1020,180 @@ body {
   gap: 8px;
 }
 
+.kaeriten-practice {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.kaeriten-source {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  border: 1px solid #ddd8cc;
+  border-radius: 6px;
+  background: #fffdf8;
+  padding: 12px;
+}
+
+.kaeriten-unit-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.kaeriten-unit {
+  position: relative;
+  width: 42px;
+  height: 58px;
+  border: 1px solid #e3decf;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.kaeriten-char {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #222;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+  font-size: 1.45rem;
+}
+
+.kaeriten-mark-input {
+  position: absolute;
+  left: -5px;
+  bottom: -6px;
+  width: 24px;
+  height: 22px;
+  border: 1px solid #9cad79;
+  border-radius: 3px;
+  background: #f8fff0;
+  color: #1f3510;
+  font-size: 0.82rem;
+  line-height: 1;
+  padding: 1px 2px;
+  text-align: center;
+}
+
+.kaeriten-hyphen-slot {
+  width: 22px;
+  height: 22px;
+  border: 1px dashed #b7c59b;
+  border-radius: 3px;
+  background: #fafcf6;
+  color: #2e4f12;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.kaeriten-hyphen-slot:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.kaeriten-hyphen-slot.active {
+  border-style: solid;
+  background: #c5e1a5;
+}
+
+.kaeriten-hyphen-note {
+  flex-basis: 100%;
+  color: #8a4b00;
+  font-size: 0.82rem;
+  font-weight: bold;
+}
+
+.kaeriten-hyphen-mode-btn {
+  align-self: flex-start;
+  border: 1px solid #b8cdef;
+  border-radius: 4px;
+  background: #f2f6ff;
+  color: #174c8f;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: bold;
+  padding: 6px 12px;
+}
+
+.kaeriten-hyphen-mode-btn.active {
+  background: #2d3a5e;
+  border-color: #2d3a5e;
+  color: #fff;
+}
+
+.admin-kaeriten-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-kaeriten-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-kaeriten-cell-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.admin-kaeriten-cell {
+  position: relative;
+  width: 44px;
+  height: 58px;
+  border: 1px solid #ddd8cc;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.admin-kaeriten-cell span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+  font-size: 1.35rem;
+}
+
+.admin-kaeriten-cell input {
+  position: absolute;
+  left: -5px;
+  bottom: -6px;
+  width: 24px;
+  height: 22px;
+  padding: 1px 2px;
+  text-align: center;
+}
+
+.admin-kaeriten-cell-wrap button {
+  width: 24px;
+  height: 24px;
+  border: 1px dashed #b7c59b;
+  border-radius: 3px;
+  background: #fafcf6;
+  color: #2e4f12;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.admin-kaeriten-cell-wrap button.active {
+  border-style: solid;
+  background: #c5e1a5;
+}
+
+.admin-kaeriten-editor small,
+.admin-kaeriten-empty {
+  color: #666;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
 .field-row {
   display: flex;
   align-items: center;

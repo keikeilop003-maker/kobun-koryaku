@@ -1,3 +1,5 @@
+import { kaeritenAnswerKey, parseKaeritenAnswer } from '../utils/kaeriten';
+
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const MODEL = 'gemini-2.5-flash-lite';
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
@@ -210,11 +212,12 @@ function normalizeKaeriten(s) {
 }
 
 function localCompareKaeriten(userAnswer, correctAnswer, acceptedAnswers = []) {
-  const user = normalizeKaeriten(userAnswer);
-  if (!user) return '不正解';
+  const parsedUser = parseKaeritenAnswer(userAnswer);
+  if (parsedUser.marks.every(mark => !mark) && parsedUser.hyphens.length === 0) return '不正解';
+  const userKey = kaeritenAnswerKey(userAnswer);
   const candidates = [correctAnswer, ...(acceptedAnswers ?? [])].filter(Boolean);
   for (const answer of candidates) {
-    if (normalizeKaeriten(answer) === user) return '正解';
+    if (kaeritenAnswerKey(answer) === userKey) return '正解';
   }
   return localCompare(userAnswer, correctAnswer, acceptedAnswers);
 }

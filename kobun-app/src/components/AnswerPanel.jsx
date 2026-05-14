@@ -2,6 +2,7 @@
 import FeedbackCard from './FeedbackCard';
 import AdminTargetForm from './AdminTargetForm';
 import { reviewVocab, reviewAux, reviewVerb, reviewAdj, reviewParticle, reviewGrammar, reviewKaeriten } from '../services/gemini';
+import { kaeritenChars, needsHyphen, parseKaeritenAnswer, serializeKaeritenAnswer } from '../utils/kaeriten';
 
 const TYPE_LABEL = {
   vocab:    '重要単語',
@@ -445,28 +446,52 @@ const GrammarForm = forwardRef(function GrammarForm({ target, section, onResult,
 
 // ── 返り点 ───────────────────────────────────────────────
 const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
-  const [ans, setAns] = useState(initialInputs?.ans ?? '');
+  const chars = kaeritenChars(target.surface || target.questionSurface);
+  const initialAnswer = parseKaeritenAnswer(initialInputs?.ans, target.surface);
+  const [marks, setMarks] = useState(() => chars.map((_, index) => initialAnswer.marks[index] ?? ''));
+  const [hyphens, setHyphens] = useState(() => new Set(initialAnswer.hyphens));
+  const [hyphenMode, setHyphenMode] = useState(false);
   const [submitted, setSubmitted] = useState(initialInputs?.submitted ?? false);
   const [result, setResult] = useState(initialResult ?? null);
-  const textareaRef = useRef(null);
+  const firstInputRef = useRef(null);
   const btnRef = useRef(null);
+  const answerHasHyphen = needsHyphen(target.answer);
 
-  useImperativeHandle(ref, () => ({ focus: () => textareaRef.current?.focus() }));
+  useImperativeHandle(ref, () => ({ focus: () => firstInputRef.current?.focus() }));
+
+  const currentAnswer = (nextMarks = marks, nextHyphens = hyphens) => serializeKaeritenAnswer({
+    marks: nextMarks,
+    hyphens: [...nextHyphens],
+  }, target.surface);
+
+  const updateMark = (index, value) => {
+    const next = marks.map((item, itemIndex) => itemIndex === index ? value : item);
+    setMarks(next);
+    setResult(null);
+    onInputChange?.({ ans: currentAnswer(next, hyphens), submitted });
+  };
+
+  const toggleHyphen = (index) => {
+    if (!hyphenMode) return;
+    const next = new Set(hyphens);
+    if (next.has(index)) next.delete(index);
+    else next.add(index);
+    setHyphens(next);
+    setResult(null);
+    onInputChange?.({ ans: currentAnswer(marks, next), submitted });
+  };
 
   const submit = async () => {
-    if (!ans.trim()) return;
+    const userAnswer = currentAnswer();
     const res = await reviewKaeriten({
-      userAnswer: ans,
+      userAnswer,
       correctAnswer: target.answer,
       acceptedAnswers: acceptedAnswers(target),
     });
     setSubmitted(true);
     setResult(res);
-    onInputChange?.({ ans, submitted: true });
+    onInputChange?.({ ans: userAnswer, submitted: true });
     onResult(res);
-  };
-  const handleTextareaKeyDown = e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); btnRef.current?.focus(); }
   };
   const handleBtnKeyDown = e => {
     if (e.key === 'Enter' && submitted) { e.preventDefault(); onAdvance?.(); }
@@ -474,15 +499,45 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
 
   return (
     <div className="form-group kaeriten-form" onFocus={() => onFocusTarget?.()}>
-      <div className="form-textarea-row">
-        <textarea
-          ref={textareaRef}
-          value={ans}
-          onChange={e => { const v = e.target.value; setAns(v); onInputChange?.({ ans: v, submitted }); }}
-          onKeyDown={handleTextareaKeyDown}
-          rows={3}
-          placeholder="例：レ／一・二／上・下 など"
-        />
+      <div className="kaeriten-practice">
+        <div className="kaeriten-source">
+          {chars.map((char, index) => (
+            <div className="kaeriten-unit-wrap" key={`${char}-${index}`}>
+              <div className="kaeriten-unit">
+                <span className="kaeriten-char">{char}</span>
+                <input
+                  ref={index === 0 ? firstInputRef : null}
+                  className="kaeriten-mark-input"
+                  value={marks[index] ?? ''}
+                  maxLength={2}
+                  onChange={e => updateMark(index, e.target.value)}
+                  aria-label={`${char}の返り点`}
+                />
+              </div>
+              {index < chars.length - 1 && (
+                <button
+                  type="button"
+                  className={`kaeriten-hyphen-slot${hyphens.has(index) ? ' active' : ''}`}
+                  onClick={() => toggleHyphen(index)}
+                  disabled={!hyphenMode}
+                  aria-label={`${char}の後ろにハイフン`}
+                >
+                  {hyphens.has(index) ? '-' : ''}
+                </button>
+              )}
+            </div>
+          ))}
+          {answerHasHyphen && <span className="kaeriten-hyphen-note">※ハイフンを使用する必要があります</span>}
+        </div>
+        {answerHasHyphen && (
+          <button
+            type="button"
+            className={`kaeriten-hyphen-mode-btn${hyphenMode ? ' active' : ''}`}
+            onClick={() => setHyphenMode(value => !value)}
+          >
+            ハイフンを入力
+          </button>
+        )}
         <button ref={btnRef} onClick={submit} onKeyDown={handleBtnKeyDown}>採点</button>
       </div>
       {submitted && (
@@ -491,7 +546,7 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
             <JudgeIcon judgement={result?.judgement} />
             {result?.judgement && <span className="judgement-text">{result.judgement}</span>}
           </div>
-          <div className="hint">模範解答：<em>{target.answer}</em></div>
+          <div className="hint">模範解答：<em>各文字の入力欄を確認してください</em></div>
           {target.explanation && <div className="explanation">{target.explanation}</div>}
         </>
       )}
