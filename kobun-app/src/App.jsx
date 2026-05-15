@@ -205,6 +205,7 @@ function AppInner() {
         }),
     };
   }, [textData, customTargets, hiddenTargetKeys, editedTargetMap, editedSectionMap, editedNormalQuestionMap, hiddenNormalQuestionIds]);
+  const currentTextData = displayTextData ?? textData;
   const currentIsKanbun = isKanbunTextData(currentTextData);
   const visibleLegend = useMemo(() => LEGEND.filter(item => {
     if (!currentTextData) return true;
@@ -574,7 +575,6 @@ function AppInner() {
 
   const isLoadingText = selectedTextId !== null && textData === null;
   const noSelection = selectedTextId === null;
-  const currentTextData = displayTextData ?? textData;
   const toggleStudentView = () => {
     setViewAsStudent(next => {
       const enabled = !next;
