@@ -82,6 +82,10 @@ function getNotes(section, textNotes, isFirstSection) {
   return section.notes ?? section.remarks ?? section.memo ?? (isFirstSection ? textNotes : '') ?? '';
 }
 
+function getKanbunSyntax(section) {
+  return section.kanbunSyntax ?? section.syntaxGuide ?? section.syntax ?? '';
+}
+
 function isKanbunText(text) {
   const normalized = text.replace(/[\s、。，．・「」『』（）()〈〉《》！？!?]/g, '');
   return normalized.length > 0 && /^[\p{Script=Han}]+$/u.test(normalized);
@@ -646,6 +650,66 @@ function SectionEditor({ section, kundoku, onCancel, onSave }) {
   );
 }
 
+function KanbunSyntaxBlock({ section, isAdmin, onUpdateSection }) {
+  const initialText = getKanbunSyntax(section);
+  const [editing, setEditing] = useState(false);
+  const [text, setText] = useState(initialText);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    setText(initialText);
+  }, [initialText]);
+
+  const save = async () => {
+    if (saving) return;
+    setSaving(true);
+    setMessage('');
+    try {
+      await onUpdateSection?.(section, { kanbunSyntax: text });
+      setEditing(false);
+      setMessage('保存しました');
+      setTimeout(() => setMessage(''), 2000);
+    } catch (err) {
+      console.error('[KanbunSyntaxBlock] save failed:', err);
+      setMessage('保存に失敗しました');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!isAdmin && !initialText) return null;
+
+  return (
+    <div className="kanbun-syntax-block">
+      <div className="kanbun-syntax-header">
+        <span>句法</span>
+        {isAdmin && !editing && <button type="button" onClick={() => setEditing(true)}>編集</button>}
+      </div>
+      {editing ? (
+        <div className="kanbun-syntax-editor">
+          <textarea
+            rows={5}
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            placeholder="漢字、返り点、〜、送り仮名、振り仮名などを入力"
+          />
+          <div className="admin-inline-actions">
+            {message && <span className="admin-message">{message}</span>}
+            <button type="button" className="admin-secondary-btn" onClick={() => { setText(initialText); setEditing(false); }} disabled={saving}>キャンセル</button>
+            <button type="button" onClick={save} disabled={saving}>{saving ? '保存中...' : '保存'}</button>
+          </div>
+        </div>
+      ) : initialText ? (
+        <pre className="kanbun-syntax-content">{initialText}</pre>
+      ) : (
+        <p className="kanbun-syntax-empty">句法は未登録です。</p>
+      )}
+      {!editing && message && <span className="admin-message">{message}</span>}
+    </div>
+  );
+}
+
 function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, sourceHeightScale }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
@@ -824,6 +888,13 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
           )}
         </div>
       </SourceKundokuRow>
+      {isKanbun && (
+        <KanbunSyntaxBlock
+          section={section}
+          isAdmin={isAdmin}
+          onUpdateSection={onUpdateSection}
+        />
+      )}
       {showModern ? (
         <>
           <ReferenceBlock label="現代語訳" text={section.modern} />
@@ -918,8 +989,12 @@ function NotesTab({ notes, sections, isAdmin, onUpdateSection }) {
 export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget }) {
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
-  const visibleTab = pinnedPhrase ? 'source' : activeTab;
+  const visibleTab = activeTab;
   const sourceHeightScale = textId === 'gyofunori' ? 0.63 : 1;
+
+  useEffect(() => {
+    if (pinnedPhrase) setActiveTab('source');
+  }, [pinnedPhrase?.sectionId, pinnedPhrase?.text]);
 
   return (
     <div className="vertical-viewer">

@@ -1398,6 +1398,76 @@ body {
   gap: 6px;
 }
 
+.kanbun-syntax-block {
+  writing-mode: horizontal-tb;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid #d7d0bd;
+  border-radius: 6px;
+  background: #fffdf8;
+  color: #2f2a1f;
+}
+
+.kanbun-syntax-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  color: #2d3a5e;
+  font-size: 0.86rem;
+  font-weight: bold;
+}
+
+.kanbun-syntax-header button,
+.kanbun-syntax-editor button {
+  border: 1px solid #b8cdef;
+  border-radius: 4px;
+  background: #f2f6ff;
+  color: #174c8f;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: bold;
+  padding: 5px 10px;
+}
+
+.kanbun-syntax-content {
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  color: #1f1a13;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+  font-size: 1.02rem;
+  line-height: 1.9;
+}
+
+.kanbun-syntax-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kanbun-syntax-editor textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  border: 1px solid #cfc7b6;
+  border-radius: 4px;
+  background: #fff;
+  color: #1f1a13;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  padding: 8px;
+}
+
+.kanbun-syntax-empty {
+  margin: 0;
+  color: #777;
+  font-size: 0.84rem;
+}
+
 .admin-kaeriten-editor {
   display: flex;
   flex-direction: column;

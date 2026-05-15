@@ -147,6 +147,7 @@ function AppInner() {
                 ...(typeof sectionEdit.text === 'string' ? { text: sectionEdit.text } : {}),
                 ...(typeof sectionEdit.kundoku === 'string' ? { kundoku: sectionEdit.kundoku } : {}),
                 ...(typeof sectionEdit.notes === 'string' ? { notes: sectionEdit.notes } : {}),
+                ...(typeof sectionEdit.kanbunSyntax === 'string' ? { kanbunSyntax: sectionEdit.kanbunSyntax } : {}),
               }
             : section;
           const baseTargets = (section.targets ?? [])
@@ -491,6 +492,7 @@ function AppInner() {
         text: Object.prototype.hasOwnProperty.call(updates, 'text') ? updates.text : (section.text ?? ''),
         kundoku: Object.prototype.hasOwnProperty.call(updates, 'kundoku') ? updates.kundoku : (section.kundoku ?? ''),
         notes: Object.prototype.hasOwnProperty.call(updates, 'notes') ? updates.notes : (section.notes ?? ''),
+        kanbunSyntax: Object.prototype.hasOwnProperty.call(updates, 'kanbunSyntax') ? updates.kanbunSyntax : (section.kanbunSyntax ?? ''),
       },
       updatedBy: user.uid,
       updatedByEmail: user.email,
