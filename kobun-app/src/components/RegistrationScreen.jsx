@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { STUDENT_CODE_RE } from '../hooks/useAccount';
+import { loginIdFromEmail } from '../contexts/AuthContext';
 
 export default function RegistrationScreen({ user, onRegister, onLogout }) {
   const [code, setCode] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const loginId = loginIdFromEmail(user.email);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -30,10 +32,10 @@ export default function RegistrationScreen({ user, onRegister, onLogout }) {
       <form className="registration-card" onSubmit={submit}>
         <h1>利用者登録</h1>
         <p className="registration-lead">
-          Googleアカウントでのログインが完了しました。続けるには利用番号を登録してください。
+          ログインが完了しました。続けるには利用番号を登録してください。
         </p>
         <div className="registration-user">
-          <strong>{user.displayName || 'ログイン中のユーザー'}</strong>
+          <strong>{loginId || user.displayName || 'ログイン中のユーザー'}</strong>
           <span>{user.email}</span>
         </div>
         <label>

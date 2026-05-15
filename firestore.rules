@@ -12,6 +12,9 @@ service cloud.firestore {
     function isValidStudentCode(code) {
       return code is string && code.matches('^1[A-H][0-9]{2}$');
     }
+    function isValidLoginId(loginId) {
+      return loginId is string && loginId.matches('^[a-z0-9._-]{3,32}$');
+    }
     function isValidPublicProfile(data) {
       return (
         !data.keys().hasAny(['username'])
@@ -35,6 +38,7 @@ service cloud.firestore {
           'uid',
           'email',
           'displayName',
+          'loginId',
           'username',
           'bio',
           'lastSeenAt',
@@ -47,6 +51,10 @@ service cloud.firestore {
         ])
         && request.resource.data.uid == uid
         && request.resource.data.email == request.auth.token.email
+        && (
+          !request.resource.data.keys().hasAny(['loginId'])
+          || isValidLoginId(request.resource.data.loginId)
+        )
         && isValidPublicProfile(request.resource.data)
         && (
           !request.resource.data.keys().hasAny(['requestedStudentCode'])
@@ -67,6 +75,7 @@ service cloud.firestore {
           'uid',
           'email',
           'displayName',
+          'loginId',
           'username',
           'bio',
           'lastSeenAt',
@@ -78,6 +87,10 @@ service cloud.firestore {
           'registeredAt'
         ])
         && isValidPublicProfile(request.resource.data)
+        && (
+          !request.resource.data.keys().hasAny(['loginId'])
+          || isValidLoginId(request.resource.data.loginId)
+        )
         && (
           !request.resource.data.keys().hasAny(['requestedStudentCode'])
           || isValidStudentCode(request.resource.data.requestedStudentCode)
@@ -169,12 +182,17 @@ service cloud.firestore {
           'uid',
           'email',
           'displayName',
+          'loginId',
           'text',
           'status',
           'createdAt'
         ])
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.email == request.auth.token.email
+        && (
+          !request.resource.data.keys().hasAny(['loginId'])
+          || isValidLoginId(request.resource.data.loginId)
+        )
         && request.resource.data.status == 'open'
         && request.resource.data.text is string
         && request.resource.data.text.size() <= 500;

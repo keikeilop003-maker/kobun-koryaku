@@ -1,45 +1,126 @@
 import { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { normalizeLoginId, useAuth } from '../contexts/AuthContext';
+
+function messageForAuthError(error) {
+  if (!error) return '';
+  switch (error.code) {
+    case 'auth/invalid-login-id':
+      return 'ユーザーIDは3〜32文字の半角英数字・ドット・アンダーバー・ハイフンで入力してください。';
+    case 'auth/invalid-email':
+    case 'auth/user-not-found':
+    case 'auth/wrong-password':
+    case 'auth/invalid-credential':
+      return 'ユーザーIDまたはパスワードが正しくありません。';
+    case 'auth/email-already-in-use':
+      return 'このユーザーIDはすでに使われています。';
+    case 'auth/weak-password':
+      return 'パスワードは6文字以上で入力してください。';
+    case 'auth/operation-not-allowed':
+      return 'ID・パスワードログインが有効化されていません。管理者に連絡してください。';
+    default:
+      return `認証に失敗しました: ${error.code ?? error.message ?? 'unknown error'}`;
+  }
+}
 
 export default function LoginScreen() {
-  const { signIn, authError } = useAuth();
+  const { signIn, signUp, authError } = useAuth();
+  const [mode, setMode] = useState('login');
+  const [loginId, setLoginId] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  const shownError = error || (authError ? `Login failed: ${authError.code ?? 'unknown'} ${authError.message ?? ''}` : null);
+  const shownError = error || messageForAuthError(authError);
+  const isSignup = mode === 'signup';
 
-  const handleSignIn = async () => {
-    try {
-      setError(null);
-      await signIn();
-    } catch (e) {
-      if (e.code !== 'auth/popup-closed-by-user') {
-        console.error('[LoginScreen] signIn failed:', e);
-        setError(`Login failed: ${e.code ?? 'unknown'} ${e.message ?? ''}`);
-      }
+  const submit = async (event) => {
+    event.preventDefault();
+    if (saving) return;
+    setError(null);
+
+    if (isSignup && password !== passwordConfirm) {
+      setError('確認用パスワードが一致しません。');
+      return;
     }
+
+    setSaving(true);
+    try {
+      const payload = { loginId: normalizeLoginId(loginId), password };
+      if (isSignup) await signUp(payload);
+      else await signIn(payload);
+    } catch (e) {
+      console.error('[LoginScreen] auth failed:', e);
+      setError(messageForAuthError(e));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const switchMode = () => {
+    setMode(isSignup ? 'login' : 'signup');
+    setError(null);
+    setPassword('');
+    setPasswordConfirm('');
   };
 
   return (
     <div className="login-screen">
-      <div className="login-card">
+      <form className="login-card" onSubmit={submit}>
         <h1 className="login-title">古典ポータル</h1>
-        <p className="login-subtitle">Googleアカウントでログインして学習を記録</p>
-        <button className="login-google-btn" onClick={handleSignIn}>
-          <GoogleIcon />
-          Googleでログイン
-        </button>
-        {shownError && <p className="login-error">{shownError}</p>}
-      </div>
-    </div>
-  );
-}
+        <p className="login-subtitle">
+          {isSignup
+            ? 'このアプリ専用のユーザーIDとパスワードを設定してください。'
+            : 'ユーザーIDとパスワードでログインしてください。'}
+        </p>
 
-function GoogleIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-      <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
-      <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
-      <path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/>
-      <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z" fill="#EA4335"/>
-    </svg>
+        <label className="login-field">
+          ユーザーID
+          <input
+            value={loginId}
+            onChange={(event) => setLoginId(normalizeLoginId(event.target.value))}
+            autoComplete="username"
+            inputMode="latin"
+            placeholder="例: student01"
+            required
+          />
+        </label>
+
+        <label className="login-field">
+          パスワード
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            autoComplete={isSignup ? 'new-password' : 'current-password'}
+            minLength={6}
+            required
+          />
+        </label>
+
+        {isSignup && (
+          <label className="login-field">
+            パスワード確認
+            <input
+              type="password"
+              value={passwordConfirm}
+              onChange={(event) => setPasswordConfirm(event.target.value)}
+              autoComplete="new-password"
+              minLength={6}
+              required
+            />
+          </label>
+        )}
+
+        <button className="login-primary-btn" type="submit" disabled={saving}>
+          {saving ? '処理中...' : isSignup ? '新規登録' : 'ログイン'}
+        </button>
+
+        <button className="login-switch-btn" type="button" onClick={switchMode} disabled={saving}>
+          {isSignup ? 'ログイン画面へ' : '新規登録はこちら'}
+        </button>
+
+        {shownError && <p className="login-error">{shownError}</p>}
+      </form>
+    </div>
   );
 }

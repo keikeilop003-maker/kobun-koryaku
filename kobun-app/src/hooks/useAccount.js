@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { doc, onSnapshot, serverTimestamp, setDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
+import { loginIdFromEmail } from '../contexts/AuthContext';
 
 export const STUDENT_CODE_RE = /^1[A-H][0-9]{2}$/;
 
@@ -19,10 +20,12 @@ export default function useAccount(user) {
     setLoading(true);
 
     const ref = ACCOUNT_REF(user.uid);
+    const loginId = loginIdFromEmail(user.email);
     setDoc(ref, {
       uid: user.uid,
       email: user.email ?? '',
-      displayName: user.displayName ?? '',
+      displayName: user.displayName ?? loginId,
+      loginId,
       lastSeenAt: serverTimestamp(),
     }, { merge: true }).catch(err => {
       console.error('[useAccount] touch failed:', err.code ?? err.message);
@@ -45,10 +48,12 @@ export default function useAccount(user) {
     if (!user?.uid) return;
     const normalized = code.trim().toUpperCase();
     if (!STUDENT_CODE_RE.test(normalized)) throw new Error('invalid_student_code');
+    const loginId = loginIdFromEmail(user.email);
     await setDoc(ACCOUNT_REF(user.uid), {
       uid: user.uid,
       email: user.email ?? '',
-      displayName: user.displayName ?? '',
+      displayName: user.displayName ?? loginId,
+      loginId,
       requestedStudentCode: normalized,
       studentCodeStatus: 'requested',
       registrationCompleted: true,
@@ -62,10 +67,12 @@ export default function useAccount(user) {
     if (!user?.uid) return;
     const nextUsername = username.trim().slice(0, 24);
     const nextBio = bio.trim().slice(0, 80);
+    const loginId = loginIdFromEmail(user.email);
     await setDoc(ACCOUNT_REF(user.uid), {
       uid: user.uid,
       email: user.email ?? '',
-      displayName: user.displayName ?? '',
+      displayName: user.displayName ?? loginId,
+      loginId,
       username: nextUsername,
       bio: nextBio,
       publicProfileUpdatedAt: serverTimestamp(),

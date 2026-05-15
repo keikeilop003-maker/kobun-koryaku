@@ -12,6 +12,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { db } from '../services/firebase';
+import { loginIdFromEmail } from '../contexts/AuthContext';
 
 export const MESSAGE_STATUS = {
   open: '未対応',
@@ -43,10 +44,12 @@ export function useMyAdminMessages(user) {
     const body = text.trim();
     if (!user?.uid || !body) return;
     if (body.length > 500) throw new Error('message_too_long');
+    const loginId = loginIdFromEmail(user.email);
     await addDoc(collection(db, 'adminMessages'), {
       uid: user.uid,
       email: user.email ?? '',
-      displayName: user.displayName ?? '',
+      displayName: user.displayName ?? loginId,
+      loginId,
       text: body,
       status: 'open',
       createdAt: serverTimestamp(),

@@ -26,7 +26,7 @@ function fmtDate(value) {
 }
 
 function userLabel(user) {
-  return user.account?.username || user.account?.displayName || user.account?.email || user.uid;
+  return user.account?.username || user.account?.loginId || user.account?.displayName || user.account?.email || user.uid;
 }
 
 function textTitle(textbooks, textId) {

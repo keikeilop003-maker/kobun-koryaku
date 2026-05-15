@@ -198,7 +198,8 @@ function AppInner() {
     ? {}
     : titleColor ? { color: titleColor } : {};
   const nameClass = titleColor === 'rainbow' ? 'user-name title-rainbow' : 'user-name';
-  const publicDisplayName = account?.username?.trim() || user.displayName || 'ユーザー';
+  const accountLoginId = account?.loginId || user.email?.split('@')[0] || '';
+  const publicDisplayName = account?.username?.trim() || accountLoginId || user.displayName || 'ユーザー';
   const publicBio = account?.bio?.trim() ?? '';
 
   useEffect(() => {
@@ -817,7 +818,7 @@ function AppInner() {
       {accountSettingsOpen && (
         <AccountSettingsModal
           account={account}
-          fallbackName={user.displayName}
+          fallbackName={accountLoginId || user.displayName}
           onSave={updatePublicProfile}
           onClose={() => setAccountSettingsOpen(false)}
         />
