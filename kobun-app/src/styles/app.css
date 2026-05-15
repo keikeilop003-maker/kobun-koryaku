@@ -1494,25 +1494,24 @@ body {
   padding: 5px 10px;
 }
 
-.kanbun-syntax-content {
-  margin: 0;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  color: #1f1a13;
-  font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
-  font-size: 1.02rem;
-  line-height: 1.9;
-}
-
 .kanbun-syntax-editor {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.kanbun-syntax-editor textarea {
+.kanbun-syntax-base-input {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #4d4638;
+  font-size: 0.84rem;
+  font-weight: bold;
+}
+
+.kanbun-syntax-base-input textarea {
   width: 100%;
-  min-height: 120px;
+  min-height: 78px;
   resize: vertical;
   border: 1px solid #cfc7b6;
   border-radius: 4px;
@@ -1522,6 +1521,109 @@ body {
   font-size: 1rem;
   line-height: 1.8;
   padding: 8px;
+}
+
+.kanbun-syntax-builder {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.kanbun-syntax-view-scroll {
+  overflow-x: auto;
+  padding: 10px;
+  border: 1px solid #e2dac9;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.kanbun-syntax-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  min-height: 9rem;
+  color: #1f1a13;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+  font-size: 1.55rem;
+  line-height: 2.1;
+}
+
+.kanbun-syntax-unit {
+  position: relative;
+  display: inline-block;
+  min-width: 1.45em;
+  min-height: 1.75em;
+}
+
+.kanbun-syntax-char,
+.kanbun-syntax-symbol {
+  display: inline-block;
+}
+
+.kanbun-syntax-mark {
+  writing-mode: horizontal-tb;
+  position: absolute;
+  left: -0.84em;
+  bottom: -0.48em;
+  min-width: 1.35em;
+  color: #2e4f12;
+  font-size: 0.48em;
+  font-weight: bold;
+  text-align: center;
+}
+
+.kanbun-syntax-okurigana {
+  position: absolute;
+  right: -0.78em;
+  bottom: -0.2em;
+  color: #5c4030;
+  font-size: 0.48em;
+  line-height: 1.1;
+}
+
+.kanbun-syntax-annotation-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 260px;
+  overflow: auto;
+}
+
+.kanbun-syntax-annotation-row {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(4.5rem, 0.7fr) minmax(10rem, 1fr);
+  align-items: end;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid #e2dac9;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.kanbun-syntax-annotation-char {
+  color: #1f1a13;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+  font-size: 1.35rem;
+  text-align: center;
+}
+
+.kanbun-syntax-annotation-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: #555;
+  font-size: 0.72rem;
+}
+
+.kanbun-syntax-annotation-row input,
+.kanbun-syntax-annotation-row select {
+  width: 100%;
+  border: 1px solid #cfc7b6;
+  border-radius: 4px;
+  background: #fff;
+  color: #1f1a13;
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 5px 6px;
 }
 
 .kanbun-syntax-empty {
