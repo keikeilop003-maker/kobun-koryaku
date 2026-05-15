@@ -168,33 +168,57 @@ body {
 .left-view-tabs {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 12px;
   position: sticky;
   top: 16px;
   z-index: 3;
   align-self: flex-start;
-  background: #e8dfcf;
-  border: 1px solid #d5cfbf;
+  background: transparent;
   border-radius: 8px;
-  padding: 4px;
+  min-width: 76px;
 }
 
-.left-view-tabs button {
-  border: 0;
-  border-radius: 5px;
-  background: #fff;
+.left-tab-group,
+.left-tab-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.left-tab-button,
+.left-tab-action {
+  border: 1px solid #d5cfbf;
+  border-right: 0;
+  border-radius: 8px 0 0 8px;
+  background: #f7f2e8;
   color: #555;
   cursor: pointer;
   font-family: inherit;
   font-size: 0.82rem;
-  min-width: 46px;
-  padding: 10px 7px;
+  min-width: 76px;
+  padding: 11px 8px;
+  text-align: center;
+  box-shadow: inset -1px 0 0 rgba(0,0,0,0.04);
 }
 
-.left-view-tabs button.active {
+.left-tab-button.active {
   background: #2d3a5e;
   border-color: #2d3a5e;
   color: #fff;
+  font-weight: bold;
+  transform: translateX(1px);
+}
+
+.left-tab-action {
+  background: #fff;
+  color: #2d3a5e;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.left-tab-action:hover,
+.left-tab-button:hover:not(.active) {
+  background: #fffdf8;
 }
 
 .left-view-body {

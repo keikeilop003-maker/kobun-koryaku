@@ -986,7 +986,7 @@ function NotesTab({ notes, sections, isAdmin, onUpdateSection }) {
   );
 }
 
-export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget }) {
+export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin }) {
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
   const visibleTab = activeTab;
@@ -998,21 +998,31 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
 
   return (
     <div className="vertical-viewer">
-      <div className="left-view-tabs">
-        <button
-          type="button"
-          className={visibleTab === 'source' ? 'active' : ''}
-          onClick={() => setActiveTab('source')}
-        >
-          原文
-        </button>
-        <button
-          type="button"
-          className={visibleTab === 'notes' ? 'active' : ''}
-          onClick={() => setActiveTab('notes')}
-        >
-          備考
-        </button>
+      <div className="left-view-tabs" role="tablist" aria-label="教材操作">
+        <div className="left-tab-group">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={visibleTab === 'source'}
+            className={`left-tab-button${visibleTab === 'source' ? ' active' : ''}`}
+            onClick={() => setActiveTab('source')}
+          >
+            原文
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={visibleTab === 'notes'}
+            className={`left-tab-button${visibleTab === 'notes' ? ' active' : ''}`}
+            onClick={() => setActiveTab('notes')}
+          >
+            備考
+          </button>
+        </div>
+        <div className="left-tab-actions">
+          <button type="button" className="left-tab-action" onClick={onBackToSelect}>教材選択</button>
+          <button type="button" className="left-tab-action" onClick={onContactAdmin}>管理者へ連絡</button>
+        </div>
       </div>
       <div className="left-view-body">
         {visibleTab === 'source' ? (

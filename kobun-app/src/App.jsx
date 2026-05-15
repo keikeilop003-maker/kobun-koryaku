@@ -617,7 +617,6 @@ function AppInner() {
           <span className="app-title">古典ポータル</span>
           {currentTextData && (
             <>
-              <button className="back-to-select-btn" onClick={handleBackToSelect}>◀ 教材選択</button>
               <span className="text-source">{currentTextData.source}</span>
               <span className="text-title">「{currentTextData.title}」</span>
             </>
@@ -645,7 +644,9 @@ function AppInner() {
           {account?.studentCode && (
             <span className="header-student-code" title="利用番号">{account.studentCode}</span>
           )}
-          <button className="contact-admin-btn" onClick={() => setContactOpen(true)}>管理者へ連絡</button>
+          {!currentTextData && (
+            <button className="contact-admin-btn" onClick={() => setContactOpen(true)}>管理者へ連絡</button>
+          )}
           {profile && (
             <span className="header-points" title="所持ポイント">{profile.points ?? 0}pt</span>
           )}
@@ -751,6 +752,8 @@ function AppInner() {
               onUpdateTarget={handleUpdateTarget}
               onRecord={handleRecord}
               onCreateTarget={handleCreateTarget}
+              onBackToSelect={handleBackToSelect}
+              onContactAdmin={() => setContactOpen(true)}
             />
           ) : null}
         </div>
