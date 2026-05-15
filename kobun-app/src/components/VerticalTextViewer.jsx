@@ -113,26 +113,40 @@ function kanbunSyntaxHanIndexes(base) {
   return indexes;
 }
 
-function normalizeKanbunSyntax(value) {
+function normalizeKanbunSyntaxItem(value) {
   const base = String(value?.base ?? value?.text ?? '');
   const hanCount = kanbunSyntaxHanIndexes(base).length;
   const marks = Array.from({ length: hanCount }, (_, index) => normalizeSelectedKaeritenMark(value?.marks?.[index] ?? ''));
   const okurigana = Array.from({ length: hanCount }, (_, index) => String(value?.okurigana?.[index] ?? ''));
-  return { version: 1, base, marks, okurigana };
+  const furigana = Array.from({ length: hanCount }, (_, index) => String(value?.furigana?.[index] ?? ''));
+  return { base, marks, okurigana, furigana };
+}
+
+function emptyKanbunSyntaxItem() {
+  return normalizeKanbunSyntaxItem({ base: '' });
+}
+
+function normalizeKanbunSyntax(value) {
+  if (Array.isArray(value?.items)) {
+    const items = value.items.map(normalizeKanbunSyntaxItem);
+    return { version: 2, items: items.length ? items : [emptyKanbunSyntaxItem()] };
+  }
+  return { version: 2, items: [normalizeKanbunSyntaxItem(value)] };
 }
 
 function serializeKanbunSyntax(value) {
   return JSON.stringify(normalizeKanbunSyntax(value));
 }
 
-function resizeKanbunSyntaxAnnotations(base, previous) {
-  const current = normalizeKanbunSyntax(previous);
+function resizeKanbunSyntaxAnnotations(base, previousItem) {
+  const current = normalizeKanbunSyntaxItem(previousItem);
   const hanCount = kanbunSyntaxHanIndexes(base).length;
   return {
     ...current,
     base,
     marks: Array.from({ length: hanCount }, (_, index) => current.marks[index] ?? ''),
     okurigana: Array.from({ length: hanCount }, (_, index) => current.okurigana[index] ?? ''),
+    furigana: Array.from({ length: hanCount }, (_, index) => current.furigana[index] ?? ''),
   };
 }
 
@@ -702,85 +716,125 @@ function SectionEditor({ section, kundoku, onCancel, onSave }) {
 
 function KanbunSyntaxDisplay({ syntax }) {
   const data = normalizeKanbunSyntax(syntax);
-  let hanIndex = -1;
 
-  if (!data.base) return <p className="kanbun-syntax-empty">句法は未登録です。</p>;
+  if (!data.items.some(item => item.base)) return <p className="kanbun-syntax-empty">{'\u53e5\u6cd5\u306f\u672a\u767b\u9332\u3067\u3059\u3002'}</p>;
 
   return (
-    <div className="kanbun-syntax-view-scroll">
-      <div className="kanbun-syntax-vertical">
-        {kanbunSyntaxChars(data.base).map((char, sourceIndex) => {
-          if (!isKaeritenSourceChar(char)) {
-            return <span className="kanbun-syntax-symbol" key={sourceIndex}>{char}</span>;
-          }
-          hanIndex += 1;
-          const mark = data.marks[hanIndex] ?? '';
-          const okuri = data.okurigana[hanIndex] ?? '';
-          return (
-            <span className="kanbun-syntax-unit" key={sourceIndex}>
-              <span className="kanbun-syntax-char">{char}</span>
-              {mark && <span className="kanbun-syntax-mark">{mark}</span>}
-              {okuri && <span className="kanbun-syntax-okurigana">{okuri}</span>}
-            </span>
-          );
-        })}
-      </div>
+    <div className="kanbun-syntax-display-list">
+      {data.items.map((item, itemIndex) => {
+        if (!item.base) return null;
+        let hanIndex = -1;
+        return (
+          <div className="kanbun-syntax-view-scroll" key={`syntax-${itemIndex}`}>
+            <div className="kanbun-syntax-vertical">
+              {kanbunSyntaxChars(item.base).map((char, sourceIndex) => {
+                if (!isKaeritenSourceChar(char)) {
+                  return <span className="kanbun-syntax-symbol" key={sourceIndex}>{char}</span>;
+                }
+                hanIndex += 1;
+                const mark = item.marks[hanIndex] ?? '';
+                const okuri = item.okurigana[hanIndex] ?? '';
+                const furigana = item.furigana[hanIndex] ?? '';
+                return (
+                  <span className="kanbun-syntax-unit" key={sourceIndex}>
+                    <span className="kanbun-syntax-char">{char}</span>
+                    {furigana && <span className="kanbun-syntax-furigana">{furigana}</span>}
+                    {mark && <span className="kanbun-syntax-mark">{mark}</span>}
+                    {okuri && <span className="kanbun-syntax-okurigana">{okuri}</span>}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
 function KanbunSyntaxAnnotationEditor({ value, onChange }) {
-  let hanIndex = -1;
-  const updateBase = (base) => onChange(resizeKanbunSyntaxAnnotations(base, value));
-  const updateItem = (field, index, nextValue) => {
+  const data = normalizeKanbunSyntax(value);
+  const updateSyntaxItem = (itemIndex, nextItem) => {
     onChange({
-      ...value,
-      [field]: value[field].map((item, itemIndex) => itemIndex === index ? nextValue : item),
+      ...data,
+      items: data.items.map((item, index) => index === itemIndex ? normalizeKanbunSyntaxItem(nextItem) : item),
     });
+  };
+  const updateBase = (itemIndex, base) => updateSyntaxItem(itemIndex, resizeKanbunSyntaxAnnotations(base, data.items[itemIndex]));
+  const updateAnnotation = (itemIndex, field, annotationIndex, nextValue) => {
+    const current = data.items[itemIndex];
+    updateSyntaxItem(itemIndex, {
+      ...current,
+      [field]: current[field].map((item, index) => index === annotationIndex ? nextValue : item),
+    });
+  };
+  const addItem = () => onChange({ ...data, items: [...data.items, emptyKanbunSyntaxItem()] });
+  const removeItem = (itemIndex) => {
+    const nextItems = data.items.filter((_, index) => index !== itemIndex);
+    onChange({ ...data, items: nextItems.length ? nextItems : [emptyKanbunSyntaxItem()] });
   };
 
   return (
     <div className="kanbun-syntax-builder">
-      <label className="kanbun-syntax-base-input">
-        漢字・記号
-        <textarea
-          rows={3}
-          value={value.base}
-          onChange={(event) => updateBase(event.target.value)}
-          placeholder="漢字と記号のみを入力"
-        />
-      </label>
-      <KanbunSyntaxDisplay syntax={value} />
-      <div className="kanbun-syntax-annotation-grid">
-        {kanbunSyntaxChars(value.base).map((char, sourceIndex) => {
-          if (!isKaeritenSourceChar(char)) return null;
-          hanIndex += 1;
-          const currentIndex = hanIndex;
-          return (
-            <div className="kanbun-syntax-annotation-row" key={`${char}-${sourceIndex}`}>
-              <span className="kanbun-syntax-annotation-char">{char}</span>
-              <label>
-                返り点
-                <select
-                  value={normalizeSelectedKaeritenMark(value.marks[currentIndex] ?? '')}
-                  onChange={(event) => updateItem('marks', currentIndex, event.target.value)}
-                >
-                  {KAERITEN_MARK_OPTIONS.map(option => (
-                    <option key={option || 'blank'} value={option}>{option}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                送り仮名
-                <input
-                  value={value.okurigana[currentIndex] ?? ''}
-                  onChange={(event) => updateItem('okurigana', currentIndex, event.target.value)}
-                />
-              </label>
+      {data.items.map((syntaxItem, itemIndex) => {
+        let hanIndex = -1;
+        return (
+          <div className="kanbun-syntax-item-editor" key={`syntax-editor-${itemIndex}`}>
+            <div className="kanbun-syntax-item-header">
+              <span>{'\u53e5\u6cd5'} {itemIndex + 1}</span>
+              <button type="button" className="admin-secondary-btn" onClick={() => removeItem(itemIndex)}>{'\u524a\u9664'}</button>
             </div>
-          );
-        })}
-      </div>
+            <label className="kanbun-syntax-base-input">
+              {'\u6f22\u5b57\u30fb\u8a18\u53f7'}
+              <textarea
+                rows={3}
+                value={syntaxItem.base}
+                onChange={(event) => updateBase(itemIndex, event.target.value)}
+                placeholder={'\u6f22\u5b57\u3068\u8a18\u53f7\u306e\u307f\u3092\u5165\u529b'}
+              />
+            </label>
+            <KanbunSyntaxDisplay syntax={{ version: 2, items: [syntaxItem] }} />
+            <div className="kanbun-syntax-annotation-grid">
+              {kanbunSyntaxChars(syntaxItem.base).map((char, sourceIndex) => {
+                if (!isKaeritenSourceChar(char)) return null;
+                hanIndex += 1;
+                const currentIndex = hanIndex;
+                return (
+                  <div className="kanbun-syntax-annotation-row" key={`${char}-${sourceIndex}`}>
+                    <span className="kanbun-syntax-annotation-char">{char}</span>
+                    <label>
+                      {'\u632f\u308a\u4eee\u540d'}
+                      <input
+                        value={syntaxItem.furigana[currentIndex] ?? ''}
+                        onChange={(event) => updateAnnotation(itemIndex, 'furigana', currentIndex, event.target.value)}
+                      />
+                    </label>
+                    <label>
+                      {'\u8fd4\u308a\u70b9'}
+                      <select
+                        value={normalizeSelectedKaeritenMark(syntaxItem.marks[currentIndex] ?? '')}
+                        onChange={(event) => updateAnnotation(itemIndex, 'marks', currentIndex, event.target.value)}
+                      >
+                        {KAERITEN_MARK_OPTIONS.map(option => (
+                          <option key={option || 'blank'} value={option}>{option}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      {'\u9001\u308a\u4eee\u540d'}
+                      <input
+                        value={syntaxItem.okurigana[currentIndex] ?? ''}
+                        onChange={(event) => updateAnnotation(itemIndex, 'okurigana', currentIndex, event.target.value)}
+                      />
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+      <button type="button" className="kanbun-syntax-add-btn" onClick={addItem}>{'\u53e5\u6cd5\u3092\u8ffd\u52a0'}</button>
     </div>
   );
 }
@@ -814,7 +868,7 @@ function KanbunSyntaxBlock({ section, isAdmin, onUpdateSection }) {
     }
   };
 
-  if (!isAdmin && !initialSyntax.base) return null;
+  if (!isAdmin && !initialSyntax.items.some(item => item.base)) return null;
 
   return (
     <div className="kanbun-syntax-block">
@@ -831,7 +885,7 @@ function KanbunSyntaxBlock({ section, isAdmin, onUpdateSection }) {
             <button type="button" onClick={save} disabled={saving}>{saving ? '保存中...' : '保存'}</button>
           </div>
         </div>
-      ) : initialSyntax.base ? (
+      ) : initialSyntax.items.some(item => item.base) ? (
         <KanbunSyntaxDisplay syntax={initialSyntax} />
       ) : (
         <p className="kanbun-syntax-empty">句法は未登録です。</p>
