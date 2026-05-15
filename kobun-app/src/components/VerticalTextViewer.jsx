@@ -999,6 +999,9 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
   return (
     <div className="vertical-viewer">
       <div className="left-view-tabs" role="tablist" aria-label="教材操作">
+        <div className="left-tab-top-actions">
+          <button type="button" className="left-tab-action" onClick={onBackToSelect}>教材へ</button>
+        </div>
         <div className="left-tab-group">
           <button
             type="button"
@@ -1019,9 +1022,8 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
             備考
           </button>
         </div>
-        <div className="left-tab-actions">
-          <button type="button" className="left-tab-action" onClick={onBackToSelect}>教材選択</button>
-          <button type="button" className="left-tab-action" onClick={onContactAdmin}>管理者へ連絡</button>
+        <div className="left-tab-bottom-actions">
+          <button type="button" className="left-tab-action" onClick={onContactAdmin}>連絡</button>
         </div>
       </div>
       <div className="left-view-body">

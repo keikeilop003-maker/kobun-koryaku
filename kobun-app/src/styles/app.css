@@ -168,7 +168,7 @@ body {
 .left-view-tabs {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
   position: sticky;
   top: 16px;
   z-index: 3;
@@ -176,13 +176,23 @@ body {
   background: transparent;
   border-radius: 8px;
   min-width: 76px;
+  min-height: calc(100vh - 120px);
 }
 
 .left-tab-group,
-.left-tab-actions {
+.left-tab-top-actions,
+.left-tab-bottom-actions {
   display: flex;
   flex-direction: column;
   gap: 3px;
+}
+
+.left-tab-group {
+  margin-top: 18px;
+}
+
+.left-tab-bottom-actions {
+  margin-top: auto;
 }
 
 .left-tab-button,
