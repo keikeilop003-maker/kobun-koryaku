@@ -1014,30 +1014,32 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
           備考
         </button>
       </div>
-      {visibleTab === 'source' ? (
-        visibleSections.map((section) => (
-          <SectionCard
-            key={section.id}
-            section={section}
-            selectedTarget={selectedTarget}
-            onSelectTarget={onSelectTarget}
-            activeType={activeType}
-            pinnedPhrase={pinnedPhrase}
-            selectionMode={selectionMode}
-            selectionRange={selectionRange}
-            onRangeSelect={onRangeSelect}
-            showModern={showModern}
-            isAdmin={isAdmin}
-            onUpdateSection={onUpdateSection}
-            onUpdateTarget={onUpdateTarget}
-            onRecord={onRecord}
-            onCreateTarget={onCreateTarget}
-            sourceHeightScale={sourceHeightScale}
-          />
-        ))
-      ) : (
-        <NotesTab notes={notes} sections={sections} isAdmin={isAdmin} onUpdateSection={onUpdateSection} />
-      )}
+      <div className="left-view-body">
+        {visibleTab === 'source' ? (
+          visibleSections.map((section) => (
+            <SectionCard
+              key={section.id}
+              section={section}
+              selectedTarget={selectedTarget}
+              onSelectTarget={onSelectTarget}
+              activeType={activeType}
+              pinnedPhrase={pinnedPhrase}
+              selectionMode={selectionMode}
+              selectionRange={selectionRange}
+              onRangeSelect={onRangeSelect}
+              showModern={showModern}
+              isAdmin={isAdmin}
+              onUpdateSection={onUpdateSection}
+              onUpdateTarget={onUpdateTarget}
+              onRecord={onRecord}
+              onCreateTarget={onCreateTarget}
+              sourceHeightScale={sourceHeightScale}
+            />
+          ))
+        ) : (
+          <NotesTab notes={notes} sections={sections} isAdmin={isAdmin} onUpdateSection={onUpdateSection} />
+        )}
+      </div>
     </div>
   );
 }

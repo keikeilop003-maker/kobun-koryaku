@@ -161,35 +161,48 @@ body {
   overflow-y: auto;
   flex: 1;
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .left-view-tabs {
   display: flex;
-  gap: 6px;
+  flex-direction: column;
+  gap: 4px;
   position: sticky;
-  top: 0;
+  top: 16px;
   z-index: 3;
-  background: #f5f1e8;
-  padding-bottom: 4px;
+  align-self: flex-start;
+  background: #e8dfcf;
+  border: 1px solid #d5cfbf;
+  border-radius: 8px;
+  padding: 4px;
 }
 
 .left-view-tabs button {
-  border: 1px solid #d5cfbf;
-  border-radius: 6px;
+  border: 0;
+  border-radius: 5px;
   background: #fff;
   color: #555;
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.84rem;
-  padding: 7px 14px;
+  font-size: 0.82rem;
+  min-width: 46px;
+  padding: 10px 7px;
 }
 
 .left-view-tabs button.active {
   background: #2d3a5e;
   border-color: #2d3a5e;
   color: #fff;
+}
+
+.left-view-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .notes-tab-content {

@@ -41,6 +41,19 @@ const LEGEND = [
   { type: 'kaeriten', label: '返り点',   cls: 'hl-kaeriten' },
 ];
 
+const KANBUN_HIDDEN_TYPES = new Set(['verb', 'adj', 'aux', 'particle']);
+
+function isKanbunText(text) {
+  const normalized = String(text ?? '').replace(/[\s、。，．・「」『』（）()〈〉《》！？!?]/g, '');
+  return normalized.length > 0 && /^[\p{Script=Han}]+$/u.test(normalized);
+}
+
+function isKanbunTextData(data) {
+  return (data?.sections ?? [])
+    .filter(section => !section.sectionless)
+    .some(section => isKanbunText(section.text));
+}
+
 function pointsForType(type) {
   if (type === 'translation') return 15;
   if (type === 'content') return 10;
@@ -192,6 +205,18 @@ function AppInner() {
         }),
     };
   }, [textData, customTargets, hiddenTargetKeys, editedTargetMap, editedSectionMap, editedNormalQuestionMap, hiddenNormalQuestionIds]);
+  const currentIsKanbun = isKanbunTextData(currentTextData);
+  const visibleLegend = useMemo(() => LEGEND.filter(item => {
+    if (!currentTextData) return true;
+    if (currentIsKanbun) return !KANBUN_HIDDEN_TYPES.has(item.type);
+    return item.type !== 'kaeriten';
+  }), [currentIsKanbun, currentTextData]);
+
+  useEffect(() => {
+    if (!visibleLegend.some(item => item.type === activeType)) {
+      setActiveType('all');
+    }
+  }, [activeType, visibleLegend]);
 
   const titleId = equipped?.title ?? null;
   const titleColor = titleId ? TITLE_COLOR[titleId] : null;
@@ -599,7 +624,7 @@ function AppInner() {
           )}
         </div>
         <div className="legend">
-          {LEGEND.map(l => (
+          {visibleLegend.map(l => (
             <span
               key={l.type}
               className={`legend-item ${l.cls}${activeType === l.type ? ' active' : ''}`}
