@@ -277,13 +277,15 @@ service cloud.firestore {
         && request.resource.data.textId is string
         && request.resource.data.sectionId is string
         && request.resource.data.section is map
-        && request.resource.data.section.keys().hasOnly(['text', 'kundoku', 'notes'])
+        && request.resource.data.section.keys().hasOnly(['text', 'kundoku', 'notes', 'kanbunSyntax'])
         && request.resource.data.section.text is string
         && request.resource.data.section.text.size() <= 20000
         && request.resource.data.section.kundoku is string
         && request.resource.data.section.kundoku.size() <= 20000
         && request.resource.data.section.notes is string
-        && request.resource.data.section.notes.size() <= 20000;
+        && request.resource.data.section.notes.size() <= 20000
+        && request.resource.data.section.kanbunSyntax is string
+        && request.resource.data.section.kanbunSyntax.size() <= 20000;
       allow delete: if isAdmin();
     }
     match /editedNormalQuestions/{questionId} {
