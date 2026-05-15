@@ -952,7 +952,15 @@ function NotesEditor({ section, initialText, onSave }) {
   );
 }
 
-function NotesTab({ notes, sections, isAdmin, onUpdateSection }) {
+function GyofunoriNotesImage() {
+  return (
+    <figure className="notes-figure">
+      <img src={`${import.meta.env.BASE_URL}assets/gyofunori/sengoku-shichiyu.png`} alt="戦国七雄" />
+    </figure>
+  );
+}
+
+function NotesTab({ textId, notes, sections, isAdmin, onUpdateSection }) {
   const visibleSections = sections.filter(section => !section.sectionless);
   const items = visibleSections
     .map((section, index) => ({
@@ -970,6 +978,7 @@ function NotesTab({ notes, sections, isAdmin, onUpdateSection }) {
           <div className="notes-section-card" key={item.id}>
             <div className="section-title">{item.title}</div>
             {item.text ? <ReferenceBlock label="備考" text={item.text} /> : <p className="notes-empty notes-empty--inline">備考はありません。</p>}
+            {textId === 'gyofunori' && item.text && <GyofunoriNotesImage />}
             {isAdmin && (
               <NotesEditor
                 section={item.section}
@@ -1049,7 +1058,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
             />
           ))
         ) : (
-          <NotesTab notes={notes} sections={sections} isAdmin={isAdmin} onUpdateSection={onUpdateSection} />
+          <NotesTab textId={textId} notes={notes} sections={sections} isAdmin={isAdmin} onUpdateSection={onUpdateSection} />
         )}
       </div>
     </div>
