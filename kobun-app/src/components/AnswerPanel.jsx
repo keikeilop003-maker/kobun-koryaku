@@ -536,10 +536,12 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
                   <select
                     className="kaeriten-source-input kaeriten-source-mark-select"
                     value={marks[currentIndex] ?? ''}
+                    size={KAERITEN_MARK_OPTIONS.length}
+                    autoFocus
                     onChange={(event) => updateMark(currentIndex, event.target.value)}
                     aria-label={char + '\u306e\u8fd4\u308a\u70b9'}
                   >
-                    {KAERITEN_MARK_OPTIONS.map(option => <option key={option || 'blank'} value={option}>{option}</option>)}
+                    {KAERITEN_MARK_OPTIONS.map(option => <option key={option || 'blank'} value={option}>{option || 'なし'}</option>)}
                   </select>
                 ) : (
                   hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display">{marks[currentIndex]}</span>
