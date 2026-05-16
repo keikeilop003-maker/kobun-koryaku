@@ -457,7 +457,7 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
   const initialAnswer = parseKaeritenAnswer(initialInputs?.ans, target.surface);
   const [marks, setMarks] = useState(() => chars.map((_, index) => initialAnswer.marks[index] ?? ''));
   const [hyphens, setHyphens] = useState(() => new Set(initialAnswer.hyphens));
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(null);
   const [hyphenMode, setHyphenMode] = useState(false);
   const [submitted, setSubmitted] = useState(initialInputs?.submitted ?? false);
   const [result, setResult] = useState(initialResult ?? null);
@@ -504,12 +504,13 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
     if (e.key === 'Enter' && submitted) { e.preventDefault(); onAdvance?.(); }
   };
 
-  const selectedChar = chars[selectedIndex] ?? '';
-
   return (
     <div className="form-group kaeriten-line-form" onFocus={() => onFocusTarget?.()}>
       <div className="kaeriten-line-stage source-text-pane">
         <div className="kaeriten-line-display">
+          <div className="kaeriten-practice-instruction">
+            {'返り点を施す漢字を選択してください。選択後、施す返り点を選んでください。'}
+          </div>
           <div className="vertical-text vertical-text--kaeriten-source vertical-text--kanbun kaeriten-line-source">
             {(() => {
               let hanIndex = -1;
@@ -519,18 +520,30 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
               const currentIndex = hanIndex;
               const hasVisibleMark = Boolean(marks[currentIndex]);
               const hasVisibleHyphen = hyphens.has(currentIndex);
-              const needsAnnotationSpace = hasVisibleMark || hasVisibleHyphen;
+              const isSelectedChar = selectedIndex === currentIndex;
+              const needsAnnotationSpace = isSelectedChar || hasVisibleMark || hasVisibleHyphen;
               return (
               <span className="kaeriten-source-group kaeriten-source-group--selectable" key={char + '-' + sourceIndex}>
                 <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`}>
                 <button
                   type="button"
-                  className={'kaeriten-source-char kaeriten-source-char-button' + (selectedIndex === currentIndex ? ' active' : '')}
+                  className={'kaeriten-source-char kaeriten-source-char-button' + (isSelectedChar ? ' active' : '')}
                   onClick={() => setSelectedIndex(currentIndex)}
                 >
                   {char}
                 </button>
-                {hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display">{marks[currentIndex]}</span>}
+                {isSelectedChar ? (
+                  <select
+                    className="kaeriten-source-input kaeriten-source-mark-select"
+                    value={marks[currentIndex] ?? ''}
+                    onChange={(event) => updateMark(currentIndex, event.target.value)}
+                    aria-label={char + '\u306e\u8fd4\u308a\u70b9'}
+                  >
+                    {KAERITEN_MARK_OPTIONS.map(option => <option key={option || 'blank'} value={option}>{option}</option>)}
+                  </select>
+                ) : (
+                  hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display">{marks[currentIndex]}</span>
+                )}
                 {currentIndex < chars.length - 1 && (
                   <button
                     type="button"
@@ -556,13 +569,6 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
         </div>
       </div>
       <div className="kaeriten-line-controls">
-        <div className="kaeriten-selected-char">{selectedChar}</div>
-        <label>
-          {'\u8fd4\u308a\u70b9'}
-          <select value={marks[selectedIndex] ?? ''} onChange={(event) => updateMark(selectedIndex, event.target.value)}>
-            {KAERITEN_MARK_OPTIONS.map(option => <option key={option || 'blank'} value={option}>{option}</option>)}
-          </select>
-        </label>
         {answerHasHyphen && (
           <button
             type="button"
@@ -820,9 +826,8 @@ export default function AnswerPanel({
       <div className="answer-panel-list">
         {adminTools ?? undoNotice}
         <div className="answer-panel empty">
-          <div className="empty-message">
-            <p>左の原文から演習する行を選んでください</p>
-            {isAdmin && <p>模範解答の編集は左カラム上で行えます</p>}
+          <div className="kaeriten-empty-vertical">
+            {'返り点を施す行を選択してください。'}
           </div>
         </div>
       </div>

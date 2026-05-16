@@ -487,7 +487,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
 
   let markIndex = -1;
   let currentLineIndex = 0;
-  const renderSourceChar = (char, index, key = index) => {
+  const renderSourceChar = (char, index, key = index, selectableChar = true) => {
     if (char === '\n') currentLineIndex += 1;
     const inTarget = index >= range.start && index < range.end;
     if (!inTarget || !isKaeritenSourceChar(char)) return <span key={key}>{char}</span>;
@@ -500,10 +500,10 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
     const needsAnnotationSpace = editingAnswer || hasVisibleMark || hasVisibleHyphen;
     const lineCheck = null;
     const selectLine = () => {
-      if (practiceMode && !editingAnswer) onSelectLine?.(makeLineTarget(lineIndex), section);
+      if (selectableChar && practiceMode && !editingAnswer) onSelectLine?.(makeLineTarget(lineIndex), section);
     };
     return (
-      <span className={`kaeriten-source-group${practiceMode && !editingAnswer ? ' kaeriten-source-group--selectable' : ''}`} key={key} onClick={selectLine}>
+      <span className={`kaeriten-source-group${selectableChar && practiceMode && !editingAnswer ? ' kaeriten-source-group--selectable' : ''}`} key={key} onClick={selectLine}>
         {lineCheck}
         <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`} data-line={lineIndex}>
           <span className="kaeriten-source-char">{char}</span>
@@ -544,7 +544,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   const nodes = practiceMode && !editingAnswer
     ? sourceLines.flatMap((line, lineIndex) => {
       const baseIndex = lineStarts[lineIndex] ?? 0;
-      const lineNodes = Array.from(line).map((char, offset) => renderSourceChar(char, baseIndex + offset, `${lineIndex}-${offset}`));
+      const lineNodes = Array.from(line).map((char, offset) => renderSourceChar(char, baseIndex + offset, `${lineIndex}-${offset}`, false));
       return [
         <span
           className="kaeriten-source-line-choice"
