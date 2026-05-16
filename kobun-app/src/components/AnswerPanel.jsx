@@ -696,6 +696,7 @@ export default function AnswerPanel({
   onUpdateTarget,
   deletedTargetNotice,
   onUndoDelete,
+  onKaeritenLineCorrect,
 }) {
   const cardRefs = useRef([]);
   const inputsMap = useRef({});
@@ -721,7 +722,10 @@ export default function AnswerPanel({
       judgement,
       feedback: result,
     });
-  }, [onRecord]);
+    if (target.type === 'kaeriten' && result?.judgement === '正解' && Number.isInteger(target.lineIndex)) {
+      onKaeritenLineCorrect?.(target, section);
+    }
+  }, [onRecord, onKaeritenLineCorrect]);
 
   const lastFeedback = useCallback((targetId) => {
     return historyEntries?.[targetId]?.attempts?.at(-1)?.feedback ?? null;

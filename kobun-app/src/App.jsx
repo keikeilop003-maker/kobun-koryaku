@@ -120,6 +120,7 @@ function AppInner() {
   const [textbookOrder, setTextbookOrder] = useState([]);
   const [textbookStatuses, setTextbookStatuses] = useState({});
   const [lastDeletedTarget, setLastDeletedTarget] = useState(null);
+  const [correctKaeritenLines, setCorrectKaeritenLines] = useState({});
   const effectiveIsAdmin = isAdmin && !viewAsStudent;
 
   const textId = textData?.id ?? selectedTextId ?? '';
@@ -132,6 +133,16 @@ function AppInner() {
   const { entries, record, clearAll } = useHistory(textId, user?.uid);
   const { profile, awardPoints, unlockItem, equipItem } = useProfile(user?.uid);
   const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
+  useEffect(() => {
+    setCorrectKaeritenLines({});
+  }, [textId]);
+
+  const handleKaeritenLineCorrect = useCallback((target, section) => {
+    if (!target || !section || !Number.isInteger(target.lineIndex)) return;
+    const parentTargetId = target.parentTargetId ?? target.id;
+    const key = `${section.id}:${parentTargetId}:${target.lineIndex}`;
+    setCorrectKaeritenLines(current => ({ ...current, [key]: true }));
+  }, []);
   const statusTextbooks = useMemo(
     () => textbooks.map(tb => ({ ...tb, status: textbookStatuses[tb.id] ?? tb.status ?? 'draft' })),
     [textbooks, textbookStatuses],
@@ -771,6 +782,7 @@ function AppInner() {
               onUpdateSection={handleUpdateSection}
               onUpdateTarget={handleUpdateTarget}
               onRecord={handleRecord}
+              correctKaeritenLines={correctKaeritenLines}
               onCreateTarget={handleCreateTarget}
               onBackToSelect={handleBackToSelect}
               onContactAdmin={() => setContactOpen(true)}
@@ -804,6 +816,7 @@ function AppInner() {
                   onFocusTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
                   historyEntries={entries}
                   onRecord={handleRecord}
+                  onKaeritenLineCorrect={handleKaeritenLineCorrect}
                   isAdmin={effectiveIsAdmin}
                   adminSelection={adminSelection}
                   addingType={addingType}

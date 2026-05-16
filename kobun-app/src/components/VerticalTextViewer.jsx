@@ -318,7 +318,7 @@ function AnnotatedSourceText({ text, start = 0, annotations }) {
   });
 }
 
-function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTarget, isKanbun, sourceTextStyle, practiceMode = true, onSelectLine }) {
+function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTarget, isKanbun, sourceTextStyle, practiceMode = true, onSelectLine, correctLineKeys }) {
   const range = findTargetRange(section, target);
   const chars = kaeritenChars(target.surface);
   const initialUser = parseKaeritenAnswer('', target.surface);
@@ -495,8 +495,10 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
     const currentIndex = markIndex;
     const hasHyphenSlot = currentIndex < chars.length - 1;
     const lineIndex = markLineIndexes[currentIndex] ?? currentLineIndex;
-    const hasVisibleMark = Boolean(selectedMarks[currentIndex]);
-    const hasVisibleHyphen = selectedHyphens.has(currentIndex);
+    const revealCorrectLine = practiceMode && !editingAnswer && correctLineKeys?.has(`${section.id}:${target.id}:${lineIndex}`);
+    const visibleMark = revealCorrectLine ? (answer.marks[currentIndex] ?? '') : selectedMarks[currentIndex];
+    const hasVisibleMark = Boolean(visibleMark);
+    const hasVisibleHyphen = revealCorrectLine ? answer.hyphens.includes(currentIndex) : selectedHyphens.has(currentIndex);
     const needsAnnotationSpace = editingAnswer || hasVisibleMark || hasVisibleHyphen;
     const lineCheck = null;
     const selectLine = () => {
@@ -508,7 +510,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
         <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`} data-line={lineIndex}>
           <span className="kaeriten-source-char">{char}</span>
           {!editingAnswer ? (
-            hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display">{selectedMarks[currentIndex]}</span>
+            hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display">{visibleMark}</span>
           ) : (
             <select
               className="kaeriten-source-input"
@@ -1082,7 +1084,7 @@ function KanbunSyntaxBlock({ section, isAdmin, onUpdateSection }) {
   );
 }
 
-function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, sourceHeightScale, isKanbunTextbook }) {
+function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, sourceHeightScale, isKanbunTextbook, correctKaeritenLines }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
   const pinnedRef = useRef(null);
@@ -1218,6 +1220,7 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
               sourceTextStyle={sourceTextStyle}
               practiceMode={activeType === 'kaeriten'}
               onSelectLine={onSelectTarget}
+              correctLineKeys={correctKaeritenLines}
             />
           ) : activeType === 'kaeriten' && isAdmin && !section.sectionless ? (
             <>
@@ -1377,11 +1380,12 @@ function NotesTab({ textId, notes, sections, isAdmin, onUpdateSection }) {
   );
 }
 
-export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false }) {
+export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false, correctKaeritenLines = {} }) {
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
   const visibleTab = activeTab;
   const sourceHeightScale = textId === 'gyofunori' ? 0.63 : 1;
+  const correctKaeritenLineKeys = useMemo(() => new Set(Object.keys(correctKaeritenLines).filter(key => correctKaeritenLines[key])), [correctKaeritenLines]);
 
   useEffect(() => {
     if (pinnedPhrase) setActiveTab('source');
@@ -1438,6 +1442,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
               onCreateTarget={onCreateTarget}
               sourceHeightScale={sourceHeightScale}
               isKanbunTextbook={isKanbunTextbook}
+              correctKaeritenLines={correctKaeritenLineKeys}
             />
           ))
         ) : (
