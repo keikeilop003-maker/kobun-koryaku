@@ -627,10 +627,11 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
 
   const isScoreType = SCORE_TYPES.has(target.type);
   const formProps = { initialInputs, onInputChange, onFocusTarget };
+  const showPanelHeader = target.type !== 'kaeriten';
 
   return (
     <div ref={cardRef} className={`question-card${isSelected ? ' question-card--selected' : ''}`}>
-      <div className="panel-header">
+      {showPanelHeader && <div className="panel-header">
         <span className={`type-badge type-${target.type}`}>{TYPE_LABEL[target.type] ?? '問題'}</span>
         <QuestionHeader target={target} />
         {isAdmin && (
@@ -659,7 +660,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
             </button>
           </div>
         )}
-      </div>
+      </div>}
       {editing && (
         <AdminTargetForm
           type={target.type}
