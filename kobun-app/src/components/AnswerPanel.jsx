@@ -502,31 +502,38 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
 
   return (
     <div className="form-group kaeriten-line-form" onFocus={() => onFocusTarget?.()}>
-      <div className="kaeriten-line-stage">
-        <div className="kaeriten-line-vertical">
-          {chars.map((char, index) => (
-            <span className="kaeriten-line-unit" key={char + '-' + index}>
+      <div className="kaeriten-line-stage source-text-pane">
+        <div className="vertical-text vertical-text--kaeriten-source vertical-text--kanbun kaeriten-line-source">
+          {chars.map((char, index) => {
+            const hasVisibleMark = Boolean(marks[index]);
+            const hasVisibleHyphen = hyphens.has(index);
+            const needsAnnotationSpace = hasVisibleMark || hasVisibleHyphen;
+            return (
+            <span className="kaeriten-source-group kaeriten-source-group--selectable" key={char + '-' + index}>
+              <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`}>
               <button
                 type="button"
-                className={'kaeriten-line-char' + (selectedIndex === index ? ' active' : '')}
+                className={'kaeriten-source-char kaeriten-source-char-button' + (selectedIndex === index ? ' active' : '')}
                 onClick={() => setSelectedIndex(index)}
               >
                 {char}
               </button>
-              {marks[index] && <span className="kaeriten-line-mark">{marks[index]}</span>}
+              {hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display">{marks[index]}</span>}
               {index < chars.length - 1 && (
                 <button
                   type="button"
-                  className={'kaeriten-line-hyphen' + (hyphens.has(index) ? ' active' : '')}
+                  className={'kaeriten-source-hyphen' + (hasVisibleHyphen ? ' active' : '')}
                   onClick={() => toggleHyphen(index)}
                   disabled={!hyphenMode}
                   aria-label={char + '\u306e\u5f8c\u308d\u306b\u30cf\u30a4\u30d5\u30f3'}
                 >
-                  {hyphens.has(index) ? '-' : ''}
+                  {hasVisibleHyphen ? '-' : ''}
                 </button>
               )}
+              </span>
             </span>
-          ))}
+            );
+          })}
         </div>
       </div>
       <div className="kaeriten-line-controls">
