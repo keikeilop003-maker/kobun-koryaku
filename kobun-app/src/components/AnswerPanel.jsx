@@ -16,6 +16,7 @@ const TYPE_LABEL = {
 
 const SCORE_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar', 'kaeriten']);
 const ADMIN_ADD_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar', 'kaeriten']);
+const KAERITEN_MARK_OPTIONS = ['', '\u4e00', '\u4e8c', '\u4e09', '\u30ec', '\u4e0a', '\u4e0b'];
 
 function targetOrder(section, target) {
   if (Number.isInteger(target.start)) return target.start;
@@ -450,14 +451,14 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
   const initialAnswer = parseKaeritenAnswer(initialInputs?.ans, target.surface);
   const [marks, setMarks] = useState(() => chars.map((_, index) => initialAnswer.marks[index] ?? ''));
   const [hyphens, setHyphens] = useState(() => new Set(initialAnswer.hyphens));
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [hyphenMode, setHyphenMode] = useState(false);
   const [submitted, setSubmitted] = useState(initialInputs?.submitted ?? false);
   const [result, setResult] = useState(initialResult ?? null);
-  const firstInputRef = useRef(null);
   const btnRef = useRef(null);
-  const answerHasHyphen = needsHyphen(target.answer);
+  const answerHasHyphen = needsHyphen(target.answer, target.surface);
 
-  useImperativeHandle(ref, () => ({ focus: () => firstInputRef.current?.focus() }));
+  useImperativeHandle(ref, () => ({ focus: () => btnRef.current?.focus() }));
 
   const currentAnswer = (nextMarks = marks, nextHyphens = hyphens) => serializeKaeritenAnswer({
     marks: nextMarks,
@@ -497,48 +498,55 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
     if (e.key === 'Enter' && submitted) { e.preventDefault(); onAdvance?.(); }
   };
 
+  const selectedChar = chars[selectedIndex] ?? '';
+
   return (
-    <div className="form-group kaeriten-form" onFocus={() => onFocusTarget?.()}>
-      <div className="kaeriten-practice">
-        <div className="kaeriten-source">
+    <div className="form-group kaeriten-line-form" onFocus={() => onFocusTarget?.()}>
+      <div className="kaeriten-line-stage">
+        <div className="kaeriten-line-vertical">
           {chars.map((char, index) => (
-            <div className="kaeriten-unit-wrap" key={`${char}-${index}`}>
-              <div className="kaeriten-unit">
-                <span className="kaeriten-char">{char}</span>
-                <input
-                  ref={index === 0 ? firstInputRef : null}
-                  className="kaeriten-mark-input"
-                  value={marks[index] ?? ''}
-                  maxLength={2}
-                  onChange={e => updateMark(index, e.target.value)}
-                  aria-label={`${char}の返り点`}
-                />
-              </div>
+            <span className="kaeriten-line-unit" key={char + '-' + index}>
+              <button
+                type="button"
+                className={'kaeriten-line-char' + (selectedIndex === index ? ' active' : '')}
+                onClick={() => setSelectedIndex(index)}
+              >
+                {char}
+              </button>
+              {marks[index] && <span className="kaeriten-line-mark">{marks[index]}</span>}
               {index < chars.length - 1 && (
                 <button
                   type="button"
-                  className={`kaeriten-hyphen-slot${hyphens.has(index) ? ' active' : ''}`}
+                  className={'kaeriten-line-hyphen' + (hyphens.has(index) ? ' active' : '')}
                   onClick={() => toggleHyphen(index)}
                   disabled={!hyphenMode}
-                  aria-label={`${char}の後ろにハイフン`}
+                  aria-label={char + '\u306e\u5f8c\u308d\u306b\u30cf\u30a4\u30d5\u30f3'}
                 >
                   {hyphens.has(index) ? '-' : ''}
                 </button>
               )}
-            </div>
+            </span>
           ))}
-          {answerHasHyphen && <span className="kaeriten-hyphen-note">※ハイフンを使用する必要があります</span>}
         </div>
+      </div>
+      <div className="kaeriten-line-controls">
+        <div className="kaeriten-selected-char">{selectedChar}</div>
+        <label>
+          {'\u8fd4\u308a\u70b9'}
+          <select value={marks[selectedIndex] ?? ''} onChange={(event) => updateMark(selectedIndex, event.target.value)}>
+            {KAERITEN_MARK_OPTIONS.map(option => <option key={option || 'blank'} value={option}>{option}</option>)}
+          </select>
+        </label>
         {answerHasHyphen && (
           <button
             type="button"
-            className={`kaeriten-hyphen-mode-btn${hyphenMode ? ' active' : ''}`}
+            className={'kaeriten-hyphen-mode-btn' + (hyphenMode ? ' active' : '')}
             onClick={() => setHyphenMode(value => !value)}
           >
-            ハイフンを入力
+            {'\u30cf\u30a4\u30d5\u30f3\u3092\u5165\u529b'}
           </button>
         )}
-        <button ref={btnRef} onClick={submit} onKeyDown={handleBtnKeyDown}>採点</button>
+        <button ref={btnRef} onClick={submit} onKeyDown={handleBtnKeyDown}>{'\u63a1\u70b9'}</button>
       </div>
       {submitted && (
         <>
@@ -546,7 +554,7 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
             <JudgeIcon judgement={result?.judgement} />
             {result?.judgement && <span className="judgement-text">{result.judgement}</span>}
           </div>
-          <div className="hint">模範解答：<em>各文字の入力欄を確認してください</em></div>
+          <div className="hint">{'\u6a21\u7bc4\u89e3\u7b54\uff1a'}<em>{'\u9078\u629e\u3057\u305f\u884c\u306e\u8fd4\u308a\u70b9\u3092\u78ba\u8a8d\u3057\u3066\u304f\u3060\u3055\u3044'}</em></div>
           {target.explanation && <div className="explanation">{target.explanation}</div>}
         </>
       )}
@@ -554,7 +562,6 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
   );
 });
 
-// ── QuestionCard ─────────────────────────────────────────────
 const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelected, initialFeedback, onHistoryUpdate, onAdvance, initialInputs, onInputChange, onFocusTarget, isAdmin, onDeleteTarget, onUpdateTarget, sections }, ref) {
   const [feedback, setFeedback] = useState(initialFeedback ?? null);
   const [editing, setEditing] = useState(false);
@@ -762,13 +769,35 @@ export default function AnswerPanel({
   }
 
   if (activeType === 'kaeriten') {
+    if (selectedTarget?.type === 'kaeriten' && selectedSection) {
+      return (
+        <div className="answer-panel-list">
+          {adminTools ?? undoNotice}
+          <QuestionCard
+            key={selectedTarget.id}
+            target={selectedTarget}
+            section={selectedSection}
+            isSelected={false}
+            initialFeedback={lastFeedback(selectedTarget.id)}
+            onHistoryUpdate={r => recordHistory(selectedTarget, selectedSection, r)}
+            initialInputs={inputsMap.current[selectedTarget.id]}
+            onInputChange={vals => { inputsMap.current[selectedTarget.id] = vals; }}
+            onFocusTarget={() => onFocusTarget?.(selectedTarget, selectedSection)}
+            isAdmin={isAdmin}
+            onDeleteTarget={onDeleteTarget}
+            onUpdateTarget={onUpdateTarget}
+            sections={sections}
+          />
+        </div>
+      );
+    }
     return (
       <div className="answer-panel-list">
         {adminTools ?? undoNotice}
         <div className="answer-panel empty">
           <div className="empty-message">
-            <p>原文カラム上で返り点を入力してください</p>
-            {isAdmin && <p>模範解答も原文カラム上で登録できます</p>}
+            <p>左の原文から演習する行を選んでください</p>
+            {isAdmin && <p>模範解答の編集は左カラム上で行えます</p>}
           </div>
         </div>
       </div>

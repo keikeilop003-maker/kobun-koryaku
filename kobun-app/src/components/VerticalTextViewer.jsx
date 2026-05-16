@@ -283,7 +283,7 @@ function createSectionKaeritenTarget(section) {
   };
 }
 
-function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTarget, isKanbun, sourceTextStyle, practiceMode = true }) {
+function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTarget, isKanbun, sourceTextStyle, practiceMode = true, onSelectLine }) {
   const range = findTargetRange(section, target);
   const chars = kaeritenChars(target.surface);
   const initialUser = parseKaeritenAnswer('', target.surface);
@@ -342,7 +342,9 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
     }
   };
 
-  const sourceChars = Array.from(section.text ?? '');
+  const sourceText = section.text ?? '';
+  const sourceChars = Array.from(sourceText);
+  const sourceLines = String(sourceText).split(/\r?\n/);
   const markLineIndexes = [];
   let scanLineIndex = 0;
   let scanMarkIndex = -1;
@@ -361,14 +363,29 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   });
 
   const lineAnswer = (lineIndex, sourceMarks, sourceHyphens) => {
-    const keep = new Set(markLineIndexes
+    const indexes = markLineIndexes
       .map((item, index) => item === lineIndex ? index : null)
-      .filter(Number.isInteger));
+      .filter(Number.isInteger);
+    const localIndexByGlobal = new Map(indexes.map((globalIndex, localIndex) => [globalIndex, localIndex]));
     return serializeKaeritenAnswer({
-      marks: sourceMarks.map((mark, index) => keep.has(index) ? mark : ''),
-      hyphens: [...sourceHyphens].filter(index => keep.has(index) && keep.has(index + 1)),
-    }, target.surface);
+      marks: indexes.map(index => sourceMarks[index] ?? ''),
+      hyphens: [...sourceHyphens]
+        .filter(index => localIndexByGlobal.has(index) && localIndexByGlobal.has(index + 1))
+        .map(index => localIndexByGlobal.get(index)),
+    }, sourceLines[lineIndex] ?? '');
   };
+
+  const makeLineTarget = (lineIndex) => ({
+    ...target,
+    id: `${target.id}-line-${lineIndex}`,
+    parentTargetId: target.id,
+    lineIndex,
+    surface: sourceLines[lineIndex] ?? '',
+    questionSurface: `${lineIndex + 1}\u884c\u76ee`,
+    questionText: `${lineIndex + 1}\u884c\u76ee\u306b\u8fd4\u308a\u70b9\u3092\u632f\u308b`,
+    answer: lineAnswer(lineIndex, answer.marks, new Set(answer.hyphens)),
+    gradingMode: 'local',
+  });
 
   const submitLine = async (lineIndex) => {
     const current = lineAnswer(lineIndex, marks, hyphens);
@@ -435,18 +452,12 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
     const currentIndex = markIndex;
     const hasHyphenSlot = currentIndex < chars.length - 1;
     const lineIndex = markLineIndexes[currentIndex] ?? currentLineIndex;
-    const lineCheck = !editingAnswer && practiceMode && firstMarkByLine.get(lineIndex) === currentIndex ? (
-      <span className="kaeriten-line-check-inline" key={'line-check-' + lineIndex}>
-        <button type="button" onClick={() => submitLine(lineIndex)}>{lineIndex + 1}{'\u884c'}</button>
-        {lineJudgements[lineIndex] && (
-          <strong className={'kaeriten-inline-judge ' + (lineJudgements[lineIndex] === '\u6b63\u89e3' ? 'correct' : 'wrong')}>
-            {lineJudgements[lineIndex]}
-          </strong>
-        )}
-      </span>
-    ) : null;
+    const lineCheck = null;
+    const selectLine = () => {
+      if (practiceMode && !editingAnswer) onSelectLine?.(makeLineTarget(lineIndex), section);
+    };
     return (
-      <span className="kaeriten-source-group" key={index}>
+      <span className={`kaeriten-source-group${practiceMode && !editingAnswer ? ' kaeriten-source-group--selectable' : ''}`} key={index} onClick={selectLine}>
         {lineCheck}
         <span className="kaeriten-source-unit" data-line={lineIndex}>
           <span className="kaeriten-source-char">{char}</span>
@@ -489,7 +500,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
       <div className={`vertical-text vertical-text--kaeriten-source${isKanbun ? ' vertical-text--kanbun' : ''}`} style={sourceTextStyle}>
         {nodes}
       </div>
-      {practiceMode && <div className="kaeriten-source-controls">
+      {practiceMode && isAdmin && <div className="kaeriten-source-controls">
         {answerHasHyphen && !editingAnswer && <span className="kaeriten-hyphen-note">※ハイフンを使用する必要があります</span>}
         {!editingAnswer && answerHasHyphen && (
           <button type="button" className={hyphenMode ? 'active' : ''} onClick={() => setHyphenMode(value => !value)}>
@@ -1141,6 +1152,7 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
               isKanbun={isKanbun}
               sourceTextStyle={sourceTextStyle}
               practiceMode={activeType === 'kaeriten'}
+              onSelectLine={onSelectTarget}
             />
           ) : activeType === 'kaeriten' && isAdmin && !section.sectionless ? (
             <>

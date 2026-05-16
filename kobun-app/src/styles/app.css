@@ -1329,6 +1329,136 @@ body {
   font-weight: bold;
 }
 
+.kaeriten-line-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.kaeriten-line-stage {
+  overflow: auto;
+  min-height: 14rem;
+  padding: 18px 28px;
+  border: 1px solid #d7d0bd;
+  border-radius: 6px;
+  background: #fffdf8;
+}
+
+.kaeriten-line-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  color: #1f1a13;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+  font-size: 1.764rem;
+  line-height: 1.85;
+}
+
+.kaeriten-line-unit {
+  position: relative;
+  display: inline-block;
+  min-width: 1.35em;
+  min-height: 1.45em;
+}
+
+.kaeriten-line-char {
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  line-height: inherit;
+  padding: 0;
+}
+
+.kaeriten-line-char.active {
+  border-color: #7ca4df;
+  background: rgba(124, 164, 223, 0.12);
+}
+
+.kaeriten-line-mark {
+  writing-mode: horizontal-tb;
+  position: absolute;
+  left: calc(-1.05em + 20px);
+  bottom: calc(-0.58em + 3px);
+  min-width: 1.9em;
+  color: #2e4f12;
+  font-size: 0.52em;
+  font-weight: bold;
+  line-height: 1;
+  text-align: center;
+}
+
+.kaeriten-line-hyphen {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  position: absolute;
+  left: 50%;
+  bottom: -0.82em;
+  width: 1.2em;
+  height: 1.45em;
+  transform: translateX(-50%);
+  border: 1px dashed #b7c59b;
+  border-radius: 3px;
+  background: #fafcf6;
+  color: #2e4f12;
+  cursor: pointer;
+  font-size: 0.42em;
+  font-weight: bold;
+  line-height: 1;
+  padding: 0;
+}
+
+.kaeriten-line-hyphen:disabled {
+  cursor: default;
+  opacity: 0.28;
+}
+
+.kaeriten-line-hyphen.active {
+  border-color: transparent;
+  background: transparent;
+  font-size: 1.26em;
+}
+
+.kaeriten-line-controls {
+  display: grid;
+  grid-template-columns: auto minmax(8rem, 1fr) auto auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.kaeriten-selected-char {
+  min-width: 2.25rem;
+  padding: 4px 8px;
+  border: 1px solid #cfc7b6;
+  border-radius: 4px;
+  background: #fffdf8;
+  color: #1f1a13;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.kaeriten-line-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #555;
+  font-size: 0.78rem;
+  font-weight: bold;
+}
+
+.kaeriten-line-controls select {
+  border: 1px solid #cfc7b6;
+  border-radius: 4px;
+  background: #fff;
+  color: #1f1a13;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 6px 8px;
+}
+
 .vertical-text--kaeriten-source {
   overflow: visible;
 }
@@ -1342,6 +1472,16 @@ body {
 
 .kaeriten-source-group {
   display: inline-block;
+}
+
+.kaeriten-source-group--selectable {
+  cursor: pointer;
+}
+
+.kaeriten-source-group--selectable:hover .kaeriten-source-char {
+  color: #174c8f;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 .kaeriten-source-char {
