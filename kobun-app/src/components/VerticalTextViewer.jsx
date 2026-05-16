@@ -741,33 +741,36 @@ function KanbunSyntaxDisplay({ syntax }) {
         if (!item.base) return null;
         let hanIndex = -1;
         return (
-          <div className="kanbun-syntax-view-scroll" key={`syntax-${itemIndex}`}>
-            <div className="kanbun-syntax-vertical">
-              {kanbunSyntaxChars(item.base).map((char, sourceIndex) => {
-                if (!isKanbunSyntaxEditableChar(char)) {
-                  return <span className="kanbun-syntax-symbol" key={sourceIndex}>{char}</span>;
-                }
-                hanIndex += 1;
-                const mark = item.marks[hanIndex] ?? '';
-                const okuri = item.okurigana[hanIndex] ?? '';
-                const furigana = item.furigana[hanIndex] ?? '';
-                const unitStyle = {
-                  '--syntax-mark-x': '7px',
-                  '--syntax-mark-y': `${item.markY[hanIndex] ?? 0}px`,
-                  '--syntax-okuri-x': `${item.okuriganaX[hanIndex] ?? 0}px`,
-                  '--syntax-okuri-y': `${item.okuriganaY[hanIndex] ?? 0}px`,
-                  '--syntax-furi-x': '-10px',
-                  '--syntax-furi-y': `${item.furiganaY[hanIndex] ?? 0}px`,
-                };
-                return (
-                  <span className="kanbun-syntax-unit" key={sourceIndex} style={unitStyle}>
-                    <span className="kanbun-syntax-char">{char}</span>
-                    {furigana && <span className="kanbun-syntax-furigana">{furigana}</span>}
-                    {mark && <span className="kanbun-syntax-mark">{mark}</span>}
-                    {okuri && <span className="kanbun-syntax-okurigana">{okuri}</span>}
-                  </span>
-                );
-              })}
+          <div className="kanbun-syntax-display-item" key={`syntax-${itemIndex}`}>
+            <div className="kanbun-syntax-number">{itemIndex + 1}</div>
+            <div className="kanbun-syntax-view-scroll">
+              <div className="kanbun-syntax-vertical">
+                {kanbunSyntaxChars(item.base).map((char, sourceIndex) => {
+                  if (!isKanbunSyntaxEditableChar(char)) {
+                    return <span className="kanbun-syntax-symbol" key={sourceIndex}>{char}</span>;
+                  }
+                  hanIndex += 1;
+                  const mark = item.marks[hanIndex] ?? '';
+                  const okuri = item.okurigana[hanIndex] ?? '';
+                  const furigana = item.furigana[hanIndex] ?? '';
+                  const unitStyle = {
+                    '--syntax-mark-x': '7px',
+                    '--syntax-mark-y': `${item.markY[hanIndex] ?? 0}px`,
+                    '--syntax-okuri-x': `${item.okuriganaX[hanIndex] ?? 0}px`,
+                    '--syntax-okuri-y': `${item.okuriganaY[hanIndex] ?? 0}px`,
+                    '--syntax-furi-x': '-10px',
+                    '--syntax-furi-y': `${item.furiganaY[hanIndex] ?? 0}px`,
+                  };
+                  return (
+                    <span className="kanbun-syntax-unit" key={sourceIndex} style={unitStyle}>
+                      <span className="kanbun-syntax-char">{char}</span>
+                      {furigana && <span className="kanbun-syntax-furigana">{furigana}</span>}
+                      {mark && <span className="kanbun-syntax-mark">{mark}</span>}
+                      {okuri && <span className="kanbun-syntax-okurigana">{okuri}</span>}
+                    </span>
+                  );
+                })}
+              </div>
             </div>
           </div>
         );
