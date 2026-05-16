@@ -742,9 +742,9 @@ function KanbunSyntaxDisplay({ syntax }) {
         let hanIndex = -1;
         return (
           <div className="kanbun-syntax-display-item" key={`syntax-${itemIndex}`}>
-            <div className="kanbun-syntax-number">{itemIndex + 1}</div>
             <div className="kanbun-syntax-view-scroll">
               <div className="kanbun-syntax-vertical">
+                <span className="kanbun-syntax-number">{itemIndex + 1}</span>
                 {kanbunSyntaxChars(item.base).map((char, sourceIndex) => {
                   if (!isKanbunSyntaxEditableChar(char)) {
                     return <span className="kanbun-syntax-symbol" key={sourceIndex}>{char}</span>;

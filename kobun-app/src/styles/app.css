@@ -1536,23 +1536,27 @@ body {
 }
 
 .kanbun-syntax-display-item {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 8px;
-  align-items: start;
+  width: max-content;
+  max-width: 100%;
 }
 
 .kanbun-syntax-number {
-  min-width: 1.8rem;
-  padding: 4px 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25em;
+  min-height: 1.25em;
+  margin-bottom: 0.35em;
+  padding: 0.08em;
   border: 1px solid #d7d0bd;
   border-radius: 999px;
   background: #fffaf0;
   color: #2d3a5e;
-  font-size: 0.82rem;
+  font-size: 0.42em;
   font-weight: bold;
   line-height: 1;
   text-align: center;
+  writing-mode: horizontal-tb;
 }
 
 .kanbun-syntax-item-editor {
@@ -1601,6 +1605,8 @@ body {
   border: 1px solid #e2dac9;
   border-radius: 6px;
   background: #fff;
+  width: max-content;
+  max-width: 100%;
 }
 
 .kanbun-syntax-vertical {
