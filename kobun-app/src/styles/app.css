@@ -1338,10 +1338,10 @@ body {
 .kaeriten-line-stage {
   overflow: auto;
   min-height: 14rem;
-  padding: 18px 28px;
-  border: 1px solid #d7d0bd;
-  border-radius: 6px;
-  background: #fffdf8;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .kaeriten-line-source {
@@ -1349,6 +1349,8 @@ body {
   min-height: 14rem;
   margin-left: auto;
   margin-right: auto;
+  color: #2a2a2a;
+  letter-spacing: 0;
 }
 
 .kaeriten-source-char-button {
@@ -1363,8 +1365,9 @@ body {
 }
 
 .kaeriten-source-char-button.active {
-  border-color: #7ca4df;
-  background: rgba(124, 164, 223, 0.12);
+  border-color: transparent;
+  background: transparent;
+  color: #174c8f;
 }
 
 .kaeriten-line-source .kaeriten-source-hyphen:disabled:not(.active) {

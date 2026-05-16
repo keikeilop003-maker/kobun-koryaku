@@ -18,6 +18,10 @@ const SCORE_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar
 const ADMIN_ADD_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar', 'kaeriten']);
 const KAERITEN_MARK_OPTIONS = ['', '\u4e00', '\u4e8c', '\u4e09', '\u30ec', '\u4e0a', '\u4e0b'];
 
+function isKaeritenChar(char) {
+  return /^[\p{Script=Han}]$/u.test(char);
+}
+
 function targetOrder(section, target) {
   if (Number.isInteger(target.start)) return target.start;
   if (!target.surface) return Number.MAX_SAFE_INTEGER;
@@ -447,7 +451,9 @@ const GrammarForm = forwardRef(function GrammarForm({ target, section, onResult,
 
 // ── 返り点 ───────────────────────────────────────────────
 const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
-  const chars = kaeritenChars(target.surface || target.questionSurface);
+  const surfaceText = target.surface || target.questionSurface || '';
+  const displayChars = Array.from(surfaceText);
+  const chars = kaeritenChars(surfaceText);
   const initialAnswer = parseKaeritenAnswer(initialInputs?.ans, target.surface);
   const [marks, setMarks] = useState(() => chars.map((_, index) => initialAnswer.marks[index] ?? ''));
   const [hyphens, setHyphens] = useState(() => new Set(initialAnswer.hyphens));
@@ -504,26 +510,31 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
     <div className="form-group kaeriten-line-form" onFocus={() => onFocusTarget?.()}>
       <div className="kaeriten-line-stage source-text-pane">
         <div className="vertical-text vertical-text--kaeriten-source vertical-text--kanbun kaeriten-line-source">
-          {chars.map((char, index) => {
-            const hasVisibleMark = Boolean(marks[index]);
-            const hasVisibleHyphen = hyphens.has(index);
+          {(() => {
+            let hanIndex = -1;
+            return displayChars.map((char, sourceIndex) => {
+            if (!isKaeritenChar(char)) return <span className="kaeriten-source-char" key={sourceIndex}>{char}</span>;
+            hanIndex += 1;
+            const currentIndex = hanIndex;
+            const hasVisibleMark = Boolean(marks[currentIndex]);
+            const hasVisibleHyphen = hyphens.has(currentIndex);
             const needsAnnotationSpace = hasVisibleMark || hasVisibleHyphen;
             return (
-            <span className="kaeriten-source-group kaeriten-source-group--selectable" key={char + '-' + index}>
+            <span className="kaeriten-source-group kaeriten-source-group--selectable" key={char + '-' + sourceIndex}>
               <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`}>
               <button
                 type="button"
-                className={'kaeriten-source-char kaeriten-source-char-button' + (selectedIndex === index ? ' active' : '')}
-                onClick={() => setSelectedIndex(index)}
+                className={'kaeriten-source-char kaeriten-source-char-button' + (selectedIndex === currentIndex ? ' active' : '')}
+                onClick={() => setSelectedIndex(currentIndex)}
               >
                 {char}
               </button>
-              {hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display">{marks[index]}</span>}
-              {index < chars.length - 1 && (
+              {hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display">{marks[currentIndex]}</span>}
+              {currentIndex < chars.length - 1 && (
                 <button
                   type="button"
                   className={'kaeriten-source-hyphen' + (hasVisibleHyphen ? ' active' : '')}
-                  onClick={() => toggleHyphen(index)}
+                  onClick={() => toggleHyphen(currentIndex)}
                   disabled={!hyphenMode}
                   aria-label={char + '\u306e\u5f8c\u308d\u306b\u30cf\u30a4\u30d5\u30f3'}
                 >
@@ -533,7 +544,8 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
               </span>
             </span>
             );
-          })}
+          });
+          })()}
         </div>
       </div>
       <div className="kaeriten-line-controls">
