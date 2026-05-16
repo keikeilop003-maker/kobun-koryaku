@@ -1340,6 +1340,10 @@ body {
   min-height: 1.45em;
 }
 
+.kaeriten-source-group {
+  display: inline-block;
+}
+
 .kaeriten-source-char {
   display: inline-block;
 }
@@ -1366,6 +1370,12 @@ body {
 
 .kaeriten-source-input option {
   font-size: 1rem;
+}
+
+.kaeriten-source-mark-display {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .kaeriten-source-hyphen {
@@ -1458,6 +1468,34 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.kaeriten-line-check-inline {
+  writing-mode: horizontal-tb;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 0.35em;
+  vertical-align: top;
+}
+
+.kaeriten-line-check-inline button {
+  border: 1px solid #b8cdef;
+  border-radius: 4px;
+  background: #f2f6ff;
+  color: #174c8f;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.42em;
+  font-weight: bold;
+  line-height: 1;
+  padding: 3px 5px;
+  white-space: nowrap;
+}
+
+.kaeriten-line-check-inline .kaeriten-inline-judge {
+  font-size: 0.42em;
+  white-space: nowrap;
 }
 
 .kanbun-syntax-block {
