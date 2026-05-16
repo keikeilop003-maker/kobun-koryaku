@@ -533,16 +533,20 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
                   {char}
                 </button>
                 {isSelectedChar ? (
-                  <select
-                    className="kaeriten-source-input kaeriten-source-mark-select"
-                    value={marks[currentIndex] ?? ''}
-                    size={KAERITEN_MARK_OPTIONS.length}
-                    autoFocus
-                    onChange={(event) => updateMark(currentIndex, event.target.value)}
-                    aria-label={char + '\u306e\u8fd4\u308a\u70b9'}
-                  >
-                    {KAERITEN_MARK_OPTIONS.map(option => <option key={option || 'blank'} value={option}>{option || 'なし'}</option>)}
-                  </select>
+                  <span className="kaeriten-mark-choice-list" role="listbox" aria-label={char + '\u306e\u8fd4\u308a\u70b9'}>
+                    {KAERITEN_MARK_OPTIONS.map(option => (
+                      <button
+                        type="button"
+                        key={option || 'blank'}
+                        className={'kaeriten-mark-choice' + ((marks[currentIndex] ?? '') === option ? ' active' : '')}
+                        onClick={() => updateMark(currentIndex, option)}
+                        role="option"
+                        aria-selected={(marks[currentIndex] ?? '') === option}
+                      >
+                        {option || 'なし'}
+                      </button>
+                    ))}
+                  </span>
                 ) : (
                   hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display">{marks[currentIndex]}</span>
                 )}
