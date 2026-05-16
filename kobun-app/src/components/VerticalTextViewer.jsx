@@ -742,9 +742,9 @@ function KanbunSyntaxDisplay({ syntax }) {
         let hanIndex = -1;
         return (
           <div className="kanbun-syntax-display-item" key={`syntax-${itemIndex}`}>
+            <div className="kanbun-syntax-number">{itemIndex + 1}</div>
             <div className="kanbun-syntax-view-scroll">
               <div className="kanbun-syntax-vertical">
-                <span className="kanbun-syntax-number">{itemIndex + 1}</span>
                 {kanbunSyntaxChars(item.base).map((char, sourceIndex) => {
                   if (!isKanbunSyntaxEditableChar(char)) {
                     return <span className="kanbun-syntax-symbol" key={sourceIndex}>{char}</span>;
@@ -756,7 +756,7 @@ function KanbunSyntaxDisplay({ syntax }) {
                   const unitStyle = {
                     '--syntax-mark-x': '7px',
                     '--syntax-mark-y': `${item.markY[hanIndex] ?? 0}px`,
-                    '--syntax-okuri-x': `${item.okuriganaX[hanIndex] ?? 0}px`,
+                    '--syntax-okuri-x': '-5px',
                     '--syntax-okuri-y': `${item.okuriganaY[hanIndex] ?? 0}px`,
                     '--syntax-furi-x': '-10px',
                     '--syntax-furi-y': `${item.furiganaY[hanIndex] ?? 0}px`,
@@ -842,7 +842,7 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                     const unitStyle = {
                       '--syntax-mark-x': '7px',
                       '--syntax-mark-y': String(syntaxItem.markY[currentIndex] ?? 0) + 'px',
-                      '--syntax-okuri-x': String(syntaxItem.okuriganaX[currentIndex] ?? 0) + 'px',
+                      '--syntax-okuri-x': '-5px',
                       '--syntax-okuri-y': String(syntaxItem.okuriganaY[currentIndex] ?? 0) + 'px',
                       '--syntax-furi-x': '-10px',
                       '--syntax-furi-y': String(syntaxItem.furiganaY[currentIndex] ?? 0) + 'px',
@@ -886,7 +886,6 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                       />
                     </label>
                     <div className="kanbun-syntax-position-pair">
-                      <label>{'\u9001\u308a\u4eee\u540d'} X<input type="number" step="1" value={syntaxItem.okuriganaX[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'okuriganaX', selectedIndex, Number(event.target.value))} /></label>
                       <label>{'\u9001\u308a\u4eee\u540d'} Y<input type="number" step="1" value={syntaxItem.okuriganaY[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'okuriganaY', selectedIndex, Number(event.target.value))} /></label>
                     </div>
                     <label>
