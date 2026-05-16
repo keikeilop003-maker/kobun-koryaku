@@ -1376,7 +1376,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  left: calc(-1.05em + 15px);
+  left: calc(-1.05em + 20px);
   border-color: transparent;
   background: transparent;
   color: #2e4f12;
