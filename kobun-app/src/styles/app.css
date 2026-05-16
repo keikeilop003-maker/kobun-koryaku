@@ -1385,7 +1385,7 @@ body {
 
 .kaeriten-practice-instruction {
   min-height: 14rem;
-  margin-right: auto;
+  margin: 0;
 }
 
 .kaeriten-source-line-choice {
