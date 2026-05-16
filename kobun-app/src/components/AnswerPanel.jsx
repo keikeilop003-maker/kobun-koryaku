@@ -474,6 +474,7 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
   const updateMark = (index, value) => {
     const next = marks.map((item, itemIndex) => itemIndex === index ? value : item);
     setMarks(next);
+    setSelectedIndex(null);
     setResult(null);
     onInputChange?.({ ans: currentAnswer(next, hyphens), submitted });
   };

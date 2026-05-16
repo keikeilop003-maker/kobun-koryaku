@@ -1357,10 +1357,10 @@ body {
   display: flex;
   flex-direction: row-reverse;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 18px;
-  width: fit-content;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
 }
 
 .kaeriten-line-kundoku {
@@ -1386,11 +1386,12 @@ body {
 
 .kaeriten-practice-instruction {
   min-height: 14rem;
+  margin-right: auto;
 }
 
 .kaeriten-empty-vertical {
-  height: 16rem;
-  margin: 0 auto;
+  height: 24rem;
+  margin: 0 0 0 auto;
 }
 
 .kaeriten-source-line-choice {
