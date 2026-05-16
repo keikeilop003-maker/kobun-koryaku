@@ -119,7 +119,13 @@ function normalizeKanbunSyntaxItem(value) {
   const marks = Array.from({ length: hanCount }, (_, index) => normalizeSelectedKaeritenMark(value?.marks?.[index] ?? ''));
   const okurigana = Array.from({ length: hanCount }, (_, index) => String(value?.okurigana?.[index] ?? ''));
   const furigana = Array.from({ length: hanCount }, (_, index) => String(value?.furigana?.[index] ?? ''));
-  return { base, marks, okurigana, furigana };
+  const markX = Array.from({ length: hanCount }, (_, index) => Number(value?.markX?.[index] ?? 0));
+  const markY = Array.from({ length: hanCount }, (_, index) => Number(value?.markY?.[index] ?? 0));
+  const okuriganaX = Array.from({ length: hanCount }, (_, index) => Number(value?.okuriganaX?.[index] ?? 0));
+  const okuriganaY = Array.from({ length: hanCount }, (_, index) => Number(value?.okuriganaY?.[index] ?? 0));
+  const furiganaX = Array.from({ length: hanCount }, (_, index) => Number(value?.furiganaX?.[index] ?? 0));
+  const furiganaY = Array.from({ length: hanCount }, (_, index) => Number(value?.furiganaY?.[index] ?? 0));
+  return { base, marks, okurigana, furigana, markX, markY, okuriganaX, okuriganaY, furiganaX, furiganaY };
 }
 
 function emptyKanbunSyntaxItem() {
@@ -147,6 +153,12 @@ function resizeKanbunSyntaxAnnotations(base, previousItem) {
     marks: Array.from({ length: hanCount }, (_, index) => current.marks[index] ?? ''),
     okurigana: Array.from({ length: hanCount }, (_, index) => current.okurigana[index] ?? ''),
     furigana: Array.from({ length: hanCount }, (_, index) => current.furigana[index] ?? ''),
+    markX: Array.from({ length: hanCount }, (_, index) => current.markX[index] ?? 0),
+    markY: Array.from({ length: hanCount }, (_, index) => current.markY[index] ?? 0),
+    okuriganaX: Array.from({ length: hanCount }, (_, index) => current.okuriganaX[index] ?? 0),
+    okuriganaY: Array.from({ length: hanCount }, (_, index) => current.okuriganaY[index] ?? 0),
+    furiganaX: Array.from({ length: hanCount }, (_, index) => current.furiganaX[index] ?? 0),
+    furiganaY: Array.from({ length: hanCount }, (_, index) => current.furiganaY[index] ?? 0),
   };
 }
 
@@ -735,8 +747,16 @@ function KanbunSyntaxDisplay({ syntax }) {
                 const mark = item.marks[hanIndex] ?? '';
                 const okuri = item.okurigana[hanIndex] ?? '';
                 const furigana = item.furigana[hanIndex] ?? '';
+                const unitStyle = {
+                  '--syntax-mark-x': `${item.markX[hanIndex] ?? 0}px`,
+                  '--syntax-mark-y': `${item.markY[hanIndex] ?? 0}px`,
+                  '--syntax-okuri-x': `${item.okuriganaX[hanIndex] ?? 0}px`,
+                  '--syntax-okuri-y': `${item.okuriganaY[hanIndex] ?? 0}px`,
+                  '--syntax-furi-x': `${item.furiganaX[hanIndex] ?? 0}px`,
+                  '--syntax-furi-y': `${item.furiganaY[hanIndex] ?? 0}px`,
+                };
                 return (
-                  <span className="kanbun-syntax-unit" key={sourceIndex}>
+                  <span className="kanbun-syntax-unit" key={sourceIndex} style={unitStyle}>
                     <span className="kanbun-syntax-char">{char}</span>
                     {furigana && <span className="kanbun-syntax-furigana">{furigana}</span>}
                     {mark && <span className="kanbun-syntax-mark">{mark}</span>}
@@ -754,13 +774,17 @@ function KanbunSyntaxDisplay({ syntax }) {
 
 function KanbunSyntaxAnnotationEditor({ value, onChange }) {
   const data = normalizeKanbunSyntax(value);
+  const [selectedByItem, setSelectedByItem] = useState({});
   const updateSyntaxItem = (itemIndex, nextItem) => {
     onChange({
       ...data,
       items: data.items.map((item, index) => index === itemIndex ? normalizeKanbunSyntaxItem(nextItem) : item),
     });
   };
-  const updateBase = (itemIndex, base) => updateSyntaxItem(itemIndex, resizeKanbunSyntaxAnnotations(base, data.items[itemIndex]));
+  const updateBase = (itemIndex, base) => {
+    updateSyntaxItem(itemIndex, resizeKanbunSyntaxAnnotations(base, data.items[itemIndex]));
+    setSelectedByItem(current => ({ ...current, [itemIndex]: 0 }));
+  };
   const updateAnnotation = (itemIndex, field, annotationIndex, nextValue) => {
     const current = data.items[itemIndex];
     updateSyntaxItem(itemIndex, {
@@ -777,59 +801,108 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
   return (
     <div className="kanbun-syntax-builder">
       {data.items.map((syntaxItem, itemIndex) => {
+        const hanChars = kanbunSyntaxChars(syntaxItem.base).filter(isKaeritenSourceChar);
+        const selectedIndex = Math.min(selectedByItem[itemIndex] ?? 0, Math.max(hanChars.length - 1, 0));
+        const selectedChar = hanChars[selectedIndex] ?? '';
         let hanIndex = -1;
         return (
-          <div className="kanbun-syntax-item-editor" key={`syntax-editor-${itemIndex}`}>
+          <div className="kanbun-syntax-item-editor" key={'syntax-editor-' + itemIndex}>
             <div className="kanbun-syntax-item-header">
               <span>{'\u53e5\u6cd5'} {itemIndex + 1}</span>
               <button type="button" className="admin-secondary-btn" onClick={() => removeItem(itemIndex)}>{'\u524a\u9664'}</button>
             </div>
             <label className="kanbun-syntax-base-input">
-              {'\u6f22\u5b57\u30fb\u8a18\u53f7'}
+              {'\u6f22\u5b57\u30fb\u8a18\u53f7\u30fb\u53e5\u8aad\u70b9'}
               <textarea
                 rows={3}
                 value={syntaxItem.base}
                 onChange={(event) => updateBase(itemIndex, event.target.value)}
-                placeholder={'\u6f22\u5b57\u3068\u8a18\u53f7\u306e\u307f\u3092\u5165\u529b'}
+                placeholder={'\u6f22\u5b57\u30fb\u8a18\u53f7\u30fb\u53e5\u8aad\u70b9\u3092\u5165\u529b'}
               />
             </label>
-            <KanbunSyntaxDisplay syntax={{ version: 2, items: [syntaxItem] }} />
-            <div className="kanbun-syntax-annotation-grid">
-              {kanbunSyntaxChars(syntaxItem.base).map((char, sourceIndex) => {
-                if (!isKaeritenSourceChar(char)) return null;
-                hanIndex += 1;
-                const currentIndex = hanIndex;
-                return (
-                  <div className="kanbun-syntax-annotation-row" key={`${char}-${sourceIndex}`}>
-                    <span className="kanbun-syntax-annotation-char">{char}</span>
+            <div className="kanbun-syntax-layout-editor">
+              <div className="kanbun-syntax-canvas" aria-label={'\u53e5\u6cd5\u30d7\u30ec\u30d3\u30e5\u30fc'}>
+                <div className="kanbun-syntax-vertical kanbun-syntax-vertical-editor">
+                  {kanbunSyntaxChars(syntaxItem.base).map((char, sourceIndex) => {
+                    if (!isKaeritenSourceChar(char)) {
+                      return <span className="kanbun-syntax-symbol" key={sourceIndex}>{char}</span>;
+                    }
+                    hanIndex += 1;
+                    const currentIndex = hanIndex;
+                    const mark = syntaxItem.marks[currentIndex] ?? '';
+                    const okuri = syntaxItem.okurigana[currentIndex] ?? '';
+                    const furigana = syntaxItem.furigana[currentIndex] ?? '';
+                    const unitStyle = {
+                      '--syntax-mark-x': String(syntaxItem.markX[currentIndex] ?? 0) + 'px',
+                      '--syntax-mark-y': String(syntaxItem.markY[currentIndex] ?? 0) + 'px',
+                      '--syntax-okuri-x': String(syntaxItem.okuriganaX[currentIndex] ?? 0) + 'px',
+                      '--syntax-okuri-y': String(syntaxItem.okuriganaY[currentIndex] ?? 0) + 'px',
+                      '--syntax-furi-x': String(syntaxItem.furiganaX[currentIndex] ?? 0) + 'px',
+                      '--syntax-furi-y': String(syntaxItem.furiganaY[currentIndex] ?? 0) + 'px',
+                    };
+                    return (
+                      <button
+                        type="button"
+                        className={'kanbun-syntax-unit kanbun-syntax-editable-unit ' + (currentIndex === selectedIndex ? 'is-selected' : '')}
+                        key={sourceIndex}
+                        style={unitStyle}
+                        onClick={() => setSelectedByItem(current => ({ ...current, [itemIndex]: currentIndex }))}
+                      >
+                        <span className="kanbun-syntax-char">{char}</span>
+                        {furigana && <span className="kanbun-syntax-furigana">{furigana}</span>}
+                        {mark && <span className="kanbun-syntax-mark">{mark}</span>}
+                        {okuri && <span className="kanbun-syntax-okurigana">{okuri}</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="kanbun-syntax-control-panel">
+                {selectedChar ? (
+                  <>
+                    <div className="kanbun-syntax-selected-char">{selectedChar}</div>
                     <label>
                       {'\u632f\u308a\u4eee\u540d'}
                       <input
-                        value={syntaxItem.furigana[currentIndex] ?? ''}
-                        onChange={(event) => updateAnnotation(itemIndex, 'furigana', currentIndex, event.target.value)}
+                        value={syntaxItem.furigana[selectedIndex] ?? ''}
+                        onChange={(event) => updateAnnotation(itemIndex, 'furigana', selectedIndex, event.target.value)}
                       />
                     </label>
+                    <div className="kanbun-syntax-slider-pair">
+                      <label>{'\u632f\u308a\u4eee\u540d'} X<input type="range" min="-40" max="40" value={syntaxItem.furiganaX[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'furiganaX', selectedIndex, Number(event.target.value))} /></label>
+                      <label>{'\u632f\u308a\u4eee\u540d'} Y<input type="range" min="-40" max="40" value={syntaxItem.furiganaY[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'furiganaY', selectedIndex, Number(event.target.value))} /></label>
+                    </div>
+                    <label>
+                      {'\u9001\u308a\u4eee\u540d'}
+                      <input
+                        value={syntaxItem.okurigana[selectedIndex] ?? ''}
+                        onChange={(event) => updateAnnotation(itemIndex, 'okurigana', selectedIndex, event.target.value)}
+                      />
+                    </label>
+                    <div className="kanbun-syntax-slider-pair">
+                      <label>{'\u9001\u308a\u4eee\u540d'} X<input type="range" min="-40" max="40" value={syntaxItem.okuriganaX[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'okuriganaX', selectedIndex, Number(event.target.value))} /></label>
+                      <label>{'\u9001\u308a\u4eee\u540d'} Y<input type="range" min="-40" max="40" value={syntaxItem.okuriganaY[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'okuriganaY', selectedIndex, Number(event.target.value))} /></label>
+                    </div>
                     <label>
                       {'\u8fd4\u308a\u70b9'}
                       <select
-                        value={normalizeSelectedKaeritenMark(syntaxItem.marks[currentIndex] ?? '')}
-                        onChange={(event) => updateAnnotation(itemIndex, 'marks', currentIndex, event.target.value)}
+                        value={normalizeSelectedKaeritenMark(syntaxItem.marks[selectedIndex] ?? '')}
+                        onChange={(event) => updateAnnotation(itemIndex, 'marks', selectedIndex, event.target.value)}
                       >
                         {KAERITEN_MARK_OPTIONS.map(option => (
                           <option key={option || 'blank'} value={option}>{option}</option>
                         ))}
                       </select>
                     </label>
-                    <label>
-                      {'\u9001\u308a\u4eee\u540d'}
-                      <input
-                        value={syntaxItem.okurigana[currentIndex] ?? ''}
-                        onChange={(event) => updateAnnotation(itemIndex, 'okurigana', currentIndex, event.target.value)}
-                      />
-                    </label>
-                  </div>
-                );
-              })}
+                    <div className="kanbun-syntax-slider-pair">
+                      <label>{'\u8fd4\u308a\u70b9'} X<input type="range" min="-40" max="40" value={syntaxItem.markX[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'markX', selectedIndex, Number(event.target.value))} /></label>
+                      <label>{'\u8fd4\u308a\u70b9'} Y<input type="range" min="-40" max="40" value={syntaxItem.markY[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'markY', selectedIndex, Number(event.target.value))} /></label>
+                    </div>
+                  </>
+                ) : (
+                  <p className="kanbun-syntax-empty">{'\u6f22\u5b57\u3092\u5165\u529b\u3059\u308b\u3068\u3001\u3053\u3053\u3067\u6ce8\u8a18\u3092\u7de8\u96c6\u3067\u304d\u307e\u3059\u3002'}</p>
+                )}
+              </div>
             </div>
           </div>
         );

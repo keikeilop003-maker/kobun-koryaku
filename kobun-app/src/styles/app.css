@@ -1559,9 +1559,25 @@ body {
   align-self: flex-start;
 }
 
+.kanbun-syntax-layout-editor {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(240px, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.kanbun-syntax-canvas {
+  overflow: auto;
+  min-height: 340px;
+  padding: 22px 36px;
+  border: 1px solid #e2dac9;
+  border-radius: 6px;
+  background: #fff;
+}
+
 .kanbun-syntax-view-scroll {
   overflow-x: auto;
-  padding: 10px;
+  padding: 18px 28px;
   border: 1px solid #e2dac9;
   border-radius: 6px;
   background: #fff;
@@ -1573,15 +1589,39 @@ body {
   min-height: 9rem;
   color: #1f1a13;
   font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
-  font-size: 1.55rem;
-  line-height: 2.1;
+  font-size: 2.15rem;
+  line-height: 1.7;
+}
+
+.kanbun-syntax-vertical-editor {
+  min-height: 280px;
+  font-size: 2.35rem;
+  line-height: 1.85;
 }
 
 .kanbun-syntax-unit {
   position: relative;
   display: inline-block;
-  min-width: 1.25em;
-  min-height: 1.55em;
+  min-width: 1.35em;
+  min-height: 1.45em;
+  margin: 0.08em 0;
+  vertical-align: middle;
+}
+
+.kanbun-syntax-editable-unit {
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  line-height: inherit;
+  padding: 0;
+}
+
+.kanbun-syntax-editable-unit.is-selected {
+  border-color: #7ca4df;
+  background: rgba(124, 164, 223, 0.12);
 }
 
 .kanbun-syntax-char,
@@ -1592,8 +1632,8 @@ body {
 .kanbun-syntax-mark {
   writing-mode: horizontal-tb;
   position: absolute;
-  left: -0.42em;
-  bottom: -0.16em;
+  left: calc(-0.42em + var(--syntax-mark-x, 0px));
+  bottom: calc(-0.08em - var(--syntax-mark-y, 0px));
   min-width: 1.35em;
   color: #2e4f12;
   font-size: 0.48em;
@@ -1602,21 +1642,80 @@ body {
 }
 
 .kanbun-syntax-okurigana {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
   position: absolute;
-  right: -0.32em;
-  bottom: -0.08em;
+  right: calc(-0.42em - var(--syntax-okuri-x, 0px));
+  bottom: calc(-0.02em - var(--syntax-okuri-y, 0px));
   color: #5c4030;
   font-size: 0.48em;
   line-height: 1.1;
 }
 
 .kanbun-syntax-furigana {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
   position: absolute;
-  right: -0.78em;
-  top: -0.08em;
+  right: calc(-0.92em - var(--syntax-furi-x, 0px));
+  top: calc(-0.08em + var(--syntax-furi-y, 0px));
   color: #3f4d66;
   font-size: 0.36em;
   line-height: 1.05;
+}
+
+.kanbun-syntax-control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #e2dac9;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.kanbun-syntax-selected-char {
+  align-self: flex-start;
+  min-width: 2.25rem;
+  padding: 4px 8px;
+  border: 1px solid #cfc7b6;
+  border-radius: 4px;
+  background: #fffdf8;
+  color: #1f1a13;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.kanbun-syntax-control-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #555;
+  font-size: 0.72rem;
+  font-weight: bold;
+}
+
+.kanbun-syntax-control-panel input,
+.kanbun-syntax-control-panel select {
+  width: 100%;
+  border: 1px solid #cfc7b6;
+  border-radius: 4px;
+  background: #fff;
+  color: #1f1a13;
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 5px 6px;
+}
+
+.kanbun-syntax-control-panel input[type="range"] {
+  padding: 0;
+}
+
+.kanbun-syntax-slider-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
 .kanbun-syntax-annotation-grid {
@@ -1663,6 +1762,16 @@ body {
   font-family: inherit;
   font-size: 0.9rem;
   padding: 5px 6px;
+}
+
+@media (max-width: 760px) {
+  .kanbun-syntax-layout-editor {
+    grid-template-columns: 1fr;
+  }
+
+  .kanbun-syntax-canvas {
+    min-height: 280px;
+  }
 }
 
 .kanbun-syntax-empty {
