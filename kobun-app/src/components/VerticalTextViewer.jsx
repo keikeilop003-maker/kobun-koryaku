@@ -190,7 +190,7 @@ function longestLineLength(text) {
 function sectionTextStyle(sourceText, kundokuText, heightScale = 1, isKanbun = false) {
   const longest = Math.max(longestLineLength(sourceText), longestLineLength(kundokuText), 8);
   const sourceFontSizeRem = isKanbun ? 1.764 : 1.26;
-  return { '--source-text-height': `${(longest + 1) * 1.1 * sourceFontSizeRem * heightScale}rem` };
+  return { '--source-text-height': `calc(${(longest + 1) * 1.1 * sourceFontSizeRem * heightScale}rem + 30px)` };
 }
 
 function ReferenceBlock({ label, text }) {
