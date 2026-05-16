@@ -509,43 +509,50 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
   return (
     <div className="form-group kaeriten-line-form" onFocus={() => onFocusTarget?.()}>
       <div className="kaeriten-line-stage source-text-pane">
-        <div className="vertical-text vertical-text--kaeriten-source vertical-text--kanbun kaeriten-line-source">
-          {(() => {
-            let hanIndex = -1;
-            return displayChars.map((char, sourceIndex) => {
-            if (!isKaeritenChar(char)) return <span className="kaeriten-source-char" key={sourceIndex}>{char}</span>;
-            hanIndex += 1;
-            const currentIndex = hanIndex;
-            const hasVisibleMark = Boolean(marks[currentIndex]);
-            const hasVisibleHyphen = hyphens.has(currentIndex);
-            const needsAnnotationSpace = hasVisibleMark || hasVisibleHyphen;
-            return (
-            <span className="kaeriten-source-group kaeriten-source-group--selectable" key={char + '-' + sourceIndex}>
-              <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`}>
-              <button
-                type="button"
-                className={'kaeriten-source-char kaeriten-source-char-button' + (selectedIndex === currentIndex ? ' active' : '')}
-                onClick={() => setSelectedIndex(currentIndex)}
-              >
-                {char}
-              </button>
-              {hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display">{marks[currentIndex]}</span>}
-              {currentIndex < chars.length - 1 && (
+        <div className="kaeriten-line-display">
+          <div className="vertical-text vertical-text--kaeriten-source vertical-text--kanbun kaeriten-line-source">
+            {(() => {
+              let hanIndex = -1;
+              return displayChars.map((char, sourceIndex) => {
+              if (!isKaeritenChar(char)) return <span className="kaeriten-source-char" key={sourceIndex}>{char}</span>;
+              hanIndex += 1;
+              const currentIndex = hanIndex;
+              const hasVisibleMark = Boolean(marks[currentIndex]);
+              const hasVisibleHyphen = hyphens.has(currentIndex);
+              const needsAnnotationSpace = hasVisibleMark || hasVisibleHyphen;
+              return (
+              <span className="kaeriten-source-group kaeriten-source-group--selectable" key={char + '-' + sourceIndex}>
+                <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`}>
                 <button
                   type="button"
-                  className={'kaeriten-source-hyphen' + (hasVisibleHyphen ? ' active' : '')}
-                  onClick={() => toggleHyphen(currentIndex)}
-                  disabled={!hyphenMode}
-                  aria-label={char + '\u306e\u5f8c\u308d\u306b\u30cf\u30a4\u30d5\u30f3'}
+                  className={'kaeriten-source-char kaeriten-source-char-button' + (selectedIndex === currentIndex ? ' active' : '')}
+                  onClick={() => setSelectedIndex(currentIndex)}
                 >
-                  {hasVisibleHyphen ? '-' : ''}
+                  {char}
                 </button>
-              )}
+                {hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display">{marks[currentIndex]}</span>}
+                {currentIndex < chars.length - 1 && (
+                  <button
+                    type="button"
+                    className={'kaeriten-source-hyphen' + (hasVisibleHyphen ? ' active' : '')}
+                    onClick={() => toggleHyphen(currentIndex)}
+                    disabled={!hyphenMode}
+                    aria-label={char + '\u306e\u5f8c\u308d\u306b\u30cf\u30a4\u30d5\u30f3'}
+                  >
+                    {hasVisibleHyphen ? '-' : ''}
+                  </button>
+                )}
+                </span>
               </span>
-            </span>
-            );
-          });
-          })()}
+              );
+            });
+            })()}
+          </div>
+          {target.kundokuLine && (
+            <div className="kundoku-vertical-text kundoku-vertical-text--kanbun kaeriten-line-kundoku">
+              {target.kundokuLine}
+            </div>
+          )}
         </div>
       </div>
       <div className="kaeriten-line-controls">
@@ -573,7 +580,6 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
             <JudgeIcon judgement={result?.judgement} />
             {result?.judgement && <span className="judgement-text">{result.judgement}</span>}
           </div>
-          <div className="hint">{'\u6a21\u7bc4\u89e3\u7b54\uff1a'}<em>{'\u9078\u629e\u3057\u305f\u884c\u306e\u8fd4\u308a\u70b9\u3092\u78ba\u8a8d\u3057\u3066\u304f\u3060\u3055\u3044'}</em></div>
           {target.explanation && <div className="explanation">{target.explanation}</div>}
         </>
       )}

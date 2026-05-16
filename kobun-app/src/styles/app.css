@@ -1353,6 +1353,34 @@ body {
   letter-spacing: 0;
 }
 
+.kaeriten-line-display {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 18px;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.kaeriten-line-kundoku {
+  height: auto;
+  min-height: 14rem;
+  margin: 0;
+  font-size: 1.764rem;
+  letter-spacing: 0;
+}
+
+.kaeriten-source-line-choice {
+  display: inline-block;
+  cursor: pointer;
+  padding: 0 0.08em;
+}
+
+.kaeriten-source-line-choice:hover {
+  background: rgba(74, 111, 165, 0.08);
+}
+
 .form-group .kaeriten-line-source .kaeriten-source-char-button {
   appearance: none;
   align-self: auto;

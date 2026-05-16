@@ -380,6 +380,13 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   const sourceText = section.text ?? '';
   const sourceChars = Array.from(sourceText);
   const sourceLines = String(sourceText).split(/\r?\n/);
+  const kundokuLines = String(getKundoku(section) ?? '').split(/\r?\n/);
+  const lineStarts = [];
+  let lineStart = 0;
+  sourceLines.forEach((line) => {
+    lineStarts.push(lineStart);
+    lineStart += Array.from(line).length + 1;
+  });
   const markLineIndexes = [];
   let scanLineIndex = 0;
   let scanMarkIndex = -1;
@@ -416,6 +423,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
     parentTargetId: target.id,
     lineIndex,
     surface: sourceLines[lineIndex] ?? '',
+    kundokuLine: kundokuLines[lineIndex] ?? '',
     questionSurface: `${lineIndex + 1}\u884c\u76ee`,
     questionText: `${lineIndex + 1}\u884c\u76ee\u306b\u8fd4\u308a\u70b9\u3092\u632f\u308b`,
     answer: lineAnswer(lineIndex, answer.marks, new Set(answer.hyphens)),
@@ -479,10 +487,10 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
 
   let markIndex = -1;
   let currentLineIndex = 0;
-  const nodes = sourceChars.map((char, index) => {
+  const renderSourceChar = (char, index, key = index) => {
     if (char === '\n') currentLineIndex += 1;
     const inTarget = index >= range.start && index < range.end;
-    if (!inTarget || !isKaeritenSourceChar(char)) return <span key={index}>{char}</span>;
+    if (!inTarget || !isKaeritenSourceChar(char)) return <span key={key}>{char}</span>;
     markIndex += 1;
     const currentIndex = markIndex;
     const hasHyphenSlot = currentIndex < chars.length - 1;
@@ -495,7 +503,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
       if (practiceMode && !editingAnswer) onSelectLine?.(makeLineTarget(lineIndex), section);
     };
     return (
-      <span className={`kaeriten-source-group${practiceMode && !editingAnswer ? ' kaeriten-source-group--selectable' : ''}`} key={index} onClick={selectLine}>
+      <span className={`kaeriten-source-group${practiceMode && !editingAnswer ? ' kaeriten-source-group--selectable' : ''}`} key={key} onClick={selectLine}>
         {lineCheck}
         <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`} data-line={lineIndex}>
           <span className="kaeriten-source-char">{char}</span>
@@ -531,7 +539,24 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
         </span>
       </span>
     );
-  });
+  };
+
+  const nodes = practiceMode && !editingAnswer
+    ? sourceLines.flatMap((line, lineIndex) => {
+      const baseIndex = lineStarts[lineIndex] ?? 0;
+      const lineNodes = Array.from(line).map((char, offset) => renderSourceChar(char, baseIndex + offset, `${lineIndex}-${offset}`));
+      return [
+        <span
+          className="kaeriten-source-line-choice"
+          key={`line-${lineIndex}`}
+          onClick={() => onSelectLine?.(makeLineTarget(lineIndex), section)}
+        >
+          {lineNodes}
+        </span>,
+        lineIndex < sourceLines.length - 1 ? <span key={`break-${lineIndex}`}>{'\n'}</span> : null,
+      ];
+    })
+    : sourceChars.map((char, index) => renderSourceChar(char, index));
 
   return (
     <>
