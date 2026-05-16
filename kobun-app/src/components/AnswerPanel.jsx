@@ -17,6 +17,7 @@ const TYPE_LABEL = {
 const SCORE_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar', 'kaeriten']);
 const ADMIN_ADD_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar', 'kaeriten']);
 const KAERITEN_MARK_OPTIONS = ['', '\u4e00', '\u4e8c', '\u4e09', '\u30ec', '\u4e0a', '\u4e0b'];
+const KAERITEN_INSTRUCTION = '行を選択し、漢字を選択して返り点を付けてください。';
 
 function isKaeritenChar(char) {
   return /^[\p{Script=Han}]$/u.test(char);
@@ -510,7 +511,7 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
       <div className="kaeriten-line-stage source-text-pane">
         <div className="kaeriten-line-display">
           <div className="kaeriten-practice-instruction">
-            {'返り点を施す漢字を選択してください。選択後、施す返り点を選んでください。'}
+            {KAERITEN_INSTRUCTION}
           </div>
           <div className="vertical-text vertical-text--kaeriten-source vertical-text--kanbun kaeriten-line-source">
             {(() => {
@@ -832,7 +833,7 @@ export default function AnswerPanel({
         {adminTools ?? undoNotice}
         <div className="answer-panel empty">
           <div className="kaeriten-empty-vertical">
-            {'返り点を施す行を選択してください。'}
+            {KAERITEN_INSTRUCTION}
           </div>
         </div>
       </div>

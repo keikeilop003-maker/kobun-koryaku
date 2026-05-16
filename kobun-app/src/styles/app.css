@@ -1394,6 +1394,10 @@ body {
   margin: 0 0 0 auto;
 }
 
+.answer-panel.empty .kaeriten-empty-vertical {
+  height: 14rem;
+}
+
 .kaeriten-source-line-choice {
   display: inline-block;
   cursor: pointer;
