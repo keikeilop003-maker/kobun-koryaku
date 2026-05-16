@@ -1708,11 +1708,7 @@ body {
   padding: 5px 6px;
 }
 
-.kanbun-syntax-control-panel input[type="range"] {
-  padding: 0;
-}
-
-.kanbun-syntax-slider-pair {
+.kanbun-syntax-position-pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;

@@ -868,9 +868,9 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                         onChange={(event) => updateAnnotation(itemIndex, 'furigana', selectedIndex, event.target.value)}
                       />
                     </label>
-                    <div className="kanbun-syntax-slider-pair">
-                      <label>{'\u632f\u308a\u4eee\u540d'} X<input type="range" min="-40" max="40" value={syntaxItem.furiganaX[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'furiganaX', selectedIndex, Number(event.target.value))} /></label>
-                      <label>{'\u632f\u308a\u4eee\u540d'} Y<input type="range" min="-40" max="40" value={syntaxItem.furiganaY[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'furiganaY', selectedIndex, Number(event.target.value))} /></label>
+                    <div className="kanbun-syntax-position-pair">
+                      <label>{'\u632f\u308a\u4eee\u540d'} X<input type="number" step="1" value={syntaxItem.furiganaX[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'furiganaX', selectedIndex, Number(event.target.value))} /></label>
+                      <label>{'\u632f\u308a\u4eee\u540d'} Y<input type="number" step="1" value={syntaxItem.furiganaY[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'furiganaY', selectedIndex, Number(event.target.value))} /></label>
                     </div>
                     <label>
                       {'\u9001\u308a\u4eee\u540d'}
@@ -879,9 +879,9 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                         onChange={(event) => updateAnnotation(itemIndex, 'okurigana', selectedIndex, event.target.value)}
                       />
                     </label>
-                    <div className="kanbun-syntax-slider-pair">
-                      <label>{'\u9001\u308a\u4eee\u540d'} X<input type="range" min="-40" max="40" value={syntaxItem.okuriganaX[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'okuriganaX', selectedIndex, Number(event.target.value))} /></label>
-                      <label>{'\u9001\u308a\u4eee\u540d'} Y<input type="range" min="-40" max="40" value={syntaxItem.okuriganaY[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'okuriganaY', selectedIndex, Number(event.target.value))} /></label>
+                    <div className="kanbun-syntax-position-pair">
+                      <label>{'\u9001\u308a\u4eee\u540d'} X<input type="number" step="1" value={syntaxItem.okuriganaX[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'okuriganaX', selectedIndex, Number(event.target.value))} /></label>
+                      <label>{'\u9001\u308a\u4eee\u540d'} Y<input type="number" step="1" value={syntaxItem.okuriganaY[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'okuriganaY', selectedIndex, Number(event.target.value))} /></label>
                     </div>
                     <label>
                       {'\u8fd4\u308a\u70b9'}
@@ -894,9 +894,9 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                         ))}
                       </select>
                     </label>
-                    <div className="kanbun-syntax-slider-pair">
-                      <label>{'\u8fd4\u308a\u70b9'} X<input type="range" min="-40" max="40" value={syntaxItem.markX[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'markX', selectedIndex, Number(event.target.value))} /></label>
-                      <label>{'\u8fd4\u308a\u70b9'} Y<input type="range" min="-40" max="40" value={syntaxItem.markY[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'markY', selectedIndex, Number(event.target.value))} /></label>
+                    <div className="kanbun-syntax-position-pair">
+                      <label>{'\u8fd4\u308a\u70b9'} X<input type="number" step="1" value={syntaxItem.markX[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'markX', selectedIndex, Number(event.target.value))} /></label>
+                      <label>{'\u8fd4\u308a\u70b9'} Y<input type="number" step="1" value={syntaxItem.markY[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'markY', selectedIndex, Number(event.target.value))} /></label>
                     </div>
                   </>
                 ) : (
