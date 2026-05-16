@@ -1372,8 +1372,7 @@ body {
   letter-spacing: 0;
 }
 
-.kaeriten-practice-instruction,
-.kaeriten-empty-vertical {
+.kaeriten-practice-instruction {
   writing-mode: vertical-rl;
   text-orientation: mixed;
   white-space: pre-wrap;
@@ -1387,15 +1386,6 @@ body {
 .kaeriten-practice-instruction {
   min-height: 14rem;
   margin-right: auto;
-}
-
-.kaeriten-empty-vertical {
-  height: 24rem;
-  margin: 0 0 0 auto;
-}
-
-.answer-panel.empty .kaeriten-empty-vertical {
-  height: 14rem;
 }
 
 .kaeriten-source-line-choice {

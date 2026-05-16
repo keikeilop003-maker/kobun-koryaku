@@ -831,9 +831,15 @@ export default function AnswerPanel({
     return (
       <div className="answer-panel-list">
         {adminTools ?? undoNotice}
-        <div className="answer-panel empty">
-          <div className="kaeriten-empty-vertical">
-            {KAERITEN_INSTRUCTION}
+        <div className="question-card kaeriten-instruction-card">
+          <div className="form-group kaeriten-line-form">
+            <div className="kaeriten-line-stage source-text-pane">
+              <div className="kaeriten-line-display">
+                <div className="kaeriten-practice-instruction">
+                  {KAERITEN_INSTRUCTION}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
