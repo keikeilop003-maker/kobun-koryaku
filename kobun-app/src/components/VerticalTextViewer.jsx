@@ -167,6 +167,22 @@ function isKanbunText(text) {
   return normalized.length > 0 && /^[\p{Script=Han}]+$/u.test(normalized);
 }
 
+function isKanbunSection(section, isKanbunTextbook = false) {
+  return Boolean(
+    isKanbunTextbook ||
+    section?.isKanbun === true ||
+    ['textType', 'genre', 'category', 'kind', 'classicalType'].some(key => {
+      const value = String(section?.[key] ?? '').toLowerCase();
+      return value === 'kanbun' || value.includes('\u6f22\u6587');
+    }) ||
+    section?.kanbunSyntax ||
+    section?.syntaxGuide ||
+    section?.syntax ||
+    (section?.targets ?? []).some(target => target.type === 'kaeriten' || String(target.pos ?? '').includes('\u6f22\u6587')) ||
+    isKanbunText(section.text ?? '')
+  );
+}
+
 function longestLineLength(text) {
   return Math.max(...text.split(/\r?\n/).map(line => Array.from(line).length), 0);
 }
@@ -987,7 +1003,7 @@ function KanbunSyntaxBlock({ section, isAdmin, onUpdateSection }) {
   );
 }
 
-function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, sourceHeightScale }) {
+function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, sourceHeightScale, isKanbunTextbook }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
   const pinnedRef = useRef(null);
@@ -997,7 +1013,7 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
   const phrase = pinnedPhrase?.sectionId === section.id ? pinnedPhrase.text : null;
   const segments = buildSegments(section.text, section.targets ?? [], activeType, phrase);
   const kundoku = getKundoku(section);
-  const isKanbun = isKanbunText(section.text);
+  const isKanbun = isKanbunSection(section, isKanbunTextbook);
   const sourceTextStyle = sectionTextStyle(section.text, kundoku, sourceHeightScale, isKanbun);
   const kaeritenTarget = (section.targets ?? []).find(target => target.type === 'kaeriten');
 
@@ -1273,7 +1289,7 @@ function NotesTab({ textId, notes, sections, isAdmin, onUpdateSection }) {
   );
 }
 
-export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin }) {
+export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false }) {
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
   const visibleTab = activeTab;
@@ -1333,6 +1349,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
               onRecord={onRecord}
               onCreateTarget={onCreateTarget}
               sourceHeightScale={sourceHeightScale}
+              isKanbunTextbook={isKanbunTextbook}
             />
           ))
         ) : (

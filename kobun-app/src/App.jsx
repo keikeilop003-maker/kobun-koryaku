@@ -44,14 +44,34 @@ const LEGEND = [
 const KANBUN_HIDDEN_TYPES = new Set(['verb', 'adj', 'aux', 'particle']);
 
 function isKanbunText(text) {
-  const normalized = String(text ?? '').replace(/[\s、。，．・「」『』（）()〈〉《》！？!?]/g, '');
+  const normalized = String(text ?? '').replace(/[\s\u3001\u3002\uff0c\uff0e\u30fb\u300c\u300d\u300e\u300f\uff08\uff09()\u3008\u3009\u300a\u300b\uff01\uff1f!?]/g, '');
   return normalized.length > 0 && /^[\p{Script=Han}]+$/u.test(normalized);
 }
 
+function hasKanbunMetadata(item) {
+  if (item?.isKanbun === true) return true;
+  return ['textType', 'genre', 'category', 'kind', 'classicalType']
+    .some(key => {
+      const value = String(item?.[key] ?? '').toLowerCase();
+      return value === 'kanbun' || value.includes('\u6f22\u6587');
+    });
+}
+
+function sectionHasKanbunMetadata(section) {
+  return Boolean(
+    hasKanbunMetadata(section) ||
+    section?.kanbunSyntax ||
+    section?.syntaxGuide ||
+    section?.syntax ||
+    (section?.targets ?? []).some(target => target.type === 'kaeriten' || String(target.pos ?? '').includes('\u6f22\u6587')),
+  );
+}
+
 function isKanbunTextData(data) {
+  if (hasKanbunMetadata(data)) return true;
   return (data?.sections ?? [])
     .filter(section => !section.sectionless)
-    .some(section => isKanbunText(section.text));
+    .some(section => sectionHasKanbunMetadata(section) || isKanbunText(section.text));
 }
 
 function pointsForType(type) {
@@ -754,6 +774,7 @@ function AppInner() {
               onCreateTarget={handleCreateTarget}
               onBackToSelect={handleBackToSelect}
               onContactAdmin={() => setContactOpen(true)}
+              isKanbunTextbook={currentIsKanbun}
             />
           ) : null}
         </div>
