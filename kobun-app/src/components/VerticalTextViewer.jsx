@@ -1245,7 +1245,7 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
           )}
         </div>
       </SourceKundokuRow>
-      {isKanbun && (
+      {isKanbun && activeType === 'grammar' && (
         <KanbunSyntaxBlock
           section={section}
           isAdmin={isAdmin}
