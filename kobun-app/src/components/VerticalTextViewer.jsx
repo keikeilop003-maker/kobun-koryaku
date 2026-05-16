@@ -108,7 +108,7 @@ function kanbunSyntaxChars(base) {
 function kanbunSyntaxHanIndexes(base) {
   const indexes = [];
   kanbunSyntaxChars(base).forEach((char, sourceIndex) => {
-    if (isKaeritenSourceChar(char)) indexes.push(sourceIndex);
+    if (isKanbunSyntaxEditableChar(char)) indexes.push(sourceIndex);
   });
   return indexes;
 }
@@ -232,6 +232,10 @@ function SourceKundokuRow({ children, kundoku, showKundoku, onToggle, isKanbun, 
 
 function isKaeritenSourceChar(char) {
   return /^[\p{Script=Han}]$/u.test(char);
+}
+
+function isKanbunSyntaxEditableChar(char) {
+  return Boolean(char) && !/\s/u.test(char);
 }
 
 function normalizeSelectedKaeritenMark(value) {
@@ -740,7 +744,7 @@ function KanbunSyntaxDisplay({ syntax }) {
           <div className="kanbun-syntax-view-scroll" key={`syntax-${itemIndex}`}>
             <div className="kanbun-syntax-vertical">
               {kanbunSyntaxChars(item.base).map((char, sourceIndex) => {
-                if (!isKaeritenSourceChar(char)) {
+                if (!isKanbunSyntaxEditableChar(char)) {
                   return <span className="kanbun-syntax-symbol" key={sourceIndex}>{char}</span>;
                 }
                 hanIndex += 1;
@@ -748,11 +752,11 @@ function KanbunSyntaxDisplay({ syntax }) {
                 const okuri = item.okurigana[hanIndex] ?? '';
                 const furigana = item.furigana[hanIndex] ?? '';
                 const unitStyle = {
-                  '--syntax-mark-x': `${item.markX[hanIndex] ?? 0}px`,
+                  '--syntax-mark-x': '7px',
                   '--syntax-mark-y': `${item.markY[hanIndex] ?? 0}px`,
                   '--syntax-okuri-x': `${item.okuriganaX[hanIndex] ?? 0}px`,
                   '--syntax-okuri-y': `${item.okuriganaY[hanIndex] ?? 0}px`,
-                  '--syntax-furi-x': `${item.furiganaX[hanIndex] ?? 0}px`,
+                  '--syntax-furi-x': '-10px',
                   '--syntax-furi-y': `${item.furiganaY[hanIndex] ?? 0}px`,
                 };
                 return (
@@ -801,7 +805,7 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
   return (
     <div className="kanbun-syntax-builder">
       {data.items.map((syntaxItem, itemIndex) => {
-        const hanChars = kanbunSyntaxChars(syntaxItem.base).filter(isKaeritenSourceChar);
+        const hanChars = kanbunSyntaxChars(syntaxItem.base).filter(isKanbunSyntaxEditableChar);
         const selectedIndex = Math.min(selectedByItem[itemIndex] ?? 0, Math.max(hanChars.length - 1, 0));
         const selectedChar = hanChars[selectedIndex] ?? '';
         let hanIndex = -1;
@@ -824,7 +828,7 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
               <div className="kanbun-syntax-canvas" aria-label={'\u53e5\u6cd5\u30d7\u30ec\u30d3\u30e5\u30fc'}>
                 <div className="kanbun-syntax-vertical kanbun-syntax-vertical-editor">
                   {kanbunSyntaxChars(syntaxItem.base).map((char, sourceIndex) => {
-                    if (!isKaeritenSourceChar(char)) {
+                    if (!isKanbunSyntaxEditableChar(char)) {
                       return <span className="kanbun-syntax-symbol" key={sourceIndex}>{char}</span>;
                     }
                     hanIndex += 1;
@@ -833,11 +837,11 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                     const okuri = syntaxItem.okurigana[currentIndex] ?? '';
                     const furigana = syntaxItem.furigana[currentIndex] ?? '';
                     const unitStyle = {
-                      '--syntax-mark-x': String(syntaxItem.markX[currentIndex] ?? 0) + 'px',
+                      '--syntax-mark-x': '7px',
                       '--syntax-mark-y': String(syntaxItem.markY[currentIndex] ?? 0) + 'px',
                       '--syntax-okuri-x': String(syntaxItem.okuriganaX[currentIndex] ?? 0) + 'px',
                       '--syntax-okuri-y': String(syntaxItem.okuriganaY[currentIndex] ?? 0) + 'px',
-                      '--syntax-furi-x': String(syntaxItem.furiganaX[currentIndex] ?? 0) + 'px',
+                      '--syntax-furi-x': '-10px',
                       '--syntax-furi-y': String(syntaxItem.furiganaY[currentIndex] ?? 0) + 'px',
                     };
                     return (
@@ -869,7 +873,6 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                       />
                     </label>
                     <div className="kanbun-syntax-position-pair">
-                      <label>{'\u632f\u308a\u4eee\u540d'} X<input type="number" step="1" value={syntaxItem.furiganaX[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'furiganaX', selectedIndex, Number(event.target.value))} /></label>
                       <label>{'\u632f\u308a\u4eee\u540d'} Y<input type="number" step="1" value={syntaxItem.furiganaY[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'furiganaY', selectedIndex, Number(event.target.value))} /></label>
                     </div>
                     <label>
@@ -895,7 +898,6 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                       </select>
                     </label>
                     <div className="kanbun-syntax-position-pair">
-                      <label>{'\u8fd4\u308a\u70b9'} X<input type="number" step="1" value={syntaxItem.markX[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'markX', selectedIndex, Number(event.target.value))} /></label>
                       <label>{'\u8fd4\u308a\u70b9'} Y<input type="number" step="1" value={syntaxItem.markY[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'markY', selectedIndex, Number(event.target.value))} /></label>
                     </div>
                   </>
