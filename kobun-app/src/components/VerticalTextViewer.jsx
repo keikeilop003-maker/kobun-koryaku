@@ -293,11 +293,12 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   const [adminMarks, setAdminMarks] = useState(() => chars.map((_, index) => answer.marks[index] ?? ''));
   const [adminHyphens, setAdminHyphens] = useState(() => new Set(answer.hyphens));
   const [hyphenMode, setHyphenMode] = useState(false);
+  const [adminEditingAnswer, setAdminEditingAnswer] = useState(false);
   const [lineJudgements, setLineJudgements] = useState({});
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const answerHasHyphen = needsHyphen(target.answer, target.surface);
-  const editingAnswer = isAdmin && practiceMode;
+  const editingAnswer = isAdmin && practiceMode && adminEditingAnswer;
   const showingAnswer = !practiceMode && !editingAnswer;
 
   const selectedMarks = showingAnswer ? answer.marks : editingAnswer ? adminMarks : marks;
@@ -415,6 +416,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
         },
       });
       setMessage('保存しました');
+      setAdminEditingAnswer(false);
     } catch (err) {
       console.error('[kaeriten source save] failed:', err);
       setMessage('保存に失敗しました');
@@ -448,7 +450,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
         {lineCheck}
         <span className="kaeriten-source-unit" data-line={lineIndex}>
           <span className="kaeriten-source-char">{char}</span>
-          {showingAnswer ? (
+          {!editingAnswer ? (
             selectedMarks[currentIndex] && <span className="kaeriten-source-input kaeriten-source-mark-display">{selectedMarks[currentIndex]}</span>
           ) : (
             <select
@@ -463,7 +465,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
             </select>
           )}
           {hasHyphenSlot && (
-            showingAnswer ? (
+            !editingAnswer ? (
               selectedHyphens.has(currentIndex) && <span className="kaeriten-source-hyphen active">-</span>
             ) : (
               <button
@@ -494,10 +496,13 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
             ハイフンを入力
           </button>
         )}
-        {editingAnswer ? (
+        {isAdmin && !adminEditingAnswer ? (
+          <button type="button" onClick={() => setAdminEditingAnswer(true)}>{'\u6a21\u7bc4\u89e3\u7b54\u3092\u7de8\u96c6'}</button>
+        ) : editingAnswer ? (
           <>
             <span className="kaeriten-source-admin-label">{'\u6a21\u7bc4\u89e3\u7b54\u767b\u9332\u4e2d'}</span>
             <button type="button" onClick={saveAnswer} disabled={saving}>{saving ? '\u4fdd\u5b58\u4e2d...' : '\u6a21\u7bc4\u89e3\u7b54\u3092\u4fdd\u5b58'}</button>
+            <button type="button" className="admin-secondary-btn" onClick={() => { setAdminMarks(chars.map((_, index) => answer.marks[index] ?? '')); setAdminHyphens(new Set(answer.hyphens)); setAdminEditingAnswer(false); }} disabled={saving}>{'\u30ad\u30e3\u30f3\u30bb\u30eb'}</button>
             {message && <span className="admin-message">{message}</span>}
           </>
         ) : lineIndexes.length > 0 ? (
