@@ -452,6 +452,9 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
     const currentIndex = markIndex;
     const hasHyphenSlot = currentIndex < chars.length - 1;
     const lineIndex = markLineIndexes[currentIndex] ?? currentLineIndex;
+    const hasVisibleMark = Boolean(selectedMarks[currentIndex]);
+    const hasVisibleHyphen = selectedHyphens.has(currentIndex);
+    const needsAnnotationSpace = editingAnswer || hasVisibleMark || hasVisibleHyphen;
     const lineCheck = null;
     const selectLine = () => {
       if (practiceMode && !editingAnswer) onSelectLine?.(makeLineTarget(lineIndex), section);
@@ -459,10 +462,10 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
     return (
       <span className={`kaeriten-source-group${practiceMode && !editingAnswer ? ' kaeriten-source-group--selectable' : ''}`} key={index} onClick={selectLine}>
         {lineCheck}
-        <span className="kaeriten-source-unit" data-line={lineIndex}>
+        <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`} data-line={lineIndex}>
           <span className="kaeriten-source-char">{char}</span>
           {!editingAnswer ? (
-            selectedMarks[currentIndex] && <span className="kaeriten-source-input kaeriten-source-mark-display">{selectedMarks[currentIndex]}</span>
+            hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display">{selectedMarks[currentIndex]}</span>
           ) : (
             <select
               className="kaeriten-source-input"
@@ -477,16 +480,16 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
           )}
           {hasHyphenSlot && (
             !editingAnswer ? (
-              selectedHyphens.has(currentIndex) && <span className="kaeriten-source-hyphen active">-</span>
+              hasVisibleHyphen && <span className="kaeriten-source-hyphen active">-</span>
             ) : (
               <button
                 type="button"
-                className={'kaeriten-source-hyphen' + (selectedHyphens.has(currentIndex) ? ' active' : '')}
+                className={'kaeriten-source-hyphen' + (hasVisibleHyphen ? ' active' : '')}
                 disabled={!editingAnswer && !hyphenMode}
                 onClick={() => toggleHyphen(currentIndex)}
                 aria-label={char + '\u306e\u5f8c\u308d\u306b\u30cf\u30a4\u30d5\u30f3'}
               >
-                {selectedHyphens.has(currentIndex) ? '-' : ''}
+                {hasVisibleHyphen ? '-' : ''}
               </button>
             )
           )}

@@ -1466,6 +1466,9 @@ body {
 .kaeriten-source-unit {
   position: relative;
   display: inline-block;
+}
+
+.kaeriten-source-unit--annotated {
   min-width: 1.35em;
   min-height: 1.45em;
 }
