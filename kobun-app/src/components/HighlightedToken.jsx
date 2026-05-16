@@ -8,7 +8,7 @@ const TYPE_CONFIG = {
   grammar:  { label: '文法・句法', className: 'hl-grammar' },
 };
 
-export default function HighlightedToken({ target, isSelected, onClick, showAsAll }) {
+export default function HighlightedToken({ target, isSelected, onClick, showAsAll, children }) {
   const cfg = showAsAll
     ? TYPE_CONFIG.all
     : (TYPE_CONFIG[target.type] ?? { label: '?', className: '' });
@@ -22,7 +22,7 @@ export default function HighlightedToken({ target, isSelected, onClick, showAsAl
       tabIndex={0}
       onKeyDown={e => e.key === 'Enter' && onClick(target)}
     >
-      {target.surface}
+      {children ?? target.surface}
     </span>
   );
 }

@@ -62,15 +62,15 @@ function buildSegments(text, allTargets, activeType, pinnedPhrase) {
   let pos = 0;
   for (const { t, idx, end, pinned } of located) {
     if (idx < pos) continue;
-    if (idx > pos) segments.push({ type: 'plain', text: text.slice(pos, idx) });
+    if (idx > pos) segments.push({ type: 'plain', text: text.slice(pos, idx), start: pos, end: idx });
     if (pinned) {
-      segments.push({ type: 'pinned', text: t.surface });
+      segments.push({ type: 'pinned', text: t.surface, start: idx, end });
     } else {
-      segments.push({ type: 'target', target: t, showAsAll: activeType === 'all' });
+      segments.push({ type: 'target', target: t, showAsAll: activeType === 'all', start: idx, end });
     }
     pos = end;
   }
-  if (pos < text.length) segments.push({ type: 'plain', text: text.slice(pos) });
+  if (pos < text.length) segments.push({ type: 'plain', text: text.slice(pos), start: pos, end: text.length });
   return segments;
 }
 
@@ -281,6 +281,41 @@ function createSectionKaeritenTarget(section) {
     start: 0,
     end: surface.length,
   };
+}
+
+function buildKaeritenAnnotationMap(section, target) {
+  if (!target) return null;
+  const range = findTargetRange(section, target);
+  const answer = parseKaeritenAnswer(target.answer || emptyKaeritenAnswer(target.surface), target.surface);
+  const annotations = new Map();
+  let markIndex = -1;
+  Array.from(section.text ?? '').forEach((char, index) => {
+    const inTarget = index >= range.start && index < range.end;
+    if (!inTarget || !isKaeritenSourceChar(char)) return;
+    markIndex += 1;
+    const mark = answer.marks[markIndex] ?? '';
+    const hasHyphen = answer.hyphens.includes(markIndex);
+    if (mark || hasHyphen) annotations.set(index, { mark, hasHyphen });
+  });
+  return annotations;
+}
+
+function AnnotatedSourceText({ text, start = 0, annotations }) {
+  if (!annotations) return text ?? '';
+  return Array.from(text ?? '').map((char, offset) => {
+    const annotation = annotations?.get(start + offset);
+    if (!annotation) return <span key={offset}>{char}</span>;
+    const needsAnnotationSpace = Boolean(annotation.mark || annotation.hasHyphen);
+    return (
+      <span className="kaeriten-source-group" key={offset}>
+        <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`}>
+          <span className="kaeriten-source-char">{char}</span>
+          {annotation.mark && <span className="kaeriten-source-input kaeriten-source-mark-display">{annotation.mark}</span>}
+          {annotation.hasHyphen && <span className="kaeriten-source-hyphen active">-</span>}
+        </span>
+      </span>
+    );
+  });
 }
 
 function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTarget, isKanbun, sourceTextStyle, practiceMode = true, onSelectLine }) {
@@ -1035,6 +1070,8 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
   const isKanbun = isKanbunSection(section, isKanbunTextbook);
   const sourceTextStyle = sectionTextStyle(section.text, kundoku, sourceHeightScale, isKanbun);
   const kaeritenTarget = (section.targets ?? []).find(target => target.type === 'kaeriten');
+  const showKaeritenAnnotations = isKanbun && kaeritenTarget && (activeType === 'vocab' || activeType === 'grammar');
+  const kaeritenAnnotations = showKaeritenAnnotations ? buildKaeritenAnnotationMap(section, kaeritenTarget) : null;
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -1176,9 +1213,13 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
             >
               {segments.map((seg, i) =>
                 seg.type === 'plain' ? (
-                  <span key={i}>{seg.text}</span>
+                  <span key={i}>
+                    <AnnotatedSourceText text={seg.text} start={seg.start} annotations={kaeritenAnnotations} />
+                  </span>
                 ) : seg.type === 'pinned' ? (
-                  <span key={i} className="pinned-translation" ref={pinnedRef}>{seg.text}</span>
+                  <span key={i} className="pinned-translation" ref={pinnedRef}>
+                    <AnnotatedSourceText text={seg.text} start={seg.start} annotations={kaeritenAnnotations} />
+                  </span>
                 ) : seg.target.type === 'kaeriten' && activeType === 'kaeriten' ? (
                   <KaeritenInlineExercise
                     key={`${seg.target.id}-kaeriten`}
@@ -1195,7 +1236,9 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
                     isSelected={isSelected(seg.target)}
                     onClick={t => onSelectTarget(t, section)}
                     showAsAll={seg.showAsAll}
-                  />
+                  >
+                    <AnnotatedSourceText text={seg.target.surface} start={seg.start} annotations={kaeritenAnnotations} />
+                  </HighlightedToken>
                 )
               )}
             </div>
