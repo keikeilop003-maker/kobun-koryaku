@@ -510,9 +510,7 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
     <div className="form-group kaeriten-line-form" onFocus={() => onFocusTarget?.()}>
       <div className="kaeriten-line-stage source-text-pane">
         <div className="kaeriten-line-display">
-          <div className="kaeriten-practice-instruction">
-            {KAERITEN_INSTRUCTION}
-          </div>
+          <InstructionLane />
           <div className="vertical-text vertical-text--kaeriten-source vertical-text--kanbun kaeriten-line-source">
             {(() => {
               let hanIndex = -1;
@@ -594,6 +592,16 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
     </div>
   );
 });
+
+function InstructionLane() {
+  return (
+    <aside className="kaeriten-instruction-lane" aria-label="返り点演習の指示">
+      <div className="kaeriten-practice-instruction">
+        {KAERITEN_INSTRUCTION}
+      </div>
+    </aside>
+  );
+}
 
 const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelected, initialFeedback, onHistoryUpdate, onAdvance, initialInputs, onInputChange, onFocusTarget, isAdmin, onDeleteTarget, onUpdateTarget, sections }, ref) {
   const [feedback, setFeedback] = useState(initialFeedback ?? null);
@@ -835,9 +843,7 @@ export default function AnswerPanel({
           <div className="form-group kaeriten-line-form">
             <div className="kaeriten-line-stage source-text-pane">
               <div className="kaeriten-line-display">
-                <div className="kaeriten-practice-instruction">
-                  {KAERITEN_INSTRUCTION}
-                </div>
+                <InstructionLane />
               </div>
             </div>
           </div>

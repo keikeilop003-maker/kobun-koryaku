@@ -1355,12 +1355,28 @@ body {
 
 .kaeriten-line-display {
   display: flex;
-  flex-direction: row-reverse;
+  flex-direction: row;
   align-items: flex-start;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 18px;
   width: 100%;
   margin: 0;
+}
+
+.kaeriten-instruction-lane {
+  flex: 0 0 2.2rem;
+  order: 0;
+  display: flex;
+  justify-content: flex-start;
+  min-height: 14rem;
+}
+
+.kaeriten-line-source {
+  order: 1;
+}
+
+.kaeriten-line-kundoku {
+  order: 2;
 }
 
 .kaeriten-line-kundoku {
