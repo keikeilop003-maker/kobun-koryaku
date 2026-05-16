@@ -1353,21 +1353,38 @@ body {
   letter-spacing: 0;
 }
 
-.kaeriten-source-char-button {
-  border: 1px solid transparent;
-  border-radius: 4px;
+.form-group .kaeriten-line-source .kaeriten-source-char-button {
+  appearance: none;
+  align-self: auto;
+  display: inline;
+  width: auto;
+  min-width: 0;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
   background: transparent;
+  box-shadow: none;
   color: inherit;
   cursor: pointer;
   font: inherit;
   line-height: inherit;
-  padding: 0;
+  text-align: inherit;
+  transition: none;
 }
 
-.kaeriten-source-char-button.active {
-  border-color: transparent;
+.form-group .kaeriten-line-source .kaeriten-source-char-button:hover,
+.form-group .kaeriten-line-source .kaeriten-source-char-button:focus,
+.form-group .kaeriten-line-source .kaeriten-source-char-button.active {
+  outline: none;
+  border: 0;
   background: transparent;
-  color: #174c8f;
+  box-shadow: none;
+  color: inherit;
+  filter: none;
+  transform: none;
 }
 
 .kaeriten-line-source .kaeriten-source-hyphen:disabled:not(.active) {
