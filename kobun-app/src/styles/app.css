@@ -1376,7 +1376,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  left: calc(-1.05em + 5px);
+  left: calc(-1.05em + 10px);
   border-color: transparent;
   background: transparent;
   color: #2e4f12;
@@ -1417,6 +1417,7 @@ body {
 span.kaeriten-source-hyphen.active {
   border-color: transparent;
   background: transparent;
+  font-size: 1.26em;
 }
 
 .kaeriten-source-controls,
