@@ -105,6 +105,12 @@ function kanbunSyntaxChars(base) {
   return Array.from(base ?? '');
 }
 
+function verticalOkuriganaText(value) {
+  return String(value ?? '')
+    .replace(/[（(]/g, '︵')
+    .replace(/[）)]/g, '︶');
+}
+
 function kanbunSyntaxHanIndexes(base) {
   const indexes = [];
   kanbunSyntaxChars(base).forEach((char, sourceIndex) => {
@@ -914,7 +920,7 @@ function KanbunSyntaxDisplay({ syntax, section, selectedTarget, onSelectTarget, 
                       <span className="kanbun-syntax-char">{char}</span>
                       {furigana && <span className="kanbun-syntax-furigana">{furigana}</span>}
                       {mark && <span className="kanbun-syntax-mark">{mark}</span>}
-                      {okuri && <span className="kanbun-syntax-okurigana">{okuri}</span>}
+                      {okuri && <span className="kanbun-syntax-okurigana">{verticalOkuriganaText(okuri)}</span>}
                     </span>
                   );
                 })}
@@ -1052,7 +1058,7 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                         <span className="kanbun-syntax-char">{char}</span>
                         {furigana && <span className="kanbun-syntax-furigana">{furigana}</span>}
                         {mark && <span className="kanbun-syntax-mark">{mark}</span>}
-                        {okuri && <span className="kanbun-syntax-okurigana">{okuri}</span>}
+                        {okuri && <span className="kanbun-syntax-okurigana">{verticalOkuriganaText(okuri)}</span>}
                       </button>
                     );
                   })}
