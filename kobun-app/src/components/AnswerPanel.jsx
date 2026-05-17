@@ -23,6 +23,18 @@ function isKaeritenChar(char) {
   return /^[\p{Script=Han}]$/u.test(char);
 }
 
+function KaeritenMarkDisplay({ mark }) {
+  if (mark === '一レ') {
+    return (
+      <span className="kaeriten-ichireten" aria-label="一レ">
+        <span>一</span>
+        <span>レ</span>
+      </span>
+    );
+  }
+  return mark;
+}
+
 function targetOrder(section, target) {
   if (Number.isFinite(target.order)) return target.order;
   if (Number.isInteger(target.start)) return target.start;
@@ -644,7 +656,7 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
                     )}
                   </span>
                 ) : (
-                  hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display">{marks[currentIndex]}</span>
+                  hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display"><KaeritenMarkDisplay mark={marks[currentIndex]} /></span>
                 )}
                 {currentIndex < chars.length - 1 && (
                   <button

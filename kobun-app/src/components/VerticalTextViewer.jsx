@@ -380,6 +380,18 @@ function normalizeSelectedKaeritenMark(value) {
   return KAERITEN_MARK_OPTIONS.includes(value) ? value : '';
 }
 
+function KaeritenMarkDisplay({ mark }) {
+  if (mark === '一レ') {
+    return (
+      <span className="kaeriten-ichireten" aria-label="一レ">
+        <span>一</span>
+        <span>レ</span>
+      </span>
+    );
+  }
+  return mark;
+}
+
 function findTargetRange(section, target) {
   const text = section.text ?? '';
   const surface = target.surface ?? '';
@@ -432,7 +444,7 @@ function AnnotatedSourceText({ text, start = 0, annotations }) {
       <span className="kaeriten-source-group" key={offset}>
         <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`}>
           <span className="kaeriten-source-char">{char}</span>
-          {annotation.mark && <span className="kaeriten-source-input kaeriten-source-mark-display">{annotation.mark}</span>}
+          {annotation.mark && <span className="kaeriten-source-input kaeriten-source-mark-display"><KaeritenMarkDisplay mark={annotation.mark} /></span>}
           {annotation.hasHyphen && <span className="kaeriten-source-hyphen active">-</span>}
         </span>
       </span>
@@ -632,7 +644,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
         <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`} data-line={lineIndex}>
           <span className="kaeriten-source-char">{char}</span>
           {!editingAnswer ? (
-            hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display">{visibleMark}</span>
+            hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display"><KaeritenMarkDisplay mark={visibleMark} /></span>
           ) : (
             <select
               className="kaeriten-source-input"
