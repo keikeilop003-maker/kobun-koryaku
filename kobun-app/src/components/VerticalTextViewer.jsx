@@ -198,6 +198,21 @@ function kanbunSyntaxQuestionTarget(section, item, itemIndex) {
   };
 }
 
+function selectedSyntaxSourceTarget(section, selectedTarget) {
+  if (!section || !selectedTarget?.generated || selectedTarget.type !== 'grammar') return null;
+  if (!String(selectedTarget.id ?? '').startsWith(`kanbun-syntax-${section.id}-`)) return null;
+  const surface = String(selectedTarget.surface ?? selectedTarget.questionSurface ?? '').trim();
+  if (!surface) return null;
+  const match = findIgnoringLineBreaks(section.text ?? '', surface);
+  if (!match) return null;
+  return {
+    ...selectedTarget,
+    surface: section.text.slice(match.start, match.end),
+    start: match.start,
+    end: match.end,
+  };
+}
+
 function resizeKanbunSyntaxAnnotations(base, previousItem) {
   const current = normalizeKanbunSyntaxItem(previousItem);
   const hanCount = kanbunSyntaxHanIndexes(base).length;
@@ -1254,7 +1269,11 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
   const [showKundoku, setShowKundoku] = useState(false);
   const [editingSection, setEditingSection] = useState(false);
   const phrase = pinnedPhrase?.sectionId === section.id ? pinnedPhrase.text : null;
-  const segments = buildSegments(section.text, section.targets ?? [], activeType, phrase);
+  const syntaxSourceTarget = selectedSyntaxSourceTarget(section, selectedTarget);
+  const segmentTargets = syntaxSourceTarget
+    ? [syntaxSourceTarget, ...(section.targets ?? [])]
+    : (section.targets ?? []);
+  const segments = buildSegments(section.text, segmentTargets, activeType, phrase);
   const kundoku = getKundoku(section);
   const isKanbun = isKanbunSection(section, isKanbunTextbook);
   const sourceTextStyle = sectionTextStyle(section.text, kundoku, sourceHeightScale, isKanbun, compactKanbunSourceHeight);
