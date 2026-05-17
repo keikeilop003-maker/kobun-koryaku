@@ -24,10 +24,68 @@ function isKaeritenChar(char) {
 }
 
 function targetOrder(section, target) {
+  if (Number.isFinite(target.order)) return target.order;
   if (Number.isInteger(target.start)) return target.start;
   if (!target.surface) return Number.MAX_SAFE_INTEGER;
   const idx = section.text.indexOf(target.surface);
   return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+}
+
+function parseKanbunSyntaxForQuestions(value) {
+  if (value && typeof value === 'object') {
+    return Array.isArray(value.items) ? value.items : [value];
+  }
+  const text = String(value ?? '').trim();
+  if (!text) return [];
+  if (text.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(text);
+      return Array.isArray(parsed?.items) ? parsed.items : [parsed];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+function kanbunSyntaxAnswer(item) {
+  const usage = String(item?.usage ?? item?.function ?? '').trim();
+  const translation = String(item?.translation ?? item?.meaning ?? '').trim();
+  if (!usage && !translation) return '';
+  if (usage && translation) return `用法：${usage}。訳し方：${translation}`;
+  return usage || translation;
+}
+
+function syntaxQuestionsForSection(section) {
+  const syntaxValue = section?.kanbunSyntax ?? section?.syntaxGuide ?? section?.syntax;
+  return parseKanbunSyntaxForQuestions(syntaxValue)
+    .map((item, itemIndex) => {
+      const surface = String(item?.base ?? item?.text ?? '').trim();
+      const answer = kanbunSyntaxAnswer(item);
+      if (!surface || !answer) return null;
+      const usage = String(item?.usage ?? item?.function ?? '').trim();
+      const translation = String(item?.translation ?? item?.meaning ?? '').trim();
+      return {
+        target: {
+          id: `kanbun-syntax-${section.id}-${itemIndex}`,
+          type: 'grammar',
+          surface,
+          questionSurface: `句法${itemIndex + 1}`,
+          questionText: `句法${itemIndex + 1}の用法と訳し方を答えなさい。`,
+          answer,
+          alternativeAnswers: [
+            usage && translation ? `${usage}。${translation}` : '',
+            usage && translation ? `${usage} ${translation}` : '',
+          ].filter(Boolean),
+          explanation: surface,
+          gradingMode: 'local',
+          generated: true,
+          order: Number.MAX_SAFE_INTEGER - 1000 + itemIndex,
+        },
+        section,
+      };
+    })
+    .filter(Boolean);
 }
 
 function sectionOrder(sections, section) {
@@ -640,7 +698,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
       {showPanelHeader && <div className="panel-header">
         <span className={`type-badge type-${target.type}`}>{TYPE_LABEL[target.type] ?? '問題'}</span>
         <QuestionHeader target={target} />
-        {isAdmin && (
+        {isAdmin && !target.generated && (
           <div className="admin-card-actions">
             <button
               type="button"
@@ -750,9 +808,12 @@ export default function AnswerPanel({
   const questions = useMemo(() => {
     if (activeType === 'all') return [];
     const all = sections.flatMap(section =>
-      (section.targets ?? [])
+      [
+        ...(section.targets ?? [])
         .filter(t => t.type === activeType)
-        .map(t => ({ target: t, section }))
+        .map(t => ({ target: t, section })),
+        ...(activeType === 'grammar' ? syntaxQuestionsForSection(section) : []),
+      ]
     );
     const seenGroups = new Set();
     return all.filter(({ target }) => {

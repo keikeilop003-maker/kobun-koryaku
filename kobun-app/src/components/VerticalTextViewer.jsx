@@ -125,7 +125,9 @@ function normalizeKanbunSyntaxItem(value) {
   const okuriganaY = Array.from({ length: hanCount }, (_, index) => Number(value?.okuriganaY?.[index] ?? 0));
   const furiganaX = Array.from({ length: hanCount }, (_, index) => Number(value?.furiganaX?.[index] ?? 0));
   const furiganaY = Array.from({ length: hanCount }, (_, index) => Number(value?.furiganaY?.[index] ?? 0));
-  return { base, marks, okurigana, furigana, markX, markY, okuriganaX, okuriganaY, furiganaX, furiganaY };
+  const usage = String(value?.usage ?? value?.function ?? '');
+  const translation = String(value?.translation ?? value?.meaning ?? '');
+  return { base, usage, translation, marks, okurigana, furigana, markX, markY, okuriganaX, okuriganaY, furiganaX, furiganaY };
 }
 
 function emptyKanbunSyntaxItem() {
@@ -943,6 +945,24 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                 placeholder={'\u6f22\u5b57\u30fb\u8a18\u53f7\u30fb\u53e5\u8aad\u70b9\u3092\u5165\u529b'}
               />
             </label>
+            <div className="kanbun-syntax-answer-fields">
+              <label>
+                {'\u7528\u6cd5'}
+                <input
+                  value={syntaxItem.usage ?? ''}
+                  onChange={(event) => updateSyntaxItem(itemIndex, { ...syntaxItem, usage: event.target.value })}
+                  placeholder={'\u4f8b\uff1a\u53cd\u8a9e\u30fb\u6bd4\u8f03\u30fb\u4f7f\u5f79'}
+                />
+              </label>
+              <label>
+                {'\u8a33\u3057\u65b9'}
+                <input
+                  value={syntaxItem.translation ?? ''}
+                  onChange={(event) => updateSyntaxItem(itemIndex, { ...syntaxItem, translation: event.target.value })}
+                  placeholder={'\u4f8b\uff1a\u3069\u3046\u3057\u3066\uff5e\u304b'}
+                />
+              </label>
+            </div>
             <div className="kanbun-syntax-layout-editor">
               <div className="kanbun-syntax-canvas" aria-label={'\u53e5\u6cd5\u30d7\u30ec\u30d3\u30e5\u30fc'}>
                 <div className="kanbun-syntax-vertical kanbun-syntax-vertical-editor">
