@@ -187,10 +187,10 @@ function longestLineLength(text) {
   return Math.max(...text.split(/\r?\n/).map(line => Array.from(line).length), 0);
 }
 
-function sectionTextStyle(sourceText, kundokuText, heightScale = 1, isKanbun = false) {
+function sectionTextStyle(sourceText, kundokuText, heightScale = 1, isKanbun = false, compactKanbunSourceHeight = false) {
   const longest = Math.max(
     longestLineLength(sourceText),
-    isKanbun ? 0 : longestLineLength(kundokuText),
+    isKanbun && compactKanbunSourceHeight ? 0 : longestLineLength(kundokuText),
     8,
   );
   const sourceFontSizeRem = isKanbun ? 1.764 : 1.26;
@@ -1088,7 +1088,7 @@ function KanbunSyntaxBlock({ section, isAdmin, onUpdateSection }) {
   );
 }
 
-function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, sourceHeightScale, isKanbunTextbook, correctKaeritenLines }) {
+function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, sourceHeightScale, isKanbunTextbook, compactKanbunSourceHeight, correctKaeritenLines }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
   const pinnedRef = useRef(null);
@@ -1099,7 +1099,7 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
   const segments = buildSegments(section.text, section.targets ?? [], activeType, phrase);
   const kundoku = getKundoku(section);
   const isKanbun = isKanbunSection(section, isKanbunTextbook);
-  const sourceTextStyle = sectionTextStyle(section.text, kundoku, sourceHeightScale, isKanbun);
+  const sourceTextStyle = sectionTextStyle(section.text, kundoku, sourceHeightScale, isKanbun, compactKanbunSourceHeight);
   const kaeritenTarget = (section.targets ?? []).find(target => target.type === 'kaeriten');
   const showKaeritenAnnotations = isKanbun && kaeritenTarget && (activeType === 'vocab' || activeType === 'grammar');
   const kaeritenAnnotations = showKaeritenAnnotations ? buildKaeritenAnnotationMap(section, kaeritenTarget) : null;
@@ -1389,6 +1389,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
   const visibleSections = sections.filter(section => !section.sectionless);
   const visibleTab = activeTab;
   const sourceHeightScale = textId === 'gyofunori' ? 0.63 : 1;
+  const compactKanbunSourceHeight = textId === 'mujun';
   const correctKaeritenLineKeys = useMemo(() => new Set(Object.keys(correctKaeritenLines).filter(key => correctKaeritenLines[key])), [correctKaeritenLines]);
 
   useEffect(() => {
@@ -1446,6 +1447,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
               onCreateTarget={onCreateTarget}
               sourceHeightScale={sourceHeightScale}
               isKanbunTextbook={isKanbunTextbook}
+              compactKanbunSourceHeight={compactKanbunSourceHeight}
               correctKaeritenLines={correctKaeritenLineKeys}
             />
           ))
