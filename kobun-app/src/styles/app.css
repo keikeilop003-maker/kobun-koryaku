@@ -1907,6 +1907,32 @@ span.kaeriten-source-hyphen.active {
   padding: 7px 8px;
 }
 
+.syntax-answer-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.syntax-answer-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #555;
+  font-size: 0.78rem;
+  font-weight: bold;
+}
+
+.syntax-answer-form input {
+  border: 1px solid #cfc7b6;
+  border-radius: 4px;
+  background: #fff;
+  color: #1f1a13;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 8px 10px;
+}
+
 .kanbun-syntax-builder {
   display: flex;
   flex-direction: column;
@@ -1927,6 +1953,22 @@ span.kaeriten-source-hyphen.active {
   flex: 0 0 auto;
   width: max-content;
   max-width: 100%;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  padding: 4px;
+}
+
+.kanbun-syntax-display-item.is-clickable {
+  cursor: pointer;
+}
+
+.kanbun-syntax-display-item.is-clickable:hover {
+  border-color: rgba(74, 111, 165, 0.28);
+}
+
+.kanbun-syntax-display-item.is-selected {
+  border-color: #174c8f;
+  background: rgba(124, 164, 223, 0.1);
 }
 
 .kanbun-syntax-number {

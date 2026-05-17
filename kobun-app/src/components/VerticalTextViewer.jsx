@@ -146,6 +146,18 @@ function serializeKanbunSyntax(value) {
   return JSON.stringify(normalizeKanbunSyntax(value));
 }
 
+function kanbunSyntaxQuestionTarget(section, item, itemIndex) {
+  const surface = String(item?.base ?? item?.text ?? '').trim();
+  return {
+    id: `kanbun-syntax-${section.id}-${itemIndex}`,
+    type: 'grammar',
+    surface,
+    questionSurface: surface,
+    generated: true,
+    order: Number.MAX_SAFE_INTEGER - 1000 + itemIndex,
+  };
+}
+
 function resizeKanbunSyntaxAnnotations(base, previousItem) {
   const current = normalizeKanbunSyntaxItem(previousItem);
   const hanCount = kanbunSyntaxHanIndexes(base).length;
@@ -848,7 +860,7 @@ function SectionEditor({ section, kundoku, onCancel, onSave }) {
   );
 }
 
-function KanbunSyntaxDisplay({ syntax }) {
+function KanbunSyntaxDisplay({ syntax, section, selectedTarget, onSelectTarget, activeType }) {
   const data = normalizeKanbunSyntax(syntax);
 
   if (!data.items.some(item => item.base)) return <p className="kanbun-syntax-empty">{'\u53e5\u6cd5\u306f\u672a\u767b\u9332\u3067\u3059\u3002'}</p>;
@@ -857,9 +869,21 @@ function KanbunSyntaxDisplay({ syntax }) {
     <div className="kanbun-syntax-display-list">
       {data.items.map((item, itemIndex) => {
         if (!item.base) return null;
+        const syntaxTarget = section ? kanbunSyntaxQuestionTarget(section, item, itemIndex) : null;
+        const selectable = activeType === 'grammar' && syntaxTarget;
+        const selected = selectable && selectedTarget?.id === syntaxTarget.id;
         let hanIndex = -1;
         return (
-          <div className="kanbun-syntax-display-item" key={`syntax-${itemIndex}`}>
+          <div
+            className={`kanbun-syntax-display-item${selectable ? ' is-clickable' : ''}${selected ? ' is-selected' : ''}`}
+            key={`syntax-${itemIndex}`}
+            role={selectable ? 'button' : undefined}
+            tabIndex={selectable ? 0 : undefined}
+            onClick={selectable ? () => onSelectTarget?.(syntaxTarget, section) : undefined}
+            onKeyDown={selectable ? (event) => {
+              if (event.key === 'Enter') onSelectTarget?.(syntaxTarget, section);
+            } : undefined}
+          >
             <div className="kanbun-syntax-number">{itemIndex + 1}</div>
             <div className="kanbun-syntax-view-scroll">
               <div className="kanbun-syntax-vertical">
@@ -1052,7 +1076,7 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
   );
 }
 
-function KanbunSyntaxBlock({ section, isAdmin, onUpdateSection }) {
+function KanbunSyntaxBlock({ section, isAdmin, onUpdateSection, selectedTarget, onSelectTarget, activeType }) {
   const initialText = getKanbunSyntax(section);
   const initialSyntax = parseKanbunSyntax(initialText);
   const [editing, setEditing] = useState(false);
@@ -1099,7 +1123,13 @@ function KanbunSyntaxBlock({ section, isAdmin, onUpdateSection }) {
           </div>
         </div>
       ) : initialSyntax.items.some(item => item.base) ? (
-        <KanbunSyntaxDisplay syntax={initialSyntax} />
+        <KanbunSyntaxDisplay
+          syntax={initialSyntax}
+          section={section}
+          selectedTarget={selectedTarget}
+          onSelectTarget={onSelectTarget}
+          activeType={activeType}
+        />
       ) : (
         <p className="kanbun-syntax-empty">句法は未登録です。</p>
       )}
@@ -1302,6 +1332,9 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
           section={section}
           isAdmin={isAdmin}
           onUpdateSection={onUpdateSection}
+          selectedTarget={selectedTarget}
+          onSelectTarget={onSelectTarget}
+          activeType={activeType}
         />
       )}
       {showModern ? (

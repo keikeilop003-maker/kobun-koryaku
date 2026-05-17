@@ -73,6 +73,8 @@ function syntaxQuestionsForSection(section) {
           questionSurface: surface,
           questionText: `「${surface}」の用法と訳し方を答えなさい。`,
           answer,
+          syntaxUsage: usage,
+          syntaxTranslation: translation,
           alternativeAnswers: [
             usage && translation ? `${usage}。${translation}` : '',
             usage && translation ? `${usage} ${translation}` : '',
@@ -657,6 +659,96 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
   );
 });
 
+const SyntaxGrammarForm = forwardRef(function SyntaxGrammarForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+  const [usage, setUsage] = useState(initialInputs?.usage ?? '');
+  const [translation, setTranslation] = useState(initialInputs?.translation ?? '');
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(initialInputs?.submitted ?? false);
+  const [result, setResult] = useState(initialResult ?? null);
+  const usageRef = useRef(null);
+  const translationRef = useRef(null);
+  const btnRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({ focus: () => usageRef.current?.focus() }));
+
+  const submit = async () => {
+    if (!usage.trim() && !translation.trim()) return;
+    setLoading(true);
+    const expectedUsage = target.syntaxUsage ?? '';
+    const expectedTranslation = target.syntaxTranslation ?? '';
+    const [usageResult, translationResult] = await Promise.all([
+      expectedUsage.trim()
+        ? reviewGrammar({ surface: target.surface, sentence: section.text, userAnswer: usage, correctAnswer: expectedUsage, acceptedAnswers: [], useAi: false })
+        : Promise.resolve({ judgement: usage.trim() ? '不正解' : '正解' }),
+      expectedTranslation.trim()
+        ? reviewGrammar({ surface: target.surface, sentence: section.text, userAnswer: translation, correctAnswer: expectedTranslation, acceptedAnswers: [], useAi: false })
+        : Promise.resolve({ judgement: translation.trim() ? '不正解' : '正解' }),
+    ]);
+    const judgements = [usageResult.judgement, translationResult.judgement];
+    const judgement = judgements.every(item => item === '正解')
+      ? '正解'
+      : judgements.some(item => item === '正解' || item === '部分正解') ? '部分正解' : '不正解';
+    const nextResult = {
+      judgement,
+      usage: usageResult,
+      translation: translationResult,
+    };
+    setLoading(false);
+    setSubmitted(true);
+    setResult(nextResult);
+    onInputChange?.({ usage, translation, submitted: true });
+    onResult(nextResult);
+  };
+
+  const handleUsageKeyDown = e => {
+    if (e.key === 'Enter') { e.preventDefault(); translationRef.current?.focus(); }
+  };
+  const handleTranslationKeyDown = e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); btnRef.current?.focus(); }
+  };
+  const handleBtnKeyDown = e => {
+    if (e.key === 'Enter' && submitted) { e.preventDefault(); onAdvance?.(); }
+  };
+
+  return (
+    <div className="form-group" onFocus={() => onFocusTarget?.()}>
+      <div className="syntax-answer-form">
+        <label>
+          {'用法'}
+          <input
+            ref={usageRef}
+            value={usage}
+            onChange={e => { const value = e.target.value; setUsage(value); setResult(null); onInputChange?.({ usage: value, translation, submitted }); }}
+            onKeyDown={handleUsageKeyDown}
+            className={inputCls(result?.usage?.judgement, usage)}
+          />
+        </label>
+        <label>
+          {'訳し方'}
+          <input
+            ref={translationRef}
+            value={translation}
+            onChange={e => { const value = e.target.value; setTranslation(value); setResult(null); onInputChange?.({ usage, translation: value, submitted }); }}
+            onKeyDown={handleTranslationKeyDown}
+            className={inputCls(result?.translation?.judgement, translation)}
+          />
+        </label>
+        <button ref={btnRef} onClick={submit} disabled={loading} onKeyDown={handleBtnKeyDown}>{loading ? '採点中…' : '採点'}</button>
+      </div>
+      {submitted && (
+        <>
+          <div className="judge-row-standalone">
+            <JudgeIcon judgement={result?.judgement} />
+            {result?.judgement && <span className="judgement-text">{result.judgement}</span>}
+          </div>
+          <div className="hint">模範解答：<em>{target.answer || '用法・訳し方が未登録です。'}</em></div>
+          {target.explanation && <div className="explanation">{target.explanation}</div>}
+        </>
+      )}
+    </div>
+  );
+});
+
 function InstructionLane() {
   return (
     <aside className="kaeriten-instruction-lane" aria-label="返り点演習の指示">
@@ -678,6 +770,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
   useEffect(() => {
     if (isSelected && cardRef.current) {
       cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      window.setTimeout(() => formRef.current?.focus(), 0);
     }
   }, [isSelected]);
 
@@ -744,7 +837,9 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
       {target.type === 'verb'     && <VerbForm     ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'adj'      && <AdjForm      ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'particle' && <ParticleForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
-      {target.type === 'grammar'  && <GrammarForm  ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'grammar' && target.generated && (target.syntaxUsage !== undefined || target.syntaxTranslation !== undefined)
+        ? <SyntaxGrammarForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />
+        : target.type === 'grammar' && <GrammarForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'kaeriten' && <KaeritenForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {feedback && !isScoreType && <FeedbackCard type={target.type} data={feedback} />}
     </div>
