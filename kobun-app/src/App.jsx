@@ -825,6 +825,7 @@ function AppInner() {
                   onCreateTarget={handleCreateTarget}
                   onDeleteTarget={handleDeleteTarget}
                   onUpdateTarget={handleUpdateTarget}
+                  onUpdateSection={handleUpdateSection}
                   deletedTargetNotice={lastDeletedTarget}
                   onUndoDelete={handleUndoDeleteTarget}
                 />

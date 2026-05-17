@@ -68,6 +68,7 @@ function syntaxQuestionsForSection(section) {
       return {
         target: {
           id: `kanbun-syntax-${section.id}-${itemIndex}`,
+          syntaxIndex: itemIndex,
           type: 'grammar',
           surface,
           questionSurface: surface,
@@ -759,7 +760,48 @@ function InstructionLane() {
   );
 }
 
-const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelected, initialFeedback, onHistoryUpdate, onAdvance, initialInputs, onInputChange, onFocusTarget, isAdmin, onDeleteTarget, onUpdateTarget, sections }, ref) {
+const SyntaxAnswerEditor = forwardRef(function SyntaxAnswerEditor({ target, section, onUpdateSection, onCancel }, ref) {
+  const [usage, setUsage] = useState(target.syntaxUsage ?? '');
+  const [translation, setTranslation] = useState(target.syntaxTranslation ?? '');
+  const [saving, setSaving] = useState(false);
+  const usageRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({ focus: () => usageRef.current?.focus() }));
+
+  const save = async () => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      const currentValue = section?.kanbunSyntax ?? section?.syntaxGuide ?? section?.syntax ?? '';
+      const items = parseKanbunSyntaxForQuestions(currentValue);
+      const index = Number.isInteger(target.syntaxIndex) ? target.syntaxIndex : -1;
+      const nextItems = items.map((item, itemIndex) => itemIndex === index ? { ...item, usage, translation } : item);
+      await onUpdateSection?.(section, { kanbunSyntax: JSON.stringify({ version: 2, items: nextItems }) });
+      onCancel?.();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="syntax-answer-editor">
+      <label>
+        {'用法'}
+        <input ref={usageRef} value={usage} onChange={(event) => setUsage(event.target.value)} />
+      </label>
+      <label>
+        {'訳し方'}
+        <input value={translation} onChange={(event) => setTranslation(event.target.value)} />
+      </label>
+      <div className="admin-inline-actions">
+        <button type="button" className="admin-secondary-btn" onClick={onCancel} disabled={saving}>キャンセル</button>
+        <button type="button" onClick={save} disabled={saving}>{saving ? '保存中...' : '保存'}</button>
+      </div>
+    </div>
+  );
+});
+
+const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelected, initialFeedback, onHistoryUpdate, onAdvance, initialInputs, onInputChange, onFocusTarget, isAdmin, onDeleteTarget, onUpdateTarget, onUpdateSection, sections }, ref) {
   const [feedback, setFeedback] = useState(initialFeedback ?? null);
   const [editing, setEditing] = useState(false);
   const cardRef = useRef(null);
@@ -791,7 +833,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
       {showPanelHeader && <div className="panel-header">
         <span className={`type-badge type-${target.type}`}>{TYPE_LABEL[target.type] ?? '問題'}</span>
         <QuestionHeader target={target} />
-        {isAdmin && !target.generated && (
+        {isAdmin && (
           <div className="admin-card-actions">
             <button
               type="button"
@@ -804,21 +846,31 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
             >
               編集
             </button>
-            <button
-              type="button"
-              className="admin-delete-target-btn"
-              onClick={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                onDeleteTarget?.(target, section);
-              }}
-            >
-              削除
-            </button>
+            {!target.generated && (
+              <button
+                type="button"
+                className="admin-delete-target-btn"
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  onDeleteTarget?.(target, section);
+                }}
+              >
+                削除
+              </button>
+            )}
           </div>
         )}
       </div>}
-      {editing && (
+      {editing && target.generated ? (
+        <SyntaxAnswerEditor
+          ref={formRef}
+          target={target}
+          section={section}
+          onUpdateSection={onUpdateSection}
+          onCancel={() => setEditing(false)}
+        />
+      ) : editing && (
         <AdminTargetForm
           type={target.type}
           sections={sections}
@@ -863,6 +915,7 @@ export default function AnswerPanel({
   onCreateTarget,
   onDeleteTarget,
   onUpdateTarget,
+  onUpdateSection,
   deletedTargetNotice,
   onUndoDelete,
   onKaeritenLineCorrect,
@@ -970,6 +1023,7 @@ export default function AnswerPanel({
           isAdmin={isAdmin}
           onDeleteTarget={onDeleteTarget}
           onUpdateTarget={onUpdateTarget}
+          onUpdateSection={onUpdateSection}
           sections={sections}
         />
       </div>
@@ -994,6 +1048,7 @@ export default function AnswerPanel({
             isAdmin={isAdmin}
             onDeleteTarget={onDeleteTarget}
             onUpdateTarget={onUpdateTarget}
+            onUpdateSection={onUpdateSection}
             sections={sections}
           />
         </div>
@@ -1051,6 +1106,7 @@ export default function AnswerPanel({
           isAdmin={isAdmin}
           onDeleteTarget={onDeleteTarget}
           onUpdateTarget={onUpdateTarget}
+          onUpdateSection={onUpdateSection}
           sections={sections}
         />
       ))}
