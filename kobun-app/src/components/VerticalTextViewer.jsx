@@ -127,7 +127,13 @@ function normalizeKanbunSyntaxItem(value) {
   const furiganaY = Array.from({ length: hanCount }, (_, index) => Number(value?.furiganaY?.[index] ?? 0));
   const usage = String(value?.usage ?? value?.function ?? '');
   const translation = String(value?.translation ?? value?.meaning ?? '');
-  return { base, usage, translation, marks, okurigana, furigana, markX, markY, okuriganaX, okuriganaY, furiganaX, furiganaY };
+  const usageAlternativeAnswers = Array.isArray(value?.usageAlternativeAnswers)
+    ? value.usageAlternativeAnswers.map(item => String(item ?? '').trim()).filter(Boolean).slice(0, 5)
+    : [];
+  const translationAlternativeAnswers = Array.isArray(value?.translationAlternativeAnswers)
+    ? value.translationAlternativeAnswers.map(item => String(item ?? '').trim()).filter(Boolean).slice(0, 5)
+    : [];
+  return { base, usage, translation, usageAlternativeAnswers, translationAlternativeAnswers, marks, okurigana, furigana, markX, markY, okuriganaX, okuriganaY, furiganaX, furiganaY };
 }
 
 function emptyKanbunSyntaxItem() {
@@ -941,6 +947,12 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
       [field]: current[field].map((item, index) => index === annotationIndex ? nextValue : item),
     });
   };
+  const updateAlternativeAnswer = (itemIndex, field, answerIndex, nextValue) => {
+    const current = data.items[itemIndex];
+    const values = [...(current[field] ?? []), '', '', '', '', ''].slice(0, 5);
+    values[answerIndex] = nextValue;
+    updateSyntaxItem(itemIndex, { ...current, [field]: values });
+  };
   const addItem = () => onChange({ ...data, items: [...data.items, emptyKanbunSyntaxItem()] });
   const removeItem = (itemIndex) => {
     const nextItems = data.items.filter((_, index) => index !== itemIndex);
@@ -986,6 +998,28 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                   placeholder={'\u4f8b\uff1a\u3069\u3046\u3057\u3066\uff5e\u304b'}
                 />
               </label>
+              <fieldset>
+                <legend>{'\u7528\u6cd5\u306e\u5225\u89e3'}</legend>
+                {[...(syntaxItem.usageAlternativeAnswers ?? []), '', '', '', '', ''].slice(0, 5).map((value, index) => (
+                  <input
+                    key={'usage-alt-' + index}
+                    value={value}
+                    onChange={(event) => updateAlternativeAnswer(itemIndex, 'usageAlternativeAnswers', index, event.target.value)}
+                    placeholder={`\u5225\u89e3${index + 1}`}
+                  />
+                ))}
+              </fieldset>
+              <fieldset>
+                <legend>{'\u8a33\u3057\u65b9\u306e\u5225\u89e3'}</legend>
+                {[...(syntaxItem.translationAlternativeAnswers ?? []), '', '', '', '', ''].slice(0, 5).map((value, index) => (
+                  <input
+                    key={'translation-alt-' + index}
+                    value={value}
+                    onChange={(event) => updateAlternativeAnswer(itemIndex, 'translationAlternativeAnswers', index, event.target.value)}
+                    placeholder={`\u5225\u89e3${index + 1}`}
+                  />
+                ))}
+              </fieldset>
             </div>
             <div className="kanbun-syntax-layout-editor">
               <div className="kanbun-syntax-canvas" aria-label={'\u53e5\u6cd5\u30d7\u30ec\u30d3\u30e5\u30fc'}>

@@ -1897,6 +1897,29 @@ span.kaeriten-source-hyphen.active {
   font-weight: bold;
 }
 
+.kanbun-syntax-answer-fields fieldset,
+.syntax-answer-editor fieldset {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid #e2dac9;
+  border-radius: 5px;
+}
+
+.kanbun-syntax-answer-fields fieldset {
+  grid-column: 1 / -1;
+}
+
+.kanbun-syntax-answer-fields legend,
+.syntax-answer-editor legend {
+  padding: 0 4px;
+  color: #555;
+  font-size: 0.78rem;
+  font-weight: bold;
+}
+
 .kanbun-syntax-answer-fields input {
   border: 1px solid #cfc7b6;
   border-radius: 4px;
@@ -1961,6 +1984,10 @@ span.kaeriten-source-hyphen.active {
   font-family: inherit;
   font-size: 0.95rem;
   padding: 8px 10px;
+}
+
+.syntax-answer-editor fieldset {
+  grid-column: 1 / -1;
 }
 
 .syntax-answer-editor .admin-inline-actions {

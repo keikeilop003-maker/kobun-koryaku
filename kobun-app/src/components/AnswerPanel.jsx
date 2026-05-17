@@ -56,6 +56,14 @@ function kanbunSyntaxAnswer(item) {
   return usage || translation;
 }
 
+function syntaxAlternativeAnswers(item, keys) {
+  return keys
+    .flatMap(key => Array.isArray(item?.[key]) ? item[key] : [])
+    .map(value => String(value ?? '').trim())
+    .filter(Boolean)
+    .slice(0, 5);
+}
+
 function syntaxQuestionsForSection(section) {
   const syntaxValue = section?.kanbunSyntax ?? section?.syntaxGuide ?? section?.syntax;
   return parseKanbunSyntaxForQuestions(syntaxValue)
@@ -65,6 +73,8 @@ function syntaxQuestionsForSection(section) {
       if (!surface) return null;
       const usage = String(item?.usage ?? item?.function ?? '').trim();
       const translation = String(item?.translation ?? item?.meaning ?? '').trim();
+      const usageAlternativeAnswers = syntaxAlternativeAnswers(item, ['usageAlternativeAnswers', 'usageAlternatives', 'functionAlternativeAnswers', 'functionAlternatives']);
+      const translationAlternativeAnswers = syntaxAlternativeAnswers(item, ['translationAlternativeAnswers', 'translationAlternatives', 'meaningAlternativeAnswers', 'meaningAlternatives']);
       return {
         target: {
           id: `kanbun-syntax-${section.id}-${itemIndex}`,
@@ -76,9 +86,13 @@ function syntaxQuestionsForSection(section) {
           answer,
           syntaxUsage: usage,
           syntaxTranslation: translation,
+          usageAlternativeAnswers,
+          translationAlternativeAnswers,
           alternativeAnswers: [
             usage && translation ? `${usage}。${translation}` : '',
             usage && translation ? `${usage} ${translation}` : '',
+            ...usageAlternativeAnswers,
+            ...translationAlternativeAnswers,
           ].filter(Boolean),
           explanation: answer ? surface : '用法・訳し方が未登録です。',
           gradingMode: 'local',
@@ -679,10 +693,10 @@ const SyntaxGrammarForm = forwardRef(function SyntaxGrammarForm({ target, sectio
     const expectedTranslation = target.syntaxTranslation ?? '';
     const [usageResult, translationResult] = await Promise.all([
       expectedUsage.trim()
-        ? reviewGrammar({ surface: target.surface, sentence: section.text, userAnswer: usage, correctAnswer: expectedUsage, acceptedAnswers: [], useAi: false })
+        ? reviewGrammar({ surface: target.surface, sentence: section.text, userAnswer: usage, correctAnswer: expectedUsage, acceptedAnswers: target.usageAlternativeAnswers ?? [], useAi: false })
         : Promise.resolve({ judgement: usage.trim() ? '不正解' : '正解' }),
       expectedTranslation.trim()
-        ? reviewGrammar({ surface: target.surface, sentence: section.text, userAnswer: translation, correctAnswer: expectedTranslation, acceptedAnswers: [], useAi: false })
+        ? reviewGrammar({ surface: target.surface, sentence: section.text, userAnswer: translation, correctAnswer: expectedTranslation, acceptedAnswers: target.translationAlternativeAnswers ?? [], useAi: false })
         : Promise.resolve({ judgement: translation.trim() ? '不正解' : '正解' }),
     ]);
     const judgements = [usageResult.judgement, translationResult.judgement];
@@ -763,10 +777,20 @@ function InstructionLane() {
 const SyntaxAnswerEditor = forwardRef(function SyntaxAnswerEditor({ target, section, onUpdateSection, onCancel }, ref) {
   const [usage, setUsage] = useState(target.syntaxUsage ?? '');
   const [translation, setTranslation] = useState(target.syntaxTranslation ?? '');
+  const [usageAlternativeAnswers, setUsageAlternativeAnswers] = useState([...(target.usageAlternativeAnswers ?? []), '', '', '', '', ''].slice(0, 5));
+  const [translationAlternativeAnswers, setTranslationAlternativeAnswers] = useState([...(target.translationAlternativeAnswers ?? []), '', '', '', '', ''].slice(0, 5));
   const [saving, setSaving] = useState(false);
   const usageRef = useRef(null);
 
   useImperativeHandle(ref, () => ({ focus: () => usageRef.current?.focus() }));
+
+  const updateUsageAlternative = (index, value) => {
+    setUsageAlternativeAnswers(current => current.map((item, itemIndex) => itemIndex === index ? value : item));
+  };
+
+  const updateTranslationAlternative = (index, value) => {
+    setTranslationAlternativeAnswers(current => current.map((item, itemIndex) => itemIndex === index ? value : item));
+  };
 
   const save = async () => {
     if (saving) return;
@@ -775,7 +799,15 @@ const SyntaxAnswerEditor = forwardRef(function SyntaxAnswerEditor({ target, sect
       const currentValue = section?.kanbunSyntax ?? section?.syntaxGuide ?? section?.syntax ?? '';
       const items = parseKanbunSyntaxForQuestions(currentValue);
       const index = Number.isInteger(target.syntaxIndex) ? target.syntaxIndex : -1;
-      const nextItems = items.map((item, itemIndex) => itemIndex === index ? { ...item, usage, translation } : item);
+      const nextUsageAlternatives = usageAlternativeAnswers.map(item => item.trim()).filter(Boolean).slice(0, 5);
+      const nextTranslationAlternatives = translationAlternativeAnswers.map(item => item.trim()).filter(Boolean).slice(0, 5);
+      const nextItems = items.map((item, itemIndex) => itemIndex === index ? {
+        ...item,
+        usage,
+        translation,
+        usageAlternativeAnswers: nextUsageAlternatives,
+        translationAlternativeAnswers: nextTranslationAlternatives,
+      } : item);
       await onUpdateSection?.(section, { kanbunSyntax: JSON.stringify({ version: 2, items: nextItems }) });
       onCancel?.();
     } finally {
@@ -793,6 +825,28 @@ const SyntaxAnswerEditor = forwardRef(function SyntaxAnswerEditor({ target, sect
         {'訳し方'}
         <input value={translation} onChange={(event) => setTranslation(event.target.value)} />
       </label>
+      <fieldset>
+        <legend>{'用法の別解'}</legend>
+        {usageAlternativeAnswers.map((value, index) => (
+          <input
+            key={'usage-alt-' + index}
+            value={value}
+            onChange={(event) => updateUsageAlternative(index, event.target.value)}
+            placeholder={`別解${index + 1}`}
+          />
+        ))}
+      </fieldset>
+      <fieldset>
+        <legend>{'訳し方の別解'}</legend>
+        {translationAlternativeAnswers.map((value, index) => (
+          <input
+            key={'translation-alt-' + index}
+            value={value}
+            onChange={(event) => updateTranslationAlternative(index, event.target.value)}
+            placeholder={`別解${index + 1}`}
+          />
+        ))}
+      </fieldset>
       <div className="admin-inline-actions">
         <button type="button" className="admin-secondary-btn" onClick={onCancel} disabled={saving}>キャンセル</button>
         <button type="button" onClick={save} disabled={saving}>{saving ? '保存中...' : '保存'}</button>
