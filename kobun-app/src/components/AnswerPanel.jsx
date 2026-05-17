@@ -621,7 +621,7 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
               const needsAnnotationSpace = isSelectedChar || hasVisibleMark || hasVisibleHyphen;
               return (
               <span className="kaeriten-source-group kaeriten-source-group--selectable" key={char + '-' + sourceIndex}>
-                <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`}>
+                <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}${hasVisibleHyphen ? ' kaeriten-source-unit--has-hyphen' : ''}`}>
                 <button
                   type="button"
                   className={'kaeriten-source-char kaeriten-source-char-button' + (isSelectedChar ? ' active' : '')}

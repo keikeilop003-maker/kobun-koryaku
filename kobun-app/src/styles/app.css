@@ -1646,6 +1646,10 @@ body {
   min-height: 1.45em;
 }
 
+.kaeriten-source-unit--has-hyphen {
+  margin-block-end: 5px;
+}
+
 .kaeriten-source-group {
   display: inline-block;
 }
@@ -1706,14 +1710,18 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0;
-  line-height: 0.68;
+  line-height: 0.5;
 }
 
 .kaeriten-ichireten span {
   display: block;
-  line-height: 0.68;
+  line-height: 0.5;
   margin: 0;
   padding: 0;
+}
+
+.kaeriten-ichireten span + span {
+  margin-top: -3px;
 }
 
 .kaeriten-source-hyphen {
