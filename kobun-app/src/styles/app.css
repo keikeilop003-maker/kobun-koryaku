@@ -2121,7 +2121,7 @@ span.kaeriten-source-hyphen.active {
   position: relative;
   display: inline-block;
   min-width: 1.35em;
-  min-height: 1.45em;
+  min-height: var(--syntax-okuri-extent, 1.45em);
   margin: 0.08em 0;
   vertical-align: middle;
 }
@@ -2162,6 +2162,8 @@ span.kaeriten-source-hyphen.active {
 .kanbun-syntax-okurigana {
   writing-mode: vertical-rl;
   text-orientation: upright;
+  white-space: nowrap;
+  inline-size: max-content;
   position: absolute;
   right: calc(-0.42em - var(--syntax-okuri-x, 0px));
   bottom: calc(-0.02em - var(--syntax-okuri-y, 0px));

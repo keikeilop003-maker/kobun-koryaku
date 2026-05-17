@@ -111,6 +111,11 @@ function verticalOkuriganaText(value) {
     .replace(/[）)]/g, '︶');
 }
 
+function okuriganaCellExtent(value) {
+  const length = Array.from(verticalOkuriganaText(value)).length;
+  return `${Math.max(1.45, length * 0.54 + 0.35)}em`;
+}
+
 function kanbunSyntaxHanIndexes(base) {
   const indexes = [];
   kanbunSyntaxChars(base).forEach((char, sourceIndex) => {
@@ -906,12 +911,14 @@ function KanbunSyntaxDisplay({ syntax, section, selectedTarget, onSelectTarget, 
                   hanIndex += 1;
                   const mark = item.marks[hanIndex] ?? '';
                   const okuri = item.okurigana[hanIndex] ?? '';
+                  const displayOkuri = verticalOkuriganaText(okuri);
                   const furigana = item.furigana[hanIndex] ?? '';
                   const unitStyle = {
                     '--syntax-mark-x': '7px',
                     '--syntax-mark-y': `${item.markY[hanIndex] ?? 0}px`,
                     '--syntax-okuri-x': '-5px',
                     '--syntax-okuri-y': `${item.okuriganaY[hanIndex] ?? 0}px`,
+                    '--syntax-okuri-extent': okuriganaCellExtent(okuri),
                     '--syntax-furi-x': '-10px',
                     '--syntax-furi-y': `${item.furiganaY[hanIndex] ?? 0}px`,
                   };
@@ -920,7 +927,7 @@ function KanbunSyntaxDisplay({ syntax, section, selectedTarget, onSelectTarget, 
                       <span className="kanbun-syntax-char">{char}</span>
                       {furigana && <span className="kanbun-syntax-furigana">{furigana}</span>}
                       {mark && <span className="kanbun-syntax-mark">{mark}</span>}
-                      {okuri && <span className="kanbun-syntax-okurigana">{verticalOkuriganaText(okuri)}</span>}
+                      {displayOkuri && <span className="kanbun-syntax-okurigana">{displayOkuri}</span>}
                     </span>
                   );
                 })}
@@ -1038,12 +1045,14 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                     const currentIndex = hanIndex;
                     const mark = syntaxItem.marks[currentIndex] ?? '';
                     const okuri = syntaxItem.okurigana[currentIndex] ?? '';
+                    const displayOkuri = verticalOkuriganaText(okuri);
                     const furigana = syntaxItem.furigana[currentIndex] ?? '';
                     const unitStyle = {
                       '--syntax-mark-x': '7px',
                       '--syntax-mark-y': String(syntaxItem.markY[currentIndex] ?? 0) + 'px',
                       '--syntax-okuri-x': '-5px',
                       '--syntax-okuri-y': String(syntaxItem.okuriganaY[currentIndex] ?? 0) + 'px',
+                      '--syntax-okuri-extent': okuriganaCellExtent(okuri),
                       '--syntax-furi-x': '-10px',
                       '--syntax-furi-y': String(syntaxItem.furiganaY[currentIndex] ?? 0) + 'px',
                     };
@@ -1058,7 +1067,7 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                         <span className="kanbun-syntax-char">{char}</span>
                         {furigana && <span className="kanbun-syntax-furigana">{furigana}</span>}
                         {mark && <span className="kanbun-syntax-mark">{mark}</span>}
-                        {okuri && <span className="kanbun-syntax-okurigana">{verticalOkuriganaText(okuri)}</span>}
+                        {displayOkuri && <span className="kanbun-syntax-okurigana">{displayOkuri}</span>}
                       </button>
                     );
                   })}
