@@ -94,7 +94,7 @@ function syntaxQuestionsForSection(section) {
             ...usageAlternativeAnswers,
             ...translationAlternativeAnswers,
           ].filter(Boolean),
-          explanation: answer ? surface : '用法・訳し方が未登録です。',
+          explanation: answer ? '' : '用法・訳し方が未登録です。',
           gradingMode: 'local',
           generated: true,
           order: Number.MAX_SAFE_INTEGER - 1000 + itemIndex,
