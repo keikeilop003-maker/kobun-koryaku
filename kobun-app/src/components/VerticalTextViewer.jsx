@@ -27,6 +27,42 @@ function findIgnoringLineBreaks(text, phrase) {
   return { start, end };
 }
 
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function findSyntaxSurfaceInText(text, surface) {
+  if (!/[～~]/.test(surface)) return findIgnoringLineBreaks(text, surface);
+  const indexMap = [];
+  const endMap = [];
+  let normalized = '';
+  let sourceIndex = 0;
+  for (const char of text) {
+    if (char === '\r' || char === '\n') {
+      sourceIndex += char.length;
+      continue;
+    }
+    indexMap.push(sourceIndex);
+    endMap.push(sourceIndex + char.length);
+    normalized += char;
+    sourceIndex += char.length;
+  }
+  const pattern = surface
+    .replace(/[\r\n]/g, '')
+    .split(/[～~]+/)
+    .map(escapeRegExp)
+    .join('[\\p{Script=Han}]+?');
+  if (!pattern) return null;
+  const match = new RegExp(pattern, 'u').exec(normalized);
+  if (!match?.[0]) return null;
+  const startIndex = match.index;
+  const endIndex = match.index + match[0].length - 1;
+  return {
+    start: indexMap[startIndex],
+    end: endMap[endIndex],
+  };
+}
+
 function buildSegments(text, allTargets, activeType, pinnedPhrase) {
   const targets = activeType === 'all'
     ? allTargets
@@ -203,7 +239,7 @@ function selectedSyntaxSourceTarget(section, selectedTarget) {
   if (!String(selectedTarget.id ?? '').startsWith(`kanbun-syntax-${section.id}-`)) return null;
   const surface = String(selectedTarget.surface ?? selectedTarget.questionSurface ?? '').trim();
   if (!surface) return null;
-  const match = findIgnoringLineBreaks(section.text ?? '', surface);
+  const match = findSyntaxSurfaceInText(section.text ?? '', surface);
   if (!match) return null;
   return {
     ...selectedTarget,
