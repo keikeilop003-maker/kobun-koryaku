@@ -31,8 +31,11 @@ function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function findSyntaxSurfaceInText(text, surface) {
-  if (!/[～~]/.test(surface)) return findIgnoringLineBreaks(text, surface);
+function findSyntaxSurfacePiecesInText(text, surface) {
+  if (!/[～~]/.test(surface)) {
+    const match = findIgnoringLineBreaks(text, surface);
+    return match ? [match] : [];
+  }
   const indexMap = [];
   const endMap = [];
   let normalized = '';
@@ -47,20 +50,27 @@ function findSyntaxSurfaceInText(text, surface) {
     normalized += char;
     sourceIndex += char.length;
   }
-  const pattern = surface
+  const parts = surface
     .replace(/[\r\n]/g, '')
     .split(/[～~]+/)
-    .map(escapeRegExp)
-    .join('[\\p{Script=Han}]+?');
-  if (!pattern) return null;
+    .filter(Boolean);
+  const pattern = parts.map(escapeRegExp).join('[\\p{Script=Han}]+?');
+  if (!pattern) return [];
   const match = new RegExp(pattern, 'u').exec(normalized);
-  if (!match?.[0]) return null;
-  const startIndex = match.index;
-  const endIndex = match.index + match[0].length - 1;
-  return {
-    start: indexMap[startIndex],
-    end: endMap[endIndex],
-  };
+  if (!match?.[0]) return [];
+  const pieces = [];
+  let searchFrom = match.index;
+  const matchEnd = match.index + match[0].length;
+  for (const part of parts) {
+    const partIndex = normalized.indexOf(part, searchFrom);
+    if (partIndex === -1 || partIndex >= matchEnd) return [];
+    pieces.push({
+      start: indexMap[partIndex],
+      end: endMap[partIndex + part.length - 1],
+    });
+    searchFrom = partIndex + part.length;
+  }
+  return pieces;
 }
 
 function buildSegments(text, allTargets, activeType, pinnedPhrase) {
@@ -234,19 +244,21 @@ function kanbunSyntaxQuestionTarget(section, item, itemIndex) {
   };
 }
 
-function selectedSyntaxSourceTarget(section, selectedTarget) {
-  if (!section || !selectedTarget?.generated || selectedTarget.type !== 'grammar') return null;
-  if (!String(selectedTarget.id ?? '').startsWith(`kanbun-syntax-${section.id}-`)) return null;
+function selectedSyntaxSourceTargets(section, selectedTarget) {
+  if (!section || !selectedTarget?.generated || selectedTarget.type !== 'grammar') return [];
+  if (!String(selectedTarget.id ?? '').startsWith(`kanbun-syntax-${section.id}-`)) return [];
   const surface = String(selectedTarget.surface ?? selectedTarget.questionSurface ?? '').trim();
-  if (!surface) return null;
-  const match = findSyntaxSurfaceInText(section.text ?? '', surface);
-  if (!match) return null;
-  return {
+  if (!surface) return [];
+  const pieces = findSyntaxSurfacePiecesInText(section.text ?? '', surface);
+  if (!pieces.length) return [];
+  return pieces.map((piece, index) => ({
     ...selectedTarget,
-    surface: section.text.slice(match.start, match.end),
-    start: match.start,
-    end: match.end,
-  };
+    id: `${selectedTarget.id}-source-${index}`,
+    groupId: selectedTarget.id,
+    surface: section.text.slice(piece.start, piece.end),
+    start: piece.start,
+    end: piece.end,
+  }));
 }
 
 function resizeKanbunSyntaxAnnotations(base, previousItem) {
@@ -1305,9 +1317,9 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
   const [showKundoku, setShowKundoku] = useState(false);
   const [editingSection, setEditingSection] = useState(false);
   const phrase = pinnedPhrase?.sectionId === section.id ? pinnedPhrase.text : null;
-  const syntaxSourceTarget = selectedSyntaxSourceTarget(section, selectedTarget);
-  const segmentTargets = syntaxSourceTarget
-    ? [syntaxSourceTarget, ...(section.targets ?? [])]
+  const syntaxSourceTargets = selectedSyntaxSourceTargets(section, selectedTarget);
+  const segmentTargets = syntaxSourceTargets.length
+    ? [...syntaxSourceTargets, ...(section.targets ?? [])]
     : (section.targets ?? []);
   const segments = buildSegments(section.text, segmentTargets, activeType, phrase);
   const kundoku = getKundoku(section);
@@ -1334,7 +1346,8 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
 
   const isSelected = t =>
     selectedTarget?.id === t.id ||
-    (selectedTarget?.groupId && selectedTarget.groupId === t.groupId);
+    (selectedTarget?.groupId && selectedTarget.groupId === t.groupId) ||
+    (t.groupId && t.groupId === selectedTarget?.id);
 
   const handleCharClick = (index) => {
     if (!selectionMode) return;
