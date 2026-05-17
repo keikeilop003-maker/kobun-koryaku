@@ -62,7 +62,7 @@ function syntaxQuestionsForSection(section) {
     .map((item, itemIndex) => {
       const surface = String(item?.base ?? item?.text ?? '').trim();
       const answer = kanbunSyntaxAnswer(item);
-      if (!surface || !answer) return null;
+      if (!surface) return null;
       const usage = String(item?.usage ?? item?.function ?? '').trim();
       const translation = String(item?.translation ?? item?.meaning ?? '').trim();
       return {
@@ -70,14 +70,14 @@ function syntaxQuestionsForSection(section) {
           id: `kanbun-syntax-${section.id}-${itemIndex}`,
           type: 'grammar',
           surface,
-          questionSurface: `句法${itemIndex + 1}`,
-          questionText: `句法${itemIndex + 1}の用法と訳し方を答えなさい。`,
+          questionSurface: surface,
+          questionText: `「${surface}」の用法と訳し方を答えなさい。`,
           answer,
           alternativeAnswers: [
             usage && translation ? `${usage}。${translation}` : '',
             usage && translation ? `${usage} ${translation}` : '',
           ].filter(Boolean),
-          explanation: surface,
+          explanation: answer ? surface : '用法・訳し方が未登録です。',
           gradingMode: 'local',
           generated: true,
           order: Number.MAX_SAFE_INTEGER - 1000 + itemIndex,
