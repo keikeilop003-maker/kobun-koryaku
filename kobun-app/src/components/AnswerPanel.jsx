@@ -16,7 +16,7 @@ const TYPE_LABEL = {
 
 const SCORE_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar', 'kaeriten']);
 const ADMIN_ADD_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar', 'kaeriten']);
-const KAERITEN_MARK_OPTIONS = ['', '\u4e00', '\u4e8c', '\u4e09', '\u30ec', '\u4e0a', '\u4e0b'];
+const KAERITEN_MARK_OPTIONS = ['', '\u4e00', '\u4e8c', '\u4e09', '\u30ec', '\u4e00\u30ec', '\u4e0a', '\u4e0b'];
 const KAERITEN_INSTRUCTION = '行を選択し、漢字を選択して返り点を付けてください。';
 
 function isKaeritenChar(char) {
@@ -565,6 +565,16 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
     onInputChange?.({ ans: currentAnswer(marks, next), submitted });
   };
 
+  const chooseHyphen = (index) => {
+    if (index >= chars.length - 1) return;
+    const next = new Set(hyphens);
+    next.add(index);
+    setHyphens(next);
+    setSelectedIndex(null);
+    setResult(null);
+    onInputChange?.({ ans: currentAnswer(marks, next), submitted });
+  };
+
   const submit = async () => {
     const userAnswer = currentAnswer();
     const res = await reviewKaeriten({
@@ -621,6 +631,17 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
                         {option || 'なし'}
                       </button>
                     ))}
+                    {currentIndex < chars.length - 1 && (
+                      <button
+                        type="button"
+                        className={'kaeriten-mark-choice kaeriten-mark-choice--hyphen' + (hasVisibleHyphen ? ' active' : '')}
+                        onClick={() => chooseHyphen(currentIndex)}
+                        role="option"
+                        aria-selected={hasVisibleHyphen}
+                      >
+                        -
+                      </button>
+                    )}
                   </span>
                 ) : (
                   hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display">{marks[currentIndex]}</span>

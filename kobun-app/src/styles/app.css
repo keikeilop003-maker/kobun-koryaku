@@ -1500,6 +1500,13 @@ body {
   background: rgba(124, 164, 223, 0.14);
 }
 
+.form-group .kaeriten-mark-choice--hyphen {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  min-height: 2.1em;
+  font-size: 0.9rem;
+}
+
 .kaeriten-line-source .kaeriten-source-hyphen:disabled:not(.active) {
   display: none;
 }

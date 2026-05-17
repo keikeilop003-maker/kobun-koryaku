@@ -3,7 +3,7 @@ import HighlightedToken from './HighlightedToken';
 import { reviewKaeriten } from '../services/gemini';
 import { emptyKaeritenAnswer, kaeritenChars, needsHyphen, parseKaeritenAnswer, serializeKaeritenAnswer } from '../utils/kaeriten';
 
-const KAERITEN_MARK_OPTIONS = ['', '一', '二', '三', 'レ', '上', '下'];
+const KAERITEN_MARK_OPTIONS = ['', '一', '二', '三', 'レ', '一レ', '上', '下'];
 
 function findIgnoringLineBreaks(text, phrase) {
   const needle = phrase.replace(/[\r\n]/g, '');

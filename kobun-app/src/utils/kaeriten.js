@@ -1,4 +1,4 @@
-const MARK_OPTIONS = ['', '一', '二', '三', 'レ', '上', '下'];
+const MARK_OPTIONS = ['', '一', '二', '三', 'レ', '一レ', '上', '下'];
 
 export function kaeritenChars(surface) {
   return Array.from(surface ?? '').filter(char => /[\p{Script=Han}]/u.test(char));
@@ -8,6 +8,8 @@ export function normalizeKaeritenMark(value) {
   const text = String(value ?? '').trim();
   if (!text) return '';
   const normalized = text
+    .replace(/[㆒一][㆑レ]/g, '一レ')
+    .replace(/一レ点/g, '一レ')
     .replace(/レ点/g, 'レ')
     .replace(/一点/g, '一')
     .replace(/二点/g, '二')
