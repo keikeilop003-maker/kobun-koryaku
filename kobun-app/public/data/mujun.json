@@ -1,0 +1,361 @@
+{
+  "id": "mujun",
+  "title": "矛盾",
+  "source": "韓非子",
+  "sections": [
+    {
+      "id": "s1",
+      "title": "第一段",
+      "text": "楚人有鬻盾与矛者。\n誉之曰、「吾盾之堅、物莫能陥也。」\n又誉其矛曰、「吾矛之利、於物無不陥也。」\n或曰、「以子之矛、陥子之盾、何如。」\n其人弗能応也。",
+      "kundoku": "楚人に盾と矛とを鬻ぐ者有り。\n之を誉めて曰はく、「吾が盾の堅きこと、物能く陥す莫きなり。」と。\n又其の矛を誉めて曰はく、「吾が矛の利きこと、物に於いて陥さざる無きなり。」と。\n或ひと曰はく、「子の矛を以て、子の盾を陥さば、何如。」と。\n其の人応ふる能はざるなり。",
+      "modern": "楚の国の人に盾と矛とを売る者がいた。（その人が）これ（盾）をほめて言うことには、「私の盾の堅いことといったら、突き通すことができるものはないほどだ。」と。またその矛をほめて言うことには、「私の矛の鋭いことといったら、どんな物でも突き通さないものはないほどだ。」と。（それを聞いて）ある人が言うことには、「あなたの矛で、あなたの盾を突き通そうとすれば、どうか。」と。その人は答えることができなかった。",
+      "targets": [
+        {
+          "id": "vocab-s1-1",
+          "type": "vocab",
+          "surface": "楚人",
+          "reading": "そひと",
+          "start": 0,
+          "end": 2,
+          "pos": "名詞",
+          "meaning": "楚の国の人。",
+          "detail": "「楚」は中国の国名。",
+          "answer": "楚の国の人",
+          "alternativeAnswers": [
+            "楚人"
+          ]
+        },
+        {
+          "id": "vocab-s1-2",
+          "type": "vocab",
+          "surface": "鬻",
+          "reading": "ひさぐ",
+          "start": 3,
+          "end": 4,
+          "pos": "動詞",
+          "meaning": "売る。",
+          "detail": "「鬻盾与矛」で「盾と矛とを売る」と読む。",
+          "answer": "売る",
+          "alternativeAnswers": [
+            "ひさぐ"
+          ]
+        },
+        {
+          "id": "grammar-s1-1",
+          "type": "grammar",
+          "surface": "有鬻盾与矛者",
+          "start": 2,
+          "end": 8,
+          "answer": "盾と矛とを売る者がいる。",
+          "explanation": "「有A者」は「Aする者有り」と読み、「Aする者がいる」の意。"
+        },
+        {
+          "id": "vocab-s1-3",
+          "type": "vocab",
+          "surface": "之",
+          "reading": "これ",
+          "start": 11,
+          "end": 12,
+          "pos": "代名詞",
+          "meaning": "これ。この場合は盾を指す。",
+          "detail": "前に出た語を受ける指示語。",
+          "answer": "これ",
+          "alternativeAnswers": [
+            "盾"
+          ]
+        },
+        {
+          "id": "vocab-s1-4",
+          "type": "vocab",
+          "surface": "曰",
+          "reading": "いはく",
+          "start": 12,
+          "end": 13,
+          "pos": "動詞",
+          "meaning": "言うことには。",
+          "detail": "漢文で発言を導く語。",
+          "answer": "言うことには",
+          "alternativeAnswers": [
+            "いはく"
+          ]
+        },
+        {
+          "id": "vocab-s1-5",
+          "type": "vocab",
+          "surface": "莫",
+          "reading": "なし",
+          "start": 21,
+          "end": 22,
+          "pos": "漢文重要語句",
+          "meaning": "ない。なし。",
+          "detail": "下に続く内容を否定し、「能く陥す莫し」で「突き通すことができるものはない」の意。",
+          "answer": "ない",
+          "alternativeAnswers": [
+            "なし"
+          ]
+        },
+        {
+          "id": "vocab-s1-6",
+          "type": "vocab",
+          "surface": "能",
+          "reading": "よく",
+          "start": 22,
+          "end": 23,
+          "pos": "助動詞",
+          "meaning": "できる。",
+          "detail": "可能を表す。",
+          "answer": "できる",
+          "alternativeAnswers": [
+            "よく"
+          ]
+        },
+        {
+          "id": "vocab-s1-7",
+          "type": "vocab",
+          "surface": "陥",
+          "reading": "とほす",
+          "start": 23,
+          "end": 24,
+          "pos": "動詞",
+          "meaning": "突き通す。",
+          "detail": "ここでは矛などで物を貫くこと。",
+          "answer": "突き通す",
+          "alternativeAnswers": [
+            "とおす",
+            "とほす"
+          ]
+        },
+        {
+          "id": "grammar-s1-2",
+          "type": "grammar",
+          "surface": "物莫能陥也",
+          "start": 20,
+          "end": 25,
+          "answer": "突き通すことができるものはない。",
+          "explanation": "「莫」は否定、「能」は可能を表す。"
+        },
+        {
+          "id": "vocab-s1-8",
+          "type": "vocab",
+          "surface": "其",
+          "reading": "その",
+          "start": 30,
+          "end": 31,
+          "pos": "代名詞",
+          "meaning": "その。",
+          "detail": "ここでは楚人が売っている矛を指す。",
+          "answer": "その",
+          "alternativeAnswers": [
+            "それ"
+          ]
+        },
+        {
+          "id": "vocab-s1-9",
+          "type": "vocab",
+          "surface": "於",
+          "reading": "おいて",
+          "start": 40,
+          "end": 41,
+          "pos": "置き字",
+          "meaning": "おいて。に。",
+          "detail": "場所・対象を示す字。ここでは「物に於いて」と読む。",
+          "answer": "おいて",
+          "alternativeAnswers": [
+            "において",
+            "に"
+          ]
+        },
+        {
+          "id": "vocab-s1-10",
+          "type": "vocab",
+          "surface": "無不",
+          "reading": "ざるなし",
+          "start": 42,
+          "end": 44,
+          "pos": "句法",
+          "meaning": "しないものはない。必ずする。",
+          "detail": "二重否定で強い肯定を表す。",
+          "answer": "しないものはない",
+          "alternativeAnswers": [
+            "必ずする",
+            "ざるなし"
+          ]
+        },
+        {
+          "id": "grammar-s1-3",
+          "type": "grammar",
+          "surface": "於物無不陥也",
+          "start": 40,
+          "end": 46,
+          "answer": "どんな物でも突き通さないものはない。",
+          "explanation": "「無不」は二重否定で、「必ず...する」の意味になる。"
+        },
+        {
+          "id": "vocab-s1-11",
+          "type": "vocab",
+          "surface": "或",
+          "reading": "あるひと",
+          "start": 49,
+          "end": 50,
+          "pos": "代名詞",
+          "meaning": "ある人。",
+          "detail": "不特定の人を表す。",
+          "answer": "ある人",
+          "alternativeAnswers": [
+            "或ひと"
+          ]
+        },
+        {
+          "id": "vocab-s1-12",
+          "type": "vocab",
+          "surface": "以",
+          "reading": "もって",
+          "start": 53,
+          "end": 54,
+          "pos": "漢文重要語句",
+          "meaning": "用いて。によって。",
+          "detail": "手段を表す。",
+          "answer": "用いて",
+          "alternativeAnswers": [
+            "もって",
+            "によって"
+          ]
+        },
+        {
+          "id": "vocab-s1-13",
+          "type": "vocab",
+          "surface": "子",
+          "reading": "し",
+          "start": 54,
+          "end": 55,
+          "pos": "代名詞",
+          "meaning": "あなた。",
+          "detail": "相手を敬っていう二人称。",
+          "answer": "あなた",
+          "alternativeAnswers": [
+            "あなたの"
+          ]
+        },
+        {
+          "id": "vocab-s1-14",
+          "type": "vocab",
+          "surface": "何如",
+          "reading": "いかん",
+          "start": 63,
+          "end": 65,
+          "pos": "疑問",
+          "meaning": "どうか。どのようか。",
+          "detail": "状態や結果を問う表現。",
+          "answer": "どうか",
+          "alternativeAnswers": [
+            "いかん",
+            "どのようか"
+          ]
+        },
+        {
+          "id": "grammar-s1-4",
+          "type": "grammar",
+          "surface": "以子之矛、陥子之盾、何如",
+          "start": 53,
+          "end": 65,
+          "answer": "あなたの矛で、あなたの盾を突き通そうとすれば、どうか。",
+          "explanation": "矛の説明と盾の説明が同時には成り立たないことを問う発言。"
+        },
+        {
+          "id": "vocab-s1-15",
+          "type": "vocab",
+          "surface": "弗",
+          "reading": "ず",
+          "start": 70,
+          "end": 71,
+          "pos": "否定",
+          "meaning": "ない。ず。",
+          "detail": "打消を表す字。",
+          "answer": "ない",
+          "alternativeAnswers": [
+            "ず"
+          ]
+        },
+        {
+          "id": "grammar-s1-5",
+          "type": "grammar",
+          "surface": "弗能応",
+          "start": 70,
+          "end": 73,
+          "answer": "答えることができない。",
+          "explanation": "「弗」は打消、「能」は可能を表す。"
+        }
+      ]
+    }
+  ],
+  "normalQuestions": [
+    {
+      "id": "content-1",
+      "type": "content",
+      "local": true,
+      "title": "内容読解①",
+      "question": "「楚人」の一文を書き下し文にしなさい。",
+      "sectionId": "s1",
+      "answer": "楚人に盾と矛とを鬻ぐ者有り。",
+      "explanation": ""
+    },
+    {
+      "id": "content-2",
+      "type": "content",
+      "title": "内容読解②",
+      "question": "「楚人」の売ろうとする盾を、どのような説明で自慢したか。",
+      "sectionId": "s1",
+      "answer": "私の盾は堅いことといったら、突き通すことができるものはないほどだ、という説明。",
+      "explanation": ""
+    },
+    {
+      "id": "content-3",
+      "type": "content",
+      "title": "内容読解③",
+      "question": "「楚人」の売ろうとする矛を、どのような説明で自慢したか。",
+      "sectionId": "s1",
+      "answer": "私の矛は鋭いことといったら、どんな物でも突き通さないものはないほどだ、という説明。",
+      "explanation": ""
+    },
+    {
+      "id": "content-4",
+      "type": "content",
+      "local": true,
+      "title": "内容読解④",
+      "question": "「誉之」の「之」が指すものを答えよ。",
+      "sectionId": "s1",
+      "answer": "盾",
+      "explanation": ""
+    },
+    {
+      "id": "content-5",
+      "type": "content",
+      "local": true,
+      "title": "内容読解⑤",
+      "question": "「其人」とは誰のことか。本文に即して答えよ。",
+      "sectionId": "s1",
+      "answer": "楚人",
+      "explanation": ""
+    },
+    {
+      "id": "content-6",
+      "type": "content",
+      "local": true,
+      "title": "内容読解⑥",
+      "question": "「弗」と同じ意味を表す漢字を本文中から抜き出して答えよ。",
+      "sectionId": "s1",
+      "answer": "不",
+      "explanation": ""
+    },
+    {
+      "id": "content-7",
+      "type": "content",
+      "title": "内容読解⑦",
+      "question": "「其人弗能応也」とあるが、その理由を説明せよ。",
+      "sectionId": "s1",
+      "answer": "どんなものでも突き通すことのできない盾と、どんなものでも突き通すことができる矛とは、同時に存在することはできないから。",
+      "explanation": ""
+    }
+  ],
+  "textType": "kanbun"
+}
