@@ -116,6 +116,28 @@ function okuriganaCellExtent(value) {
   return `${Math.max(1.45, length * 0.54 + 0.35)}em`;
 }
 
+function normalizeFuriganaSpans(value, hanCount) {
+  return (Array.isArray(value) ? value : [])
+    .map(item => ({
+      start: Number(item?.start ?? 0),
+      length: Number(item?.length ?? 2),
+      text: String(item?.text ?? ''),
+      y: Number(item?.y ?? 0),
+    }))
+    .filter(item => (
+      item.text.trim() &&
+      Number.isInteger(item.start) &&
+      item.start >= 0 &&
+      item.start < hanCount - 1
+    ))
+    .map(item => ({ ...item, length: 2 }))
+    .slice(0, hanCount);
+}
+
+function furiganaSpanAt(item, start) {
+  return (item?.furiganaSpans ?? []).find(span => span.start === start) ?? null;
+}
+
 function kanbunSyntaxHanIndexes(base) {
   const indexes = [];
   kanbunSyntaxChars(base).forEach((char, sourceIndex) => {
@@ -136,6 +158,7 @@ function normalizeKanbunSyntaxItem(value) {
   const okuriganaY = Array.from({ length: hanCount }, (_, index) => Number(value?.okuriganaY?.[index] ?? 0));
   const furiganaX = Array.from({ length: hanCount }, (_, index) => Number(value?.furiganaX?.[index] ?? 0));
   const furiganaY = Array.from({ length: hanCount }, (_, index) => Number(value?.furiganaY?.[index] ?? 0));
+  const furiganaSpans = normalizeFuriganaSpans(value?.furiganaSpans, hanCount);
   const usage = String(value?.usage ?? value?.function ?? '');
   const translation = String(value?.translation ?? value?.meaning ?? '');
   const usageAlternativeAnswers = Array.isArray(value?.usageAlternativeAnswers)
@@ -144,7 +167,7 @@ function normalizeKanbunSyntaxItem(value) {
   const translationAlternativeAnswers = Array.isArray(value?.translationAlternativeAnswers)
     ? value.translationAlternativeAnswers.map(item => String(item ?? '').trim()).filter(Boolean).slice(0, 5)
     : [];
-  return { base, usage, translation, usageAlternativeAnswers, translationAlternativeAnswers, marks, okurigana, furigana, markX, markY, okuriganaX, okuriganaY, furiganaX, furiganaY };
+  return { base, usage, translation, usageAlternativeAnswers, translationAlternativeAnswers, marks, okurigana, furigana, furiganaSpans, markX, markY, okuriganaX, okuriganaY, furiganaX, furiganaY };
 }
 
 function emptyKanbunSyntaxItem() {
@@ -184,6 +207,7 @@ function resizeKanbunSyntaxAnnotations(base, previousItem) {
     marks: Array.from({ length: hanCount }, (_, index) => current.marks[index] ?? ''),
     okurigana: Array.from({ length: hanCount }, (_, index) => current.okurigana[index] ?? ''),
     furigana: Array.from({ length: hanCount }, (_, index) => current.furigana[index] ?? ''),
+    furiganaSpans: normalizeFuriganaSpans(current.furiganaSpans, hanCount),
     markX: Array.from({ length: hanCount }, (_, index) => current.markX[index] ?? 0),
     markY: Array.from({ length: hanCount }, (_, index) => current.markY[index] ?? 0),
     okuriganaX: Array.from({ length: hanCount }, (_, index) => current.okuriganaX[index] ?? 0),
@@ -913,6 +937,7 @@ function KanbunSyntaxDisplay({ syntax, section, selectedTarget, onSelectTarget, 
                   const okuri = item.okurigana[hanIndex] ?? '';
                   const displayOkuri = verticalOkuriganaText(okuri);
                   const furigana = item.furigana[hanIndex] ?? '';
+                  const furiganaSpan = furiganaSpanAt(item, hanIndex);
                   const unitStyle = {
                     '--syntax-mark-x': '7px',
                     '--syntax-mark-y': `${item.markY[hanIndex] ?? 0}px`,
@@ -921,11 +946,13 @@ function KanbunSyntaxDisplay({ syntax, section, selectedTarget, onSelectTarget, 
                     '--syntax-okuri-extent': okuriganaCellExtent(okuri),
                     '--syntax-furi-x': '-10px',
                     '--syntax-furi-y': `${item.furiganaY[hanIndex] ?? 0}px`,
+                    '--syntax-furi-span-y': `${furiganaSpan?.y ?? 0}px`,
                   };
                   return (
                     <span className="kanbun-syntax-unit" key={sourceIndex} style={unitStyle}>
                       <span className="kanbun-syntax-char">{char}</span>
                       {furigana && <span className="kanbun-syntax-furigana">{furigana}</span>}
+                      {furiganaSpan && <span className="kanbun-syntax-furigana kanbun-syntax-furigana-span">{furiganaSpan.text}</span>}
                       {mark && <span className="kanbun-syntax-mark">{mark}</span>}
                       {displayOkuri && <span className="kanbun-syntax-okurigana">{displayOkuri}</span>}
                     </span>
@@ -960,6 +987,16 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
       [field]: current[field].map((item, index) => index === annotationIndex ? nextValue : item),
     });
   };
+  const updateFuriganaSpan = (itemIndex, start, patch) => {
+    const current = data.items[itemIndex];
+    const existing = furiganaSpanAt(current, start) ?? { start, length: 2, text: '', y: 0 };
+    const nextSpan = { ...existing, ...patch, start, length: 2 };
+    const nextSpans = [
+      ...(current.furiganaSpans ?? []).filter(span => span.start !== start),
+      nextSpan,
+    ].filter(span => String(span.text ?? '').trim());
+    updateSyntaxItem(itemIndex, { ...current, furiganaSpans: nextSpans });
+  };
   const updateAlternativeAnswer = (itemIndex, field, answerIndex, nextValue) => {
     const current = data.items[itemIndex];
     const values = [...(current[field] ?? []), '', '', '', '', ''].slice(0, 5);
@@ -978,6 +1015,8 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
         const hanChars = kanbunSyntaxChars(syntaxItem.base).filter(isKanbunSyntaxEditableChar);
         const selectedIndex = Math.min(selectedByItem[itemIndex] ?? 0, Math.max(hanChars.length - 1, 0));
         const selectedChar = hanChars[selectedIndex] ?? '';
+        const selectedPair = selectedIndex < hanChars.length - 1 ? `${selectedChar}${hanChars[selectedIndex + 1]}` : '';
+        const selectedFuriganaSpan = furiganaSpanAt(syntaxItem, selectedIndex) ?? { text: '', y: 0 };
         let hanIndex = -1;
         return (
           <div className="kanbun-syntax-item-editor" key={'syntax-editor-' + itemIndex}>
@@ -1047,6 +1086,7 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                     const okuri = syntaxItem.okurigana[currentIndex] ?? '';
                     const displayOkuri = verticalOkuriganaText(okuri);
                     const furigana = syntaxItem.furigana[currentIndex] ?? '';
+                    const furiganaSpan = furiganaSpanAt(syntaxItem, currentIndex);
                     const unitStyle = {
                       '--syntax-mark-x': '7px',
                       '--syntax-mark-y': String(syntaxItem.markY[currentIndex] ?? 0) + 'px',
@@ -1055,6 +1095,7 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                       '--syntax-okuri-extent': okuriganaCellExtent(okuri),
                       '--syntax-furi-x': '-10px',
                       '--syntax-furi-y': String(syntaxItem.furiganaY[currentIndex] ?? 0) + 'px',
+                      '--syntax-furi-span-y': String(furiganaSpan?.y ?? 0) + 'px',
                     };
                     return (
                       <button
@@ -1066,6 +1107,7 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                       >
                         <span className="kanbun-syntax-char">{char}</span>
                         {furigana && <span className="kanbun-syntax-furigana">{furigana}</span>}
+                        {furiganaSpan && <span className="kanbun-syntax-furigana kanbun-syntax-furigana-span">{furiganaSpan.text}</span>}
                         {mark && <span className="kanbun-syntax-mark">{mark}</span>}
                         {displayOkuri && <span className="kanbun-syntax-okurigana">{displayOkuri}</span>}
                       </button>
@@ -1087,6 +1129,23 @@ function KanbunSyntaxAnnotationEditor({ value, onChange }) {
                     <div className="kanbun-syntax-position-pair">
                       <label>{'\u632f\u308a\u4eee\u540d'} Y<input type="number" step="1" value={syntaxItem.furiganaY[selectedIndex] ?? 0} onChange={(event) => updateAnnotation(itemIndex, 'furiganaY', selectedIndex, Number(event.target.value))} /></label>
                     </div>
+                    {selectedPair && (
+                      <fieldset className="kanbun-syntax-span-control">
+                        <legend>{'2文字まとめて振る'}</legend>
+                        <div className="kanbun-syntax-selected-char">{selectedPair}</div>
+                        <label>
+                          {'振り仮名'}
+                          <input
+                            value={selectedFuriganaSpan.text ?? ''}
+                            onChange={(event) => updateFuriganaSpan(itemIndex, selectedIndex, { text: event.target.value })}
+                            placeholder={`${selectedPair}の読み`}
+                          />
+                        </label>
+                        <div className="kanbun-syntax-position-pair">
+                          <label>{'振り仮名'} Y<input type="number" step="1" value={selectedFuriganaSpan.y ?? 0} onChange={(event) => updateFuriganaSpan(itemIndex, selectedIndex, { y: Number(event.target.value) })} /></label>
+                        </div>
+                      </fieldset>
+                    )}
                     <label>
                       {'\u9001\u308a\u4eee\u540d'}
                       <input
