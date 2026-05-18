@@ -1831,7 +1831,7 @@ body {
 }
 
 .kaeriten-source-okurigana {
-  right: calc(-0.42em + 15px);
+  right: calc(-0.42em + 13px);
   bottom: calc(-0.1em - var(--kaeriten-okuri-y, 0px));
   font-size: 0.456em;
 }
