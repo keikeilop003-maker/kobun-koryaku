@@ -741,13 +741,13 @@ body {
 .form-inline-row {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 8px;
   min-width: 0;
 }
 .form-inline-row input {
-  flex: 1 1 160px;
+  flex: 0 1 220px;
   min-width: 0;
+  max-width: 220px;
 }
 
 /* ===== Admin Panel ===== */
@@ -2414,23 +2414,23 @@ span.kaeriten-source-hyphen.active {
 }
 
 .field-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(96px, 130px) minmax(0, 220px) 1.6em;
   align-items: center;
-  flex-wrap: wrap;
   gap: 10px;
   min-width: 0;
 }
 
 .field-row span {
-  flex: 0 1 130px;
   min-width: 96px;
   font-size: 0.85rem;
   color: #555;
 }
 
 .field-row input {
-  flex: 1 1 150px;
   min-width: 0;
+  width: 100%;
+  max-width: 220px;
 }
 
 .input-correct  { background: #c8f0ce; border-color: #2e7d32 !important; border-width: 2.5px !important; color: #1b5e20; font-weight: bold; }
