@@ -1647,7 +1647,7 @@ body {
 }
 
 .kaeriten-source-unit--has-hyphen {
-  margin-block-end: 5px;
+  margin-inline-end: 5px;
 }
 
 .kaeriten-source-group {
