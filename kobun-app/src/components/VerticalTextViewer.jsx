@@ -441,8 +441,8 @@ function AnnotatedSourceText({ text, start = 0, annotations }) {
     if (!annotation) return <span key={offset}>{char}</span>;
     const needsAnnotationSpace = Boolean(annotation.mark || annotation.hasHyphen);
     return (
-      <span className="kaeriten-source-group" key={offset}>
-        <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}${annotation.hasHyphen ? ' kaeriten-source-unit--has-hyphen' : ''}`}>
+      <span className={`kaeriten-source-group${annotation.hasHyphen ? ' kaeriten-source-group--has-hyphen-after' : ''}`} key={offset}>
+        <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`}>
           <span className="kaeriten-source-char">{char}</span>
           {annotation.mark && <span className="kaeriten-source-input kaeriten-source-mark-display"><KaeritenMarkDisplay mark={annotation.mark} /></span>}
           {annotation.hasHyphen && <span className="kaeriten-source-hyphen active">-</span>}
@@ -461,7 +461,6 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   const [hyphens, setHyphens] = useState(() => new Set(initialUser.hyphens));
   const [adminMarks, setAdminMarks] = useState(() => chars.map((_, index) => answer.marks[index] ?? ''));
   const [adminHyphens, setAdminHyphens] = useState(() => new Set(answer.hyphens));
-  const [hyphenMode, setHyphenMode] = useState(false);
   const [adminEditingAnswer, setAdminEditingAnswer] = useState(false);
   const [lineJudgements, setLineJudgements] = useState({});
   const [saving, setSaving] = useState(false);
@@ -495,7 +494,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   };
 
   const toggleHyphen = (index) => {
-    if (!editingAnswer && !hyphenMode) return;
+    if (!editingAnswer) return;
     const update = current => {
       const next = new Set(current);
       if (next.has(index)) next.delete(index);
@@ -639,9 +638,9 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
       if (selectableChar && practiceMode && !editingAnswer) onSelectLine?.(makeLineTarget(lineIndex), section);
     };
     return (
-      <span className={`kaeriten-source-group${selectableChar && practiceMode && !editingAnswer ? ' kaeriten-source-group--selectable' : ''}`} key={key} onClick={selectLine}>
+      <span className={`kaeriten-source-group${selectableChar && practiceMode && !editingAnswer ? ' kaeriten-source-group--selectable' : ''}${hasVisibleHyphen ? ' kaeriten-source-group--has-hyphen-after' : ''}`} key={key} onClick={selectLine}>
         {lineCheck}
-        <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}${hasVisibleHyphen ? ' kaeriten-source-unit--has-hyphen' : ''}`} data-line={lineIndex}>
+        <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`} data-line={lineIndex}>
           <span className="kaeriten-source-char">{char}</span>
           {!editingAnswer ? (
             hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display"><KaeritenMarkDisplay mark={visibleMark} /></span>
@@ -664,7 +663,6 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
               <button
                 type="button"
                 className={'kaeriten-source-hyphen' + (hasVisibleHyphen ? ' active' : '')}
-                disabled={!editingAnswer && !hyphenMode}
                 onClick={() => toggleHyphen(currentIndex)}
                 aria-label={char + '\u306e\u5f8c\u308d\u306b\u30cf\u30a4\u30d5\u30f3'}
               >
@@ -701,11 +699,6 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
       </div>
       {practiceMode && isAdmin && <div className="kaeriten-source-controls">
         {answerHasHyphen && !editingAnswer && <span className="kaeriten-hyphen-note">※ハイフンを使用する必要があります</span>}
-        {!editingAnswer && answerHasHyphen && (
-          <button type="button" className={hyphenMode ? 'active' : ''} onClick={() => setHyphenMode(value => !value)}>
-            ハイフンを入力
-          </button>
-        )}
         {isAdmin && !adminEditingAnswer ? (
           <button type="button" onClick={() => setAdminEditingAnswer(true)}>{'\u6a21\u7bc4\u89e3\u7b54\u3092\u7de8\u96c6'}</button>
         ) : editingAnswer ? (
@@ -769,7 +762,6 @@ function KaeritenInlineExercise({ target, section, isAdmin, onRecord, onUpdateTa
   const [hyphens, setHyphens] = useState(() => new Set(initialUser.hyphens));
   const [adminMarks, setAdminMarks] = useState(() => chars.map((_, index) => answer.marks[index] ?? ''));
   const [adminHyphens, setAdminHyphens] = useState(() => new Set(answer.hyphens));
-  const [hyphenMode, setHyphenMode] = useState(false);
   const [judgement, setJudgement] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -791,7 +783,6 @@ function KaeritenInlineExercise({ target, section, isAdmin, onRecord, onUpdateTa
   };
 
   const toggleHyphen = (index) => {
-    if (!hyphenMode) return;
     setHyphens(current => {
       const next = new Set(current);
       if (next.has(index)) next.delete(index);
@@ -865,7 +856,7 @@ function KaeritenInlineExercise({ target, section, isAdmin, onRecord, onUpdateTa
     }
   };
 
-  const renderUnits = ({ values, hyphenSet, onMark, onHyphen, hyphenEnabled }) => (
+  const renderUnits = ({ values, hyphenSet, onMark, onHyphen }) => (
     <div className="kaeriten-inline-units">
       {chars.map((char, index) => (
         <div className="kaeriten-inline-unit-wrap" key={`${char}-${index}`}>
@@ -882,7 +873,6 @@ function KaeritenInlineExercise({ target, section, isAdmin, onRecord, onUpdateTa
             <button
               type="button"
               className={`kaeriten-inline-hyphen${hyphenSet.has(index) ? ' active' : ''}`}
-              disabled={!hyphenEnabled}
               onClick={() => onHyphen(index)}
             >
               {hyphenSet.has(index) ? '-' : ''}
@@ -900,15 +890,9 @@ function KaeritenInlineExercise({ target, section, isAdmin, onRecord, onUpdateTa
         hyphenSet: hyphens,
         onMark: updateMark,
         onHyphen: toggleHyphen,
-        hyphenEnabled: hyphenMode,
       })}
       {answerHasHyphen && <span className="kaeriten-hyphen-note">※ハイフンを使用する必要があります</span>}
       <span className="kaeriten-inline-actions">
-        {answerHasHyphen && (
-          <button type="button" className={hyphenMode ? 'active' : ''} onClick={() => setHyphenMode(value => !value)}>
-            ハイフンを入力
-          </button>
-        )}
         <button type="button" onClick={submit}>採点</button>
         {judgement && <strong className={`kaeriten-inline-judge ${judgement === '正解' ? 'correct' : 'wrong'}`}>{judgement}</strong>}
       </span>
@@ -920,7 +904,6 @@ function KaeritenInlineExercise({ target, section, isAdmin, onRecord, onUpdateTa
             hyphenSet: adminHyphens,
             onMark: updateAdminMark,
             onHyphen: toggleAdminHyphen,
-            hyphenEnabled: true,
           })}
           <span className="kaeriten-inline-actions">
             <button type="button" onClick={saveAnswer} disabled={saving}>{saving ? '保存中...' : '模範解答を保存'}</button>

@@ -546,7 +546,6 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
   const [marks, setMarks] = useState(() => chars.map((_, index) => initialAnswer.marks[index] ?? ''));
   const [hyphens, setHyphens] = useState(() => new Set(initialAnswer.hyphens));
   const [selectedIndex, setSelectedIndex] = useState(null);
-  const [hyphenMode, setHyphenMode] = useState(false);
   const [submitted, setSubmitted] = useState(initialInputs?.submitted ?? false);
   const [result, setResult] = useState(initialResult ?? null);
   const btnRef = useRef(null);
@@ -567,20 +566,11 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
     onInputChange?.({ ans: currentAnswer(next, hyphens), submitted });
   };
 
-  const toggleHyphen = (index) => {
-    if (!hyphenMode) return;
-    const next = new Set(hyphens);
-    if (next.has(index)) next.delete(index);
-    else next.add(index);
-    setHyphens(next);
-    setResult(null);
-    onInputChange?.({ ans: currentAnswer(marks, next), submitted });
-  };
-
   const chooseHyphen = (index) => {
     if (index >= chars.length - 1) return;
     const next = new Set(hyphens);
-    next.add(index);
+    if (next.has(index)) next.delete(index);
+    else next.add(index);
     setHyphens(next);
     setSelectedIndex(null);
     setResult(null);
@@ -620,8 +610,8 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
               const isSelectedChar = selectedIndex === currentIndex;
               const needsAnnotationSpace = isSelectedChar || hasVisibleMark || hasVisibleHyphen;
               return (
-              <span className="kaeriten-source-group kaeriten-source-group--selectable" key={char + '-' + sourceIndex}>
-                <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}${hasVisibleHyphen ? ' kaeriten-source-unit--has-hyphen' : ''}`}>
+              <span className={`kaeriten-source-group kaeriten-source-group--selectable${hasVisibleHyphen ? ' kaeriten-source-group--has-hyphen-after' : ''}`} key={char + '-' + sourceIndex}>
+                <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`}>
                 <button
                   type="button"
                   className={'kaeriten-source-char kaeriten-source-char-button' + (isSelectedChar ? ' active' : '')}
@@ -659,15 +649,7 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
                   hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display"><KaeritenMarkDisplay mark={marks[currentIndex]} /></span>
                 )}
                 {currentIndex < chars.length - 1 && (
-                  <button
-                    type="button"
-                    className={'kaeriten-source-hyphen' + (hasVisibleHyphen ? ' active' : '')}
-                    onClick={() => toggleHyphen(currentIndex)}
-                    disabled={!hyphenMode}
-                    aria-label={char + '\u306e\u5f8c\u308d\u306b\u30cf\u30a4\u30d5\u30f3'}
-                  >
-                    {hasVisibleHyphen ? '-' : ''}
-                  </button>
+                  hasVisibleHyphen && <span className="kaeriten-source-hyphen active">-</span>
                 )}
                 </span>
               </span>
@@ -683,15 +665,7 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
         </div>
       </div>
       <div className="kaeriten-line-controls">
-        {answerHasHyphen && (
-          <button
-            type="button"
-            className={'kaeriten-hyphen-mode-btn' + (hyphenMode ? ' active' : '')}
-            onClick={() => setHyphenMode(value => !value)}
-          >
-            {'\u30cf\u30a4\u30d5\u30f3\u3092\u5165\u529b'}
-          </button>
-        )}
+        {answerHasHyphen && <span className="kaeriten-hyphen-note">※ハイフンを使用する必要があります</span>}
         <button ref={btnRef} onClick={submit} onKeyDown={handleBtnKeyDown}>{'\u63a1\u70b9'}</button>
       </div>
       {submitted && (

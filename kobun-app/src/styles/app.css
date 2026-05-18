@@ -1168,25 +1168,6 @@ body {
   font-weight: bold;
 }
 
-.kaeriten-hyphen-mode-btn {
-  align-self: flex-start;
-  border: 1px solid #b8cdef;
-  border-radius: 4px;
-  background: #f2f6ff;
-  color: #174c8f;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.82rem;
-  font-weight: bold;
-  padding: 6px 12px;
-}
-
-.kaeriten-hyphen-mode-btn.active {
-  background: #2d3a5e;
-  border-color: #2d3a5e;
-  color: #fff;
-}
-
 .kaeriten-inline-exercise {
   writing-mode: horizontal-tb;
   text-orientation: mixed;
@@ -1646,12 +1627,12 @@ body {
   min-height: 1.45em;
 }
 
-.kaeriten-source-unit--has-hyphen {
-  margin-inline-end: 5px;
-}
-
 .kaeriten-source-group {
   display: inline-block;
+}
+
+.kaeriten-source-group--has-hyphen-after {
+  margin-inline-end: 5px;
 }
 
 .kaeriten-source-group--selectable {
