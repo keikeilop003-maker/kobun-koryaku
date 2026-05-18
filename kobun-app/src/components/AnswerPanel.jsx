@@ -2,7 +2,7 @@
 import FeedbackCard from './FeedbackCard';
 import AdminTargetForm from './AdminTargetForm';
 import { reviewVocab, reviewAux, reviewVerb, reviewAdj, reviewParticle, reviewGrammar, reviewKaeriten } from '../services/gemini';
-import { kaeritenChars, needsHyphen, parseKaeritenAnswer, serializeKaeritenAnswer } from '../utils/kaeriten';
+import { kaeritenChars, parseKaeritenAnswer, serializeKaeritenAnswer } from '../utils/kaeriten';
 
 const TYPE_LABEL = {
   vocab:    '重要単語',
@@ -549,7 +549,6 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
   const [submitted, setSubmitted] = useState(initialInputs?.submitted ?? false);
   const [result, setResult] = useState(initialResult ?? null);
   const btnRef = useRef(null);
-  const answerHasHyphen = needsHyphen(target.answer, target.surface);
 
   useImperativeHandle(ref, () => ({ focus: () => btnRef.current?.focus() }));
 
@@ -665,7 +664,6 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
         </div>
       </div>
       <div className="kaeriten-line-controls">
-        {answerHasHyphen && <span className="kaeriten-hyphen-note">※ハイフンを使用する必要があります</span>}
         <button ref={btnRef} onClick={submit} onKeyDown={handleBtnKeyDown}>{'\u63a1\u70b9'}</button>
       </div>
       {submitted && (

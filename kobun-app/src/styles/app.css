@@ -1161,13 +1161,6 @@ body {
   background: #c5e1a5;
 }
 
-.kaeriten-hyphen-note {
-  flex-basis: 100%;
-  color: #8a4b00;
-  font-size: 0.82rem;
-  font-weight: bold;
-}
-
 .kaeriten-inline-exercise {
   writing-mode: horizontal-tb;
   text-orientation: mixed;
@@ -1709,20 +1702,21 @@ body {
   writing-mode: vertical-rl;
   text-orientation: mixed;
   position: absolute;
-  left: calc(50% - 0.02em);
-  bottom: -0.74em;
-  width: 1.45em;
-  height: 1.75em;
+  left: 50%;
+  bottom: -1.2em;
+  width: 0.9em;
+  height: 1.15em;
   transform: translateX(-50%);
   border: 1px dashed #b7c59b;
   border-radius: 3px;
   background: #fafcf6;
   color: #2e4f12;
   cursor: pointer;
-  font-size: 0.66em;
+  font-size: 0.5em;
   font-weight: bold;
   line-height: 1;
   padding: 0;
+  pointer-events: none;
   z-index: 1;
 }
 
@@ -1739,7 +1733,7 @@ body {
 span.kaeriten-source-hyphen.active {
   border-color: transparent;
   background: transparent;
-  font-size: 1.85em;
+  font-size: 1.35em;
 }
 
 .kaeriten-source-controls,

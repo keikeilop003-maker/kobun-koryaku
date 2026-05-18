@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import HighlightedToken from './HighlightedToken';
 import { reviewKaeriten } from '../services/gemini';
-import { emptyKaeritenAnswer, kaeritenChars, needsHyphen, parseKaeritenAnswer, serializeKaeritenAnswer } from '../utils/kaeriten';
+import { emptyKaeritenAnswer, kaeritenChars, parseKaeritenAnswer, serializeKaeritenAnswer } from '../utils/kaeriten';
 
 const KAERITEN_MARK_OPTIONS = ['', '一', '二', '三', 'レ', '一レ', '上', '下'];
 
@@ -465,7 +465,6 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   const [lineJudgements, setLineJudgements] = useState({});
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
-  const answerHasHyphen = needsHyphen(target.answer, target.surface);
   const editingAnswer = isAdmin && practiceMode && adminEditingAnswer;
   const showingAnswer = !practiceMode && !editingAnswer;
 
@@ -698,7 +697,6 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
         {nodes}
       </div>
       {practiceMode && isAdmin && <div className="kaeriten-source-controls">
-        {answerHasHyphen && !editingAnswer && <span className="kaeriten-hyphen-note">※ハイフンを使用する必要があります</span>}
         {isAdmin && !adminEditingAnswer ? (
           <button type="button" onClick={() => setAdminEditingAnswer(true)}>{'\u6a21\u7bc4\u89e3\u7b54\u3092\u7de8\u96c6'}</button>
         ) : editingAnswer ? (
@@ -765,7 +763,6 @@ function KaeritenInlineExercise({ target, section, isAdmin, onRecord, onUpdateTa
   const [judgement, setJudgement] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
-  const answerHasHyphen = needsHyphen(target.answer, target.surface);
 
   const userAnswer = (nextMarks = marks, nextHyphens = hyphens) => serializeKaeritenAnswer({
     marks: nextMarks,
@@ -891,7 +888,6 @@ function KaeritenInlineExercise({ target, section, isAdmin, onRecord, onUpdateTa
         onMark: updateMark,
         onHyphen: toggleHyphen,
       })}
-      {answerHasHyphen && <span className="kaeriten-hyphen-note">※ハイフンを使用する必要があります</span>}
       <span className="kaeriten-inline-actions">
         <button type="button" onClick={submit}>採点</button>
         {judgement && <strong className={`kaeriten-inline-judge ${judgement === '正解' ? 'correct' : 'wrong'}`}>{judgement}</strong>}
