@@ -1827,13 +1827,13 @@ body {
 .kaeriten-source-furigana {
   right: -0.88em;
   top: calc(-0.08em + var(--kaeriten-furi-y, 0px));
-  font-size: 0.34em;
+  font-size: 0.408em;
 }
 
 .kaeriten-source-okurigana {
   right: calc(-0.42em + 15px);
   bottom: calc(-0.1em - var(--kaeriten-okuri-y, 0px));
-  font-size: 0.38em;
+  font-size: 0.456em;
 }
 
 .kaeriten-source-admin-annotations {
