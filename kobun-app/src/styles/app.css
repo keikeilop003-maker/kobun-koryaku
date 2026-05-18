@@ -1730,7 +1730,7 @@ body {
 
 .kaeriten-source-unit--annotated {
   min-width: 1.35em;
-  min-height: var(--kaeriten-okuri-extent, 1.08em);
+  min-height: var(--kaeriten-okuri-extent, 1.25em);
 }
 
 .kaeriten-source-group {

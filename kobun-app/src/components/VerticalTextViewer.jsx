@@ -165,7 +165,7 @@ function verticalOkuriganaText(value) {
 
 function okuriganaCellExtent(value) {
   const length = Array.from(verticalOkuriganaText(value)).length;
-  return `${Math.max(1.08, length * 0.54 + 0.35)}em`;
+  return `${Math.max(1.25, length * 0.54 + 0.35)}em`;
 }
 
 function normalizeFuriganaSpans(value, hanCount) {
