@@ -576,6 +576,7 @@ body {
 .hl-particle { background: #f8bbd0; border-bottom-color: #c2185b; }
 .hl-grammar  { background: #e1bee7; border-bottom-color: #6a1b9a; }
 .hl-kaeriten { background: #c5e1a5; border-bottom-color: #558b2f; }
+.hl-kundoku { background: #d7ecff; border-bottom-color: #3977b8; }
 
 /* Legend colors (same palette) */
 .legend-item.hl-all      { background: #e0e0e0; color: #424242; border-color: #9e9e9e; }
@@ -586,6 +587,7 @@ body {
 .legend-item.hl-particle { background: #f8bbd0; color: #880e4f; border-color: #c2185b; }
 .legend-item.hl-grammar  { background: #e1bee7; color: #4a148c; border-color: #6a1b9a; }
 .legend-item.hl-kaeriten { background: #c5e1a5; color: #2e4f12; border-color: #558b2f; }
+.legend-item.hl-kundoku { background: #d7ecff; color: #174c8f; border-color: #3977b8; }
 
 /* ===== Answer Panel ===== */
 .answer-panel-list {
@@ -665,6 +667,7 @@ body {
 .type-badge.type-particle { background: #f8bbd0; color: #880e4f; border-color: #c2185b; }
 .type-badge.type-grammar  { background: #e1bee7; color: #4a148c; border-color: #6a1b9a; }
 .type-badge.type-kaeriten { background: #c5e1a5; color: #2e4f12; border-color: #558b2f; }
+.type-badge.type-kundoku { background: #d7ecff; color: #174c8f; border-color: #3977b8; }
 .type-badge.type-translation { background: #fff3e0; color: #e65100; border-color: #fb8c00; }
 .type-badge.type-content  { background: #e0f7fa; color: #006064; border-color: #0097a7; }
 
@@ -1401,6 +1404,76 @@ body {
 
 .kaeriten-source-line-choice:hover {
   background: rgba(74, 111, 165, 0.08);
+}
+
+.kaeriten-source-line-choice.is-selected {
+  background: rgba(74, 111, 165, 0.18);
+  outline: 2px solid #174c8f;
+  outline-offset: 2px;
+}
+
+.kundoku-select-empty {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  min-height: 20rem;
+  margin-left: auto;
+  color: #34445d;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 700;
+}
+
+.kundoku-practice-form {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.kundoku-candidate-row {
+  writing-mode: vertical-rl;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 24rem;
+  padding: 8px;
+  border: 1px solid #d6e2f0;
+  border-radius: 6px;
+  background: #f8fbff;
+}
+
+.kundoku-candidate-row button {
+  min-width: 2.1rem;
+  min-height: 2.1rem;
+  border: 1px solid #b8cdef;
+  border-radius: 4px;
+  background: #fff;
+  color: #1f1a13;
+  cursor: pointer;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+  font-size: 1.1rem;
+}
+
+.kundoku-answer-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.kundoku-answer-row textarea {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  min-width: 11rem;
+  min-height: 24rem;
+  resize: both;
+  border: 1px solid #cfc7b6;
+  border-radius: 6px;
+  background: #fff;
+  color: #1f1a13;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  padding: 12px;
 }
 
 .form-group .kaeriten-line-source .kaeriten-source-char-button {

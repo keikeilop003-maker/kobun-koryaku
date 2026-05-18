@@ -714,6 +714,45 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   );
 }
 
+function KundokuSourceLineSelector({ section, isKanbun, sourceTextStyle, selectedTarget, onSelectLine }) {
+  const sourceText = section.text ?? '';
+  const sourceLines = String(sourceText).split(/\r?\n/);
+  const kundokuLines = String(getKundoku(section) ?? '').split(/\r?\n/);
+  const makeLineTarget = (lineIndex) => {
+    const surface = sourceLines[lineIndex] ?? '';
+    return {
+      id: `kundoku-${section.id}-line-${lineIndex}`,
+      type: 'kundoku',
+      generated: true,
+      lineIndex,
+      surface,
+      questionSurface: `${lineIndex + 1}行目`,
+      questionText: `${lineIndex + 1}行目を書き下しなさい。`,
+      answer: kundokuLines[lineIndex] ?? '',
+      gradingMode: 'local',
+    };
+  };
+
+  return (
+    <div className={`vertical-text vertical-text--kaeriten-source${isKanbun ? ' vertical-text--kanbun' : ''}`} style={sourceTextStyle}>
+      {sourceLines.flatMap((line, lineIndex) => {
+        const target = makeLineTarget(lineIndex);
+        const selected = selectedTarget?.id === target.id;
+        return [
+          <span
+            className={`kaeriten-source-line-choice${selected ? ' is-selected' : ''}`}
+            key={`kundoku-line-${lineIndex}`}
+            onClick={() => onSelectLine?.(target, section)}
+          >
+            {line}
+          </span>,
+          lineIndex < sourceLines.length - 1 ? <span key={`kundoku-break-${lineIndex}`}>{'\n'}</span> : null,
+        ];
+      })}
+    </div>
+  );
+}
+
 function KaeritenSourceSetup({ section, onCreateTarget }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -1430,7 +1469,15 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
         sourceTextStyle={sourceTextStyle}
       >
         <div className="vertical-text-scroll" ref={scrollRef}>
-          {(activeType === 'kaeriten' || activeType === 'all') && kaeritenTarget ? (
+          {activeType === 'kundoku' && isKanbun ? (
+            <KundokuSourceLineSelector
+              section={section}
+              isKanbun={isKanbun}
+              sourceTextStyle={sourceTextStyle}
+              selectedTarget={selectedTarget}
+              onSelectLine={onSelectTarget}
+            />
+          ) : (activeType === 'kaeriten' || activeType === 'all') && kaeritenTarget ? (
             <KaeritenSourceExercise
               target={kaeritenTarget}
               section={section}

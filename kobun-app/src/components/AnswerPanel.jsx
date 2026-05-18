@@ -11,10 +11,11 @@ const TYPE_LABEL = {
   adj:      '形',
   particle: '助',
   grammar:  '文法・句法',
+  kundoku:  '書き下し',
   kaeriten: '返り点',
 };
 
-const SCORE_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar', 'kaeriten']);
+const SCORE_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar', 'kundoku', 'kaeriten']);
 const ADMIN_ADD_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar', 'kaeriten']);
 const KAERITEN_MARK_OPTIONS = ['', '\u4e00', '\u4e8c', '\u4e09', '\u30ec', '\u4e00\u30ec', '\u4e0a', '\u4e0b'];
 const KAERITEN_INSTRUCTION = '行を選択し、漢字を選択して返り点を付けてください。';
@@ -195,13 +196,14 @@ function QuestionHeader({ target }) {
       </span>
     );
   }
-  const surface = target.type === 'grammar' || target.type === 'kaeriten' ? (target.questionSurface ?? target.surface) : target.surface;
+  const surface = target.type === 'grammar' || target.type === 'kaeriten' || target.type === 'kundoku' ? (target.questionSurface ?? target.surface) : target.surface;
   const prefix = { aux: '助動詞', particle: '助詞' }[target.type] ?? '';
   const suffix = {
     vocab: 'の意味', aux: 'の用法', verb: 'の文法事項',
     adj: 'の文法事項',
     particle: target.particleQuestionType === 'usage' ? 'の用法' : 'の訳し方',
     grammar: 'の文法的な働きと訳し方',
+    kundoku: 'を書き下す',
     kaeriten: 'に返り点を振る',
   }[target.type] ?? '';
   return (
@@ -679,6 +681,84 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
   );
 });
 
+const KundokuForm = forwardRef(function KundokuForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+  const [answer, setAnswer] = useState(initialInputs?.answer ?? '');
+  const [submitted, setSubmitted] = useState(initialInputs?.submitted ?? false);
+  const [result, setResult] = useState(initialResult ?? null);
+  const textareaRef = useRef(null);
+  const btnRef = useRef(null);
+  const candidateChars = [...new Set(Array.from(target.surface ?? '').filter(char => /^[\p{Script=Han}]$/u.test(char)))];
+
+  useImperativeHandle(ref, () => ({ focus: () => textareaRef.current?.focus() }));
+
+  const insertChar = (char) => {
+    const textarea = textareaRef.current;
+    const start = textarea?.selectionStart ?? answer.length;
+    const end = textarea?.selectionEnd ?? answer.length;
+    const next = answer.slice(0, start) + char + answer.slice(end);
+    setAnswer(next);
+    setResult(null);
+    onInputChange?.({ answer: next, submitted });
+    window.setTimeout(() => {
+      textareaRef.current?.focus();
+      textareaRef.current?.setSelectionRange(start + char.length, start + char.length);
+    }, 0);
+  };
+
+  const submit = async () => {
+    if (!answer.trim()) return;
+    const res = await reviewGrammar({
+      surface: target.surface,
+      sentence: section.text,
+      userAnswer: answer,
+      correctAnswer: target.answer,
+      acceptedAnswers: target.alternativeAnswers ?? [],
+      useAi: false,
+    });
+    setSubmitted(true);
+    setResult(res);
+    onInputChange?.({ answer, submitted: true });
+    onResult(res);
+  };
+
+  const handleTextareaKeyDown = e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); btnRef.current?.focus(); }
+  };
+  const handleBtnKeyDown = e => {
+    if (e.key === 'Enter' && submitted) { e.preventDefault(); onAdvance?.(); }
+  };
+
+  return (
+    <div className="form-group kundoku-practice-form" onFocus={() => onFocusTarget?.()}>
+      <div className="kundoku-candidate-row" aria-label="原文の漢字候補">
+        {candidateChars.map((char, index) => (
+          <button type="button" key={`${char}-${index}`} onClick={() => insertChar(char)}>{char}</button>
+        ))}
+      </div>
+      <div className="kundoku-answer-row">
+        <textarea
+          ref={textareaRef}
+          className={inputCls(result?.judgement, answer)}
+          value={answer}
+          onChange={e => { const value = e.target.value; setAnswer(value); setResult(null); onInputChange?.({ answer: value, submitted }); }}
+          onKeyDown={handleTextareaKeyDown}
+          rows={8}
+        />
+        <button ref={btnRef} onClick={submit} onKeyDown={handleBtnKeyDown}>採点</button>
+      </div>
+      {submitted && (
+        <>
+          <div className="judge-row-standalone">
+            <JudgeIcon judgement={result?.judgement} />
+            {result?.judgement && <span className="judgement-text">{result.judgement}</span>}
+          </div>
+          <div className="hint">模範解答：<em>{target.answer}</em></div>
+        </>
+      )}
+    </div>
+  );
+});
+
 const SyntaxGrammarForm = forwardRef(function SyntaxGrammarForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
   const [usage, setUsage] = useState(initialInputs?.usage ?? '');
   const [translation, setTranslation] = useState(initialInputs?.translation ?? '');
@@ -951,6 +1031,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
       {target.type === 'grammar' && target.generated && (target.syntaxUsage !== undefined || target.syntaxTranslation !== undefined)
         ? <SyntaxGrammarForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />
         : target.type === 'grammar' && <GrammarForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'kundoku' && <KundokuForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'kaeriten' && <KaeritenForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {feedback && !isScoreType && <FeedbackCard type={target.type} data={feedback} />}
     </div>
@@ -1124,6 +1205,49 @@ export default function AnswerPanel({
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeType === 'kundoku') {
+    if (selectedTarget?.type === 'kundoku' && selectedSection) {
+      const target = selectedTarget;
+      const section = selectedSection;
+      return (
+        <div className="answer-panel-list answer-panel-list--kaeriten">
+          {adminTools ?? undoNotice}
+          <aside className="kaeriten-instruction-lane" aria-label="書き下し演習の指示">
+            <div className="kaeriten-practice-instruction">行を選択し、漢字候補を使いながら書き下し文を入力してください。</div>
+          </aside>
+          <div className="kaeriten-line-workspace">
+            <QuestionCard
+              key={target.id}
+              ref={el => { cardRefs.current[0] = el; }}
+              target={target}
+              section={section}
+              isSelected
+              initialFeedback={lastFeedback(target.id)}
+              onHistoryUpdate={r => recordHistory(target, section, r)}
+              onAdvance={() => {}}
+              initialInputs={inputsMap.current[target.id]}
+              onInputChange={vals => { inputsMap.current[target.id] = vals; }}
+              onFocusTarget={() => onFocusTarget?.(target, section)}
+              isAdmin={isAdmin}
+              onDeleteTarget={onDeleteTarget}
+              onUpdateTarget={onUpdateTarget}
+              onUpdateSection={onUpdateSection}
+              sections={sections}
+            />
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="answer-panel-list">
+        {adminTools ?? undoNotice}
+        <div className="question-card kaeriten-instruction-card">
+          <div className="kundoku-select-empty">原文カラムで書き下す行を選択してください。</div>
         </div>
       </div>
     );

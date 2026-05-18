@@ -38,6 +38,7 @@ const LEGEND = [
   { type: 'adj',      label: '形',       cls: 'hl-adj' },
   { type: 'aux',      label: '助動',     cls: 'hl-aux' },
   { type: 'particle', label: '助',       cls: 'hl-particle' },
+  { type: 'kundoku',  label: '書き下し', cls: 'hl-kundoku' },
   { type: 'kaeriten', label: '返り点',   cls: 'hl-kaeriten' },
 ];
 
@@ -241,7 +242,7 @@ function AppInner() {
   const visibleLegend = useMemo(() => LEGEND.filter(item => {
     if (!currentTextData) return true;
     if (currentIsKanbun) return !KANBUN_HIDDEN_TYPES.has(item.type);
-    return item.type !== 'kaeriten';
+    return item.type !== 'kaeriten' && item.type !== 'kundoku';
   }), [currentIsKanbun, currentTextData]);
 
   useEffect(() => {

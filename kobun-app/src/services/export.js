@@ -1,6 +1,6 @@
 const TYPE_LABEL = {
   vocab: '単語', aux: '助動詞', verb: '動詞', adj: '形容詞',
-  particle: '助詞', grammar: '文法・句法', kaeriten: '返り点', translation: '現代語訳', content: '内容読解',
+  particle: '助詞', grammar: '文法・句法', kundoku: '書き下し', kaeriten: '返り点', translation: '現代語訳', content: '内容読解',
 };
 
 function escape(v) {
