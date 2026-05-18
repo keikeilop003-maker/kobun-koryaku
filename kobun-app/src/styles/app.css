@@ -1791,6 +1791,55 @@ body {
   font-weight: bold;
 }
 
+.kaeriten-source-furigana,
+.kaeriten-source-okurigana {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  position: absolute;
+  font-family: 'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+  color: #1f1a13;
+  line-height: 1;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.kaeriten-source-furigana {
+  right: -0.88em;
+  top: -0.08em;
+  font-size: 0.34em;
+}
+
+.kaeriten-source-okurigana {
+  right: -0.42em;
+  bottom: -0.1em;
+  font-size: 0.38em;
+}
+
+.kaeriten-source-admin-annotations {
+  writing-mode: horizontal-tb;
+  position: absolute;
+  right: -4.7em;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transform: translateY(-50%);
+  z-index: 4;
+}
+
+.kaeriten-source-admin-annotations input {
+  width: 4.2em;
+  min-width: 4.2em;
+  box-sizing: border-box;
+  border: 1px solid #c5d2ad;
+  border-radius: 3px;
+  background: #fffdf8;
+  color: #1f1a13;
+  font-size: 0.32em;
+  line-height: 1.2;
+  padding: 2px 3px;
+}
+
 .kaeriten-ichireten {
   display: inline-flex;
   flex-direction: column;

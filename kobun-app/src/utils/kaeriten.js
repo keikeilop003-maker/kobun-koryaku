@@ -24,9 +24,12 @@ export function normalizeKaeritenMark(value) {
 }
 
 export function emptyKaeritenAnswer(surface) {
+  const chars = kaeritenChars(surface);
   return {
     version: 1,
-    marks: kaeritenChars(surface).map(() => ''),
+    marks: chars.map(() => ''),
+    furigana: chars.map(() => ''),
+    okurigana: chars.map(() => ''),
     hyphens: [],
   };
 }
@@ -70,11 +73,13 @@ export function normalizeKaeritenAnswer(answer, surface = '') {
   const chars = kaeritenChars(surface);
   const length = chars.length || answer?.marks?.length || 0;
   const marks = Array.from({ length }, (_, index) => normalizeKaeritenMark(answer?.marks?.[index] ?? ''));
+  const furigana = Array.from({ length }, (_, index) => String(answer?.furigana?.[index] ?? ''));
+  const okurigana = Array.from({ length }, (_, index) => String(answer?.okurigana?.[index] ?? ''));
   const hyphens = [...new Set((answer?.hyphens ?? [])
     .map(value => Number(value))
     .filter(value => Number.isInteger(value) && value >= 0 && value < Math.max(length - 1, 0)))]
     .sort((a, b) => a - b);
-  return { version: 1, marks, hyphens };
+  return { version: 1, marks, furigana, okurigana, hyphens };
 }
 
 export function serializeKaeritenAnswer(answer, surface = '') {
