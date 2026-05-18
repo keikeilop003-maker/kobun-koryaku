@@ -487,6 +487,9 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   const [adminHyphens, setAdminHyphens] = useState(() => new Set(answer.hyphens));
   const [adminEditingAnswer, setAdminEditingAnswer] = useState(false);
   const [selectedAdminIndex, setSelectedAdminIndex] = useState(0);
+  const [okuriganaDraft, setOkuriganaDraft] = useState(() => answer.okurigana?.[0] ?? '');
+  const [isComposingOkurigana, setIsComposingOkurigana] = useState(false);
+  const isComposingOkuriganaRef = useRef(false);
   const okuriganaInputRef = useRef(null);
   const [lineJudgements, setLineJudgements] = useState({});
   const [saving, setSaving] = useState(false);
@@ -554,6 +557,16 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
     const normalized = toFullWidthKatakana(value);
     setAdminOkurigana(current => current.map((item, itemIndex) => itemIndex === index ? normalized : item));
     setMessage('');
+    return normalized;
+  };
+
+  useEffect(() => {
+    setOkuriganaDraft(adminOkurigana[selectedAdminIndex] ?? '');
+  }, [adminOkurigana, selectedAdminIndex]);
+
+  const commitAdminOkurigana = (index, value) => {
+    const normalized = updateAdminOkurigana(index, value);
+    setOkuriganaDraft(normalized);
   };
 
   const updateAdminPosition = (field, index, value) => {
@@ -770,7 +783,25 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
                 </div>
                 <label>
                   {'\u9001\u308a\u4eee\u540d'}
-                  <input ref={okuriganaInputRef} value={adminOkurigana[selectedAdminIndex] ?? ''} onChange={(event) => updateAdminOkurigana(selectedAdminIndex, event.target.value)} />
+                  <input
+                    ref={okuriganaInputRef}
+                    value={okuriganaDraft}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setOkuriganaDraft(value);
+                      if (!isComposingOkuriganaRef.current && !isComposingOkurigana) commitAdminOkurigana(selectedAdminIndex, value);
+                    }}
+                    onCompositionStart={() => {
+                      isComposingOkuriganaRef.current = true;
+                      setIsComposingOkurigana(true);
+                    }}
+                    onCompositionEnd={(event) => {
+                      isComposingOkuriganaRef.current = false;
+                      setIsComposingOkurigana(false);
+                      commitAdminOkurigana(selectedAdminIndex, event.currentTarget.value);
+                    }}
+                    onBlur={(event) => commitAdminOkurigana(selectedAdminIndex, event.currentTarget.value)}
+                  />
                 </label>
                 <div className="kanbun-syntax-position-pair">
                   <label>{'\u9001\u308a\u4eee\u540d'} Y<input type="number" step="1" value={adminOkuriganaY[selectedAdminIndex] ?? 0} onChange={(event) => updateAdminPosition('okuriganaY', selectedAdminIndex, event.target.value)} /></label>
