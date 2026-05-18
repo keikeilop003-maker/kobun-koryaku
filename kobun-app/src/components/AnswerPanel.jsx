@@ -733,7 +733,7 @@ const KundokuForm = forwardRef(function KundokuForm({ target, section, onResult,
 
   return (
     <div className="form-group kundoku-practice-form" onFocus={() => onFocusTarget?.()}>
-      <div className="kundoku-form-instruction">行を選択し、漢字候補を使いながら書き下し文を入力してください。</div>
+      <div className="kundoku-form-instruction">漢字候補を使いながら書き下し文を入力してください。</div>
       <div className="kundoku-candidate-row" aria-label="原文の漢字候補">
         {candidateChars.map((char, index) => (
           <button type="button" key={`${char}-${index}`} onClick={() => insertChar(char)}>{char}</button>
@@ -1246,7 +1246,7 @@ export default function AnswerPanel({
       <div className="answer-panel-list">
         {adminTools ?? undoNotice}
         <div className="question-card kaeriten-instruction-card">
-          <div className="kundoku-select-empty">原文カラムで書き下す行を選択してください。</div>
+          <div className="kundoku-select-empty">書き下す行を選択してください。</div>
         </div>
       </div>
     );
