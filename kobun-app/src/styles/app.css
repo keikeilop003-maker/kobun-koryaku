@@ -1702,7 +1702,7 @@ body {
   writing-mode: vertical-rl;
   text-orientation: mixed;
   position: absolute;
-  left: 50%;
+  left: calc(50% + 3px);
   bottom: -0.72em;
   width: 0.8em;
   height: 1.1em;
