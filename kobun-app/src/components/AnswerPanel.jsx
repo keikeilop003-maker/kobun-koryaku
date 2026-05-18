@@ -610,6 +610,9 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
               const hasVisibleHyphen = hyphens.has(currentIndex);
               const isSelectedChar = selectedIndex === currentIndex;
               const needsAnnotationSpace = isSelectedChar || hasVisibleMark || hasVisibleHyphen;
+              const choicePosition = currentIndex < chars.length / 3
+                ? 'near-start'
+                : currentIndex > (chars.length * 2) / 3 ? 'near-end' : 'middle';
               return (
               <span className={`kaeriten-source-group kaeriten-source-group--selectable${hasVisibleHyphen ? ' kaeriten-source-group--has-hyphen-after' : ''}`} key={char + '-' + sourceIndex}>
                 <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`}>
@@ -621,7 +624,7 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
                   {char}
                 </button>
                 {isSelectedChar ? (
-                  <span className="kaeriten-mark-choice-list" role="listbox" aria-label={char + '\u306e\u8fd4\u308a\u70b9'}>
+                  <span className={`kaeriten-mark-choice-list kaeriten-mark-choice-list--${choicePosition}`} role="listbox" aria-label={char + '\u306e\u8fd4\u308a\u70b9'}>
                     {KAERITEN_MARK_OPTIONS.map(option => (
                       <button
                         type="button"
@@ -730,6 +733,7 @@ const KundokuForm = forwardRef(function KundokuForm({ target, section, onResult,
 
   return (
     <div className="form-group kundoku-practice-form" onFocus={() => onFocusTarget?.()}>
+      <div className="kundoku-form-instruction">行を選択し、漢字候補を使いながら書き下し文を入力してください。</div>
       <div className="kundoku-candidate-row" aria-label="原文の漢字候補">
         {candidateChars.map((char, index) => (
           <button type="button" key={`${char}-${index}`} onClick={() => insertChar(char)}>{char}</button>
@@ -972,7 +976,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
       {showPanelHeader && <div className="panel-header">
         <span className={`type-badge type-${target.type}`}>{TYPE_LABEL[target.type] ?? '問題'}</span>
         <QuestionHeader target={target} />
-        {isAdmin && (
+        {isAdmin && (!target.generated || target.syntaxUsage !== undefined || target.syntaxTranslation !== undefined) && (
           <div className="admin-card-actions">
             <button
               type="button"
@@ -1215,31 +1219,26 @@ export default function AnswerPanel({
       const target = selectedTarget;
       const section = selectedSection;
       return (
-        <div className="answer-panel-list answer-panel-list--kaeriten">
+        <div className="answer-panel-list">
           {adminTools ?? undoNotice}
-          <aside className="kaeriten-instruction-lane" aria-label="書き下し演習の指示">
-            <div className="kaeriten-practice-instruction">行を選択し、漢字候補を使いながら書き下し文を入力してください。</div>
-          </aside>
-          <div className="kaeriten-line-workspace">
-            <QuestionCard
-              key={target.id}
-              ref={el => { cardRefs.current[0] = el; }}
-              target={target}
-              section={section}
-              isSelected
-              initialFeedback={lastFeedback(target.id)}
-              onHistoryUpdate={r => recordHistory(target, section, r)}
-              onAdvance={() => {}}
-              initialInputs={inputsMap.current[target.id]}
-              onInputChange={vals => { inputsMap.current[target.id] = vals; }}
-              onFocusTarget={() => onFocusTarget?.(target, section)}
-              isAdmin={isAdmin}
-              onDeleteTarget={onDeleteTarget}
-              onUpdateTarget={onUpdateTarget}
-              onUpdateSection={onUpdateSection}
-              sections={sections}
-            />
-          </div>
+          <QuestionCard
+            key={target.id}
+            ref={el => { cardRefs.current[0] = el; }}
+            target={target}
+            section={section}
+            isSelected
+            initialFeedback={lastFeedback(target.id)}
+            onHistoryUpdate={r => recordHistory(target, section, r)}
+            onAdvance={() => {}}
+            initialInputs={inputsMap.current[target.id]}
+            onInputChange={vals => { inputsMap.current[target.id] = vals; }}
+            onFocusTarget={() => onFocusTarget?.(target, section)}
+            isAdmin={isAdmin}
+            onDeleteTarget={onDeleteTarget}
+            onUpdateTarget={onUpdateTarget}
+            onUpdateSection={onUpdateSection}
+            sections={sections}
+          />
         </div>
       );
     }
