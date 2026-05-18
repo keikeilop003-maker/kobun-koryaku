@@ -124,6 +124,12 @@ function getKundoku(section) {
   return section.kundoku ?? section.kakikudashi ?? section.readingText ?? '';
 }
 
+function toFullWidthKatakana(value) {
+  return String(value ?? '')
+    .normalize('NFKC')
+    .replace(/[\u3041-\u3096]/g, char => String.fromCharCode(char.charCodeAt(0) + 0x60));
+}
+
 function getNotes(section, textNotes, isFirstSection) {
   return section.notes ?? section.remarks ?? section.memo ?? (isFirstSection ? textNotes : '') ?? '';
 }
@@ -481,6 +487,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   const [adminHyphens, setAdminHyphens] = useState(() => new Set(answer.hyphens));
   const [adminEditingAnswer, setAdminEditingAnswer] = useState(false);
   const [selectedAdminIndex, setSelectedAdminIndex] = useState(0);
+  const okuriganaInputRef = useRef(null);
   const [lineJudgements, setLineJudgements] = useState({});
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -544,7 +551,8 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   };
 
   const updateAdminOkurigana = (index, value) => {
-    setAdminOkurigana(current => current.map((item, itemIndex) => itemIndex === index ? value : item));
+    const normalized = toFullWidthKatakana(value);
+    setAdminOkurigana(current => current.map((item, itemIndex) => itemIndex === index ? normalized : item));
     setMessage('');
   };
 
@@ -582,6 +590,10 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   markLineIndexes.forEach((lineIndex, index) => {
     if (Number.isInteger(lineIndex) && !firstMarkByLine.has(lineIndex)) firstMarkByLine.set(lineIndex, index);
   });
+
+  const focusOkuriganaInput = () => {
+    window.setTimeout(() => okuriganaInputRef.current?.focus(), 0);
+  };
 
   const lineAnswer = (lineIndex, sourceMarks, sourceHyphens) => {
     const indexes = markLineIndexes
@@ -695,7 +707,10 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
     const lineCheck = null;
     const selectLine = () => {
       if (selectableChar && practiceMode && !editingAnswer) onSelectLine?.(makeLineTarget(lineIndex), section);
-      if (editingAnswer) setSelectedAdminIndex(currentIndex);
+      if (editingAnswer) {
+        setSelectedAdminIndex(currentIndex);
+        focusOkuriganaInput();
+      }
     };
     return (
       <span className={`kaeriten-source-group${selectableChar && practiceMode && !editingAnswer ? ' kaeriten-source-group--selectable' : ''}${editingAnswer ? ' kaeriten-source-group--editable' : ''}${editingAnswer && selectedAdminIndex === currentIndex ? ' is-selected' : ''}${hasVisibleHyphen ? ' kaeriten-source-group--has-hyphen-after' : ''}`} key={key} onClick={selectLine}>
@@ -755,7 +770,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
                 </div>
                 <label>
                   {'\u9001\u308a\u4eee\u540d'}
-                  <input value={adminOkurigana[selectedAdminIndex] ?? ''} onChange={(event) => updateAdminOkurigana(selectedAdminIndex, event.target.value)} />
+                  <input ref={okuriganaInputRef} value={adminOkurigana[selectedAdminIndex] ?? ''} onChange={(event) => updateAdminOkurigana(selectedAdminIndex, event.target.value)} />
                 </label>
                 <div className="kanbun-syntax-position-pair">
                   <label>{'\u9001\u308a\u4eee\u540d'} Y<input type="number" step="1" value={adminOkuriganaY[selectedAdminIndex] ?? 0} onChange={(event) => updateAdminPosition('okuriganaY', selectedAdminIndex, event.target.value)} /></label>
