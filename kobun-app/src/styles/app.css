@@ -593,6 +593,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-width: 0;
 }
 
 .question-card {
@@ -601,6 +602,7 @@ body {
   border-radius: 8px;
   padding: 16px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  min-width: 0;
 }
 
 .question-card--selected {
@@ -700,6 +702,8 @@ body {
 
 .form-group textarea,
 .form-group input {
+  min-width: 0;
+  width: 100%;
   font-family: inherit;
   font-size: 0.95rem;
   border: 1.5px solid #ccc;
@@ -737,9 +741,14 @@ body {
 .form-inline-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
+  min-width: 0;
 }
-.form-inline-row input { flex: 1; }
+.form-inline-row input {
+  flex: 1 1 160px;
+  min-width: 0;
+}
 
 /* ===== Admin Panel ===== */
 .admin-panel {
@@ -1066,9 +1075,15 @@ body {
 .form-textarea-row {
   display: flex;
   align-items: flex-end;
+  flex-wrap: wrap;
   gap: 8px;
+  min-width: 0;
 }
-.form-textarea-row textarea { flex: 1; resize: none; }
+.form-textarea-row textarea {
+  flex: 1 1 180px;
+  min-width: 0;
+  resize: none;
+}
 
 .form-submit-right {
   display: flex;
@@ -1938,9 +1953,10 @@ span.kaeriten-source-hyphen.active {
 
 .syntax-answer-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
   align-items: end;
+  min-width: 0;
 }
 
 .syntax-answer-form label {
@@ -1953,6 +1969,8 @@ span.kaeriten-source-hyphen.active {
 }
 
 .syntax-answer-form input {
+  min-width: 0;
+  width: 100%;
   border: 1px solid #cfc7b6;
   border-radius: 4px;
   background: #fff;
@@ -2398,17 +2416,22 @@ span.kaeriten-source-hyphen.active {
 .field-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
+  min-width: 0;
 }
 
 .field-row span {
-  min-width: 130px;
+  flex: 0 1 130px;
+  min-width: 96px;
   font-size: 0.85rem;
   color: #555;
-  flex-shrink: 0;
 }
 
-.field-row input { flex: 1; }
+.field-row input {
+  flex: 1 1 150px;
+  min-width: 0;
+}
 
 .input-correct  { background: #c8f0ce; border-color: #2e7d32 !important; border-width: 2.5px !important; color: #1b5e20; font-weight: bold; }
 .input-partial  { background: #fff0b3; border-color: #e65100 !important; border-width: 2.5px !important; color: #bf360c; font-weight: bold; }
@@ -2449,6 +2472,7 @@ span.kaeriten-source-hyphen.active {
   border: 1px solid #ddd8cc;
   border-radius: 8px;
   padding: 14px 16px;
+  min-width: 0;
 }
 
 .feedback-title {
@@ -2491,6 +2515,8 @@ span.kaeriten-source-hyphen.active {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
   font-size: 0.85rem;
   font-weight: bold;
   color: #444;
@@ -2499,6 +2525,7 @@ span.kaeriten-source-hyphen.active {
 
 .feedback-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   font-size: 0.82rem;
   margin-top: 4px;
@@ -2512,7 +2539,11 @@ span.kaeriten-source-hyphen.active {
   flex-shrink: 0;
 }
 
-.feedback-value { color: #333; }
+.feedback-value {
+  color: #333;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 
 .feedback-advice {
   margin-top: 8px;
