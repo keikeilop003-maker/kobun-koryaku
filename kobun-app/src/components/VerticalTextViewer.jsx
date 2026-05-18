@@ -445,7 +445,7 @@ function AnnotatedSourceText({ text, start = 0, annotations }) {
         <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`}>
           <span className="kaeriten-source-char">{char}</span>
           {annotation.mark && <span className="kaeriten-source-input kaeriten-source-mark-display"><KaeritenMarkDisplay mark={annotation.mark} /></span>}
-          {annotation.hasHyphen && <span className="kaeriten-source-hyphen active">︱</span>}
+          {annotation.hasHyphen && <span className="kaeriten-source-hyphen active">-</span>}
         </span>
       </span>
     );
@@ -657,7 +657,7 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
           )}
           {hasHyphenSlot && (
             !editingAnswer ? (
-              hasVisibleHyphen && <span className="kaeriten-source-hyphen active">︱</span>
+              hasVisibleHyphen && <span className="kaeriten-source-hyphen active">-</span>
             ) : (
               <button
                 type="button"

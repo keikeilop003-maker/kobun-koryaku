@@ -648,7 +648,7 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
                   hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display"><KaeritenMarkDisplay mark={marks[currentIndex]} /></span>
                 )}
                 {currentIndex < chars.length - 1 && (
-                  hasVisibleHyphen && <span className="kaeriten-source-hyphen active">︱</span>
+                  hasVisibleHyphen && <span className="kaeriten-source-hyphen active">-</span>
                 )}
                 </span>
               </span>
