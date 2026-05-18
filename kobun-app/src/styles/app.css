@@ -1730,7 +1730,7 @@ body {
 
 .kaeriten-source-unit--annotated {
   min-width: 1.35em;
-  min-height: 1.45em;
+  min-height: var(--kaeriten-okuri-extent, 1.45em);
 }
 
 .kaeriten-source-group {
@@ -1749,6 +1749,27 @@ body {
   color: #174c8f;
   text-decoration: underline;
   text-underline-offset: 0.15em;
+}
+
+.kaeriten-source-group--editable {
+  cursor: pointer;
+}
+
+.kaeriten-source-group--editable .kaeriten-source-char {
+  border-radius: 4px;
+  outline: 1px solid transparent;
+  outline-offset: 2px;
+}
+
+.kaeriten-source-group--editable:hover .kaeriten-source-char {
+  background: #eaf2ff;
+  outline-color: #b8cdef;
+}
+
+.kaeriten-source-group--editable.is-selected .kaeriten-source-char {
+  background: #2d3a5e;
+  color: #fff;
+  outline-color: #2d3a5e;
 }
 
 .kaeriten-source-char {
@@ -1784,7 +1805,7 @@ body {
   align-items: center;
   justify-content: center;
   left: calc(-1.05em + 20px);
-  bottom: calc(-0.58em + 3px);
+  bottom: calc(-0.58em + 3px - var(--kaeriten-mark-y, 0px));
   border-color: transparent;
   background: transparent;
   color: #2e4f12;
@@ -1805,13 +1826,13 @@ body {
 
 .kaeriten-source-furigana {
   right: -0.88em;
-  top: -0.08em;
+  top: calc(-0.08em + var(--kaeriten-furi-y, 0px));
   font-size: 0.34em;
 }
 
 .kaeriten-source-okurigana {
   right: -0.42em;
-  bottom: -0.1em;
+  bottom: calc(-0.1em - var(--kaeriten-okuri-y, 0px));
   font-size: 0.38em;
 }
 
@@ -1912,6 +1933,46 @@ span.kaeriten-source-hyphen.active {
   background: #fbfff5;
   color: #1f3510;
   font-size: 0.86rem;
+}
+
+.kaeriten-source-annotation-panel {
+  writing-mode: horizontal-tb;
+  display: grid;
+  grid-template-columns: auto minmax(130px, 1fr) minmax(130px, 1fr) minmax(110px, 0.8fr) auto;
+  align-items: end;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d8e6c3;
+  border-radius: 6px;
+  background: #fffdf8;
+}
+
+.kaeriten-source-annotation-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #1f3510;
+  font-size: 0.78rem;
+  font-weight: bold;
+}
+
+.kaeriten-source-annotation-panel input,
+.kaeriten-source-annotation-panel select {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 32px;
+  border: 1px solid #c5d2ad;
+  border-radius: 4px;
+  background: #fff;
+  color: #1f1a13;
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 5px 7px;
+}
+
+.kaeriten-source-annotation-panel .kanbun-syntax-position-pair {
+  align-self: end;
 }
 
 .kaeriten-source-setup {

@@ -79,10 +79,13 @@ function KaeritenAnswerEditor({ surface, value, onChange }) {
   const marks = chars.map((_, index) => answer.marks[index] ?? '');
   const furigana = chars.map((_, index) => answer.furigana?.[index] ?? '');
   const okurigana = chars.map((_, index) => answer.okurigana?.[index] ?? '');
+  const markY = chars.map((_, index) => answer.markY?.[index] ?? 0);
+  const furiganaY = chars.map((_, index) => answer.furiganaY?.[index] ?? 0);
+  const okuriganaY = chars.map((_, index) => answer.okuriganaY?.[index] ?? 0);
   const hyphens = new Set(answer.hyphens);
 
   const emit = (nextMarks, nextHyphens) => {
-    onChange(serializeKaeritenAnswer({ marks: nextMarks, furigana, okurigana, hyphens: [...nextHyphens] }, surface));
+    onChange(serializeKaeritenAnswer({ marks: nextMarks, furigana, okurigana, markY, furiganaY, okuriganaY, hyphens: [...nextHyphens] }, surface));
   };
 
   const updateMark = (index, mark) => {

@@ -30,6 +30,9 @@ export function emptyKaeritenAnswer(surface) {
     marks: chars.map(() => ''),
     furigana: chars.map(() => ''),
     okurigana: chars.map(() => ''),
+    markY: chars.map(() => 0),
+    furiganaY: chars.map(() => 0),
+    okuriganaY: chars.map(() => 0),
     hyphens: [],
   };
 }
@@ -75,11 +78,14 @@ export function normalizeKaeritenAnswer(answer, surface = '') {
   const marks = Array.from({ length }, (_, index) => normalizeKaeritenMark(answer?.marks?.[index] ?? ''));
   const furigana = Array.from({ length }, (_, index) => String(answer?.furigana?.[index] ?? ''));
   const okurigana = Array.from({ length }, (_, index) => String(answer?.okurigana?.[index] ?? ''));
+  const markY = Array.from({ length }, (_, index) => Number(answer?.markY?.[index] ?? 0));
+  const furiganaY = Array.from({ length }, (_, index) => Number(answer?.furiganaY?.[index] ?? 0));
+  const okuriganaY = Array.from({ length }, (_, index) => Number(answer?.okuriganaY?.[index] ?? 0));
   const hyphens = [...new Set((answer?.hyphens ?? [])
     .map(value => Number(value))
     .filter(value => Number.isInteger(value) && value >= 0 && value < Math.max(length - 1, 0)))]
     .sort((a, b) => a - b);
-  return { version: 1, marks, furigana, okurigana, hyphens };
+  return { version: 1, marks, furigana, okurigana, markY, furiganaY, okuriganaY, hyphens };
 }
 
 export function serializeKaeritenAnswer(answer, surface = '') {

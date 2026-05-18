@@ -430,8 +430,11 @@ function buildKaeritenAnnotationMap(section, target) {
     const mark = answer.marks[markIndex] ?? '';
     const furigana = answer.furigana?.[markIndex] ?? '';
     const okurigana = answer.okurigana?.[markIndex] ?? '';
+    const markY = answer.markY?.[markIndex] ?? 0;
+    const furiganaY = answer.furiganaY?.[markIndex] ?? 0;
+    const okuriganaY = answer.okuriganaY?.[markIndex] ?? 0;
     const hasHyphen = answer.hyphens.includes(markIndex);
-    if (mark || hasHyphen || furigana || okurigana) annotations.set(index, { mark, hasHyphen, furigana, okurigana });
+    if (mark || hasHyphen || furigana || okurigana) annotations.set(index, { mark, hasHyphen, furigana, okurigana, markY, furiganaY, okuriganaY });
   });
   return annotations;
 }
@@ -442,9 +445,15 @@ function AnnotatedSourceText({ text, start = 0, annotations }) {
     const annotation = annotations?.get(start + offset);
     if (!annotation) return <span key={offset}>{char}</span>;
     const needsAnnotationSpace = Boolean(annotation.mark || annotation.hasHyphen || annotation.furigana || annotation.okurigana);
+    const unitStyle = {
+      '--kaeriten-mark-y': `${annotation.markY ?? 0}px`,
+      '--kaeriten-furi-y': `${annotation.furiganaY ?? 0}px`,
+      '--kaeriten-okuri-y': `${annotation.okuriganaY ?? 0}px`,
+      '--kaeriten-okuri-extent': okuriganaCellExtent(annotation.okurigana ?? ''),
+    };
     return (
       <span className={`kaeriten-source-group${annotation.hasHyphen ? ' kaeriten-source-group--has-hyphen-after' : ''}`} key={offset}>
-        <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`}>
+        <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`} style={unitStyle}>
           <span className="kaeriten-source-char">{char}</span>
           {annotation.furigana && <span className="kaeriten-source-furigana">{annotation.furigana}</span>}
           {annotation.okurigana && <span className="kaeriten-source-okurigana">{annotation.okurigana}</span>}
@@ -466,8 +475,12 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   const [adminMarks, setAdminMarks] = useState(() => chars.map((_, index) => answer.marks[index] ?? ''));
   const [adminFurigana, setAdminFurigana] = useState(() => chars.map((_, index) => answer.furigana?.[index] ?? ''));
   const [adminOkurigana, setAdminOkurigana] = useState(() => chars.map((_, index) => answer.okurigana?.[index] ?? ''));
+  const [adminMarkY, setAdminMarkY] = useState(() => chars.map((_, index) => answer.markY?.[index] ?? 0));
+  const [adminFuriganaY, setAdminFuriganaY] = useState(() => chars.map((_, index) => answer.furiganaY?.[index] ?? 0));
+  const [adminOkuriganaY, setAdminOkuriganaY] = useState(() => chars.map((_, index) => answer.okuriganaY?.[index] ?? 0));
   const [adminHyphens, setAdminHyphens] = useState(() => new Set(answer.hyphens));
   const [adminEditingAnswer, setAdminEditingAnswer] = useState(false);
+  const [selectedAdminIndex, setSelectedAdminIndex] = useState(0);
   const [lineJudgements, setLineJudgements] = useState({});
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -477,6 +490,9 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   const selectedMarks = showingAnswer ? answer.marks : editingAnswer ? adminMarks : marks;
   const selectedFurigana = showingAnswer ? answer.furigana : editingAnswer ? adminFurigana : [];
   const selectedOkurigana = showingAnswer ? answer.okurigana : editingAnswer ? adminOkurigana : [];
+  const selectedMarkY = showingAnswer ? answer.markY : editingAnswer ? adminMarkY : [];
+  const selectedFuriganaY = showingAnswer ? answer.furiganaY : editingAnswer ? adminFuriganaY : [];
+  const selectedOkuriganaY = showingAnswer ? answer.okuriganaY : editingAnswer ? adminOkuriganaY : [];
   const selectedHyphens = showingAnswer ? new Set(answer.hyphens) : editingAnswer ? adminHyphens : hyphens;
 
   const userAnswer = (nextMarks = marks, nextHyphens = hyphens) => serializeKaeritenAnswer({
@@ -484,10 +500,13 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
     hyphens: [...nextHyphens],
   }, target.surface);
 
-  const adminAnswer = (nextMarks = adminMarks, nextHyphens = adminHyphens, nextFurigana = adminFurigana, nextOkurigana = adminOkurigana) => serializeKaeritenAnswer({
+  const adminAnswer = (nextMarks = adminMarks, nextHyphens = adminHyphens, nextFurigana = adminFurigana, nextOkurigana = adminOkurigana, nextMarkY = adminMarkY, nextFuriganaY = adminFuriganaY, nextOkuriganaY = adminOkuriganaY) => serializeKaeritenAnswer({
     marks: nextMarks,
     furigana: nextFurigana,
     okurigana: nextOkurigana,
+    markY: nextMarkY,
+    furiganaY: nextFuriganaY,
+    okuriganaY: nextOkuriganaY,
     hyphens: [...nextHyphens],
   }, target.surface);
 
@@ -526,6 +545,14 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
 
   const updateAdminOkurigana = (index, value) => {
     setAdminOkurigana(current => current.map((item, itemIndex) => itemIndex === index ? value : item));
+    setMessage('');
+  };
+
+  const updateAdminPosition = (field, index, value) => {
+    const updater = current => current.map((item, itemIndex) => itemIndex === index ? Number(value) : item);
+    if (field === 'markY') setAdminMarkY(updater);
+    if (field === 'furiganaY') setAdminFuriganaY(updater);
+    if (field === 'okuriganaY') setAdminOkuriganaY(updater);
     setMessage('');
   };
 
@@ -651,65 +678,35 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
     const visibleMark = revealCorrectLine ? (answer.marks[currentIndex] ?? '') : selectedMarks[currentIndex];
     const visibleFurigana = revealCorrectLine ? (answer.furigana?.[currentIndex] ?? '') : selectedFurigana[currentIndex];
     const visibleOkurigana = revealCorrectLine ? (answer.okurigana?.[currentIndex] ?? '') : selectedOkurigana[currentIndex];
+    const visibleMarkY = revealCorrectLine ? (answer.markY?.[currentIndex] ?? 0) : (selectedMarkY[currentIndex] ?? 0);
+    const visibleFuriganaY = revealCorrectLine ? (answer.furiganaY?.[currentIndex] ?? 0) : (selectedFuriganaY[currentIndex] ?? 0);
+    const visibleOkuriganaY = revealCorrectLine ? (answer.okuriganaY?.[currentIndex] ?? 0) : (selectedOkuriganaY[currentIndex] ?? 0);
     const hasVisibleMark = Boolean(visibleMark);
     const hasVisibleFurigana = Boolean(visibleFurigana);
     const hasVisibleOkurigana = Boolean(visibleOkurigana);
     const hasVisibleHyphen = revealCorrectLine ? answer.hyphens.includes(currentIndex) : selectedHyphens.has(currentIndex);
     const needsAnnotationSpace = editingAnswer || hasVisibleMark || hasVisibleHyphen || hasVisibleFurigana || hasVisibleOkurigana;
+    const unitStyle = {
+      '--kaeriten-mark-y': `${visibleMarkY}px`,
+      '--kaeriten-furi-y': `${visibleFuriganaY}px`,
+      '--kaeriten-okuri-y': `${visibleOkuriganaY}px`,
+      '--kaeriten-okuri-extent': okuriganaCellExtent(visibleOkurigana ?? ''),
+    };
     const lineCheck = null;
     const selectLine = () => {
       if (selectableChar && practiceMode && !editingAnswer) onSelectLine?.(makeLineTarget(lineIndex), section);
+      if (editingAnswer) setSelectedAdminIndex(currentIndex);
     };
     return (
-      <span className={`kaeriten-source-group${selectableChar && practiceMode && !editingAnswer ? ' kaeriten-source-group--selectable' : ''}${hasVisibleHyphen ? ' kaeriten-source-group--has-hyphen-after' : ''}`} key={key} onClick={selectLine}>
+      <span className={`kaeriten-source-group${selectableChar && practiceMode && !editingAnswer ? ' kaeriten-source-group--selectable' : ''}${editingAnswer ? ' kaeriten-source-group--editable' : ''}${editingAnswer && selectedAdminIndex === currentIndex ? ' is-selected' : ''}${hasVisibleHyphen ? ' kaeriten-source-group--has-hyphen-after' : ''}`} key={key} onClick={selectLine}>
         {lineCheck}
-        <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`} data-line={lineIndex}>
+        <span className={`kaeriten-source-unit${needsAnnotationSpace ? ' kaeriten-source-unit--annotated' : ''}`} data-line={lineIndex} style={unitStyle}>
           <span className="kaeriten-source-char">{char}</span>
           {hasVisibleFurigana && <span className="kaeriten-source-furigana">{visibleFurigana}</span>}
           {hasVisibleOkurigana && <span className="kaeriten-source-okurigana">{visibleOkurigana}</span>}
-          {!editingAnswer ? (
-            hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display"><KaeritenMarkDisplay mark={visibleMark} /></span>
-          ) : (
-            <>
-              <select
-                className="kaeriten-source-input"
-                value={normalizeSelectedKaeritenMark(selectedMarks[currentIndex] ?? '')}
-                onChange={(event) => updateMark(currentIndex, event.target.value)}
-                aria-label={char + '\u306e\u8fd4\u308a\u70b9'}
-              >
-                {KAERITEN_MARK_OPTIONS.map(option => (
-                  <option key={option || 'blank'} value={option}>{option}</option>
-                ))}
-              </select>
-              <span className="kaeriten-source-admin-annotations">
-                <input
-                  value={adminFurigana[currentIndex] ?? ''}
-                  onChange={(event) => updateAdminFurigana(currentIndex, event.target.value)}
-                  aria-label={char + '\u306e\u632f\u308a\u4eee\u540d'}
-                  placeholder="\u632f"
-                />
-                <input
-                  value={adminOkurigana[currentIndex] ?? ''}
-                  onChange={(event) => updateAdminOkurigana(currentIndex, event.target.value)}
-                  aria-label={char + '\u306e\u9001\u308a\u4eee\u540d'}
-                  placeholder="\u9001"
-                />
-              </span>
-            </>
-          )}
+          {hasVisibleMark && <span className="kaeriten-source-input kaeriten-source-mark-display"><KaeritenMarkDisplay mark={visibleMark} /></span>}
           {hasHyphenSlot && (
-            !editingAnswer ? (
-              hasVisibleHyphen && <span className="kaeriten-source-hyphen active">-</span>
-            ) : (
-              <button
-                type="button"
-                className={'kaeriten-source-hyphen' + (hasVisibleHyphen ? ' active' : '')}
-                onClick={() => toggleHyphen(currentIndex)}
-                aria-label={char + '\u306e\u5f8c\u308d\u306b\u30cf\u30a4\u30d5\u30f3'}
-              >
-                {hasVisibleHyphen ? '-' : ''}
-              </button>
-            )
+            hasVisibleHyphen && <span className="kaeriten-source-hyphen active">-</span>
           )}
         </span>
       </span>
@@ -732,6 +729,8 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
       ];
     })
     : sourceChars.map((char, index) => renderSourceChar(char, index));
+  const selectedAdminChar = chars[selectedAdminIndex] ?? '';
+  const selectedAdminHasHyphenSlot = selectedAdminIndex < chars.length - 1;
 
   return (
     <>
@@ -744,8 +743,43 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
         ) : editingAnswer ? (
           <>
             <span className="kaeriten-source-admin-label">{'\u6a21\u7bc4\u89e3\u7b54\u767b\u9332\u4e2d'}</span>
+            {selectedAdminChar && (
+              <div className="kaeriten-source-annotation-panel">
+                <div className="kanbun-syntax-selected-char">{selectedAdminChar}</div>
+                <label>
+                  {'\u632f\u308a\u4eee\u540d'}
+                  <input value={adminFurigana[selectedAdminIndex] ?? ''} onChange={(event) => updateAdminFurigana(selectedAdminIndex, event.target.value)} />
+                </label>
+                <div className="kanbun-syntax-position-pair">
+                  <label>{'\u632f\u308a\u4eee\u540d'} Y<input type="number" step="1" value={adminFuriganaY[selectedAdminIndex] ?? 0} onChange={(event) => updateAdminPosition('furiganaY', selectedAdminIndex, event.target.value)} /></label>
+                </div>
+                <label>
+                  {'\u9001\u308a\u4eee\u540d'}
+                  <input value={adminOkurigana[selectedAdminIndex] ?? ''} onChange={(event) => updateAdminOkurigana(selectedAdminIndex, event.target.value)} />
+                </label>
+                <div className="kanbun-syntax-position-pair">
+                  <label>{'\u9001\u308a\u4eee\u540d'} Y<input type="number" step="1" value={adminOkuriganaY[selectedAdminIndex] ?? 0} onChange={(event) => updateAdminPosition('okuriganaY', selectedAdminIndex, event.target.value)} /></label>
+                </div>
+                <label>
+                  {'\u8fd4\u308a\u70b9'}
+                  <select value={normalizeSelectedKaeritenMark(adminMarks[selectedAdminIndex] ?? '')} onChange={(event) => updateMark(selectedAdminIndex, event.target.value)}>
+                    {KAERITEN_MARK_OPTIONS.map(option => (
+                      <option key={option || 'blank'} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </label>
+                <div className="kanbun-syntax-position-pair">
+                  <label>{'\u8fd4\u308a\u70b9'} Y<input type="number" step="1" value={adminMarkY[selectedAdminIndex] ?? 0} onChange={(event) => updateAdminPosition('markY', selectedAdminIndex, event.target.value)} /></label>
+                </div>
+                {selectedAdminHasHyphenSlot && (
+                  <button type="button" className={adminHyphens.has(selectedAdminIndex) ? 'active' : ''} onClick={() => toggleHyphen(selectedAdminIndex)}>
+                    {adminHyphens.has(selectedAdminIndex) ? '\u30cf\u30a4\u30d5\u30f3\u3092\u5916\u3059' : '\u5f8c\u308d\u306b\u30cf\u30a4\u30d5\u30f3'}
+                  </button>
+                )}
+              </div>
+            )}
             <button type="button" onClick={saveAnswer} disabled={saving}>{saving ? '\u4fdd\u5b58\u4e2d...' : '\u6a21\u7bc4\u89e3\u7b54\u3092\u4fdd\u5b58'}</button>
-            <button type="button" className="admin-secondary-btn" onClick={() => { setAdminMarks(chars.map((_, index) => answer.marks[index] ?? '')); setAdminFurigana(chars.map((_, index) => answer.furigana?.[index] ?? '')); setAdminOkurigana(chars.map((_, index) => answer.okurigana?.[index] ?? '')); setAdminHyphens(new Set(answer.hyphens)); setAdminEditingAnswer(false); }} disabled={saving}>{'\u30ad\u30e3\u30f3\u30bb\u30eb'}</button>
+            <button type="button" className="admin-secondary-btn" onClick={() => { setAdminMarks(chars.map((_, index) => answer.marks[index] ?? '')); setAdminFurigana(chars.map((_, index) => answer.furigana?.[index] ?? '')); setAdminOkurigana(chars.map((_, index) => answer.okurigana?.[index] ?? '')); setAdminMarkY(chars.map((_, index) => answer.markY?.[index] ?? 0)); setAdminFuriganaY(chars.map((_, index) => answer.furiganaY?.[index] ?? 0)); setAdminOkuriganaY(chars.map((_, index) => answer.okuriganaY?.[index] ?? 0)); setAdminHyphens(new Set(answer.hyphens)); setAdminEditingAnswer(false); }} disabled={saving}>{'\u30ad\u30e3\u30f3\u30bb\u30eb'}</button>
             {message && <span className="admin-message">{message}</span>}
           </>
         ) : lineIndexes.length > 0 ? (
@@ -860,6 +894,9 @@ function KaeritenInlineExercise({ target, section, isAdmin, onRecord, onUpdateTa
     marks: nextMarks,
     furigana: answer.furigana,
     okurigana: answer.okurigana,
+    markY: answer.markY,
+    furiganaY: answer.furiganaY,
+    okuriganaY: answer.okuriganaY,
     hyphens: [...nextHyphens],
   }, target.surface);
 
