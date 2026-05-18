@@ -123,6 +123,15 @@ service cloud.firestore {
       allow read: if isOwner(uid) || isAdmin();
       allow write: if isOwner(uid) || isAdmin();
     }
+    match /{path=**}/account/{accountId} {
+      allow read: if isAdmin();
+    }
+    match /{path=**}/profile/{profileId} {
+      allow read: if isAdmin();
+    }
+    match /{path=**}/history/{historyId} {
+      allow read: if isAdmin();
+    }
     match /whispers/{whisperId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null
