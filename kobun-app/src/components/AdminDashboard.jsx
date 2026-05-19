@@ -76,6 +76,7 @@ function UserTable({ users, textbooks }) {
             <th>ユーザーネーム</th>
             <th>ひとこと</th>
             <th>Gmail</th>
+            <th>最終ログイン</th>
             <th>利用番号</th>
             <th>ポイント</th>
             <th>最終学習</th>
@@ -91,6 +92,7 @@ function UserTable({ users, textbooks }) {
               <td>{user.account?.username || '-'}</td>
               <td>{user.account?.bio || '-'}</td>
               <td>{user.account?.email ?? '-'}</td>
+              <td>{fmtDate(user.lastSeenAt)}</td>
               <td>{user.account?.studentCode ?? user.account?.requestedStudentCode ?? '-'}</td>
               <td>{user.profile?.points ?? 0} pt</td>
               <td>{fmtDate(user.summary.lastStudiedAt)}</td>
@@ -107,7 +109,7 @@ function UserTable({ users, textbooks }) {
             </tr>
           ))}
           {users.length === 0 && (
-            <tr><td colSpan="10" className="admin-dash-empty">ユーザー情報がまだありません</td></tr>
+            <tr><td colSpan="11" className="admin-dash-empty">ユーザー情報がまだありません</td></tr>
           )}
         </tbody>
       </table>
