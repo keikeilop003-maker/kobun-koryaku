@@ -97,6 +97,14 @@ function targetOrder(section, target) {
   return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
 }
 
+function targetSelectionKey(target) {
+  if (!target) return null;
+  if (target.groupId) return `group:${target.groupId}`;
+  if (target.customDocId) return `custom:${target.customDocId}`;
+  if (target.id) return `id:${target.id}`;
+  return null;
+}
+
 function AppInner() {
   const { user, logout } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin(user);
@@ -147,7 +155,7 @@ function AppInner() {
   }, []);
   const handleSelectTarget = useCallback((target, section) => {
     setSelectedTarget(current => (
-      current?.id === target?.id && current?.groupId === target?.groupId ? current : target
+      targetSelectionKey(current) === targetSelectionKey(target) ? current : target
     ));
     setSelectedSection(current => (
       current?.id === section?.id ? current : section

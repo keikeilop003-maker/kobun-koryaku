@@ -72,6 +72,20 @@ function questionCardKey(target) {
   return target.customDocId ?? target.id;
 }
 
+function targetSelectionKey(target) {
+  if (!target) return null;
+  if (target.groupId) return `group:${target.groupId}`;
+  if (target.customDocId) return `custom:${target.customDocId}`;
+  if (target.id) return `id:${target.id}`;
+  return null;
+}
+
+function isSameTargetSelection(a, b) {
+  const aKey = targetSelectionKey(a);
+  const bKey = targetSelectionKey(b);
+  return Boolean(aKey && bKey && aKey === bKey);
+}
+
 function parseKanbunSyntaxForQuestions(value) {
   if (value && typeof value === 'object') {
     return Array.isArray(value.items) ? value.items : [value];
@@ -980,6 +994,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
   const cardRef = useRef(null);
   const formRef = useRef(null);
   const suppressAutoFocusRef = useRef(false);
+  const focusSyncTimerRef = useRef(null);
   const formKey = [
     target.id,
     editVersion,
@@ -1015,6 +1030,14 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
     return () => window.clearTimeout(timer);
   }, [editing, focusAfterEdit, formKey]);
 
+  useEffect(() => {
+    return () => {
+      if (focusSyncTimerRef.current) {
+        window.clearTimeout(focusSyncTimerRef.current);
+      }
+    };
+  }, []);
+
   const setResult = r => {
     setFeedback(null);
     setTimeout(() => {
@@ -1032,11 +1055,18 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
       ref={cardRef}
       className={`question-card${isSelected ? ' question-card--selected' : ''}`}
       onFocus={(event) => {
-        if (editing) return;
-        if (event.target !== event.currentTarget) {
-          suppressAutoFocusRef.current = true;
+        if (editing || isSelected || event.target === event.currentTarget) return;
+        const focusedElement = event.target;
+        suppressAutoFocusRef.current = true;
+        if (focusSyncTimerRef.current) {
+          window.clearTimeout(focusSyncTimerRef.current);
         }
-        onFocusTarget?.();
+        focusSyncTimerRef.current = window.setTimeout(() => {
+          focusSyncTimerRef.current = null;
+          if (cardRef.current?.contains(document.activeElement) || document.activeElement === focusedElement) {
+            onFocusTarget?.();
+          }
+        }, 0);
       }}
     >
       {showPanelHeader && <div className="panel-header">
@@ -1348,9 +1378,7 @@ export default function AnswerPanel({
           target={target}
           section={section}
           isSelected={
-            target.groupId
-              ? selectedTarget?.groupId === target.groupId
-              : selectedTarget?.id === target.id
+            isSameTargetSelection(selectedTarget, target)
           }
           initialFeedback={lastFeedback(target.id)}
           onHistoryUpdate={r => recordHistory(target, section, r)}
