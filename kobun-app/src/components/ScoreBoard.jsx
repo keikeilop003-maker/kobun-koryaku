@@ -2,14 +2,53 @@ import { useMemo, useState, useRef } from 'react';
 import { exportCsv } from '../services/export';
 
 const TYPE_LABEL = {
-  vocab: '単語', aux: '助動詞', verb: '動詞', adj: '形容詞', particle: '助詞',
-  grammar: '文法・句法', kundoku: '書き下し', kaeriten: '返り点', translation: '現代語訳', content: '内容読解',
+  vocab: '重要単語',
+  aux: '助動詞',
+  verb: '動詞',
+  adj: '形容詞',
+  particle: '助詞',
+  grammar: '文法・句法',
+  kundoku: '書き下し',
+  kaeriten: '返り点',
+  translation: '現代語訳',
+  content: '内容読解',
 };
 
 const TYPE_ORDER = ['vocab', 'grammar', 'kundoku', 'kaeriten', 'verb', 'adj', 'aux', 'particle', 'translation', 'content'];
+const KNOWLEDGE_TYPES = ['vocab', 'grammar', 'kundoku', 'kaeriten', 'verb', 'adj', 'aux', 'particle'];
+const CORRECT = '正解';
+const PARTIAL = '部分正解';
+const WRONG = '不正解';
 
-const JUDGE_ICON = { '正解': '○', '部分正解': '△', '不正解': '✕' };
-const JUDGE_CLASS = { '正解': 'correct', '部分正解': 'partial', '不正解': 'wrong' };
+const JUDGE_ICON = { [CORRECT]: '○', [PARTIAL]: '△', [WRONG]: '×' };
+const JUDGE_CLASS = { [CORRECT]: 'correct', [PARTIAL]: 'partial', [WRONG]: 'wrong' };
+
+function pointsForType(type) {
+  if (type === 'translation') return 15;
+  if (type === 'content') return 10;
+  return 5;
+}
+
+function percent(done, total) {
+  return total ? Math.round((done / total) * 100) : 0;
+}
+
+function itemKey(kind, id) {
+  return `${kind}:${id}`;
+}
+
+function uniqueKnowledgeTargets(sections) {
+  const seen = new Set();
+  return (sections ?? [])
+    .flatMap(section => (section.targets ?? []).map(target => ({ section, target })))
+    .filter(({ target }) => KNOWLEDGE_TYPES.includes(target.type))
+    .filter(({ target }) => {
+      const key = target.groupId ? `group:${target.groupId}` : itemKey('target', target.id);
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
 
 function relativeTime(at) {
   const diff = Date.now() - at;
@@ -26,15 +65,18 @@ function deriveStats(entry) {
   const attempts = entry.attempts ?? [];
   const first = attempts[0]?.judgement ?? null;
   const last = attempts.at(-1)?.judgement ?? null;
-  const wrongCount = attempts.filter(a => a.judgement === '不正解').length;
-  const partialCount = attempts.filter(a => a.judgement === '部分正解').length;
-  const correctCount = attempts.filter(a => a.judgement === '正解').length;
+  const wrongCount = attempts.filter(a => a.judgement === WRONG).length;
+  const partialCount = attempts.filter(a => a.judgement === PARTIAL).length;
+  const correctCount = attempts.filter(a => a.judgement === CORRECT).length;
   return {
-    first, last,
-    wrongCount, partialCount, correctCount,
+    first,
+    last,
+    wrongCount,
+    partialCount,
+    correctCount,
     attemptCount: attempts.length,
     lastAt: attempts.at(-1)?.at ?? 0,
-    needsReview: first !== '正解' || last !== '正解',
+    needsReview: first !== CORRECT || last !== CORRECT,
   };
 }
 
@@ -62,8 +104,8 @@ function HistoryRow({ entry, stats, onJump, showStatus }) {
       <span className="history-surface">「{entry.surface}」</span>
       <AttemptTrace attempts={entry.attempts} />
       {showStatus && (
-        <span className={`review-status-badge ${stats.last === '正解' ? 'reached' : 'unreached'}`}>
-          {stats.last === '正解' ? '最終✓' : '未到達'}
+        <span className={`review-status-badge ${stats.last === CORRECT ? 'reached' : 'unreached'}`}>
+          {stats.last === CORRECT ? '最終正解' : '未到達'}
         </span>
       )}
       <span className="history-time">{relativeTime(stats.lastAt)}</span>
@@ -86,16 +128,16 @@ function ExportSection({ entries, textData }) {
     <div className="export-section">
       <div className="export-header">
         <button className="export-btn" onClick={handleExport}>
-          CSV エクスポート ↓
+          CSV エクスポート
         </button>
-        {done && <span className="export-done">ダウンロードしました ✓</span>}
+        {done && <span className="export-done">ダウンロードしました ○</span>}
       </div>
 
       <details className="export-details">
         <summary>活用方法</summary>
         <div className="export-guide">
           <div className="export-guide-block">
-            <div className="export-guide-title">📊 Excel に取り込む</div>
+            <div className="export-guide-title">Excel に取り込む</div>
             <ol className="export-guide-steps">
               <li>Excel を開き、「データ」タブをクリック</li>
               <li>「テキストまたは CSV から」を選択</li>
@@ -104,24 +146,14 @@ function ExportSection({ entries, textData }) {
             </ol>
           </div>
           <div className="export-guide-block">
-            <div className="export-guide-title">🃏 フラッシュカードアプリで復習</div>
-            <p className="export-guide-desc">CSV をそのまま取り込んで単語カードを自動生成できます。</p>
+            <div className="export-guide-title">フラッシュカードアプリで復習</div>
+            <p className="export-guide-desc">CSV をそのまま取り込んで単語カードを作成できます。</p>
             <div className="export-app-links">
-              <a
-                href="https://apps.ankiweb.net/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="export-app-link anki"
-              >
-                Anki（無料・PC/スマホ）
+              <a href="https://apps.ankiweb.net/" target="_blank" rel="noopener noreferrer" className="export-app-link anki">
+                Anki・無料・PC/スマホ
               </a>
-              <a
-                href="https://quizlet.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="export-app-link quizlet"
-              >
-                Quizlet（無料・ブラウザ）
+              <a href="https://quizlet.com/" target="_blank" rel="noopener noreferrer" className="export-app-link quizlet">
+                Quizlet・無料・ブラウザ
               </a>
             </div>
           </div>
@@ -138,11 +170,73 @@ export default function ScoreBoard({ entries, onJump, onClear, textData }) {
     return Object.values(entries ?? {}).map(e => ({ entry: e, stats: deriveStats(e) }));
   }, [entries]);
 
+  const courseProgress = useMemo(() => {
+    const knowledgeItems = uniqueKnowledgeTargets(textData?.sections);
+    const normalItems = (textData?.normalQuestions ?? []).map(question => ({ question }));
+    const itemByKey = new Map();
+
+    for (const { target } of knowledgeItems) {
+      itemByKey.set(itemKey('target', target.id), {
+        type: target.type,
+        points: pointsForType(target.type),
+        kind: 'knowledge',
+      });
+    }
+    for (const { question } of normalItems) {
+      itemByKey.set(itemKey('question', question.id), {
+        type: question.type,
+        points: pointsForType(question.type),
+        kind: 'normal',
+      });
+    }
+
+    const answeredKeys = new Set();
+    const correctKeys = new Set();
+    for (const { entry, stats } of enriched) {
+      const key = entry.questionId
+        ? itemKey('question', entry.questionId)
+        : entry.targetId
+          ? itemKey('target', entry.targetId)
+          : itemByKey.has(itemKey('target', entry.id)) ? itemKey('target', entry.id) : null;
+      if (!key || !itemByKey.has(key)) continue;
+      if (stats.attemptCount > 0) answeredKeys.add(key);
+      if (stats.correctCount > 0) correctKeys.add(key);
+    }
+
+    const maxPoints = [...itemByKey.values()].reduce((sum, item) => sum + item.points, 0);
+    const earnedPoints = [...correctKeys].reduce((sum, key) => sum + (itemByKey.get(key)?.points ?? 0), 0);
+    const questionTotal = itemByKey.size;
+
+    const byKnowledgeType = KNOWLEDGE_TYPES
+      .map(type => {
+        const items = knowledgeItems.filter(({ target }) => target.type === type);
+        const total = items.length;
+        const answered = items.filter(({ target }) => answeredKeys.has(itemKey('target', target.id))).length;
+        const correct = items.filter(({ target }) => correctKeys.has(itemKey('target', target.id))).length;
+        return { type, total, answered, correct, rate: percent(answered, total) };
+      })
+      .filter(item => item.total > 0);
+
+    return {
+      maxPoints,
+      earnedPoints,
+      pointRate: percent(earnedPoints, maxPoints),
+      questionTotal,
+      answeredTotal: answeredKeys.size,
+      answerRate: percent(answeredKeys.size, questionTotal),
+      knowledgeTotal: knowledgeItems.length,
+      knowledgeAnswered: knowledgeItems.filter(({ target }) => answeredKeys.has(itemKey('target', target.id))).length,
+      normalTotal: normalItems.length,
+      normalAnswered: normalItems.filter(({ question }) => answeredKeys.has(itemKey('question', question.id))).length,
+      byKnowledgeType,
+    };
+  }, [enriched, textData]);
+
   const total = enriched.length;
-  const firstCorrect = enriched.filter(x => x.stats.first === '正解').length;
-  const lastCorrect = enriched.filter(x => x.stats.last === '正解').length;
-  const firstAccuracy = total ? Math.round((firstCorrect / total) * 100) : 0;
-  const lastAccuracy = total ? Math.round((lastCorrect / total) * 100) : 0;
+  const firstCorrect = enriched.filter(x => x.stats.first === CORRECT).length;
+  const lastCorrect = enriched.filter(x => x.stats.last === CORRECT).length;
+  const firstAccuracy = percent(firstCorrect, total);
+  const lastAccuracy = percent(lastCorrect, total);
 
   const totalCorrectAttempts = enriched.reduce((s, x) => s + x.stats.correctCount, 0);
   const totalPartialAttempts = enriched.reduce((s, x) => s + x.stats.partialCount, 0);
@@ -156,14 +250,14 @@ export default function ScoreBoard({ entries, onJump, onClear, textData }) {
       const t = entry.type;
       if (!buckets[t]) buckets[t] = { total: 0, firstCorrect: 0 };
       buckets[t].total++;
-      if (stats.first === '正解') buckets[t].firstCorrect++;
+      if (stats.first === CORRECT) buckets[t].firstCorrect++;
     }
     return TYPE_ORDER
       .filter(t => buckets[t])
       .map(t => ({
         type: t,
         ...buckets[t],
-        rate: Math.round((buckets[t].firstCorrect / buckets[t].total) * 100),
+        rate: percent(buckets[t].firstCorrect, buckets[t].total),
       }));
   }, [enriched]);
 
@@ -175,9 +269,9 @@ export default function ScoreBoard({ entries, onJump, onClear, textData }) {
 
   const fullList = useMemo(() => {
     let list = enriched;
-    if (filter === 'first-correct') list = list.filter(x => x.stats.first === '正解');
-    if (filter === 'first-partial') list = list.filter(x => x.stats.first === '部分正解');
-    if (filter === 'first-wrong')   list = list.filter(x => x.stats.first === '不正解');
+    if (filter === 'first-correct') list = list.filter(x => x.stats.first === CORRECT);
+    if (filter === 'first-partial') list = list.filter(x => x.stats.first === PARTIAL);
+    if (filter === 'first-wrong') list = list.filter(x => x.stats.first === WRONG);
     return [...list].sort((a, b) => b.stats.lastAt - a.stats.lastAt);
   }, [enriched, filter]);
 
@@ -185,42 +279,71 @@ export default function ScoreBoard({ entries, onJump, onClear, textData }) {
     if (window.confirm('学習記録をすべて削除しますか？')) onClear?.();
   };
 
-  if (total === 0) {
-    return (
-      <div className="scoreboard">
-        <div className="score-header">
-          <div className="score-title">学習記録</div>
-        </div>
-        <div className="score-empty">問題に挑戦すると記録が表示されます</div>
-      </div>
-    );
-  }
-
   return (
     <div className="scoreboard">
       <div className="score-header">
         <div className="score-title">学習記録</div>
-        <button className="score-clear-btn" onClick={handleClear}>全消去</button>
+        {total > 0 && <button className="score-clear-btn" onClick={handleClear}>全消去</button>}
       </div>
 
       <div className="score-summary-grid">
         <div className="score-summary-card primary">
+          <div className="summary-label">ポイント獲得率</div>
+          <div className="summary-value">{courseProgress.pointRate}%</div>
+          <div className="summary-sub">{courseProgress.earnedPoints} / {courseProgress.maxPoints} pt</div>
+        </div>
+        <div className="score-summary-card">
+          <div className="summary-label">問題解答率</div>
+          <div className="summary-value">{courseProgress.answerRate}%</div>
+          <div className="summary-sub">{courseProgress.answeredTotal} / {courseProgress.questionTotal} 問</div>
+        </div>
+        <div className="score-summary-card">
           <div className="summary-label">初回正答率</div>
           <div className="summary-value">{firstAccuracy}%</div>
           <div className="summary-sub">{firstCorrect} / {total} 問</div>
         </div>
         <div className="score-summary-card">
-          <div className="summary-label">最終到達率</div>
+          <div className="summary-label">最終正答率</div>
           <div className="summary-value">{lastAccuracy}%</div>
           <div className="summary-sub">{lastCorrect} / {total} 問</div>
         </div>
       </div>
 
+      <div className="score-section course-progress-section">
+        <div className="score-section-title">教材全体の進行度</div>
+        <div className="course-progress-grid">
+          <div className="course-progress-card">
+            <span className="course-progress-label">知識問題</span>
+            <strong>{percent(courseProgress.knowledgeAnswered, courseProgress.knowledgeTotal)}%</strong>
+            <span>{courseProgress.knowledgeAnswered} / {courseProgress.knowledgeTotal} 問</span>
+          </div>
+          <div className="course-progress-card">
+            <span className="course-progress-label">読解問題</span>
+            <strong>{percent(courseProgress.normalAnswered, courseProgress.normalTotal)}%</strong>
+            <span>{courseProgress.normalAnswered} / {courseProgress.normalTotal} 問</span>
+          </div>
+        </div>
+        {courseProgress.byKnowledgeType.length > 0 && (
+          <div className="type-bars knowledge-progress-bars">
+            {courseProgress.byKnowledgeType.map(item => (
+              <div key={item.type} className="type-bar-row">
+                <span className="type-bar-label">{TYPE_LABEL[item.type] ?? item.type}</span>
+                <div className="type-bar-track">
+                  <div className="type-bar-fill" style={{ width: `${item.rate}%` }} />
+                </div>
+                <span className="type-bar-value">{item.rate}%</span>
+                <span className="type-bar-count">({item.answered}/{item.total})</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div className="score-breakdown">
         <span className="breakdown-item correct">○ {totalCorrectAttempts}</span>
         <span className="breakdown-item partial">△ {totalPartialAttempts}</span>
-        <span className="breakdown-item wrong">✕ {totalWrongAttempts}</span>
-        <span className="breakdown-meta">計 {totalAttempts} 試行 / 平均 {avgAttempts} 試行/問</span>
+        <span className="breakdown-item wrong">× {totalWrongAttempts}</span>
+        <span className="breakdown-meta">計 {totalAttempts} 試行 / 平均 {avgAttempts} 試行・問</span>
       </div>
 
       {byType.length > 0 && (
@@ -241,6 +364,8 @@ export default function ScoreBoard({ entries, onJump, onClear, textData }) {
         </div>
       )}
 
+      {total === 0 && <div className="score-empty">問題に解答すると記録が表示されます</div>}
+
       {reviewList.length > 0 && (
         <div className="score-section review-section">
           <div className="score-section-title">復習リスト ({reviewList.length}問)</div>
@@ -260,7 +385,7 @@ export default function ScoreBoard({ entries, onJump, onClear, textData }) {
             { k: 'all', label: '全' },
             { k: 'first-correct', label: '初回○' },
             { k: 'first-partial', label: '初回△' },
-            { k: 'first-wrong',   label: '初回✕' },
+            { k: 'first-wrong', label: '初回×' },
           ].map(o => (
             <button
               key={o.k}

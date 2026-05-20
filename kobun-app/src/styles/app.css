@@ -3097,7 +3097,7 @@ span.kaeriten-source-hyphen.active {
 
 .score-summary-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 16px;
 }
@@ -3143,6 +3143,55 @@ span.kaeriten-source-hyphen.active {
   letter-spacing: 0.05em; margin-bottom: 8px;
 }
 .score-section-hint { font-size: 0.7rem; color: #999; margin-bottom: 8px; }
+
+.course-progress-section {
+  background: #fff;
+  border: 1px solid #ddd8cc;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.course-progress-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.course-progress-card {
+  background: #faf8f3;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 8px;
+  align-items: baseline;
+}
+
+.course-progress-label {
+  grid-column: 1 / -1;
+  font-size: 0.72rem;
+  color: #777;
+  font-weight: bold;
+}
+
+.course-progress-card strong {
+  font-size: 1.4rem;
+  color: #2d3a5e;
+  line-height: 1.1;
+}
+
+.course-progress-card span:last-child {
+  font-size: 0.72rem;
+  color: #777;
+  text-align: right;
+}
+
+.knowledge-progress-bars {
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
 
 .type-bars { display: flex; flex-direction: column; gap: 4px; }
 .type-bar-row {
