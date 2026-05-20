@@ -69,18 +69,7 @@ function buildTargetOrderMap(section, targets) {
 }
 
 function questionCardKey(target) {
-  return [
-    target.id,
-    target.customDocId ?? '',
-    target.start ?? '',
-    target.surface ?? '',
-    target.answer ?? '',
-    target.meaning ?? '',
-    target.baseForm ?? '',
-    target.conjugationType ?? '',
-    target.formInText ?? '',
-    target.questionText ?? '',
-  ].join(':');
+  return target.customDocId ?? target.id;
 }
 
 function parseKanbunSyntaxForQuestions(value) {
@@ -294,7 +283,7 @@ const VocabForm = forwardRef(function VocabForm({ target, section, onResult, ini
     if (e.key === 'Enter' && submitted) { e.preventDefault(); onAdvance?.(); }
   };
   return (
-    <div className="form-group" onFocus={() => onFocusTarget?.()}>
+    <div className="form-group">
       <div className="form-textarea-row">
         <textarea ref={textareaRef} value={ans} onChange={e => { const v = e.target.value; setAns(v); onInputChange?.({ ans: v, submitted }); }} onKeyDown={handleTextareaKeyDown} rows={3} />
         <button ref={btnRef} onClick={submit} disabled={loading} onKeyDown={handleBtnKeyDown}>{loading ? '採点中…' : '採点'}</button>
@@ -335,7 +324,7 @@ const AuxForm = forwardRef(function AuxForm({ target, section, onResult, initial
   };
 
   return (
-    <div className="form-group" onFocus={() => onFocusTarget?.()}>
+    <div className="form-group">
       <div className="form-inline-row">
         <input
           ref={inputRef}
@@ -388,7 +377,7 @@ const VerbForm = forwardRef(function VerbForm({ target, section, onResult, initi
   };
 
   return (
-    <div className="form-group" onFocus={() => onFocusTarget?.()}>
+    <div className="form-group">
       <div className="verb-fields">
         <div className="field-row">
           <span>基本形</span>
@@ -459,7 +448,7 @@ const AdjForm = forwardRef(function AdjForm({ target, section, onResult, initial
   };
 
   return (
-    <div className="form-group" onFocus={() => onFocusTarget?.()}>
+    <div className="form-group">
       <div className="verb-fields">
         <div className="field-row">
           <span>基本形（終止形）</span>
@@ -515,7 +504,7 @@ const ParticleForm = forwardRef(function ParticleForm({ target, section, onResul
   };
 
   return (
-    <div className="form-group" onFocus={() => onFocusTarget?.()}>
+    <div className="form-group">
       <div className="form-inline-row">
         <input
           ref={inputRef}
@@ -559,7 +548,7 @@ const GrammarForm = forwardRef(function GrammarForm({ target, section, onResult,
     if (e.key === 'Enter' && submitted) { e.preventDefault(); onAdvance?.(); }
   };
   return (
-    <div className="form-group" onFocus={() => onFocusTarget?.()}>
+    <div className="form-group">
       <div className="form-textarea-row">
         <textarea ref={textareaRef} value={ans} onChange={e => { const v = e.target.value; setAns(v); onInputChange?.({ ans: v, submitted }); }} onKeyDown={handleTextareaKeyDown} rows={3} />
         <button ref={btnRef} onClick={submit} disabled={loading} onKeyDown={handleBtnKeyDown}>{loading ? '採点中…' : '採点'}</button>
@@ -634,7 +623,7 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
   };
 
   return (
-    <div className="form-group kaeriten-line-form" onFocus={() => onFocusTarget?.()}>
+    <div className="form-group kaeriten-line-form">
       <div className="kaeriten-line-stage source-text-pane">
         <div className="kaeriten-line-display">
           <InstructionLane />
@@ -771,7 +760,7 @@ const KundokuForm = forwardRef(function KundokuForm({ target, section, onResult,
   };
 
   return (
-    <div className="form-group kundoku-practice-form" onFocus={() => onFocusTarget?.()}>
+    <div className="form-group kundoku-practice-form">
       <div className="kundoku-form-instruction">漢字候補を使いながら書き下し文を入力してください。</div>
       <div className="kundoku-candidate-row" aria-label="原文の漢字候補">
         {candidateChars.map((char, index) => (
@@ -854,7 +843,7 @@ const SyntaxGrammarForm = forwardRef(function SyntaxGrammarForm({ target, sectio
   };
 
   return (
-    <div className="form-group" onFocus={() => onFocusTarget?.()}>
+    <div className="form-group">
       <div className="syntax-answer-form">
         <label>
           {'用法'}
@@ -1091,16 +1080,16 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
           }}
         />
       )}
-      {target.type === 'vocab'    && <VocabForm    key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
-      {target.type === 'aux'      && <AuxForm      key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
-      {target.type === 'verb'     && <VerbForm     key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
-      {target.type === 'adj'      && <AdjForm      key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
-      {target.type === 'particle' && <ParticleForm key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'vocab'    && <VocabForm    ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'aux'      && <AuxForm      ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'verb'     && <VerbForm     ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'adj'      && <AdjForm      ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'particle' && <ParticleForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'grammar' && target.generated && (target.syntaxUsage !== undefined || target.syntaxTranslation !== undefined)
-        ? <SyntaxGrammarForm key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />
-        : target.type === 'grammar' && <GrammarForm key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
-      {target.type === 'kundoku' && <KundokuForm key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
-      {target.type === 'kaeriten' && <KaeritenForm key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+        ? <SyntaxGrammarForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />
+        : target.type === 'grammar' && <GrammarForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'kundoku' && <KundokuForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'kaeriten' && <KaeritenForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {feedback && !isScoreType && <FeedbackCard type={target.type} data={feedback} />}
     </div>
   );
@@ -1364,3 +1353,4 @@ export default function AnswerPanel({
     </div>
   );
 }
+
