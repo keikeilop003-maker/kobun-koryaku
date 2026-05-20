@@ -5467,3 +5467,393 @@ span.kaeriten-source-hyphen.active {
   background: #f3f0e8;
   color: #555;
 }
+
+/* ===== Mobile Student Play Layout ===== */
+@media (max-width: 760px) {
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .app-root {
+    height: 100dvh;
+    min-height: 100svh;
+  }
+
+  .app-header {
+    padding: 8px 10px;
+    gap: 6px 8px;
+  }
+
+  .header-left {
+    min-width: 0;
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+  }
+
+  .app-title,
+  .text-source,
+  .text-title {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .legend {
+    flex: 1 1 100%;
+    margin-left: 0;
+    gap: 4px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    flex-wrap: nowrap;
+  }
+
+  .legend-item {
+    flex: 0 0 auto;
+    font-size: 0.68rem;
+    padding: 2px 7px;
+  }
+
+  .header-right {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .app-body {
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .app-body--select .left-col {
+    flex: 1 1 auto;
+    min-height: 0;
+    border-right: 0;
+  }
+
+  .app-body--select .right-col {
+    display: none;
+  }
+
+  .left-col {
+    flex: 0 0 40dvh;
+    min-height: 220px;
+    max-height: 42dvh;
+    border-right: 0;
+    border-bottom: 1px solid #ddd8cc;
+  }
+
+  .right-col {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .vertical-viewer {
+    padding: 8px;
+    gap: 8px;
+    flex-direction: column;
+    align-items: stretch;
+    overflow: hidden;
+    min-height: 0;
+    height: 100%;
+  }
+
+  .left-view-tabs {
+    position: static;
+    display: flex;
+    flex-direction: row;
+    flex: 0 0 auto;
+    min-width: 0;
+    width: 100%;
+    min-height: 0;
+    gap: 4px;
+    align-items: stretch;
+  }
+
+  .left-tab-group,
+  .left-tab-top-actions,
+  .left-tab-bottom-actions {
+    flex-direction: row;
+    gap: 4px;
+  }
+
+  .left-tab-group,
+  .left-tab-bottom-actions {
+    margin-top: 0;
+  }
+
+  .left-tab-group {
+    flex: 1 1 auto;
+  }
+
+  .left-tab-button,
+  .left-tab-action {
+    min-width: 0;
+    border: 1px solid #d5cfbf;
+    border-radius: 6px;
+    padding: 7px 5px;
+    font-size: 0.72rem;
+    line-height: 1.25;
+  }
+
+  .left-tab-button {
+    flex: 1 1 0;
+  }
+
+  .left-tab-action {
+    flex: 0 0 auto;
+    min-width: 48px;
+  }
+
+  .left-tab-button.active {
+    transform: none;
+  }
+
+  .left-view-body {
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 10px;
+  }
+
+  .section-card,
+  .notes-section-card {
+    padding: 10px 12px;
+    border-radius: 6px;
+  }
+
+  .section-title {
+    margin-bottom: 8px;
+  }
+
+  .source-kundoku-row {
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .source-text-pane {
+    min-width: 0;
+  }
+
+  .source-kundoku-row .student-kundoku-area {
+    max-width: 44%;
+  }
+
+  .vertical-text-scroll,
+  .kundoku-text-scroll,
+  .reference-text-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .vertical-text {
+    font-size: 1.08rem;
+    line-height: 1.9;
+    height: min(var(--source-text-height, 520px), 28dvh);
+  }
+
+  .vertical-text--kanbun {
+    font-size: 1.34rem;
+    line-height: 2;
+  }
+
+  .kundoku-vertical-text {
+    font-size: 0.82rem;
+    line-height: 1.75;
+    height: min(var(--source-text-height, 520px), 28dvh);
+  }
+
+  .reference-vertical-text {
+    font-size: 0.82rem;
+    line-height: 1.75;
+    max-height: 26dvh;
+  }
+
+  .tab-bar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tab-bar button {
+    flex: 0 0 auto;
+    min-width: 92px;
+    padding: 9px 10px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  .answer-panel,
+  .answer-panel-list,
+  .normal-questions,
+  .scoreboard {
+    padding: 10px;
+  }
+
+  .answer-panel-list {
+    gap: 10px;
+  }
+
+  .question-card,
+  .normal-question-card,
+  .feedback-card {
+    border-radius: 6px;
+  }
+
+  .question-card {
+    padding: 12px;
+  }
+
+  .panel-header {
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .question-surface,
+  .selected-surface {
+    font-size: 1.08rem;
+  }
+
+  .type-badge {
+    font-size: 0.68rem;
+    padding: 2px 7px;
+  }
+
+  .form-group textarea,
+  .form-group input,
+  .syntax-answer-form input,
+  .nq-body textarea {
+    font-size: 16px;
+  }
+
+  .form-inline-row input {
+    flex: 0 1 180px;
+    width: min(180px, calc(100vw - 98px));
+    max-width: calc(100vw - 98px);
+  }
+
+  .field-row {
+    grid-template-columns: minmax(82px, 112px) minmax(0, 180px) max-content;
+    column-gap: 4px;
+    row-gap: 8px;
+  }
+
+  .field-row span {
+    min-width: 0;
+    font-size: 0.78rem;
+  }
+
+  .field-row input {
+    max-width: 180px;
+  }
+
+  .syntax-answer-form {
+    grid-template-columns: 1fr;
+  }
+
+  .nq-header {
+    gap: 6px;
+    padding: 10px 12px;
+  }
+
+  .nq-title {
+    min-width: 0;
+    font-size: 0.84rem;
+  }
+
+  .nq-body {
+    padding: 12px;
+  }
+
+  .nq-question-row,
+  .nq-input-row {
+    flex-direction: column;
+  }
+
+  .nq-input-row textarea {
+    width: 100%;
+    min-height: 112px;
+  }
+
+  .nq-action-col,
+  .nq-action-col button,
+  .nq-choice-submit {
+    width: 100%;
+  }
+
+  .nq-choices {
+    gap: 8px;
+  }
+
+  .nq-choice {
+    padding: 10px 12px;
+  }
+
+  .score-header,
+  .score-breakdown,
+  .history-item {
+    flex-wrap: wrap;
+  }
+
+  .score-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .score-summary-card {
+    padding: 10px 8px;
+  }
+
+  .score-summary-card .summary-value {
+    font-size: 1.6rem;
+  }
+
+  .type-bar-row {
+    grid-template-columns: 52px minmax(0, 1fr) 34px;
+  }
+
+  .type-bar-count {
+    grid-column: 2 / -1;
+  }
+
+  .history-surface {
+    flex: 1 1 100%;
+    white-space: normal;
+  }
+
+  .history-time {
+    min-width: auto;
+    margin-left: auto;
+  }
+
+  .textbook-select-area {
+    padding: 12px 10px;
+  }
+
+  .textbook-card-btn {
+    padding: 14px 12px;
+  }
+}
+
+@media (max-width: 380px) {
+  .left-col {
+    flex-basis: 38dvh;
+    min-height: 200px;
+  }
+
+  .field-row {
+    grid-template-columns: minmax(74px, 96px) minmax(0, 160px) max-content;
+  }
+
+  .field-row input {
+    max-width: 160px;
+  }
+}

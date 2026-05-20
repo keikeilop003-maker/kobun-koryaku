@@ -704,7 +704,7 @@ function AppInner() {
         </div>
       </header>
 
-      <div className="app-body">
+      <div className={`app-body${noSelection ? ' app-body--select' : ''}`}>
         {isAdmin && !viewAsStudent && showAdminDashboard ? (
           <AdminDashboard
             isAdmin={isAdmin}
