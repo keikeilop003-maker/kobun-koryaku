@@ -103,10 +103,73 @@ body {
   border-right: 1px solid #ddd8cc;
 }
 
+.app-body--right-collapsed .left-col {
+  flex: 1 1 auto;
+}
+
 .right-col {
-  flex: 1;
+  flex: 1 1 0;
   overflow-y: auto;
   background: #fff;
+  min-width: 290px;
+  transition: flex-basis 0.2s ease, min-width 0.2s ease;
+}
+
+.right-col--collapsed {
+  flex: 0 0 56px;
+  min-width: 56px;
+  overflow: hidden;
+}
+
+.right-panel-header {
+  align-items: center;
+  background: #fff;
+  border-bottom: 1px solid #ddd8cc;
+  display: flex;
+  justify-content: flex-end;
+  min-height: 38px;
+  padding: 5px 8px;
+  position: sticky;
+  top: 0;
+  z-index: 12;
+}
+
+.right-collapse-toggle {
+  background: #2d3a5e;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.76rem;
+  font-weight: bold;
+  line-height: 1;
+  padding: 7px 10px;
+  white-space: nowrap;
+}
+
+.right-collapse-toggle:hover {
+  background: #4a6fa5;
+}
+
+.right-col--collapsed .right-panel-header {
+  border-bottom: 0;
+  height: 100%;
+  justify-content: center;
+  padding: 8px 5px;
+}
+
+.right-col--collapsed .right-collapse-toggle {
+  writing-mode: vertical-rl;
+  padding: 10px 7px;
+}
+
+.right-panel-content {
+  min-width: 0;
+}
+
+.right-panel-content .tab-bar {
+  top: 38px;
 }
 
 /* ===== Tab Bar ===== */
@@ -188,7 +251,8 @@ body {
 }
 
 .left-tab-group {
-  margin-top: 18px;
+  gap: 10px;
+  margin-top: 24px;
 }
 
 .left-tab-bottom-actions {
@@ -4913,6 +4977,45 @@ span.kaeriten-source-hyphen.active {
   gap: 4px;
   flex-wrap: wrap;
 }
+
+.analysis-post-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin: 10px 0;
+}
+
+.analysis-post-grid > .analysis-post {
+  background: #fff;
+  border: 1px solid #e1dccf;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  min-height: 180px;
+  padding: 12px;
+}
+
+.analysis-post-grid .analysis-post-main {
+  height: 100%;
+}
+
+.analysis-post-grid .analysis-post-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.analysis-post-grid .analysis-post-text {
+  flex: 1;
+}
+
+.analysis-post-grid .analysis-post-actions {
+  margin-top: auto;
+}
+
+.analysis-post-grid .analysis-replies {
+  max-height: 180px;
+  overflow-y: auto;
+}
 .analysis-action-btn {
   display: inline-flex;
   align-items: center;
@@ -4962,6 +5065,35 @@ span.kaeriten-source-hyphen.active {
   flex-direction: column;
   gap: 10px;
   width: 100%;
+}
+
+.share-theme-tools {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.share-theme-tools button {
+  background: #5c6bc0;
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  padding: 6px 12px;
+}
+
+.share-theme-tools button:hover:not(:disabled) {
+  background: #3949ab;
+}
+
+.share-theme-tools button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .share-board-title,
@@ -5764,8 +5896,23 @@ span.kaeriten-source-hyphen.active {
   .right-col {
     flex: 1 1 0;
     min-height: 0;
+    min-width: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+  }
+
+  .right-col--collapsed {
+    flex: 0 0 42px;
+    min-height: 42px;
+    min-width: 0;
+  }
+
+  .right-col--collapsed .right-panel-header {
+    height: 42px;
+  }
+
+  .right-col--collapsed .right-collapse-toggle {
+    writing-mode: horizontal-tb;
   }
 
   .vertical-viewer {
@@ -5804,6 +5951,7 @@ span.kaeriten-source-hyphen.active {
 
   .left-tab-group {
     flex: 1 1 auto;
+    gap: 8px;
   }
 
   .left-tab-button,
@@ -5834,6 +5982,10 @@ span.kaeriten-source-hyphen.active {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     gap: 10px;
+  }
+
+  .analysis-post-grid {
+    grid-template-columns: 1fr;
   }
 
   .section-card,

@@ -126,6 +126,7 @@ function AppInner() {
   const [contactOpen, setContactOpen] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [viewAsStudent, setViewAsStudent] = useState(false);
+  const [rightCollapsed, setRightCollapsed] = useState(false);
   const [adminSelection, setAdminSelection] = useState(null);
   const [addingType, setAddingType] = useState(null);
   const [textbookOrder, setTextbookOrder] = useState([]);
@@ -748,7 +749,7 @@ function AppInner() {
         </div>
       </header>
 
-      <div className={`app-body${noSelection ? ' app-body--select' : ''}`}>
+      <div className={`app-body${noSelection ? ' app-body--select' : ''}${rightCollapsed && !noSelection ? ' app-body--right-collapsed' : ''}`}>
         {isAdmin && !viewAsStudent && showAdminDashboard ? (
           <AdminDashboard
             isAdmin={isAdmin}
@@ -845,11 +846,24 @@ function AppInner() {
           ) : null}
         </div>
 
-        <div className="right-col">
+        <div className={`right-col${rightCollapsed ? ' right-col--collapsed' : ''}`}>
           {noSelection ? null : isLoadingText ? (
             <div className="loading">読み込み中…</div>
           ) : (
             <>
+              <div className="right-panel-header">
+                <button
+                  type="button"
+                  className="right-collapse-toggle"
+                  onClick={() => setRightCollapsed(value => !value)}
+                  aria-expanded={!rightCollapsed}
+                  title={rightCollapsed ? '右カラムを展開' : '右カラムを縮小'}
+                >
+                  {rightCollapsed ? '展開' : '縮小'}
+                </button>
+              </div>
+              {!rightCollapsed && (
+              <div className="right-panel-content">
               <div className="tab-bar">
                 <button className={rightTab === 'knowledge' ? 'active' : ''} onClick={() => setRightTab('knowledge')}>知識問題</button>
                 <button className={rightTab === 'normal' ? 'active' : ''} onClick={() => setRightTab('normal')}>
@@ -917,6 +931,8 @@ function AppInner() {
                   textData={currentTextData}
                 />
               </div>
+              </div>
+              )}
             </>
           )}
         </div>

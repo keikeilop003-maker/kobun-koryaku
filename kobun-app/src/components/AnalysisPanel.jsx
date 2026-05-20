@@ -314,13 +314,38 @@ function splitPosts(posts) {
 function ShareTheme({ theme, posts, reactions, analysis, avatarSeed, equipped, currentUid, isAdmin }) {
   const [open, setOpen] = useState(false);
   const [replyContext, setReplyContext] = useState(null);
+  const [correcting, setCorrecting] = useState(false);
+  const [message, setMessage] = useState('');
   const { topLevel, repliesByParent } = useMemo(() => splitPosts(posts), [posts]);
+  const uncorrectedCount = posts.filter(post => !post.replyTo && !post.correction).length;
+
+  const correctAll = async () => {
+    if (correcting) return;
+    setCorrecting(true);
+    setMessage('');
+    try {
+      const result = await analysis.batchCorrectThemePosts(theme.id);
+      setMessage(`${result.corrected}件を添削しました`);
+    } catch (e) {
+      setMessage(`添削に失敗しました: ${e.code ?? e.message ?? 'unknown error'}`);
+    } finally {
+      setCorrecting(false);
+    }
+  };
 
   return (
     <section className={`analysis-theme-item${open ? ' open' : ''}`}>
       <ThemeHeader theme={theme} open={open} onToggle={() => setOpen(value => !value)} postCount={posts.length} />
       {open && (
         <div className="analysis-thread">
+          {isAdmin && (
+            <div className="share-theme-tools">
+              <button type="button" onClick={correctAll} disabled={correcting || uncorrectedCount === 0}>
+                {correcting ? '添削中...' : `一斉添削 (${uncorrectedCount})`}
+              </button>
+              {message && <span className={message.includes('失敗') ? 'analysis-admin-error' : 'analysis-admin-done'}>{message}</span>}
+            </div>
+          )}
           {theme.modelAnswer && (
             <div className="analysis-model-answer">
               <div className="analysis-model-answer-title">模範解答</div>
@@ -335,21 +360,23 @@ function ShareTheme({ theme, posts, reactions, analysis, avatarSeed, equipped, c
           {topLevel.length === 0 ? (
             <p className="analysis-empty-thread">まだ投稿がありません。</p>
           ) : (
-            topLevel.map(post => (
-              <PostItem
-                key={post.id}
-                post={post}
-                replies={repliesByParent[post.id] ?? []}
-                reactions={reactions}
-                currentUid={currentUid}
-                avatarSeed={avatarSeed}
-                equipped={equipped}
-                isAdmin={isAdmin}
-                onReply={setReplyContext}
-                onToggleReaction={analysis.toggleReaction}
-                onTogglePin={analysis.togglePin}
-              />
-            ))
+            <div className="analysis-post-grid">
+              {topLevel.map(post => (
+                <PostItem
+                  key={post.id}
+                  post={post}
+                  replies={repliesByParent[post.id] ?? []}
+                  reactions={reactions}
+                  currentUid={currentUid}
+                  avatarSeed={avatarSeed}
+                  equipped={equipped}
+                  isAdmin={isAdmin}
+                  onReply={setReplyContext}
+                  onToggleReaction={analysis.toggleReaction}
+                  onTogglePin={analysis.togglePin}
+                />
+              ))}
+            </div>
           )}
           {replyContext && (
             <PostForm
@@ -394,25 +421,8 @@ export function ShareBoard({ analysis, avatarSeed, equipped, currentUid, isAdmin
   );
 }
 
-function AnalysisThemeComposer({ theme, posts, analysis, avatarSeed, equipped, isAdmin }) {
+function AnalysisThemeComposer({ theme, analysis, avatarSeed, equipped, isAdmin }) {
   const [editing, setEditing] = useState(false);
-  const [correcting, setCorrecting] = useState(false);
-  const [message, setMessage] = useState('');
-  const uncorrectedCount = posts.filter(post => !post.replyTo && !post.correction).length;
-
-  const correctAll = async () => {
-    if (correcting) return;
-    setCorrecting(true);
-    setMessage('');
-    try {
-      const result = await analysis.batchCorrectThemePosts(theme.id);
-      setMessage(`${result.corrected}件を添削しました`);
-    } catch (e) {
-      setMessage(`添削に失敗しました: ${e.code ?? e.message ?? 'unknown error'}`);
-    } finally {
-      setCorrecting(false);
-    }
-  };
 
   return (
     <section className="analysis-compose-card">
@@ -425,13 +435,9 @@ function AnalysisThemeComposer({ theme, posts, analysis, avatarSeed, equipped, i
         {isAdmin && (
           <div className="analysis-theme-admin-actions">
             <button type="button" onClick={() => setEditing(value => !value)}>{editing ? '編集を閉じる' : 'テーマ編集'}</button>
-            <button type="button" onClick={correctAll} disabled={correcting || uncorrectedCount === 0}>
-              {correcting ? '添削中...' : `一斉添削 (${uncorrectedCount})`}
-            </button>
           </div>
         )}
       </div>
-      {message && <div className={message.includes('失敗') ? 'analysis-admin-error' : 'analysis-admin-done'}>{message}</div>}
       {editing && (
         <ThemeForm
           initialTheme={theme}
@@ -446,7 +452,6 @@ function AnalysisThemeComposer({ theme, posts, analysis, avatarSeed, equipped, i
 
 export default function AnalysisPanel({ analysis, avatarSeed, equipped, isAdmin }) {
   const themes = analysis?.themes ?? [];
-  const posts = analysis?.posts ?? [];
 
   return (
     <div className="analysis-panel">
@@ -460,7 +465,6 @@ export default function AnalysisPanel({ analysis, avatarSeed, equipped, isAdmin 
         <AnalysisThemeComposer
           key={theme.id}
           theme={theme}
-          posts={posts.filter(post => post.themeId === theme.id)}
           analysis={analysis}
           avatarSeed={avatarSeed}
           equipped={equipped}
