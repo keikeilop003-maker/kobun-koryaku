@@ -1791,7 +1791,7 @@ function NotesTab({ textId, notes, sections, isAdmin, onUpdateSection }) {
   );
 }
 
-export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false, correctKaeritenLines = {} }) {
+export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false, correctKaeritenLines = {}, shareBoard = null }) {
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
   const visibleTab = activeTab;
@@ -1828,6 +1828,15 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
           >
             備考
           </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={visibleTab === 'share'}
+            className={`left-tab-button${visibleTab === 'share' ? ' active' : ''}`}
+            onClick={() => setActiveTab('share')}
+          >
+            共有ボード
+          </button>
         </div>
         <div className="left-tab-bottom-actions">
           <button type="button" className="left-tab-action" onClick={onContactAdmin}>連絡</button>
@@ -1858,8 +1867,10 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
               correctKaeritenLines={correctKaeritenLineKeys}
             />
           ))
-        ) : (
+        ) : visibleTab === 'notes' ? (
           <NotesTab textId={textId} notes={notes} sections={sections} isAdmin={isAdmin} onUpdateSection={onUpdateSection} />
+        ) : (
+          shareBoard ?? <p className="analysis-empty">共有ボードを読み込み中です。</p>
         )}
       </div>
     </div>

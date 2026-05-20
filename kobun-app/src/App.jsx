@@ -6,7 +6,7 @@ import ScoreBoard from './components/ScoreBoard';
 import LoginScreen from './components/LoginScreen';
 import AvatarIcon from './components/AvatarIcon';
 import AvatarCustomizer from './components/AvatarCustomizer';
-import AnalysisPanel from './components/AnalysisPanel';
+import AnalysisPanel, { ShareBoard } from './components/AnalysisPanel';
 import AdminDashboard from './components/AdminDashboard';
 import UserMessageModal from './components/UserMessageModal';
 import RegistrationScreen from './components/RegistrationScreen';
@@ -21,6 +21,7 @@ import useEditedTargets from './hooks/useEditedTargets';
 import useEditedSections from './hooks/useEditedSections';
 import useEditedNormalQuestions from './hooks/useEditedNormalQuestions';
 import useHiddenNormalQuestions from './hooks/useHiddenNormalQuestions';
+import useAnalysis from './hooks/useAnalysis';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { addDoc, collection, deleteDoc, doc, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from './services/firebase';
@@ -140,6 +141,7 @@ function AppInner() {
   const editedSectionMap = useEditedSections(textId);
   const editedNormalQuestionMap = useEditedNormalQuestions(textId);
   const hiddenNormalQuestionIds = useHiddenNormalQuestions(textId);
+  const analysis = useAnalysis(textId, user, effectiveIsAdmin);
   const { entries, record, clearAll } = useHistory(textId, user?.uid);
   const { profile, awardPoints, unlockItem, equipItem } = useProfile(user?.uid);
   const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
@@ -830,6 +832,15 @@ function AppInner() {
               onBackToSelect={handleBackToSelect}
               onContactAdmin={() => setContactOpen(true)}
               isKanbunTextbook={currentIsKanbun}
+              shareBoard={(
+                <ShareBoard
+                  analysis={analysis}
+                  avatarSeed={avatarSeed}
+                  equipped={equipped}
+                  currentUid={user?.uid ?? ''}
+                  isAdmin={effectiveIsAdmin}
+                />
+              )}
             />
           ) : null}
         </div>
@@ -892,7 +903,7 @@ function AppInner() {
               </div>
               <div style={{ display: rightTab === 'analysis' ? 'block' : 'none' }}>
                 <AnalysisPanel
-                  textId={textId}
+                  analysis={analysis}
                   avatarSeed={avatarSeed}
                   equipped={equipped}
                   isAdmin={effectiveIsAdmin}

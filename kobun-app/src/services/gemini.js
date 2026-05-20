@@ -140,6 +140,14 @@ const SCHEMAS = {
     },
     required: ['judgement', 'reason'],
   },
+  shareCorrection: {
+    type: 'object',
+    properties: {
+      judgement: { type: 'string' },
+      comment: { type: 'string' },
+    },
+    required: ['judgement', 'comment'],
+  },
 };
 
 // ===== Local comparison (no API) =====
@@ -336,6 +344,12 @@ async function callGemini(type, payload) {
 
 function mockResult(type) {
   const base = { judgement: '（モック）要API設定', comment: 'Gemini APIキーを.envに設定すると実際の添削が利用できます。' };
+  if (type === 'shareCorrection') {
+    return {
+      judgement: '（モック）要確認',
+      comment: 'Gemini APIキーを.envに設定すると、共有投稿の一斉添削が利用できます。',
+    };
+  }
   if (type === 'verb') {
     return {
       baseForm: { judgement: '（モック）', correctAnswer: '—', comment: 'APIキーを設定してください。' },
@@ -490,5 +504,14 @@ export async function reviewContent({ question, userAnswer, correctAnswer, expla
     correctAnswer,
     explanation: clip(explanation, 80),
     userAnswer,
+  });
+}
+
+export async function reviewSharePost({ themeTitle, themeDescription, modelAnswer, userAnswer }) {
+  return review('shareCorrection', {
+    themeTitle: clip(themeTitle, 120),
+    themeDescription: clip(themeDescription, 240),
+    modelAnswer: clip(modelAnswer, 600),
+    userAnswer: clip(userAnswer, 600),
   });
 }
