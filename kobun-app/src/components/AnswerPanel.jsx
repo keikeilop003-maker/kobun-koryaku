@@ -1023,7 +1023,13 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
   const showPanelHeader = target.type !== 'kaeriten';
 
   return (
-    <div ref={cardRef} className={`question-card${isSelected ? ' question-card--selected' : ''}`}>
+    <div
+      ref={cardRef}
+      className={`question-card${isSelected ? ' question-card--selected' : ''}`}
+      onFocus={() => {
+        if (!editing) onFocusTarget?.();
+      }}
+    >
       {showPanelHeader && <div className="panel-header">
         <span className={`type-badge type-${target.type}`}>{TYPE_LABEL[target.type] ?? '問題'}</span>
         <QuestionHeader target={target} />

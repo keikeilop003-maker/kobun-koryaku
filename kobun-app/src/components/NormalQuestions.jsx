@@ -156,7 +156,9 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
   const [savingQuestion, setSavingQuestion] = useState(false);
   const [deletingQuestion, setDeletingQuestion] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [focusAnswerAfterEdit, setFocusAnswerAfterEdit] = useState(false);
   const deleteStartedRef = useRef(false);
+  const answerInputRef = useRef(null);
 
   const isChoice = q.inputType === 'choice';
 
@@ -175,6 +177,15 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
   useEffect(() => {
     setConfirmingDelete(false);
   }, [q.id]);
+
+  useEffect(() => {
+    if (!focusAnswerAfterEdit || editingQuestion) return;
+    const timer = window.setTimeout(() => {
+      answerInputRef.current?.focus();
+      setFocusAnswerAfterEdit(false);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [editingQuestion, focusAnswerAfterEdit]);
 
   const section = sections.find(s => s.id === q.sectionId);
 
@@ -218,6 +229,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
     });
     setSavingQuestion(false);
     setEditingQuestion(false);
+    setFocusAnswerAfterEdit(true);
   };
 
   const updateAlternativeAnswer = (index, value) => {
@@ -355,6 +367,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
             ) : (
               <div className="nq-input-row">
                 <textarea
+                  ref={answerInputRef}
                   value={ans}
                   onChange={e => setAns(e.target.value)}
                   rows={4}
