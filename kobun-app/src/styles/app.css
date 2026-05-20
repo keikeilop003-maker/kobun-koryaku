@@ -226,16 +226,6 @@ body {
   color: #444;
 }
 
-.tab-count {
-  display: inline-block;
-  background: #4a6fa5;
-  color: #fff;
-  border-radius: 8px;
-  font-size: 0.7rem;
-  padding: 1px 5px;
-  margin-left: 3px;
-}
-
 /* ===== Vertical Text Viewer ===== */
 .vertical-viewer {
   padding: 16px;

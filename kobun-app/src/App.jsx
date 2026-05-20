@@ -145,7 +145,6 @@ function AppInner() {
   const analysis = useAnalysis(textId, user, effectiveIsAdmin);
   const { entries, record, clearAll } = useHistory(textId, user?.uid);
   const { profile, awardPoints, unlockItem, equipItem } = useProfile(user?.uid);
-  const entryCount = useMemo(() => Object.keys(entries).length, [entries]);
   useEffect(() => {
     setCorrectKaeritenLines({});
   }, [textId]);
@@ -867,12 +866,8 @@ function AppInner() {
               <div className="right-panel-content">
               <div className="tab-bar">
                 <button className={rightTab === 'knowledge' ? 'active' : ''} onClick={() => setRightTab('knowledge')}>知識問題</button>
-                <button className={rightTab === 'normal' ? 'active' : ''} onClick={() => setRightTab('normal')}>
-                  読解問題 <span className="tab-count">{currentTextData.normalQuestions?.length ?? 0}</span>
-                </button>
-                <button className={rightTab === 'score' ? 'active' : ''} onClick={() => setRightTab('score')}>
-                  学習記録 <span className="tab-count">{entryCount}</span>
-                </button>
+                <button className={rightTab === 'normal' ? 'active' : ''} onClick={() => setRightTab('normal')}>読解問題</button>
+                <button className={rightTab === 'score' ? 'active' : ''} onClick={() => setRightTab('score')}>学習記録</button>
                 <button className={rightTab === 'analysis' ? 'active' : ''} onClick={() => setRightTab('analysis')}>分析研究</button>
                 <button
                   type="button"
