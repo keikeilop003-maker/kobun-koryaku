@@ -118,7 +118,7 @@ body {
 .right-col--collapsed {
   flex: 0 0 56px;
   min-width: 56px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .right-panel-header {
@@ -153,15 +153,14 @@ body {
 }
 
 .right-col--collapsed .right-panel-header {
-  border-bottom: 0;
-  height: 100%;
+  border-bottom: 1px solid #ddd8cc;
+  height: 38px;
   justify-content: center;
-  padding: 8px 5px;
+  padding: 5px 8px;
 }
 
 .right-col--collapsed .right-collapse-toggle {
-  writing-mode: vertical-rl;
-  padding: 10px 7px;
+  padding: 7px 10px;
 }
 
 .right-panel-content {
@@ -174,11 +173,13 @@ body {
 
 .tab-bar .right-tab-collapse {
   flex: 0 0 auto;
-  min-width: 54px;
+  min-width: 44px;
   padding-left: 10px;
   padding-right: 10px;
   color: #2d3a5e;
-  font-size: 0.78rem;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.86rem;
+  font-weight: bold;
 }
 
 /* ===== Tab Bar ===== */
@@ -5972,16 +5973,12 @@ span.kaeriten-source-hyphen.active {
 
   .right-col--collapsed {
     flex: 0 0 42px;
-    min-height: 42px;
+    min-height: 38px;
     min-width: 0;
   }
 
   .right-col--collapsed .right-panel-header {
-    height: 42px;
-  }
-
-  .right-col--collapsed .right-collapse-toggle {
-    writing-mode: horizontal-tb;
+    height: 38px;
   }
 
   .vertical-viewer {

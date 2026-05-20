@@ -860,7 +860,7 @@ function AppInner() {
                     aria-expanded={false}
                     title="右カラムを展開"
                   >
-                    展開
+                    &lt;&lt;
                   </button>
                 </div>
               ) : (
@@ -880,7 +880,7 @@ function AppInner() {
                   onClick={() => setRightCollapsed(true)}
                   title="右カラムを縮小"
                 >
-                  縮小
+                  &gt;&gt;
                 </button>
               </div>
 
