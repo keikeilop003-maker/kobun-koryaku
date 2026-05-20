@@ -449,6 +449,10 @@ function AppInner() {
           sectionId: section.id,
           target,
         });
+        if (selectedTarget?.id === target.id) {
+          setSelectedTarget(null);
+          setSelectedSection(null);
+        }
         window.alert('削除しました');
         return;
       }
@@ -466,12 +470,16 @@ function AppInner() {
         sectionId: section.id,
         target,
       });
+      if (selectedTarget?.id === target.id) {
+        setSelectedTarget(null);
+        setSelectedSection(null);
+      }
       window.alert('削除しました');
     } catch (err) {
       console.error('[delete target] failed:', err);
       window.alert(`削除に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
     }
-  }, [effectiveIsAdmin, textId, user]);
+  }, [effectiveIsAdmin, selectedTarget?.id, textId, user]);
 
   const handleUndoDeleteTarget = useCallback(async () => {
     if (!effectiveIsAdmin || !user || !textId || !lastDeletedTarget) return;

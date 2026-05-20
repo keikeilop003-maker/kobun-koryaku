@@ -949,15 +949,26 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
   const [editing, setEditing] = useState(false);
   const cardRef = useRef(null);
   const formRef = useRef(null);
+  const formKey = [
+    target.id,
+    target.customDocId ?? '',
+    target.surface ?? '',
+    target.answer ?? '',
+    target.meaning ?? '',
+    target.baseForm ?? '',
+    target.conjugationType ?? '',
+    target.formInText ?? '',
+    target.questionText ?? '',
+  ].join(':');
 
   useImperativeHandle(ref, () => ({ focus: () => formRef.current?.focus() }));
 
   useEffect(() => {
-    if (isSelected && cardRef.current) {
+    if (isSelected && !editing && cardRef.current) {
       cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       window.setTimeout(() => formRef.current?.focus(), 0);
     }
-  }, [isSelected]);
+  }, [editing, formKey, isSelected]);
 
   const setResult = r => {
     setFeedback(null);
@@ -1027,16 +1038,16 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
           }}
         />
       )}
-      {target.type === 'vocab'    && <VocabForm    ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
-      {target.type === 'aux'      && <AuxForm      ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
-      {target.type === 'verb'     && <VerbForm     ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
-      {target.type === 'adj'      && <AdjForm      ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
-      {target.type === 'particle' && <ParticleForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'vocab'    && <VocabForm    key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'aux'      && <AuxForm      key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'verb'     && <VerbForm     key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'adj'      && <AdjForm      key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'particle' && <ParticleForm key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'grammar' && target.generated && (target.syntaxUsage !== undefined || target.syntaxTranslation !== undefined)
-        ? <SyntaxGrammarForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />
-        : target.type === 'grammar' && <GrammarForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
-      {target.type === 'kundoku' && <KundokuForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
-      {target.type === 'kaeriten' && <KaeritenForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+        ? <SyntaxGrammarForm key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />
+        : target.type === 'grammar' && <GrammarForm key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'kundoku' && <KundokuForm key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'kaeriten' && <KaeritenForm key={formKey} ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {feedback && !isScoreType && <FeedbackCard type={target.type} data={feedback} />}
     </div>
   );
