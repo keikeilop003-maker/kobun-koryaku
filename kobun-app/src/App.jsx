@@ -145,6 +145,14 @@ function AppInner() {
     const key = `${section.id}:${parentTargetId}:${target.lineIndex}`;
     setCorrectKaeritenLines(current => ({ ...current, [key]: true }));
   }, []);
+  const handleSelectTarget = useCallback((target, section) => {
+    setSelectedTarget(current => (
+      current?.id === target?.id && current?.groupId === target?.groupId ? current : target
+    ));
+    setSelectedSection(current => (
+      current?.id === section?.id ? current : section
+    ));
+  }, []);
   const statusTextbooks = useMemo(
     () => textbooks.map(tb => ({ ...tb, status: textbookStatuses[tb.id] ?? tb.status ?? 'draft' })),
     [textbooks, textbookStatuses],
@@ -798,7 +806,7 @@ function AppInner() {
               notes={currentTextData.notes}
               sections={currentTextData.sections}
               selectedTarget={selectedTarget}
-              onSelectTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
+              onSelectTarget={handleSelectTarget}
               activeType={rightTab === 'knowledge' ? activeType : null}
               pinnedPhrase={rightTab === 'normal' ? pinnedPhrase : null}
               selectionMode={effectiveIsAdmin && Boolean(addingType)}
@@ -840,7 +848,7 @@ function AppInner() {
                   sections={currentTextData.sections}
                   selectedTarget={selectedTarget}
                   selectedSection={selectedSection}
-                  onFocusTarget={(t, section) => { setSelectedTarget(t); setSelectedSection(section); }}
+                  onFocusTarget={handleSelectTarget}
                   historyEntries={entries}
                   onRecord={handleRecord}
                   onKaeritenLineCorrect={handleKaeritenLineCorrect}

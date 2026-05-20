@@ -44,6 +44,45 @@ function targetOrder(section, target) {
   return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
 }
 
+function buildTargetOrderMap(section, targets) {
+  const text = section?.text ?? '';
+  const nextSearchStartBySurface = new Map();
+  const orderMap = new Map();
+  targets.forEach((target, fallbackIndex) => {
+    const surface = target.surface ?? '';
+    if (!surface) {
+      orderMap.set(target, Number.MAX_SAFE_INTEGER + fallbackIndex);
+      return;
+    }
+    const exactIdx = Number.isInteger(target.start) && text.slice(target.start, target.start + surface.length) === surface
+      ? target.start
+      : -1;
+    const hint = Math.max(0, (target.start ?? 0) - 5);
+    const cursor = nextSearchStartBySurface.get(surface) ?? 0;
+    const hintedIdx = exactIdx !== -1 ? exactIdx : text.indexOf(surface, hint);
+    const sequentialIdx = hintedIdx !== -1 ? hintedIdx : text.indexOf(surface, cursor);
+    const resolvedIdx = sequentialIdx !== -1 ? sequentialIdx : text.indexOf(surface);
+    if (resolvedIdx !== -1) nextSearchStartBySurface.set(surface, resolvedIdx + surface.length);
+    orderMap.set(target, resolvedIdx === -1 ? Number.MAX_SAFE_INTEGER + fallbackIndex : resolvedIdx);
+  });
+  return orderMap;
+}
+
+function questionCardKey(target) {
+  return [
+    target.id,
+    target.customDocId ?? '',
+    target.start ?? '',
+    target.surface ?? '',
+    target.answer ?? '',
+    target.meaning ?? '',
+    target.baseForm ?? '',
+    target.conjugationType ?? '',
+    target.formInText ?? '',
+    target.questionText ?? '',
+  ].join(':');
+}
+
 function parseKanbunSyntaxForQuestions(value) {
   if (value && typeof value === 'object') {
     return Array.isArray(value.items) ? value.items : [value];
@@ -1124,14 +1163,15 @@ export default function AnswerPanel({
 
   const questions = useMemo(() => {
     if (activeType === 'all') return [];
-    const all = sections.flatMap(section =>
-      [
-        ...(section.targets ?? [])
+    const all = sections.flatMap(section => {
+      const sectionTargets = (section.targets ?? [])
         .filter(t => t.type === activeType)
-        .map(t => ({ target: t, section })),
+      const orderMap = buildTargetOrderMap(section, sectionTargets);
+      return [
+        ...sectionTargets.map(t => ({ target: t, section, order: orderMap.get(t) ?? targetOrder(section, t) })),
         ...(activeType === 'grammar' ? syntaxQuestionsForSection(section) : []),
-      ]
-    );
+      ];
+    });
     const seenGroups = new Set();
     return all.filter(({ target }) => {
       if (!target.groupId) return true;
@@ -1141,7 +1181,7 @@ export default function AnswerPanel({
     }).sort((a, b) => {
       const sectionDiff = sectionOrder(sections, a.section) - sectionOrder(sections, b.section);
       if (sectionDiff !== 0) return sectionDiff;
-      return targetOrder(a.section, a.target) - targetOrder(b.section, b.target);
+      return (a.order ?? targetOrder(a.section, a.target)) - (b.order ?? targetOrder(b.section, b.target));
     });
   }, [activeType, sections]);
 
@@ -1184,7 +1224,7 @@ export default function AnswerPanel({
       <div className="answer-panel-list">
         {undoNotice}
         <QuestionCard
-          key={selectedTarget.id}
+          key={questionCardKey(selectedTarget)}
           target={selectedTarget}
           section={selectedSection}
           isSelected={false}
@@ -1209,7 +1249,7 @@ export default function AnswerPanel({
         <div className="answer-panel-list">
           {adminTools ?? undoNotice}
           <QuestionCard
-            key={selectedTarget.id}
+            key={questionCardKey(selectedTarget)}
             target={selectedTarget}
             section={selectedSection}
             isSelected={false}
@@ -1251,7 +1291,7 @@ export default function AnswerPanel({
         <div className="answer-panel-list">
           {adminTools ?? undoNotice}
           <QuestionCard
-            key={target.id}
+            key={questionCardKey(target)}
             ref={el => { cardRefs.current[0] = el; }}
             target={target}
             section={section}
@@ -1299,7 +1339,7 @@ export default function AnswerPanel({
       {adminTools ?? undoNotice}
       {questions.map(({ target, section }, i) => (
         <QuestionCard
-          key={target.id}
+          key={questionCardKey(target)}
           ref={el => { cardRefs.current[i] = el; }}
           target={target}
           section={section}

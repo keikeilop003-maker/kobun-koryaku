@@ -77,16 +77,22 @@ function buildSegments(text, allTargets, activeType, pinnedPhrase) {
   const targets = activeType === 'all'
     ? allTargets
     : allTargets.filter(t => t.type === activeType);
+  const nextSearchStartBySurface = new Map();
 
   const located = targets
     .map(t => {
-      const exactIdx = Number.isInteger(t.start) && text.slice(t.start, t.start + t.surface.length) === t.surface
+      const surface = t.surface ?? '';
+      if (!surface) return { t, idx: -1, end: -1, pinned: false };
+      const exactIdx = Number.isInteger(t.start) && text.slice(t.start, t.start + surface.length) === surface
         ? t.start
         : -1;
       const hint = Math.max(0, (t.start ?? 0) - 5);
-      const idx = exactIdx !== -1 ? exactIdx : text.indexOf(t.surface, hint);
-      const resolvedIdx = idx !== -1 ? idx : text.indexOf(t.surface);
-      return { t, idx: resolvedIdx, end: resolvedIdx + t.surface.length, pinned: false };
+      const cursor = nextSearchStartBySurface.get(surface) ?? 0;
+      const hintedIdx = exactIdx !== -1 ? exactIdx : text.indexOf(surface, hint);
+      const sequentialIdx = hintedIdx !== -1 ? hintedIdx : text.indexOf(surface, cursor);
+      const resolvedIdx = sequentialIdx !== -1 ? sequentialIdx : text.indexOf(surface);
+      if (resolvedIdx !== -1) nextSearchStartBySurface.set(surface, resolvedIdx + surface.length);
+      return { t, idx: resolvedIdx, end: resolvedIdx + surface.length, pinned: false };
     })
     .filter(({ idx }) => idx !== -1);
 
