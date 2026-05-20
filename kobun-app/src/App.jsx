@@ -851,18 +851,19 @@ function AppInner() {
             <div className="loading">読み込み中…</div>
           ) : (
             <>
-              <div className="right-panel-header">
-                <button
-                  type="button"
-                  className="right-collapse-toggle"
-                  onClick={() => setRightCollapsed(value => !value)}
-                  aria-expanded={!rightCollapsed}
-                  title={rightCollapsed ? '右カラムを展開' : '右カラムを縮小'}
-                >
-                  {rightCollapsed ? '展開' : '縮小'}
-                </button>
-              </div>
-              {!rightCollapsed && (
+              {rightCollapsed ? (
+                <div className="right-panel-header">
+                  <button
+                    type="button"
+                    className="right-collapse-toggle"
+                    onClick={() => setRightCollapsed(false)}
+                    aria-expanded={false}
+                    title="右カラムを展開"
+                  >
+                    展開
+                  </button>
+                </div>
+              ) : (
               <div className="right-panel-content">
               <div className="tab-bar">
                 <button className={rightTab === 'knowledge' ? 'active' : ''} onClick={() => setRightTab('knowledge')}>知識問題</button>
@@ -873,6 +874,14 @@ function AppInner() {
                   学習記録 <span className="tab-count">{entryCount}</span>
                 </button>
                 <button className={rightTab === 'analysis' ? 'active' : ''} onClick={() => setRightTab('analysis')}>分析研究</button>
+                <button
+                  type="button"
+                  className="right-tab-collapse"
+                  onClick={() => setRightCollapsed(true)}
+                  title="右カラムを縮小"
+                >
+                  縮小
+                </button>
               </div>
 
               <div style={{ display: rightTab === 'knowledge' ? 'block' : 'none' }}>

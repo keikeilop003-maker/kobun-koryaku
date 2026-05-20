@@ -212,8 +212,14 @@ function PostForm({ theme, avatarSeed, equipped, addPost, replyContext = null, o
   );
 }
 
-function PostItem({ post, replies, reactions, currentUid, avatarSeed, equipped, isAdmin, onReply, onToggleReaction, onTogglePin, isReply = false }) {
+function PostItem({ post, replies, reactions, currentUid, avatarSeed, equipped, isAdmin, onReply, onToggleReaction, onTogglePin, onUpdatePost, onDeletePost, isReply = false }) {
   const [open, setOpen] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(post.text ?? '');
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [adminError, setAdminError] = useState('');
   const likeCount = reactions.filter(reaction => reaction.postId === post.id && reaction.type === 'like').length;
   const myLike = reactions.some(reaction => (
     reaction.postId === post.id
@@ -224,6 +230,37 @@ function PostItem({ post, replies, reactions, currentUid, avatarSeed, equipped, 
   const canPin = isAdmin || isOwner;
   const pinned = Boolean(post.pinnedByAdmin || post.pinnedByOwner);
   const hasReplies = replies.length > 0;
+
+  const saveEdit = async () => {
+    if (!draft.trim() || saving) return;
+    setSaving(true);
+    setAdminError('');
+    try {
+      await onUpdatePost(post.id, draft);
+      setEditing(false);
+    } catch (e) {
+      setAdminError(`編集に失敗しました: ${e.code ?? e.message ?? 'unknown error'}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteThisPost = async () => {
+    if (deleting) return;
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
+    setDeleting(true);
+    setAdminError('');
+    try {
+      await onDeletePost(post);
+    } catch (e) {
+      setAdminError(`削除に失敗しました: ${e.code ?? e.message ?? 'unknown error'}`);
+      setDeleting(false);
+      setConfirmDelete(false);
+    }
+  };
 
   return (
     <article className={`analysis-post${isReply ? ' analysis-post--reply' : ''}${pinned ? ' analysis-post--pinned' : ''}`}>
@@ -238,7 +275,21 @@ function PostItem({ post, replies, reactions, currentUid, avatarSeed, equipped, 
             {pinned && <span className="analysis-pin-badge">固定</span>}
             <span className="analysis-post-time">{timeAgo(post.createdAt)}</span>
           </div>
-          <p className="analysis-post-text">{post.text}</p>
+          {editing ? (
+            <div className="analysis-admin-post-editor">
+              <textarea value={draft} onChange={event => setDraft(event.target.value)} rows={5} maxLength={500} />
+              <div className="analysis-admin-post-actions">
+                <button type="button" onClick={saveEdit} disabled={saving || !draft.trim()}>
+                  {saving ? '保存中...' : '保存'}
+                </button>
+                <button type="button" className="analysis-admin-post-secondary" onClick={() => { setDraft(post.text ?? ''); setEditing(false); }} disabled={saving}>
+                  キャンセル
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="analysis-post-text">{post.text}</p>
+          )}
           {post.correction && (
             <div className="analysis-correction">
               <div className="analysis-correction-title">添削結果: {post.correction.judgement}</div>
@@ -264,12 +315,23 @@ function PostItem({ post, replies, reactions, currentUid, avatarSeed, equipped, 
                 {pinned ? '固定解除' : '固定'}
               </button>
             )}
+            {isAdmin && (
+              <>
+                <button type="button" className="analysis-action-btn" onClick={() => { setEditing(true); setConfirmDelete(false); }}>
+                  編集
+                </button>
+                <button type="button" className={`analysis-action-btn analysis-action-danger${confirmDelete ? ' is-confirming' : ''}`} onClick={deleteThisPost} disabled={deleting}>
+                  {deleting ? '削除中...' : confirmDelete ? 'もう一度押す' : '削除'}
+                </button>
+              </>
+            )}
             {hasReplies && !isReply && (
               <button type="button" className="analysis-replies-toggle" onClick={() => setOpen(value => !value)}>
                 {open ? '返信を隠す' : `返信 ${replies.length}件`}
               </button>
             )}
           </div>
+          {adminError && <div className="analysis-admin-error analysis-post-admin-error">{adminError}</div>}
           {open && hasReplies && (
             <div className="analysis-replies">
               {replies.map(reply => (
@@ -285,6 +347,8 @@ function PostItem({ post, replies, reactions, currentUid, avatarSeed, equipped, 
                   onReply={onReply}
                   onToggleReaction={onToggleReaction}
                   onTogglePin={onTogglePin}
+                  onUpdatePost={onUpdatePost}
+                  onDeletePost={onDeletePost}
                   isReply
                 />
               ))}
@@ -374,6 +438,8 @@ function ShareTheme({ theme, posts, reactions, analysis, avatarSeed, equipped, c
                   onReply={setReplyContext}
                   onToggleReaction={analysis.toggleReaction}
                   onTogglePin={analysis.togglePin}
+                  onUpdatePost={analysis.updatePostText}
+                  onDeletePost={analysis.deletePost}
                 />
               ))}
             </div>

@@ -179,12 +179,26 @@ service cloud.firestore {
         && request.resource.data.pinnedByOwner is bool;
       allow update: if isAdmin()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'text',
           'pinnedByAdmin',
           'pinnedByOwner',
           'correction',
+          'editedAt',
+          'editedBy',
           'updatedAt'
-        ]);
-      allow delete: if false;
+        ])
+        && (
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['text'])
+          || (
+            request.resource.data.text is string
+            && request.resource.data.text.size() <= 500
+          )
+        )
+        && (
+          !request.resource.data.diff(resource.data).affectedKeys().hasAny(['editedBy'])
+          || request.resource.data.editedBy == request.auth.uid
+        );
+      allow delete: if isAdmin();
     }
     match /analysisReactions/{reactionId} {
       allow read: if request.auth != null;
@@ -194,7 +208,7 @@ service cloud.firestore {
         && request.resource.data.textId is string
         && request.resource.data.postId is string
         && request.resource.data.type in ['like'];
-      allow delete: if request.auth != null && resource.data.authorUid == request.auth.uid;
+      allow delete: if isAdmin() || (request.auth != null && resource.data.authorUid == request.auth.uid);
       allow update: if false;
     }
     match /analysisThemes/{textId} {

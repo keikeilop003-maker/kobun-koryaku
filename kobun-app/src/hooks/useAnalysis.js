@@ -4,6 +4,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDocs,
   limit,
   onSnapshot,
   orderBy,
@@ -39,7 +40,6 @@ export default function useAnalysis(textId, user, isAdmin = false) {
 
   useEffect(() => {
     if (!textId) return undefined;
-    setLoadingThemes(true);
     return onSnapshot(
       doc(db, 'analysisThemes', textId),
       snap => {
@@ -153,6 +153,38 @@ export default function useAnalysis(textId, user, isAdmin = false) {
     });
   };
 
+  const updatePostText = async (postId, text) => {
+    const body = cleanText(text);
+    if (!isAdmin || !postId || !body) throw new Error('permission_denied');
+    await updateDoc(doc(db, 'analysisPosts', postId), {
+      text: body,
+      correction: null,
+      editedAt: serverTimestamp(),
+      editedBy: uid,
+      updatedAt: serverTimestamp(),
+    });
+  };
+
+  const deletePost = async (post) => {
+    if (!isAdmin || !post?.id) throw new Error('permission_denied');
+    const ids = [post.id];
+    if (!post.replyTo) {
+      const repliesSnap = await getDocs(query(
+        collection(db, 'analysisPosts'),
+        where('replyTo', '==', post.id),
+      ));
+      repliesSnap.docs.forEach(reply => ids.push(reply.id));
+    }
+    for (const id of ids) {
+      const reactionsSnap = await getDocs(query(
+        collection(db, 'analysisReactions'),
+        where('postId', '==', id),
+      ));
+      await Promise.all(reactionsSnap.docs.map(reaction => deleteDoc(reaction.ref)));
+      await deleteDoc(doc(db, 'analysisPosts', id));
+    }
+  };
+
   const addTheme = async ({ title, description, attachments, modelAnswer }) => {
     const safeTitle = cleanText(title, 120);
     if (!textId || !safeTitle) return;
@@ -255,6 +287,8 @@ export default function useAnalysis(textId, user, isAdmin = false) {
     reactions,
     toggleReaction,
     togglePin,
+    updatePostText,
+    deletePost,
     addTheme,
     updateTheme,
     updateThemeModelAnswer,
