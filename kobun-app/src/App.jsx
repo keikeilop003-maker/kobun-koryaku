@@ -506,15 +506,23 @@ function AppInner() {
   const handleUpdateTarget = useCallback(async (currentTarget, currentSection, { sectionId, target, anchor }) => {
     if (!effectiveIsAdmin || !user || !textId || !currentTarget || !currentSection) return;
     try {
+      const nextSectionId = typeof sectionId === 'string' ? sectionId : currentSection.id;
+      const nextAnchor = {
+        ...(anchor ?? {}),
+        sectionId: nextSectionId,
+      };
       if (currentTarget.customDocId) {
         await updateDoc(doc(db, 'customTargets', currentTarget.customDocId), {
-          sectionId,
+          sectionId: nextSectionId,
           target: { ...target, customDocId: currentTarget.customDocId, custom: true },
-          anchor,
+          anchor: nextAnchor,
           updatedBy: user.uid,
           updatedByEmail: user.email,
           updatedAt: serverTimestamp(),
         });
+        setSelectedTarget({ ...target, customDocId: currentTarget.customDocId, custom: true });
+        const nextSection = displayTextData?.sections?.find(section => section.id === nextSectionId) ?? currentSection;
+        setSelectedSection(nextSection);
         window.alert('更新しました');
         return;
       }
@@ -529,17 +537,28 @@ function AppInner() {
           type: currentTarget.type,
           custom: false,
         },
-        anchor,
+        anchor: {
+          ...nextAnchor,
+          sectionId: currentSection.id,
+        },
         updatedBy: user.uid,
         updatedByEmail: user.email,
         updatedAt: serverTimestamp(),
       });
+      setSelectedTarget({
+        ...target,
+        id: currentTarget.id,
+        type: currentTarget.type,
+        custom: false,
+        edited: true,
+      });
+      setSelectedSection(currentSection);
       window.alert('更新しました');
     } catch (err) {
       console.error('[update target] failed:', err);
       window.alert(`更新に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
     }
-  }, [effectiveIsAdmin, textId, user]);
+  }, [displayTextData?.sections, effectiveIsAdmin, textId, user]);
 
   const handleUpdateSection = useCallback(async (section, updates) => {
     if (!effectiveIsAdmin || !user || !textId || !section?.id) return;
