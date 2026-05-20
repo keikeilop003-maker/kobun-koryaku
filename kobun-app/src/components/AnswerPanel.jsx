@@ -979,6 +979,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
   const [focusAfterEdit, setFocusAfterEdit] = useState(false);
   const cardRef = useRef(null);
   const formRef = useRef(null);
+  const suppressAutoFocusRef = useRef(false);
   const formKey = [
     target.id,
     editVersion,
@@ -997,9 +998,13 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
   useEffect(() => {
     if (isSelected && !editing && cardRef.current) {
       cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      if (suppressAutoFocusRef.current) {
+        suppressAutoFocusRef.current = false;
+        return;
+      }
       window.setTimeout(() => formRef.current?.focus(), 0);
     }
-  }, [editing, formKey, isSelected]);
+  }, [editing, isSelected]);
 
   useEffect(() => {
     if (!focusAfterEdit || editing) return;
@@ -1026,8 +1031,12 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
     <div
       ref={cardRef}
       className={`question-card${isSelected ? ' question-card--selected' : ''}`}
-      onFocus={() => {
-        if (!editing) onFocusTarget?.();
+      onFocus={(event) => {
+        if (editing) return;
+        if (event.target !== event.currentTarget) {
+          suppressAutoFocusRef.current = true;
+        }
+        onFocusTarget?.();
       }}
     >
       {showPanelHeader && <div className="panel-header">
