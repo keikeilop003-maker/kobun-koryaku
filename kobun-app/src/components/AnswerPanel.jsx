@@ -947,10 +947,13 @@ const SyntaxAnswerEditor = forwardRef(function SyntaxAnswerEditor({ target, sect
 const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelected, initialFeedback, onHistoryUpdate, onAdvance, initialInputs, onInputChange, onFocusTarget, isAdmin, onDeleteTarget, onUpdateTarget, onUpdateSection, sections }, ref) {
   const [feedback, setFeedback] = useState(initialFeedback ?? null);
   const [editing, setEditing] = useState(false);
+  const [editVersion, setEditVersion] = useState(0);
+  const [focusAfterEdit, setFocusAfterEdit] = useState(false);
   const cardRef = useRef(null);
   const formRef = useRef(null);
   const formKey = [
     target.id,
+    editVersion,
     target.customDocId ?? '',
     target.surface ?? '',
     target.answer ?? '',
@@ -969,6 +972,15 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
       window.setTimeout(() => formRef.current?.focus(), 0);
     }
   }, [editing, formKey, isSelected]);
+
+  useEffect(() => {
+    if (!focusAfterEdit || editing) return;
+    const timer = window.setTimeout(() => {
+      formRef.current?.focus();
+      setFocusAfterEdit(false);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [editing, focusAfterEdit, formKey]);
 
   const setResult = r => {
     setFeedback(null);
@@ -1034,7 +1046,9 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
           onCancel={() => setEditing(false)}
           onSave={async (payload) => {
             await onUpdateTarget?.(target, section, payload);
+            setEditVersion(value => value + 1);
             setEditing(false);
+            setFocusAfterEdit(true);
           }}
         />
       )}
@@ -1130,6 +1144,10 @@ export default function AnswerPanel({
       return targetOrder(a.section, a.target) - targetOrder(b.section, b.target);
     });
   }, [activeType, sections]);
+
+  useEffect(() => {
+    cardRefs.current = [];
+  }, [activeType, questions.length]);
 
   const adminTools = isAdmin && ADMIN_ADD_TYPES.has(activeType) ? (
     <>

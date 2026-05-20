@@ -90,6 +90,7 @@ function normalQuestionPinnedPhrase(question) {
 }
 
 function targetOrder(section, target) {
+  if (Number.isFinite(target.order)) return target.order;
   if (Number.isInteger(target.start)) return target.start;
   if (!target.surface) return Number.MAX_SAFE_INTEGER;
   const idx = section.text.indexOf(target.surface);
@@ -591,16 +592,14 @@ function AppInner() {
     const answerText = payload.answer?.trim();
     const alternativeAnswers = (payload.alternativeAnswers ?? []).map(item => item.trim()).filter(Boolean).slice(0, 5);
     if (!effectiveIsAdmin || !user || !textId || !question || !questionText) return;
-    if (question.type === 'translation' && !answerText) return;
+    if (!answerText) return;
     try {
       await setDoc(doc(db, 'editedNormalQuestions', `${textId}__${question.id}`), {
         textId,
         questionId: question.id,
         question: questionText,
-        ...(question.type === 'translation' ? {
-          answer: answerText,
-          alternativeAnswers,
-        } : {}),
+        answer: answerText,
+        ...(question.type === 'translation' ? { alternativeAnswers } : {}),
         updatedBy: user.uid,
         updatedByEmail: user.email,
         updatedAt: serverTimestamp(),

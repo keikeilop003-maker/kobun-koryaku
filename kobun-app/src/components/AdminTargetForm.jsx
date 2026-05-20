@@ -201,9 +201,15 @@ export default function AdminTargetForm({
     setMessage('');
     try {
       const surface = form.surface.trim();
+      const preservesInitialAnchor = mode === 'edit'
+        && initialTarget?.surface === surface
+        && initialSectionId === form.sectionId
+        && Number.isInteger(initialTarget?.start);
       const start = surface && selection?.sectionId === form.sectionId && selection?.text === surface
         ? selection.start
-        : surface ? section?.text?.indexOf(surface) ?? -1 : -1;
+        : preservesInitialAnchor
+          ? initialTarget.start
+          : surface ? section?.text?.indexOf(surface) ?? -1 : -1;
       const target = {
         ...(initialTarget ?? {}),
         id: initialTarget?.id ?? `custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
