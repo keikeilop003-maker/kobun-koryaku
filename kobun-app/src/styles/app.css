@@ -116,8 +116,8 @@ body {
 }
 
 .right-col--collapsed {
-  flex: 0 0 56px;
-  min-width: 56px;
+  flex: 0 0 92px;
+  min-width: 92px;
   overflow: visible;
 }
 
@@ -150,6 +150,7 @@ body {
   margin-bottom: -2px;
   padding: 0 10px;
   white-space: nowrap;
+  width: 100%;
 }
 
 .right-collapse-toggle:hover {
@@ -5980,9 +5981,9 @@ span.kaeriten-source-hyphen.active {
   }
 
   .right-col--collapsed {
-    flex: 0 0 42px;
+    flex: 0 0 92px;
     min-height: 39px;
-    min-width: 0;
+    min-width: 92px;
   }
 
   .right-col--collapsed .right-panel-header {
