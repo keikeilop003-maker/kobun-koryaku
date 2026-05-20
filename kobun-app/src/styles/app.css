@@ -127,8 +127,9 @@ body {
   border-bottom: 1px solid #ddd8cc;
   display: flex;
   justify-content: flex-end;
-  min-height: 38px;
-  padding: 5px 8px;
+  height: 39px;
+  min-height: 39px;
+  padding: 0 8px;
   position: sticky;
   top: 0;
   z-index: 12;
@@ -144,9 +145,10 @@ body {
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
   font-size: 0.86rem;
   font-weight: bold;
+  height: 39px;
   line-height: 1;
   margin-bottom: -2px;
-  padding: 9px 10px;
+  padding: 0 10px;
   white-space: nowrap;
 }
 
@@ -157,13 +159,14 @@ body {
 
 .right-col--collapsed .right-panel-header {
   border-bottom: 1px solid #ddd8cc;
-  height: 38px;
+  height: 39px;
+  min-height: 39px;
   justify-content: center;
-  padding: 5px 8px;
+  padding: 0 8px;
 }
 
 .right-col--collapsed .right-collapse-toggle {
-  padding: 9px 10px;
+  padding: 0 10px;
 }
 
 .right-panel-content {
@@ -191,6 +194,7 @@ body {
   border-bottom: 2px solid #ddd8cc;
   background: #fff;
   flex-shrink: 0;
+  min-height: 39px;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -206,6 +210,7 @@ body {
   cursor: pointer;
   color: #777;
   border-bottom: 3px solid transparent;
+  min-height: 39px;
   margin-bottom: -2px;
   transition: all 0.15s;
 }
@@ -5976,12 +5981,13 @@ span.kaeriten-source-hyphen.active {
 
   .right-col--collapsed {
     flex: 0 0 42px;
-    min-height: 38px;
+    min-height: 39px;
     min-width: 0;
   }
 
   .right-col--collapsed .right-panel-header {
-    height: 38px;
+    height: 39px;
+    min-height: 39px;
   }
 
   .vertical-viewer {
