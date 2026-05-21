@@ -785,9 +785,6 @@ function AppInner() {
           {account?.studentCode && (
             <span className="header-student-code" title="利用番号">{account.studentCode}</span>
           )}
-          {!currentTextData && (
-            <button className="contact-admin-btn" onClick={() => setContactOpen(true)}>管理者へ連絡</button>
-          )}
           {profile && (
             <span className="header-points" title="所持ポイント">{profile.points ?? 0}pt</span>
           )}
