@@ -811,6 +811,7 @@ function KundokuSourceLineSelector({ section, isKanbun, sourceTextStyle, selecte
   const sourceText = section.text ?? '';
   const sourceLines = String(sourceText).split(/\r?\n/);
   const kundokuLines = String(getKundoku(section) ?? '').split(/\r?\n/);
+  const kundokuQuestions = Array.isArray(section.kundokuQuestions) ? section.kundokuQuestions : [];
   const lineStarts = [];
   let lineStart = 0;
   sourceLines.forEach((line) => {
@@ -819,6 +820,7 @@ function KundokuSourceLineSelector({ section, isKanbun, sourceTextStyle, selecte
   });
   const makeLineTarget = (lineIndex) => {
     const surface = sourceLines[lineIndex] ?? '';
+    const override = kundokuQuestions.find(item => Number(item?.lineIndex) === lineIndex) ?? {};
     return {
       id: `kundoku-${section.id}-line-${lineIndex}`,
       type: 'kundoku',
@@ -826,8 +828,8 @@ function KundokuSourceLineSelector({ section, isKanbun, sourceTextStyle, selecte
       lineIndex,
       surface,
       questionSurface: `${lineIndex + 1}行目`,
-      questionText: `${lineIndex + 1}行目を書き下しなさい。`,
-      answer: kundokuLines[lineIndex] ?? '',
+      questionText: override.questionText || `${lineIndex + 1}行目を書き下しなさい。`,
+      answer: override.answer ?? kundokuLines[lineIndex] ?? '',
       gradingMode: 'local',
     };
   };

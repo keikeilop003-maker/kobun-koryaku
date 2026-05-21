@@ -1520,7 +1520,12 @@ body {
   grid-auto-flow: column;
   grid-template-rows: repeat(10, 2.1rem);
   gap: 6px;
+  box-sizing: border-box;
+  max-width: min(100%, 16rem);
   max-height: 24rem;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
   padding: 8px;
   border: 1px solid #d6e2f0;
   border-radius: 6px;
@@ -1561,6 +1566,11 @@ body {
   font-size: 1.15rem;
   line-height: 1.8;
   padding: 12px;
+}
+
+.kundoku-line-editor textarea {
+  min-height: 8rem;
+  resize: vertical;
 }
 
 .form-group .kaeriten-line-source .kaeriten-source-char-button {

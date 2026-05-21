@@ -212,6 +212,7 @@ function AppInner() {
                 ...(typeof sectionEdit.kundoku === 'string' ? { kundoku: sectionEdit.kundoku } : {}),
                 ...(typeof sectionEdit.notes === 'string' ? { notes: sectionEdit.notes } : {}),
                 ...(typeof sectionEdit.kanbunSyntax === 'string' ? { kanbunSyntax: sectionEdit.kanbunSyntax } : {}),
+                ...(Array.isArray(sectionEdit.kundokuQuestions) ? { kundokuQuestions: sectionEdit.kundokuQuestions } : {}),
               }
             : section;
           const baseTargets = (section.targets ?? [])
@@ -599,6 +600,7 @@ function AppInner() {
         kundoku: Object.prototype.hasOwnProperty.call(updates, 'kundoku') ? updates.kundoku : (section.kundoku ?? ''),
         notes: Object.prototype.hasOwnProperty.call(updates, 'notes') ? updates.notes : (section.notes ?? ''),
         kanbunSyntax: Object.prototype.hasOwnProperty.call(updates, 'kanbunSyntax') ? updates.kanbunSyntax : (section.kanbunSyntax ?? ''),
+        kundokuQuestions: Object.prototype.hasOwnProperty.call(updates, 'kundokuQuestions') ? updates.kundokuQuestions : (section.kundokuQuestions ?? []),
       },
       updatedBy: user.uid,
       updatedByEmail: user.email,

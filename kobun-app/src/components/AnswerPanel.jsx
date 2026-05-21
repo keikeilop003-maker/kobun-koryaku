@@ -732,7 +732,7 @@ const KundokuForm = forwardRef(function KundokuForm({ target, section, onResult,
   const [result, setResult] = useState(initialResult ?? null);
   const textareaRef = useRef(null);
   const btnRef = useRef(null);
-  const candidateChars = [...new Set(Array.from(target.surface ?? '').filter(char => /^[\p{Script=Han}]$/u.test(char)))];
+  const candidateChars = Array.from(target.surface ?? '').filter(char => /^[\p{Script=Han}]$/u.test(char));
 
   useImperativeHandle(ref, () => ({ focus: () => textareaRef.current?.focus() }));
 
@@ -801,6 +801,63 @@ const KundokuForm = forwardRef(function KundokuForm({ target, section, onResult,
           <div className="hint">模範解答：<em>{target.answer}</em></div>
         </>
       )}
+    </div>
+  );
+});
+
+const KundokuLineEditor = forwardRef(function KundokuLineEditor({ target, section, onUpdateSection, onCancel }, ref) {
+  const [questionText, setQuestionText] = useState(target.questionText ?? '');
+  const [answer, setAnswer] = useState(target.answer ?? '');
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+  const questionRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({ focus: () => questionRef.current?.focus() }));
+
+  const save = async () => {
+    if (saving || !Number.isInteger(target.lineIndex)) return;
+    if (!questionText.trim() || !answer.trim()) {
+      setMessage('問題文と模範解答を入力してください。');
+      return;
+    }
+    setSaving(true);
+    setMessage('');
+    try {
+      const current = Array.isArray(section.kundokuQuestions) ? section.kundokuQuestions : [];
+      const next = current.filter(item => Number(item?.lineIndex) !== target.lineIndex);
+      next.push({
+        lineIndex: target.lineIndex,
+        questionText: questionText.trim(),
+        answer: answer.trim(),
+      });
+      next.sort((a, b) => Number(a.lineIndex) - Number(b.lineIndex));
+      await onUpdateSection?.(section, { kundokuQuestions: next });
+      target.questionText = questionText.trim();
+      target.answer = answer.trim();
+      onCancel?.();
+    } catch (err) {
+      console.error('[kundoku line save] failed:', err);
+      setMessage('保存に失敗しました。');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="admin-inline-form kundoku-line-editor">
+      <label>
+        問題
+        <input ref={questionRef} value={questionText} onChange={(event) => { setQuestionText(event.target.value); setMessage(''); }} />
+      </label>
+      <label>
+        模範解答
+        <textarea rows={5} value={answer} onChange={(event) => { setAnswer(event.target.value); setMessage(''); }} />
+      </label>
+      <div className="admin-inline-actions">
+        <button type="button" className="admin-secondary-btn" onClick={onCancel} disabled={saving}>キャンセル</button>
+        <button type="button" onClick={save} disabled={saving}>{saving ? '保存中...' : '保存'}</button>
+      </div>
+      {message && <div className="admin-message">{message}</div>}
     </div>
   );
 });
@@ -1072,7 +1129,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
       {showPanelHeader && <div className="panel-header">
         <span className={`type-badge type-${target.type}`}>{TYPE_LABEL[target.type] ?? '問題'}</span>
         <QuestionHeader target={target} />
-        {isAdmin && (!target.generated || target.syntaxUsage !== undefined || target.syntaxTranslation !== undefined) && (
+        {isAdmin && (!target.generated || target.type === 'kundoku' || target.syntaxUsage !== undefined || target.syntaxTranslation !== undefined) && (
           <div className="admin-card-actions">
             <button
               type="button"
@@ -1101,7 +1158,15 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
           </div>
         )}
       </div>}
-      {editing && target.generated ? (
+      {editing && target.generated && target.type === 'kundoku' ? (
+        <KundokuLineEditor
+          ref={formRef}
+          target={target}
+          section={section}
+          onUpdateSection={onUpdateSection}
+          onCancel={() => setEditing(false)}
+        />
+      ) : editing && target.generated ? (
         <SyntaxAnswerEditor
           ref={formRef}
           target={target}
