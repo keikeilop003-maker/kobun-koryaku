@@ -923,7 +923,68 @@ function AppInner() {
         </div>
 
         <div className={`right-col${rightCollapsed ? ' right-col--collapsed' : ''}`}>
-          {noSelection ? null : isLoadingText ? (
+          {noSelection ? (
+            <div className="top-right-panel">
+              <div className="top-right-upper">
+                <section className="top-portal-hero top-portal-hero--side">
+                  <div className="top-portal-heading">
+                    <span>古典ポータル</span>
+                    <strong>TOP</strong>
+                  </div>
+                  <div className="top-account-card">
+                    <AvatarIcon seed={avatarSeed} size={56} equipped={equipped} />
+                    <div>
+                      <strong>{publicDisplayName}</strong>
+                      {publicBio && <span>{publicBio}</span>}
+                      <small>
+                        {accountLoginId}
+                        {account?.studentCode ? ` / 利用番号 ${account.studentCode}` : account?.requestedStudentCode ? ` / 申請中 ${account.requestedStudentCode}` : ''}
+                      </small>
+                    </div>
+                    {profile && <span className="top-account-points">{profile.points ?? 0}pt</span>}
+                  </div>
+                </section>
+
+                <section className="top-inbox-card top-inbox-card--side">
+                  <div className="top-section-title">
+                    受信箱
+                    {unreadInboxCount > 0 && <span>{unreadInboxCount}</span>}
+                  </div>
+                  {inboxMessages.length > 0 ? (
+                    <div className="top-inbox-list">
+                      {inboxMessages.map(message => (
+                        <article key={message.id} className={`top-inbox-item${message.status === 'read' ? '' : ' unread'}`}>
+                          <div>
+                            <strong>{message.title || '管理者からのメッセージ'}</strong>
+                            <small>{fmtDate(message.createdAt)}</small>
+                          </div>
+                          <p>{message.body}</p>
+                          {message.status !== 'read' && (
+                            <button type="button" onClick={() => markRead(message.id)}>既読にする</button>
+                          )}
+                        </article>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="top-empty-text">個別メッセージはありません。</p>
+                  )}
+                </section>
+              </div>
+
+              <section className="top-info-card top-info-card--bottom">
+                <div className="top-section-title">information</div>
+                {topInformation?.body || topInformation?.title ? (
+                  <div className="top-info-body">
+                    {topInformation.title && <strong>{topInformation.title}</strong>}
+                    <p>{topInformation.body}</p>
+                    {topInformation.updatedAt && <small>更新: {fmtDate(topInformation.updatedAt)}</small>}
+                  </div>
+                ) : (
+                  <p className="top-empty-text">現在のお知らせはありません。</p>
+                )}
+              </section>
+            </div>
+          ) : isLoadingText ? (
             <div className="loading">読み込み中…</div>
           ) : (
             <>
