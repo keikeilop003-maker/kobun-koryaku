@@ -488,6 +488,7 @@ function MessageInbox({ messages, onStatus }) {
           <div className="admin-message-head">
             <strong>{message.displayName || message.email || message.uid}</strong>
             <span>{message.email}</span>
+            <span>{message.textbookTitle || 'その他'}</span>
             <span>{fmtDate(message.createdAt)}</span>
           </div>
           <p>{message.text}</p>

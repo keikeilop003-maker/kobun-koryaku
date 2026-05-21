@@ -1187,6 +1187,8 @@ function AppInner() {
       {contactOpen && (
         <UserMessageModal
           user={user}
+          textbooks={visibleTextbooks}
+          selectedTextId={selectedTextId}
           onClose={() => setContactOpen(false)}
         />
       )}

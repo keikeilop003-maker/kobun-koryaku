@@ -6097,7 +6097,16 @@ span.kaeriten-source-hyphen.active {
   display: flex;
   gap: 8px;
 }
+.user-contact-field {
+  color: #2d3a5e;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.82rem;
+  font-weight: bold;
+  gap: 4px;
+}
 .user-contact-code input,
+.user-contact-field select,
 .user-contact-section textarea {
   border: 1.5px solid #ccc;
   border-radius: 6px;

@@ -311,6 +311,8 @@ service cloud.firestore {
           'displayName',
           'loginId',
           'text',
+          'textbookId',
+          'textbookTitle',
           'status',
           'createdAt'
         ])
@@ -321,6 +323,10 @@ service cloud.firestore {
           || isValidLoginId(request.resource.data.loginId)
         )
         && request.resource.data.status == 'open'
+        && request.resource.data.textbookId is string
+        && request.resource.data.textbookId.size() <= 80
+        && request.resource.data.textbookTitle is string
+        && request.resource.data.textbookTitle.size() <= 80
         && request.resource.data.text is string
         && request.resource.data.text.size() <= 500;
       allow update: if isAdmin()

@@ -12,15 +12,21 @@ function fmtDate(value) {
   }).format(new Date(ms));
 }
 
-export default function UserMessageModal({ user, onClose }) {
+export default function UserMessageModal({ user, textbooks = [], selectedTextId = '', onClose }) {
   const { messages, sendMessage } = useMyAdminMessages(user);
   const [text, setText] = useState('');
+  const [textbookId, setTextbookId] = useState(selectedTextId || 'other');
   const [status, setStatus] = useState('');
+  const selectedTextbook = textbooks.find(item => item.id === textbookId);
 
   const submitMessage = async () => {
     setStatus('');
     if (!text.trim()) return;
-    await sendMessage(text);
+    await sendMessage({
+      text,
+      textbookId,
+      textbookTitle: selectedTextbook ? `${selectedTextbook.title}` : 'その他',
+    });
     setText('');
     setStatus('メッセージを送信しました');
   };
@@ -38,6 +44,15 @@ export default function UserMessageModal({ user, onClose }) {
 
         <section className="user-contact-section">
           <h3>問い合わせ</h3>
+          <label className="user-contact-field">
+            教材
+            <select value={textbookId} onChange={e => setTextbookId(e.target.value)}>
+              {textbooks.map(item => (
+                <option key={item.id} value={item.id}>{item.title}</option>
+              ))}
+              <option value="other">その他</option>
+            </select>
+          </label>
           <textarea
             value={text}
             maxLength={500}
@@ -59,6 +74,7 @@ export default function UserMessageModal({ user, onClose }) {
             <div key={message.id} className="user-contact-message">
               <div>
                 <strong>{MESSAGE_STATUS[message.status] ?? '未対応'}</strong>
+                <span>{message.textbookTitle || 'その他'}</span>
                 <span>{fmtDate(message.createdAt)}</span>
               </div>
               <p>{message.text}</p>

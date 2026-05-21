@@ -839,10 +839,6 @@ const KundokuLineEditor = forwardRef(function KundokuLineEditor({ target, sectio
         kundoku: nextKundoku,
         kundokuQuestions: next,
       });
-      section.kundoku = nextKundoku;
-      section.kundokuQuestions = next;
-      target.questionText = questionText.trim();
-      target.answer = answer.trim();
       onCancel?.();
     } catch (err) {
       console.error('[kundoku line save] failed:', err);

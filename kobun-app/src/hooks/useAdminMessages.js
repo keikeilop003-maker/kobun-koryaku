@@ -40,7 +40,7 @@ export function useMyAdminMessages(user) {
     );
   }, [user?.uid]);
 
-  const sendMessage = async (text) => {
+  const sendMessage = async ({ text, textbookId, textbookTitle }) => {
     const body = text.trim();
     if (!user?.uid || !body) return;
     if (body.length > 500) throw new Error('message_too_long');
@@ -51,6 +51,8 @@ export function useMyAdminMessages(user) {
       displayName: user.displayName ?? loginId,
       loginId,
       text: body,
+      textbookId: textbookId || 'other',
+      textbookTitle: textbookTitle || 'その他',
       status: 'open',
       createdAt: serverTimestamp(),
     });
