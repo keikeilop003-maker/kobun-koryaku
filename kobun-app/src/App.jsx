@@ -31,6 +31,7 @@ import './styles/app.css';
 
 const SECTIONLESS_CUSTOM_SECTION_ID = '__custom_sectionless__';
 const AVATAR_CUSTOMIZER_ENABLED = false;
+const DEFAULT_TEXTBOOK_TAG = '未分類';
 
 const LEGEND = [
   { type: 'all',      label: '全語句',   cls: 'hl-all' },
@@ -145,6 +146,8 @@ function AppInner() {
   const [addingType, setAddingType] = useState(null);
   const [textbookOrder, setTextbookOrder] = useState([]);
   const [textbookStatuses, setTextbookStatuses] = useState({});
+  const [textbookTags, setTextbookTags] = useState({});
+  const [expandedTextbookTags, setExpandedTextbookTags] = useState({});
   const [lastDeletedTarget, setLastDeletedTarget] = useState(null);
   const [correctKaeritenLines, setCorrectKaeritenLines] = useState({});
   const effectiveIsAdmin = isAdmin && !viewAsStudent;
@@ -178,8 +181,12 @@ function AppInner() {
     ));
   }, []);
   const statusTextbooks = useMemo(
-    () => textbooks.map(tb => ({ ...tb, status: textbookStatuses[tb.id] ?? tb.status ?? 'draft' })),
-    [textbooks, textbookStatuses],
+    () => textbooks.map(tb => ({
+      ...tb,
+      status: textbookStatuses[tb.id] ?? tb.status ?? 'draft',
+      tag: textbookTags[tb.id] ?? tb.tag ?? DEFAULT_TEXTBOOK_TAG,
+    })),
+    [textbooks, textbookStatuses, textbookTags],
   );
   const orderedTextbooks = useMemo(() => {
     const orderIndex = new Map(textbookOrder.map((id, index) => [id, index]));
@@ -194,6 +201,15 @@ function AppInner() {
     () => orderedTextbooks.filter(tb => effectiveIsAdmin || tb.status !== 'draft'),
     [orderedTextbooks, effectiveIsAdmin],
   );
+  const textbookGroups = useMemo(() => {
+    const groups = new Map();
+    visibleTextbooks.forEach(tb => {
+      const tag = String(tb.tag ?? '').trim() || DEFAULT_TEXTBOOK_TAG;
+      if (!groups.has(tag)) groups.set(tag, []);
+      groups.get(tag).push(tb);
+    });
+    return [...groups.entries()].map(([tag, items]) => ({ tag, items }));
+  }, [visibleTextbooks]);
 
   const equipped = profile?.equipped ? normalizeEquipped(profile.equipped) : null;
 
@@ -326,6 +342,17 @@ function AppInner() {
   }, []);
 
   useEffect(() => {
+    return onSnapshot(
+      doc(db, 'appSettings', 'textbookTags'),
+      snap => {
+        const tags = snap.data()?.tags;
+        setTextbookTags(tags && typeof tags === 'object' ? tags : {});
+      },
+      err => { console.error('[textbook tags] load failed:', err.code); },
+    );
+  }, []);
+
+  useEffect(() => {
     if (!selectedTextId) return;
     setTextData(null);
     fetch(`${import.meta.env.BASE_URL}data/${selectedTextId}.json`)
@@ -389,6 +416,25 @@ function AppInner() {
     } catch (err) {
       console.error('[textbook status] save failed:', err);
       window.alert(`公開状態の保存に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
+    }
+  };
+
+  const handleUpdateTextbookTag = async (id, value) => {
+    if (!effectiveIsAdmin || !user) return;
+    const nextTag = value.trim() || DEFAULT_TEXTBOOK_TAG;
+    const nextTags = { ...textbookTags, [id]: nextTag };
+    setTextbookTags(nextTags);
+    setExpandedTextbookTags(current => ({ ...current, [nextTag]: true }));
+    try {
+      await setDoc(doc(db, 'appSettings', 'textbookTags'), {
+        tags: nextTags,
+        updatedBy: user.uid,
+        updatedByEmail: user.email,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (err) {
+      console.error('[textbook tags] save failed:', err);
+      window.alert(`教材タグの保存に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
     }
   };
 
@@ -843,49 +889,88 @@ function AppInner() {
                 </button>
               )}
               <div className="top-section-title">教材</div>
-              {visibleTextbooks.map(tb => (
-                <div
-                  key={tb.id}
-                  role="button"
-                  tabIndex={0}
-                  className={`textbook-card-btn textbook-card-btn--${tb.status === 'draft' ? 'draft' : 'published'}`}
-                  onClick={() => handleSelectTextbook(tb.id)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      handleSelectTextbook(tb.id);
-                    }
-                  }}
-                >
-                  {effectiveIsAdmin && (
-                    <div className="textbook-admin-tools" onClick={e => e.stopPropagation()}>
-                      <div className="textbook-order-tools">
-                        <button
-                          title="上へ"
-                          onClick={() => handleMoveTextbook(tb.id, -1)}
-                          disabled={orderedTextbooks[0]?.id === tb.id}
-                        >↑</button>
-                        <button
-                          title="下へ"
-                          onClick={() => handleMoveTextbook(tb.id, 1)}
-                          disabled={orderedTextbooks.at(-1)?.id === tb.id}
-                        >↓</button>
-                      </div>
+              <div className="textbook-tag-groups">
+                {textbookGroups.map(({ tag, items }) => {
+                  const expanded = expandedTextbookTags[tag] ?? true;
+                  return (
+                    <section className="textbook-tag-group" key={tag}>
                       <button
-                        className="textbook-status-toggle"
-                        onClick={() => handleToggleTextbookStatus(tb.id)}
+                        type="button"
+                        className="textbook-tag-toggle"
+                        onClick={() => setExpandedTextbookTags(current => ({ ...current, [tag]: !expanded }))}
+                        aria-expanded={expanded}
                       >
-                        {tb.status === 'draft' ? '公開にする' : '作成中にする'}
+                        <span>{expanded ? '−' : '+'}</span>
+                        <strong>{tag}</strong>
+                        <small>{items.length}</small>
                       </button>
-                    </div>
-                  )}
-                  <span className={`tc-status tc-status--${tb.status === 'draft' ? 'draft' : 'published'}`}>
-                    {tb.status === 'draft' ? '作成中' : '公開中'}
-                  </span>
-                  <span className="tc-title">{tb.title}</span>
-                  <span className="tc-source">{tb.source}</span>
-                </div>
-              ))}
+                      {expanded && (
+                        <div className="textbook-tag-grid">
+                          {items.map(tb => (
+                            <div
+                              key={tb.id}
+                              role="button"
+                              tabIndex={0}
+                              className={`textbook-card-btn textbook-card-btn--${tb.status === 'draft' ? 'draft' : 'published'}`}
+                              onClick={() => handleSelectTextbook(tb.id)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  handleSelectTextbook(tb.id);
+                                }
+                              }}
+                            >
+                              {effectiveIsAdmin && (
+                                <div className="textbook-admin-tools" onClick={e => e.stopPropagation()}>
+                                  <div className="textbook-order-tools">
+                                    <button
+                                      title="上へ"
+                                      onClick={() => handleMoveTextbook(tb.id, -1)}
+                                      disabled={orderedTextbooks[0]?.id === tb.id}
+                                    >↑</button>
+                                    <button
+                                      title="下へ"
+                                      onClick={() => handleMoveTextbook(tb.id, 1)}
+                                      disabled={orderedTextbooks.at(-1)?.id === tb.id}
+                                    >↓</button>
+                                  </div>
+                                  <button
+                                    className="textbook-status-toggle"
+                                    onClick={() => handleToggleTextbookStatus(tb.id)}
+                                  >
+                                    {tb.status === 'draft' ? '公開にする' : '作成中にする'}
+                                  </button>
+                                  <label className="textbook-tag-editor">
+                                    タグ
+                                    <input
+                                      type="text"
+                                      defaultValue={tb.tag}
+                                      onBlur={event => handleUpdateTextbookTag(tb.id, event.target.value)}
+                                      onKeyDown={event => {
+                                        if (event.key === 'Enter') {
+                                          event.preventDefault();
+                                          event.currentTarget.blur();
+                                        }
+                                      }}
+                                      maxLength={32}
+                                    />
+                                  </label>
+                                </div>
+                              )}
+                              <span className={`tc-status tc-status--${tb.status === 'draft' ? 'draft' : 'published'}`}>
+                                {tb.status === 'draft' ? '作成中' : '公開中'}
+                              </span>
+                              <span className="tc-tag">{tb.tag}</span>
+                              <span className="tc-title">{tb.title}</span>
+                              <span className="tc-source">{tb.source}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </section>
+                  );
+                })}
+              </div>
             </div>
           ) : currentTextData ? (
             <VerticalTextViewer
@@ -928,8 +1013,7 @@ function AppInner() {
               <div className="top-right-upper">
                 <section className="top-portal-hero top-portal-hero--side">
                   <div className="top-portal-heading">
-                    <span>古典ポータル</span>
-                    <strong>TOP</strong>
+                    <strong>アカウント情報</strong>
                   </div>
                   <div className="top-account-card">
                     <AvatarIcon seed={avatarSeed} size={56} equipped={equipped} />

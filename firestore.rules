@@ -242,6 +242,17 @@ service cloud.firestore {
           )
           ||
           (
+            settingId == 'textbookTags'
+            && request.resource.data.keys().hasOnly([
+              'tags',
+              'updatedBy',
+              'updatedByEmail',
+              'updatedAt'
+            ])
+            && request.resource.data.tags is map
+          )
+          ||
+          (
             settingId == 'information'
             && request.resource.data.keys().hasOnly([
               'title',
