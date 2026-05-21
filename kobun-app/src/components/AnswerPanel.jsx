@@ -831,7 +831,18 @@ const KundokuLineEditor = forwardRef(function KundokuLineEditor({ target, sectio
         answer: answer.trim(),
       });
       next.sort((a, b) => Number(a.lineIndex) - Number(b.lineIndex));
-      await onUpdateSection?.(section, { kundokuQuestions: next });
+      const kundokuLines = String(section.kundoku ?? '').split(/\r?\n/);
+      while (kundokuLines.length <= target.lineIndex) kundokuLines.push('');
+      kundokuLines[target.lineIndex] = answer.trim();
+      const nextKundoku = kundokuLines.join('\n');
+      await onUpdateSection?.(section, {
+        kundoku: nextKundoku,
+        kundokuQuestions: next,
+      });
+      section.kundoku = nextKundoku;
+      section.kundokuQuestions = next;
+      target.questionText = questionText.trim();
+      target.answer = answer.trim();
       onCancel?.();
     } catch (err) {
       console.error('[kundoku line save] failed:', err);
