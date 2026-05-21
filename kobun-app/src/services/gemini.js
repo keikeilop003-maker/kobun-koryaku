@@ -158,7 +158,7 @@ export function localScore(userAnswer, correctAnswer) {
 
 function normalize(s) {
   if (!s) return '';
-  return String(s).trim().replace(/[。．！？!?]+$/g, '').trim().replace(/[\s　]+/g, '');
+  return String(s).trim().replace(/[。．！？!?]+$/g, '').trim().replace(/[\s\u3000]+/g, '');
 }
 
 function stripParens(s) {
@@ -194,29 +194,6 @@ function localCompare(userAnswer, correctAnswer, acceptedAnswers = []) {
     if (n.includes(user) || user.includes(n) || ns.includes(user) || user.includes(ns)) return '部分正解';
   }
   return '不正解';
-}
-
-function normalizeKaeriten(s) {
-  return String(s ?? '')
-    .trim()
-    .replace(/レ点/g, 'レ')
-    .replace(/一点/g, '一')
-    .replace(/二点/g, '二')
-    .replace(/三点/g, '三')
-    .replace(/四点/g, '四')
-    .replace(/上点/g, '上')
-    .replace(/中点/g, '中')
-    .replace(/下点/g, '下')
-    .replace(/甲点/g, '甲')
-    .replace(/乙点/g, '乙')
-    .replace(/丙点/g, '丙')
-    .replace(/丁点/g, '丁')
-    .replace(/[1１]/g, '一')
-    .replace(/[2２]/g, '二')
-    .replace(/[3３]/g, '三')
-    .replace(/[4４]/g, '四')
-    .replace(/[,\s、。・／/|｜:：;；-]+/g, '')
-    .replace(/[（）()「」『』［］\[\]【】]/g, '');
 }
 
 function localCompareKaeriten(userAnswer, correctAnswer, acceptedAnswers = []) {
@@ -317,7 +294,7 @@ const cache = (() => {
 function cacheGet(k) { return cache[k]; }
 function cacheSet(k, v) {
   cache[k] = v;
-  try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch {}
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch { /* noop */ }
 }
 
 async function callGemini(type, payload) {

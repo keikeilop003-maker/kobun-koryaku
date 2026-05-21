@@ -468,7 +468,7 @@ function AppInner() {
           sectionId: section.id,
           target,
         });
-        if (selectedTarget?.id === target.id) {
+        if (targetSelectionKey(selectedTarget) === targetSelectionKey(target)) {
           setSelectedTarget(null);
           setSelectedSection(null);
         }
@@ -489,7 +489,7 @@ function AppInner() {
         sectionId: section.id,
         target,
       });
-      if (selectedTarget?.id === target.id) {
+      if (targetSelectionKey(selectedTarget) === targetSelectionKey(target)) {
         setSelectedTarget(null);
         setSelectedSection(null);
       }
@@ -498,13 +498,15 @@ function AppInner() {
       console.error('[delete target] failed:', err);
       window.alert(`削除に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
     }
-  }, [effectiveIsAdmin, selectedTarget?.id, textId, user]);
+  }, [effectiveIsAdmin, selectedTarget, textId, user]);
 
   const handleUndoDeleteTarget = useCallback(async () => {
     if (!effectiveIsAdmin || !user || !textId || !lastDeletedTarget) return;
     try {
       if (lastDeletedTarget.kind === 'custom') {
-        const { customDocId, docId: _docId, ...restoredTarget } = lastDeletedTarget.target;
+        const restoredTarget = { ...lastDeletedTarget.target };
+        delete restoredTarget.customDocId;
+        delete restoredTarget.docId;
         await setDoc(doc(db, 'customTargets', lastDeletedTarget.docId), {
           textId,
           sectionId: lastDeletedTarget.sectionId,
@@ -585,7 +587,7 @@ function AppInner() {
       console.error('[update target] failed:', err);
       window.alert(`更新に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
     }
-  }, [displayTextData?.sections, effectiveIsAdmin, textId, user]);
+  }, [displayTextData, effectiveIsAdmin, textId, user]);
 
   const handleUpdateSection = useCallback(async (section, updates) => {
     if (!effectiveIsAdmin || !user || !textId || !section?.id) return;

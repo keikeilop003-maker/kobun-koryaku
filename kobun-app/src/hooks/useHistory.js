@@ -68,14 +68,14 @@ export default function useHistory(textId, uid) {
       else saveLocal(storageKey, next);
       return next;
     });
-  }, [textId, uid, storageKey]); // eslint-disable-line
+  }, [textId, uid, storageKey]);
 
   const clearAll = useCallback(() => {
     setEntries({});
     const ref = fsRef(uid, textId);
     if (ref) deleteDoc(ref);
     else if (storageKey) { try { localStorage.removeItem(storageKey); } catch { /* noop */ } }
-  }, [textId, uid, storageKey]); // eslint-disable-line
+  }, [textId, uid, storageKey]);
 
   const removeOne = useCallback(id => {
     const ref = fsRef(uid, textId);
@@ -87,7 +87,7 @@ export default function useHistory(textId, uid) {
       else saveLocal(storageKey, next);
       return next;
     });
-  }, [textId, uid, storageKey]); // eslint-disable-line
+  }, [textId, uid, storageKey]);
 
   return { entries, record, clearAll, removeOne };
 }

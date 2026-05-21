@@ -1,16 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { reviewTranslation, reviewContent, localScore } from '../services/gemini';
-
-function timeAgo(ts) {
-  if (!ts?.toMillis) return '';
-  const sec = Math.floor((Date.now() - ts.toMillis()) / 1000);
-  if (sec < 60) return `${sec}秒前`;
-  const min = Math.floor(sec / 60);
-  if (min < 60) return `${min}分前`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}時間前`;
-  return `${Math.floor(hr / 24)}日前`;
-}
 
 function JudgeBadge({ judgement }) {
   if (!judgement) return null;
@@ -402,7 +391,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
 }
 
 export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onOpenQuestionChange, isAdmin, onUpdateQuestion, onDeleteQuestion }) {
-  const safeQuestions = questions ?? [];
+  const safeQuestions = useMemo(() => questions ?? [], [questions]);
   const [openQuestionId, setOpenQuestionId] = useState(null);
   useEffect(() => {
     if (!expandedNqId) return;

@@ -39,7 +39,7 @@ function itemKey(kind, id) {
 
 function uniqueKnowledgeTargets(sections) {
   const seen = new Set();
-  return (sections ?? [])
+  const baseTargets = (sections ?? [])
     .flatMap(section => (section.targets ?? []).map(target => ({ section, target })))
     .filter(({ target }) => KNOWLEDGE_TYPES.includes(target.type))
     .filter(({ target }) => {
@@ -48,6 +48,70 @@ function uniqueKnowledgeTargets(sections) {
       seen.add(key);
       return true;
     });
+  const generatedSyntaxTargets = (sections ?? [])
+    .flatMap(section => syntaxQuestionsForSection(section));
+  return [...baseTargets, ...generatedSyntaxTargets];
+}
+
+function parseKanbunSyntaxForQuestions(value) {
+  if (value && typeof value === 'object') {
+    return Array.isArray(value.items) ? value.items : [value];
+  }
+  const text = String(value ?? '').trim();
+  if (!text) return [];
+  if (text.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(text);
+      return Array.isArray(parsed?.items) ? parsed.items : [parsed];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+function kanbunSyntaxAnswer(item) {
+  const usage = String(item?.usage ?? item?.function ?? '').trim();
+  const translation = String(item?.translation ?? item?.meaning ?? '').trim();
+  if (!usage && !translation) return '';
+  if (usage && translation) return `用法：${usage}。訳し方：${translation}`;
+  return usage || translation;
+}
+
+function syntaxAlternativeAnswers(item, keys) {
+  return keys
+    .flatMap(key => Array.isArray(item?.[key]) ? item[key] : [])
+    .map(value => String(value ?? '').trim())
+    .filter(Boolean)
+    .slice(0, 5);
+}
+
+function syntaxQuestionsForSection(section) {
+  const syntaxValue = section?.kanbunSyntax ?? section?.syntaxGuide ?? section?.syntax;
+  return parseKanbunSyntaxForQuestions(syntaxValue)
+    .map((item, itemIndex) => {
+      const surface = String(item?.base ?? item?.text ?? '').trim();
+      const answer = kanbunSyntaxAnswer(item);
+      if (!surface) return null;
+      const usage = String(item?.usage ?? item?.function ?? '').trim();
+      const translation = String(item?.translation ?? item?.meaning ?? '').trim();
+      const usageAlternativeAnswers = syntaxAlternativeAnswers(item, ['usageAlternativeAnswers', 'usageAlternatives', 'functionAlternativeAnswers', 'functionAlternatives']);
+      const translationAlternativeAnswers = syntaxAlternativeAnswers(item, ['translationAlternativeAnswers', 'translationAlternatives', 'meaningAlternativeAnswers', 'meaningAlternatives']);
+      return {
+        section,
+        target: {
+          id: `kanbun-syntax-${section.id}-${itemIndex}`,
+          type: 'grammar',
+          surface,
+          answer,
+          syntaxUsage: usage,
+          syntaxTranslation: translation,
+          usageAlternativeAnswers,
+          translationAlternativeAnswers,
+        },
+      };
+    })
+    .filter(Boolean);
 }
 
 function relativeTime(at) {

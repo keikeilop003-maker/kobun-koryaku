@@ -477,7 +477,7 @@ function AnnotatedSourceText({ text, start = 0, annotations }) {
   });
 }
 
-function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTarget, isKanbun, sourceTextStyle, practiceMode = true, onSelectLine, correctLineKeys }) {
+function KaeritenSourceExercise({ target, section, isAdmin, onUpdateTarget, isKanbun, sourceTextStyle, practiceMode = true, onSelectLine, correctLineKeys }) {
   const range = findTargetRange(section, target);
   const chars = kaeritenChars(target.surface);
   const initialUser = parseKaeritenAnswer('', target.surface);
@@ -497,7 +497,6 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   const [isComposingOkurigana, setIsComposingOkurigana] = useState(false);
   const isComposingOkuriganaRef = useRef(false);
   const okuriganaInputRef = useRef(null);
-  const [lineJudgements, setLineJudgements] = useState({});
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const editingAnswer = isAdmin && practiceMode && adminEditingAnswer;
@@ -510,11 +509,6 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
   const selectedFuriganaY = showingAnswer ? answer.furiganaY : editingAnswer ? adminFuriganaY : [];
   const selectedOkuriganaY = showingAnswer ? answer.okuriganaY : editingAnswer ? adminOkuriganaY : [];
   const selectedHyphens = showingAnswer ? new Set(answer.hyphens) : editingAnswer ? adminHyphens : hyphens;
-
-  const userAnswer = (nextMarks = marks, nextHyphens = hyphens) => serializeKaeritenAnswer({
-    marks: nextMarks,
-    hyphens: [...nextHyphens],
-  }, target.surface);
 
   const adminAnswer = (nextMarks = adminMarks, nextHyphens = adminHyphens, nextFurigana = adminFurigana, nextOkurigana = adminOkurigana, nextMarkY = adminMarkY, nextFuriganaY = adminFuriganaY, nextOkuriganaY = adminOkuriganaY) => serializeKaeritenAnswer({
     marks: nextMarks,
@@ -533,7 +527,6 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
       setMessage('');
     } else {
       setMarks(updater);
-      setLineJudgements({});
     }
   };
 
@@ -550,7 +543,6 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
       setMessage('');
     } else {
       setHyphens(update);
-      setLineJudgements({});
     }
   };
 
@@ -639,33 +631,6 @@ function KaeritenSourceExercise({ target, section, isAdmin, onRecord, onUpdateTa
     answer: lineAnswer(lineIndex, answer.marks, new Set(answer.hyphens)),
     gradingMode: 'local',
   });
-
-  const submitLine = async (lineIndex) => {
-    const current = lineAnswer(lineIndex, marks, hyphens);
-    const correct = lineAnswer(lineIndex, answer.marks, new Set(answer.hyphens));
-    const result = await reviewKaeriten({
-      userAnswer: current,
-      correctAnswer: correct,
-      acceptedAnswers: [],
-    });
-    setLineJudgements(currentState => ({
-      ...currentState,
-      [lineIndex]: result?.judgement ?? '',
-    }));
-    onRecord?.({
-      id: `${target.id}-line-${lineIndex + 1}`,
-      type: target.type,
-      surface: `${target.surface} ${lineIndex + 1}行目`,
-      sectionId: section?.id ?? null,
-      targetId: target.id,
-      questionId: null,
-      judgement: result?.judgement ?? '不正解',
-      feedback: {
-        ...result,
-        userAnswer: current,
-      },
-    });
-  };
 
   const saveAnswer = async () => {
     if (saving) return;
@@ -1801,7 +1766,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
 
   useEffect(() => {
     if (pinnedPhrase) setActiveTab('source');
-  }, [pinnedPhrase?.sectionId, pinnedPhrase?.text]);
+  }, [pinnedPhrase]);
 
   return (
     <div className="vertical-viewer">

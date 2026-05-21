@@ -270,7 +270,7 @@ function acceptedAnswers(target) {
 }
 
 // ── 重要単語 ─────────────────────────────────────────────────
-const VocabForm = forwardRef(function VocabForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+const VocabForm = forwardRef(function VocabForm({ target, onResult, initialResult, onAdvance, initialInputs, onInputChange }, ref) {
   const [ans, setAns] = useState(initialInputs?.ans ?? '');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(initialInputs?.submitted ?? false);
@@ -317,7 +317,7 @@ const VocabForm = forwardRef(function VocabForm({ target, section, onResult, ini
 });
 
 // ── 助動詞（Enter自動採点） ───────────────────────────────────
-const AuxForm = forwardRef(function AuxForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+const AuxForm = forwardRef(function AuxForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange }, ref) {
   const [ans, setAns] = useState(initialInputs?.ans ?? '');
   const ansRef = useRef(initialInputs?.ans ?? '');
   const inputRef = useRef(null);
@@ -355,7 +355,7 @@ const AuxForm = forwardRef(function AuxForm({ target, section, onResult, initial
 });
 
 // ── 動詞（Enter自動採点） ────────────────────────────────────
-const VerbForm = forwardRef(function VerbForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+const VerbForm = forwardRef(function VerbForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange }, ref) {
   const [base, setBase] = useState(initialInputs?.base ?? '');
   const [conj, setConj] = useState(initialInputs?.conj ?? '');
   const [form, setForm] = useState(initialInputs?.form ?? '');
@@ -426,7 +426,7 @@ const VerbForm = forwardRef(function VerbForm({ target, section, onResult, initi
 });
 
 // ── 形容詞（Enter自動採点） ──────────────────────────────────
-const AdjForm = forwardRef(function AdjForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+const AdjForm = forwardRef(function AdjForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange }, ref) {
   const [base, setBase] = useState(initialInputs?.base ?? '');
   const [conj, setConj] = useState(initialInputs?.conj ?? '');
   const [form, setForm] = useState(initialInputs?.form ?? '');
@@ -497,7 +497,7 @@ const AdjForm = forwardRef(function AdjForm({ target, section, onResult, initial
 });
 
 // ── 助詞 ─────────────────────────────────────────────────────
-const ParticleForm = forwardRef(function ParticleForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+const ParticleForm = forwardRef(function ParticleForm({ target, onResult, initialResult, onAdvance, initialInputs, onInputChange }, ref) {
   const [ans, setAns] = useState(initialInputs?.ans ?? '');
   const ansRef = useRef(initialInputs?.ans ?? '');
   const inputRef = useRef(null);
@@ -535,7 +535,7 @@ const ParticleForm = forwardRef(function ParticleForm({ target, section, onResul
 });
 
 // ── 文法・句法 ───────────────────────────────────────────────
-const GrammarForm = forwardRef(function GrammarForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+const GrammarForm = forwardRef(function GrammarForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange }, ref) {
   const [ans, setAns] = useState(initialInputs?.ans ?? '');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(initialInputs?.submitted ?? false);
@@ -582,7 +582,7 @@ const GrammarForm = forwardRef(function GrammarForm({ target, section, onResult,
 });
 
 // ── 返り点 ───────────────────────────────────────────────
-const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+const KaeritenForm = forwardRef(function KaeritenForm({ target, onResult, initialResult, onAdvance, initialInputs, onInputChange }, ref) {
   const surfaceText = target.surface || target.questionSurface || '';
   const displayChars = Array.from(surfaceText);
   const chars = kaeritenChars(surfaceText);
@@ -726,7 +726,7 @@ const KaeritenForm = forwardRef(function KaeritenForm({ target, section, onResul
   );
 });
 
-const KundokuForm = forwardRef(function KundokuForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+const KundokuForm = forwardRef(function KundokuForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange }, ref) {
   const [answer, setAnswer] = useState(initialInputs?.answer ?? '');
   const [submitted, setSubmitted] = useState(initialInputs?.submitted ?? false);
   const [result, setResult] = useState(initialResult ?? null);
@@ -805,7 +805,7 @@ const KundokuForm = forwardRef(function KundokuForm({ target, section, onResult,
   );
 });
 
-const SyntaxGrammarForm = forwardRef(function SyntaxGrammarForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange, onFocusTarget }, ref) {
+const SyntaxGrammarForm = forwardRef(function SyntaxGrammarForm({ target, section, onResult, initialResult, onAdvance, initialInputs, onInputChange }, ref) {
   const [usage, setUsage] = useState(initialInputs?.usage ?? '');
   const [translation, setTranslation] = useState(initialInputs?.translation ?? '');
   const [loading, setLoading] = useState(false);
@@ -1047,7 +1047,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
   };
 
   const isScoreType = SCORE_TYPES.has(target.type);
-  const formProps = { initialInputs, onInputChange, onFocusTarget };
+  const formProps = { initialInputs, onInputChange };
   const showPanelHeader = target.type !== 'kaeriten';
 
   return (

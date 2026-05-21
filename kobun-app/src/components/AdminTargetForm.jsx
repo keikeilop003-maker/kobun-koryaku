@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { emptyKaeritenAnswer, kaeritenChars, parseKaeritenAnswer, serializeKaeritenAnswer } from '../utils/kaeriten';
+import { emptyKaeritenAnswer, serializeKaeritenAnswer } from '../utils/kaeriten';
 
 const TYPE_LABELS = {
   vocab: '重要単語',
@@ -71,67 +71,6 @@ function validationMessage(type, form, isConjugationType) {
   }
   if (!form.answer.trim()) return `${answerLabel(type, form)}を入力してください`;
   return '';
-}
-
-function KaeritenAnswerEditor({ surface, value, onChange }) {
-  const chars = kaeritenChars(surface);
-  const answer = parseKaeritenAnswer(value, surface);
-  const marks = chars.map((_, index) => answer.marks[index] ?? '');
-  const furigana = chars.map((_, index) => answer.furigana?.[index] ?? '');
-  const okurigana = chars.map((_, index) => answer.okurigana?.[index] ?? '');
-  const markY = chars.map((_, index) => answer.markY?.[index] ?? 0);
-  const furiganaY = chars.map((_, index) => answer.furiganaY?.[index] ?? 0);
-  const okuriganaY = chars.map((_, index) => answer.okuriganaY?.[index] ?? 0);
-  const hyphens = new Set(answer.hyphens);
-
-  const emit = (nextMarks, nextHyphens) => {
-    onChange(serializeKaeritenAnswer({ marks: nextMarks, furigana, okurigana, markY, furiganaY, okuriganaY, hyphens: [...nextHyphens] }, surface));
-  };
-
-  const updateMark = (index, mark) => {
-    emit(marks.map((item, itemIndex) => itemIndex === index ? mark : item), hyphens);
-  };
-
-  const toggleHyphen = (index) => {
-    const next = new Set(hyphens);
-    if (next.has(index)) next.delete(index);
-    else next.add(index);
-    emit(marks, next);
-  };
-
-  if (chars.length === 0) {
-    return <div className="admin-kaeriten-empty">対象語を入力すると、返り点の設定欄が表示されます。</div>;
-  }
-
-  return (
-    <div className="admin-kaeriten-editor">
-      <div className="admin-kaeriten-grid">
-        {chars.map((char, index) => (
-          <div className="admin-kaeriten-cell-wrap" key={`${char}-${index}`}>
-            <div className="admin-kaeriten-cell">
-              <span>{char}</span>
-              <input
-                value={marks[index] ?? ''}
-                maxLength={2}
-                onChange={(e) => updateMark(index, e.target.value)}
-                aria-label={`${char}の返り点`}
-              />
-            </div>
-            {index < chars.length - 1 && (
-              <button
-                type="button"
-                className={hyphens.has(index) ? 'active' : ''}
-                onClick={() => toggleHyphen(index)}
-              >
-                -
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
-      <small>各漢字の左下に入れる返り点を入力します。漢字間にハイフンが必要な場合は「-」を有効にしてください。</small>
-    </div>
-  );
 }
 
 export default function AdminTargetForm({
