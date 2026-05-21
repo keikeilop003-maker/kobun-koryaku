@@ -240,9 +240,56 @@ service cloud.firestore {
             ])
             && request.resource.data.statuses is map
           )
+          ||
+          (
+            settingId == 'information'
+            && request.resource.data.keys().hasOnly([
+              'title',
+              'body',
+              'updatedBy',
+              'updatedByEmail',
+              'updatedAt'
+            ])
+            && request.resource.data.title is string
+            && request.resource.data.title.size() <= 80
+            && request.resource.data.body is string
+            && request.resource.data.body.size() <= 1000
+          )
         )
         && request.resource.data.updatedBy == request.auth.uid
         && request.resource.data.updatedByEmail == request.auth.token.email;
+    }
+    match /userInboxMessages/{messageId} {
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly([
+          'uid',
+          'email',
+          'loginId',
+          'displayName',
+          'title',
+          'body',
+          'status',
+          'createdAt',
+          'createdBy',
+          'createdByEmail'
+        ])
+        && request.resource.data.uid is string
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 80
+        && request.resource.data.body is string
+        && request.resource.data.body.size() <= 1000
+        && request.resource.data.status == 'unread'
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.createdByEmail == request.auth.token.email;
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'readAt'])
+        && request.resource.data.status in ['unread', 'read'];
+      allow update: if request.auth != null
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'readAt'])
+        && request.resource.data.status == 'read';
+      allow delete: if false;
     }
     match /adminMessages/{messageId} {
       allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);

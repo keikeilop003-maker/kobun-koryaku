@@ -95,6 +95,15 @@ body {
   overflow: hidden;
 }
 
+.app-body--select .left-col {
+  flex: 1 1 auto;
+  border-right: 0;
+}
+
+.app-body--select .right-col {
+  display: none;
+}
+
 .left-col {
   flex: 0 0 70.1568%;
   display: flex;
@@ -3591,6 +3600,174 @@ span.kaeriten-source-hyphen.active {
   box-sizing: border-box;
 }
 
+.top-portal-hero,
+.top-info-card,
+.top-inbox-card {
+  background: #fff;
+  border: 1px solid #ddd8cc;
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.top-portal-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.top-portal-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  color: #2d3a5e;
+}
+
+.top-portal-heading span {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  color: #777;
+}
+
+.top-portal-heading strong {
+  font-size: 1.35rem;
+}
+
+.top-account-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.top-account-card div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.top-account-card strong {
+  color: #2d3a5e;
+  font-size: 1rem;
+}
+
+.top-account-card span,
+.top-account-card small {
+  color: #777;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.top-account-points {
+  background: #f0ede6;
+  border: 1px solid #ddd8cc;
+  border-radius: 12px;
+  color: #2d3a5e !important;
+  font-weight: bold;
+  padding: 3px 9px;
+  white-space: nowrap;
+}
+
+.top-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #2d3a5e;
+  font-size: 0.82rem;
+  font-weight: bold;
+  letter-spacing: 0.06em;
+}
+
+.top-section-title span {
+  background: #c62828;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.top-info-body,
+.top-inbox-list {
+  margin-top: 10px;
+}
+
+.top-info-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.top-info-body strong {
+  color: #333;
+}
+
+.top-info-body p,
+.top-inbox-item p,
+.top-empty-text {
+  color: #555;
+  font-size: 0.86rem;
+  line-height: 1.7;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.top-info-body small,
+.top-inbox-item small {
+  color: #999;
+  font-size: 0.72rem;
+}
+
+.top-inbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.top-inbox-item {
+  border: 1px solid #eee9df;
+  border-radius: 6px;
+  padding: 10px;
+  background: #faf8f4;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.top-inbox-item.unread {
+  border-color: #4a6fa5;
+  background: #f4f8ff;
+}
+
+.top-inbox-item div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.top-inbox-item strong {
+  color: #2d3a5e;
+  font-size: 0.88rem;
+}
+
+.top-inbox-item button {
+  align-self: flex-start;
+  border: 1px solid #b8c4dc;
+  border-radius: 5px;
+  background: #fff;
+  color: #2d3a5e;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.76rem;
+  padding: 4px 9px;
+}
+
 .textbook-card-btn {
   display: flex;
   flex-direction: column;
@@ -5513,6 +5690,87 @@ span.kaeriten-source-hyphen.active {
 .admin-dash-notice {
   color: #2e7d32;
   font-size: 0.82rem;
+}
+
+.admin-dash-note {
+  background: #f4f8ff;
+  border: 1px solid #d7e2f5;
+  border-radius: 8px;
+  color: #405273;
+  font-size: 0.84rem;
+  line-height: 1.7;
+  padding: 10px 12px;
+}
+
+.admin-top-tools {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  max-width: 1180px;
+}
+
+.admin-top-tools .admin-dash-notice {
+  grid-column: 1 / -1;
+}
+
+.admin-top-card {
+  background: #fff;
+  border: 1px solid #ddd8cc;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+}
+
+.admin-top-card h2 {
+  color: #2d3a5e;
+  font-size: 0.95rem;
+}
+
+.admin-top-card label {
+  color: #2d3a5e;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.82rem;
+  font-weight: bold;
+  gap: 5px;
+}
+
+.admin-top-card input,
+.admin-top-card select,
+.admin-top-card textarea {
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  color: #2c2c2c;
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  padding: 8px 10px;
+}
+
+.admin-top-card textarea {
+  resize: vertical;
+}
+
+.admin-top-card button {
+  align-self: flex-start;
+  background: #2d3a5e;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.86rem;
+  padding: 8px 14px;
+}
+
+.admin-direct-message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 420px;
+  overflow-y: auto;
 }
 
 .admin-code-row,

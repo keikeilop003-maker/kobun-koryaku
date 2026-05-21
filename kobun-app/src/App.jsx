@@ -22,6 +22,7 @@ import useEditedSections from './hooks/useEditedSections';
 import useEditedNormalQuestions from './hooks/useEditedNormalQuestions';
 import useHiddenNormalQuestions from './hooks/useHiddenNormalQuestions';
 import useAnalysis from './hooks/useAnalysis';
+import { useMyInboxMessages, useTopInformation } from './hooks/useTopCommunications';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { addDoc, collection, deleteDoc, doc, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from './services/firebase';
@@ -106,11 +107,24 @@ function targetSelectionKey(target) {
   return null;
 }
 
+function fmtDate(value) {
+  const ms = typeof value === 'number' ? value : value?.toMillis?.();
+  if (!ms) return '-';
+  return new Intl.DateTimeFormat('ja-JP', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(ms));
+}
+
 function AppInner() {
   const { user, logout } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin(user);
   const { account, loading: accountLoading, registerAccount, updatePublicProfile } = useAccount(user);
   const avatarSeed = user?.uid ? user.uid.substring(0, 8) : 'anon';
+  const topInformation = useTopInformation();
+  const { messages: inboxMessages, markRead } = useMyInboxMessages(user);
 
   const [textbooks, setTextbooks] = useState([]);
   const [selectedTextId, setSelectedTextId] = useState(null);
@@ -280,6 +294,7 @@ function AppInner() {
   const accountLoginId = account?.loginId || user.email?.split('@')[0] || '';
   const publicDisplayName = account?.username?.trim() || accountLoginId || user.displayName || 'ユーザー';
   const publicBio = account?.bio?.trim() ?? '';
+  const unreadInboxCount = inboxMessages.filter(message => message.status !== 'read').length;
 
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/index.json`)
@@ -765,11 +780,69 @@ function AppInner() {
         <div className="left-col">
           {noSelection ? (
             <div className="textbook-select-area">
+              <section className="top-portal-hero">
+                <div className="top-portal-heading">
+                  <span>古典ポータル</span>
+                  <strong>TOP</strong>
+                </div>
+                <div className="top-account-card">
+                  <AvatarIcon seed={avatarSeed} size={56} equipped={equipped} />
+                  <div>
+                    <strong>{publicDisplayName}</strong>
+                    {publicBio && <span>{publicBio}</span>}
+                    <small>
+                      {accountLoginId}
+                      {account?.studentCode ? ` / 利用番号 ${account.studentCode}` : account?.requestedStudentCode ? ` / 申請中 ${account.requestedStudentCode}` : ''}
+                    </small>
+                  </div>
+                  {profile && <span className="top-account-points">{profile.points ?? 0}pt</span>}
+                </div>
+              </section>
+
+              <section className="top-info-card">
+                <div className="top-section-title">information</div>
+                {topInformation?.body || topInformation?.title ? (
+                  <div className="top-info-body">
+                    {topInformation.title && <strong>{topInformation.title}</strong>}
+                    <p>{topInformation.body}</p>
+                    {topInformation.updatedAt && <small>更新: {fmtDate(topInformation.updatedAt)}</small>}
+                  </div>
+                ) : (
+                  <p className="top-empty-text">現在のお知らせはありません。</p>
+                )}
+              </section>
+
+              <section className="top-inbox-card">
+                <div className="top-section-title">
+                  受信箱
+                  {unreadInboxCount > 0 && <span>{unreadInboxCount}</span>}
+                </div>
+                {inboxMessages.length > 0 ? (
+                  <div className="top-inbox-list">
+                    {inboxMessages.map(message => (
+                      <article key={message.id} className={`top-inbox-item${message.status === 'read' ? '' : ' unread'}`}>
+                        <div>
+                          <strong>{message.title || '管理者からのメッセージ'}</strong>
+                          <small>{fmtDate(message.createdAt)}</small>
+                        </div>
+                        <p>{message.body}</p>
+                        {message.status !== 'read' && (
+                          <button type="button" onClick={() => markRead(message.id)}>既読にする</button>
+                        )}
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="top-empty-text">個別メッセージはありません。</p>
+                )}
+              </section>
+
               {effectiveIsAdmin && (
                 <button className="admin-open-dashboard-btn" onClick={() => setShowAdminDashboard(true)}>
                   管理者ページ
                 </button>
               )}
+              <div className="top-section-title">教材</div>
               {visibleTextbooks.map(tb => (
                 <div
                   key={tb.id}

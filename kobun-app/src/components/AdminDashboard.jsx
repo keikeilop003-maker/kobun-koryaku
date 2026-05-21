@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import useAdminData from '../hooks/useAdminData';
 import { MESSAGE_STATUS, useAllAdminMessages } from '../hooks/useAdminMessages';
+import { useAdminTopTools, useTopInformation } from '../hooks/useTopCommunications';
 import { STUDENT_CODE_RE } from '../hooks/useAccount';
 import { DEFAULT_EQUIPPED, ITEMS, SLOT_LABELS } from '../data/items';
 
@@ -10,6 +11,7 @@ const TABS = [
   { id: 'profile', label: 'プロフィール編集' },
   { id: 'codes', label: '利用番号申請' },
   { id: 'messages', label: 'メッセージ' },
+  { id: 'top', label: 'TOP連絡' },
 ];
 
 const HISTORY_LIMIT = 50;
@@ -359,6 +361,10 @@ function CodeRequests({ users, onSave }) {
 
   return (
     <div className="admin-dash-list">
+      <div className="admin-dash-note">
+        利用番号申請は、登録された利用番号を管理者が確認済みにするための欄です。
+        承認待ちでもユーザーの利用は制限されません。
+      </div>
       {message && <div className="admin-dash-notice">{message}</div>}
       {users.map(user => (
         <div key={user.uid} className="admin-code-row">
@@ -366,6 +372,7 @@ function CodeRequests({ users, onSave }) {
             <strong>{userLabel(user)}</strong>
             <span>{user.account?.email ?? '-'}</span>
             <span>申請: {user.account?.requestedStudentCode ?? '-'}</span>
+            <span>状態: {user.account?.studentCodeStatus === 'approved' ? '承認済み' : user.account?.studentCodeStatus === 'rejected' ? '却下' : '承認待ち'}</span>
           </div>
           <input
             value={codes[user.uid] ?? user.account?.studentCode ?? user.account?.requestedStudentCode ?? ''}
@@ -377,6 +384,98 @@ function CodeRequests({ users, onSave }) {
         </div>
       ))}
       {users.length === 0 && <div className="admin-dash-empty">利用番号申請はまだありません</div>}
+    </div>
+  );
+}
+
+function TopCommunicationEditor({ users, information, directMessages, onSaveInformation, onSendMessage }) {
+  const [title, setTitle] = useState(information?.title ?? '');
+  const [body, setBody] = useState(information?.body ?? '');
+  const [uid, setUid] = useState('');
+  const [messageTitle, setMessageTitle] = useState('');
+  const [messageBody, setMessageBody] = useState('');
+  const [notice, setNotice] = useState('');
+  const selectedUser = users.find(user => user.uid === uid) ?? users[0];
+
+  useEffect(() => {
+    setTitle(information?.title ?? '');
+    setBody(information?.body ?? '');
+  }, [information?.title, information?.body]);
+
+  const saveInfo = async () => {
+    setNotice('');
+    await onSaveInformation({ title, body });
+    setNotice('informationを保存しました');
+  };
+
+  const send = async () => {
+    if (!selectedUser || !messageBody.trim()) {
+      setNotice('送信先と本文を入力してください');
+      return;
+    }
+    setNotice('');
+    await onSendMessage({
+      user: selectedUser,
+      title: messageTitle || '管理者からのメッセージ',
+      body: messageBody,
+    });
+    setMessageTitle('');
+    setMessageBody('');
+    setNotice('個別メッセージを送信しました');
+  };
+
+  return (
+    <div className="admin-top-tools">
+      {notice && <div className="admin-dash-notice">{notice}</div>}
+      <section className="admin-top-card">
+        <h2>TOP information</h2>
+        <label>
+          見出し
+          <input value={title} onChange={event => setTitle(event.target.value)} maxLength={80} />
+        </label>
+        <label>
+          本文
+          <textarea value={body} onChange={event => setBody(event.target.value)} rows={5} maxLength={1000} />
+        </label>
+        <button onClick={saveInfo}>informationを保存</button>
+      </section>
+
+      <section className="admin-top-card">
+        <h2>ユーザーへの個別メッセージ</h2>
+        <label>
+          送信先
+          <select value={selectedUser?.uid ?? ''} onChange={event => setUid(event.target.value)}>
+            {users.map(user => <option key={user.uid} value={user.uid}>{userLabel(user)}</option>)}
+          </select>
+        </label>
+        <label>
+          件名
+          <input value={messageTitle} onChange={event => setMessageTitle(event.target.value)} maxLength={80} />
+        </label>
+        <label>
+          本文
+          <textarea value={messageBody} onChange={event => setMessageBody(event.target.value)} rows={5} maxLength={1000} />
+        </label>
+        <button onClick={send}>送信</button>
+      </section>
+
+      <section className="admin-top-card">
+        <h2>送信履歴</h2>
+        <div className="admin-direct-message-list">
+          {directMessages.map(message => (
+            <div key={message.id} className="admin-message-row">
+              <div className="admin-message-head">
+                <strong>{message.displayName || message.loginId || message.uid}</strong>
+                <span>{message.status === 'read' ? '既読' : '未読'}</span>
+                <span>{fmtDate(message.createdAt)}</span>
+              </div>
+              <strong>{message.title}</strong>
+              <p>{message.body}</p>
+            </div>
+          ))}
+          {directMessages.length === 0 && <div className="admin-dash-empty">個別メッセージの送信履歴はまだありません</div>}
+        </div>
+      </section>
     </div>
   );
 }
@@ -412,6 +511,8 @@ export default function AdminDashboard({ isAdmin, currentUser, textbooks, onClos
     clearHistoryText,
   } = useAdminData(isAdmin, currentUser);
   const { messages, updateStatus } = useAllAdminMessages(isAdmin);
+  const information = useTopInformation();
+  const { directMessages, saveInformation, sendDirectMessage } = useAdminTopTools(isAdmin, currentUser);
   const requestedUsers = users.filter(user => user.account?.requestedStudentCode || user.account?.studentCode);
 
   return (
@@ -419,7 +520,7 @@ export default function AdminDashboard({ isAdmin, currentUser, textbooks, onClos
       <div className="admin-dash-header">
         <div>
           <h1>管理者ページ</h1>
-          <p>利用状況、履歴、利用番号、プロフィール、問い合わせを管理します。</p>
+          <p>利用状況、履歴、利用番号、プロフィール、問い合わせ、TOP連絡を管理します。</p>
         </div>
         <button onClick={onClose}>教材選択へ戻る</button>
       </div>
@@ -442,6 +543,15 @@ export default function AdminDashboard({ isAdmin, currentUser, textbooks, onClos
       {tab === 'profile' && <ProfileEditor users={users} onSave={saveProfile} />}
       {tab === 'codes' && <CodeRequests users={requestedUsers} onSave={saveStudentCode} />}
       {tab === 'messages' && <MessageInbox messages={messages} onStatus={updateStatus} />}
+      {tab === 'top' && (
+        <TopCommunicationEditor
+          users={users}
+          information={information}
+          directMessages={directMessages}
+          onSaveInformation={saveInformation}
+          onSendMessage={sendDirectMessage}
+        />
+      )}
     </main>
   );
 }
