@@ -1530,7 +1530,7 @@ body {
   align-self: end;
   display: grid;
   grid-auto-flow: column;
-  grid-template-rows: repeat(10, 2.1rem);
+  grid-template-rows: repeat(8, 2.1rem);
   gap: 6px;
   box-sizing: border-box;
   max-width: min(100%, 16rem);
