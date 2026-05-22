@@ -1916,7 +1916,7 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, onAddMaskRul
           </select>
         </label>
         <label>
-          {'\u96a0\u3059\u8a9e'}
+          {'\u73fe\u4ee3\u8a9e\u8a33\u306e\u96a0\u3059\u8a9e'}
           <input
             value={maskWord}
             onChange={(event) => setMaskWord(event.target.value)}
@@ -1994,6 +1994,11 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
     });
   };
 
+  const closeEditor = () => {
+    setEditingAll(false);
+    setEditingSectionId(null);
+  };
+
   return (
     <div className="lesson-view-mode">
       {isAdmin && (
@@ -2026,20 +2031,6 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
         const sectionMaskRules = maskRules.filter(rule => rule.sectionId === section.id);
         return (
           <article className="lesson-view-section" key={section.id}>
-            <div className="lesson-view-section-title">
-              <span>{section.title}</span>
-              {isAdmin && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (editingAll) setEditingAll(false);
-                    else setEditingSectionId(editing ? null : section.id);
-                  }}
-                >
-                  {editing ? '\u7de8\u96c6\u3092\u9589\u3058\u308b' : '\u7de8\u96c6'}
-                </button>
-              )}
-            </div>
             {editing && (
               <LessonViewEditor
                 section={lessonSection}
@@ -2048,7 +2039,7 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
                 maskRules={sectionMaskRules}
                 onAddMaskRule={addMaskRule}
                 onRemoveMaskRule={removeMaskRule}
-                onCancel={() => setEditingSectionId(null)}
+                onCancel={closeEditor}
                 onSave={onUpdateLessonViewSection}
               />
             )}
@@ -2069,7 +2060,7 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
                         text={source}
                         kind="source"
                         columnKey={`${section.id}-${index}-source`}
-                        hiddenWords={lineHiddenWords}
+                        hiddenWords={[]}
                         revealedMasks={revealedMasks}
                         onRevealMask={revealMask}
                       />
@@ -2078,7 +2069,7 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
                           text={reading}
                           kind="kundoku"
                           columnKey={kundokuKey}
-                          hiddenWords={lineHiddenWords}
+                          hiddenWords={[]}
                           revealedMasks={revealedMasks}
                           onRevealMask={revealMask}
                           framed
