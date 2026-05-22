@@ -1059,6 +1059,7 @@ function KaeritenInlineExercise({ target, section, isAdmin, onRecord, onUpdateTa
 function SectionEditor({ section, kundoku, onCancel, onSave }) {
   const [sourceText, setSourceText] = useState(section.text ?? '');
   const [kundokuText, setKundokuText] = useState(kundoku ?? '');
+  const [modernText, setModernText] = useState(section.modern ?? '');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -1070,6 +1071,7 @@ function SectionEditor({ section, kundoku, onCancel, onSave }) {
       await onSave?.({
         text: sourceText,
         kundoku: kundokuText,
+        modern: modernText,
       });
       setMessage('保存しました');
       onCancel?.();
@@ -1090,6 +1092,10 @@ function SectionEditor({ section, kundoku, onCancel, onSave }) {
       <label>
         書き下し文
         <textarea rows={8} value={kundokuText} onChange={(e) => setKundokuText(e.target.value)} />
+      </label>
+      <label>
+        現代語訳
+        <textarea rows={8} value={modernText} onChange={(e) => setModernText(e.target.value)} />
       </label>
       <div className="admin-inline-actions">
         {message && <span className="admin-message">{message}</span>}
@@ -1723,6 +1729,294 @@ function GyofunoriNotesImage() {
   );
 }
 
+function splitViewLines(value) {
+  return String(value ?? '')
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean);
+}
+
+function snapViewSplit(chars, target, min, max) {
+  const punctuation = /[\u3001\u3002\uff0c\uff0e\uff1f\uff01\u300d\u300f]/u;
+  for (let offset = 0; offset <= 16; offset += 1) {
+    const forward = target + offset;
+    if (forward >= min && forward <= max && punctuation.test(chars[forward - 1] ?? '')) return forward;
+    const backward = target - offset;
+    if (backward >= min && backward <= max && punctuation.test(chars[backward - 1] ?? '')) return backward;
+  }
+  return Math.min(Math.max(target, min), max);
+}
+
+function splitModernForSourceLines(modernText, sourceLines) {
+  const explicitLines = splitViewLines(modernText);
+  if (explicitLines.length !== 1 || sourceLines.length <= 1) return explicitLines;
+
+  const chars = Array.from(explicitLines[0]);
+  const sourceLengths = sourceLines.map(line => Math.max(Array.from(line).length, 1));
+  const totalSourceLength = sourceLengths.reduce((sum, length) => sum + length, 0);
+  const chunks = [];
+  let sourceCursor = 0;
+  let modernCursor = 0;
+
+  sourceLengths.forEach((length, index) => {
+    if (index === sourceLengths.length - 1) {
+      chunks.push(chars.slice(modernCursor).join('').trim());
+      return;
+    }
+    sourceCursor += length;
+    const proportionalTarget = Math.round((chars.length * sourceCursor) / totalSourceLength);
+    const remainingLines = sourceLengths.length - index - 1;
+    const min = Math.min(chars.length, modernCursor + 1);
+    const max = Math.max(min, chars.length - remainingLines);
+    const end = snapViewSplit(chars, proportionalTarget, min, max);
+    chunks.push(chars.slice(modernCursor, end).join('').trim());
+    modernCursor = end;
+  });
+
+  return chunks;
+}
+
+function maskedTextParts(text, hiddenWords) {
+  const words = hiddenWords
+    .map(word => String(word ?? '').trim())
+    .filter(Boolean)
+    .sort((a, b) => Array.from(b).length - Array.from(a).length);
+  if (!words.length) return [{ type: 'text', value: text }];
+
+  const parts = [];
+  let position = 0;
+  while (position < text.length) {
+    const match = words
+      .map(word => ({ word, index: text.indexOf(word, position) }))
+      .filter(item => item.index !== -1)
+      .sort((a, b) => a.index - b.index || b.word.length - a.word.length)[0];
+    if (!match) {
+      parts.push({ type: 'text', value: text.slice(position) });
+      break;
+    }
+    if (match.index > position) parts.push({ type: 'text', value: text.slice(position, match.index) });
+    parts.push({ type: 'mask', value: match.word, start: match.index });
+    position = match.index + match.word.length;
+  }
+  return parts;
+}
+
+function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, onRevealMask }) {
+  if (!text) return null;
+  return (
+    <section className={`lesson-view-column lesson-view-column--${kind}`}>
+      <p className="lesson-view-text">
+        {maskedTextParts(text, hiddenWords).map((part, index) => {
+          if (part.type === 'text') return <span key={`${columnKey}-text-${index}`}>{part.value}</span>;
+          const maskKey = `${columnKey}:${part.start}:${part.value}`;
+          if (revealedMasks.has(maskKey)) return <span key={maskKey}>{part.value}</span>;
+          return (
+            <button
+              key={maskKey}
+              type="button"
+              className="lesson-view-mask"
+              onClick={() => onRevealMask(maskKey)}
+              aria-label="隠した語を表示"
+            >
+              ?
+            </button>
+          );
+        })}
+      </p>
+    </section>
+  );
+}
+
+function LessonViewEditor({ section, kundoku, onCancel, onSave }) {
+  const [sourceText, setSourceText] = useState(section.text ?? '');
+  const [modernText, setModernText] = useState(section.modern ?? '');
+  const [kundokuText, setKundokuText] = useState(kundoku ?? '');
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const save = async () => {
+    if (saving) return;
+    setSaving(true);
+    setMessage('');
+    try {
+      await onSave?.(section, {
+        text: sourceText,
+        modern: modernText,
+        kundoku: kundokuText,
+      });
+      onCancel?.();
+    } catch (err) {
+      console.error('[LessonViewEditor] save failed:', err);
+      setMessage('保存に失敗しました');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="lesson-view-editor">
+      <div className="lesson-view-editor-grid">
+        <label>
+          原文
+          <textarea value={sourceText} onChange={(event) => setSourceText(event.target.value)} />
+        </label>
+        <label>
+          現代語訳
+          <textarea value={modernText} onChange={(event) => setModernText(event.target.value)} />
+        </label>
+        {kundoku || section.kundoku ? (
+          <label>
+            書き下し文
+            <textarea value={kundokuText} onChange={(event) => setKundokuText(event.target.value)} />
+          </label>
+        ) : null}
+      </div>
+      <div className="lesson-view-editor-actions">
+        {message && <span>{message}</span>}
+        <button type="button" onClick={onCancel} disabled={saving}>キャンセル</button>
+        <button type="button" onClick={save} disabled={saving}>{saving ? '保存中...' : '保存'}</button>
+      </div>
+    </div>
+  );
+}
+
+function LessonViewMode({ sections, isKanbunTextbook, isAdmin, onUpdateSection }) {
+  const visibleSections = sections.filter(section => !section.sectionless);
+  const [editingSectionId, setEditingSectionId] = useState(null);
+  const [showModernText, setShowModernText] = useState(false);
+  const [showKundokuText, setShowKundokuText] = useState(false);
+  const [maskDraft, setMaskDraft] = useState('');
+  const [hiddenWords, setHiddenWords] = useState([]);
+  const [revealedMasks, setRevealedMasks] = useState(() => new Set());
+
+  const addHiddenWord = () => {
+    const word = maskDraft.trim();
+    if (!word) return;
+    setHiddenWords(current => (current.includes(word) ? current : [...current, word]));
+    setMaskDraft('');
+    setRevealedMasks(new Set());
+  };
+
+  const removeHiddenWord = (word) => {
+    setHiddenWords(current => current.filter(item => item !== word));
+    setRevealedMasks(new Set());
+  };
+
+  const revealMask = (maskKey) => {
+    setRevealedMasks(current => {
+      const next = new Set(current);
+      next.add(maskKey);
+      return next;
+    });
+  };
+
+  return (
+    <div className="lesson-view-mode">
+      <div className="lesson-view-controls">
+        <button type="button" onClick={() => setShowModernText(value => !value)}>
+          {showModernText ? '現代語訳を隠す' : '現代語訳を表示'}
+        </button>
+        <button type="button" onClick={() => setShowKundokuText(value => !value)}>
+          {showKundokuText ? '書き下し文を隠す' : '書き下し文を表示'}
+        </button>
+        <label className="lesson-view-mask-form">
+          <span>隠す語</span>
+          <input
+            value={maskDraft}
+            onChange={(event) => setMaskDraft(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                addHiddenWord();
+              }
+            }}
+          />
+          <button type="button" onClick={addHiddenWord}>追加</button>
+        </label>
+        {hiddenWords.length > 0 && (
+          <div className="lesson-view-mask-list">
+            {hiddenWords.map(word => (
+              <button type="button" key={word} onClick={() => removeHiddenWord(word)}>
+                {word} ×
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      {visibleSections.map(section => {
+        const kundoku = getKundoku(section);
+        const isKanbun = isKanbunSection(section, isKanbunTextbook);
+        const sourceLines = splitViewLines(section.text);
+        const modernLines = splitModernForSourceLines(section.modern, sourceLines);
+        const kundokuLines = isKanbun ? splitViewLines(kundoku) : [];
+        const lineCount = Math.max(sourceLines.length, modernLines.length, kundokuLines.length, 1);
+        const editing = editingSectionId === section.id;
+        return (
+          <article className="lesson-view-section" key={section.id}>
+            <div className="lesson-view-section-title">
+              <span>{section.title}</span>
+              {isAdmin && (
+                <button type="button" onClick={() => setEditingSectionId(editing ? null : section.id)}>
+                  {editing ? '編集を閉じる' : '編集'}
+                </button>
+              )}
+            </div>
+            {editing && (
+              <LessonViewEditor
+                section={section}
+                kundoku={kundoku}
+                onCancel={() => setEditingSectionId(null)}
+                onSave={onUpdateSection}
+              />
+            )}
+            <div className="lesson-view-scroll">
+              <div className="lesson-view-line-pairs">
+                {Array.from({ length: lineCount }).map((_, index) => {
+                  const source = sourceLines[index] ?? (index === 0 ? String(section.text ?? '').trim() : '');
+                  const modern = modernLines.length > 1 ? modernLines[index] : (index === 0 ? String(section.modern ?? '').trim() : '');
+                  const reading = kundokuLines[index] ?? '';
+                  return (
+                    <div className="lesson-view-pair" key={`${section.id}-${index}`}>
+                      <LessonViewColumn
+                        text={source}
+                        kind="source"
+                        columnKey={`${section.id}-${index}-source`}
+                        hiddenWords={hiddenWords}
+                        revealedMasks={revealedMasks}
+                        onRevealMask={revealMask}
+                      />
+                      {showKundokuText && reading && (
+                        <LessonViewColumn
+                          text={reading}
+                          kind="kundoku"
+                          columnKey={`${section.id}-${index}-kundoku`}
+                          hiddenWords={hiddenWords}
+                          revealedMasks={revealedMasks}
+                          onRevealMask={revealMask}
+                        />
+                      )}
+                      {showModernText && (
+                        <LessonViewColumn
+                          text={modern}
+                          kind="modern"
+                          columnKey={`${section.id}-${index}-modern`}
+                          hiddenWords={hiddenWords}
+                          revealedMasks={revealedMasks}
+                          onRevealMask={revealMask}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
 function NotesTab({ textId, notes, sections, isAdmin, onUpdateSection }) {
   const visibleSections = sections.filter(section => !section.sectionless);
   const items = visibleSections
@@ -1758,10 +2052,10 @@ function NotesTab({ textId, notes, sections, isAdmin, onUpdateSection }) {
   );
 }
 
-export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false, correctKaeritenLines = {}, shareBoard = null }) {
+export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false, correctKaeritenLines = {}, shareBoard = null, onViewModeChange }) {
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
-  const visibleTab = activeTab;
+  const visibleTab = activeTab === 'view' && !isAdmin ? 'source' : activeTab;
   const sourceHeightScale = textId === 'gyofunori' ? 0.63 : 1;
   const compactKanbunSourceHeight = textId === 'mujun';
   const correctKaeritenLineKeys = useMemo(() => new Set(Object.keys(correctKaeritenLines).filter(key => correctKaeritenLines[key])), [correctKaeritenLines]);
@@ -1770,11 +2064,16 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
     if (pinnedPhrase) setActiveTab('source');
   }, [pinnedPhrase]);
 
+  useEffect(() => {
+    onViewModeChange?.(visibleTab === 'view');
+    return () => onViewModeChange?.(false);
+  }, [onViewModeChange, visibleTab]);
+
   return (
     <div className="vertical-viewer">
-      <div className="left-view-tabs" role="tablist" aria-label="教材操作">
+      <div className="left-view-tabs" role="tablist" aria-label={'\u6559\u6750\u8868\u793a'}>
         <div className="left-tab-top-actions">
-          <button type="button" className="left-tab-action" onClick={onBackToSelect}>教材へ</button>
+          <button type="button" className="left-tab-action" onClick={onBackToSelect}>{'\u6559\u6750\u3078'}</button>
         </div>
         <div className="left-tab-group">
           <button
@@ -1784,8 +2083,19 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
             className={`left-tab-button${visibleTab === 'source' ? ' active' : ''}`}
             onClick={() => setActiveTab('source')}
           >
-            原文
+            {'\u539f\u6587'}
           </button>
+          {isAdmin && (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={visibleTab === 'view'}
+              className={`left-tab-button${visibleTab === 'view' ? ' active' : ''}`}
+              onClick={() => setActiveTab('view')}
+            >
+              {'\u6388\u696d'}
+            </button>
+          )}
           <button
             type="button"
             role="tab"
@@ -1793,7 +2103,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
             className={`left-tab-button${visibleTab === 'notes' ? ' active' : ''}`}
             onClick={() => setActiveTab('notes')}
           >
-            備考
+            {'\u5099\u8003'}
           </button>
           <button
             type="button"
@@ -1802,11 +2112,11 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
             className={`left-tab-button${visibleTab === 'share' ? ' active' : ''}`}
             onClick={() => setActiveTab('share')}
           >
-            共有ボード
+            {'\u5171\u6709\u30dc\u30fc\u30c9'}
           </button>
         </div>
         <div className="left-tab-bottom-actions">
-          <button type="button" className="left-tab-action" onClick={onContactAdmin}>連絡</button>
+          <button type="button" className="left-tab-action" onClick={onContactAdmin}>{'\u9023\u7d61'}</button>
         </div>
       </div>
       <div className="left-view-body">
@@ -1834,10 +2144,12 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
               correctKaeritenLines={correctKaeritenLineKeys}
             />
           ))
+        ) : visibleTab === 'view' ? (
+          <LessonViewMode sections={sections} isKanbunTextbook={isKanbunTextbook} isAdmin={isAdmin} onUpdateSection={onUpdateSection} />
         ) : visibleTab === 'notes' ? (
           <NotesTab textId={textId} notes={notes} sections={sections} isAdmin={isAdmin} onUpdateSection={onUpdateSection} />
         ) : (
-          shareBoard ?? <p className="analysis-empty">共有ボードを読み込み中です。</p>
+          shareBoard ?? <p className="analysis-empty">{'\u5171\u6709\u30dc\u30fc\u30c9\u3092\u8aad\u307f\u8fbc\u307f\u4e2d\u3067\u3059\u3002'}</p>
         )}
       </div>
     </div>

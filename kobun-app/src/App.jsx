@@ -142,6 +142,7 @@ function AppInner() {
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [viewAsStudent, setViewAsStudent] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
+  const [lessonViewMode, setLessonViewMode] = useState(false);
   const [adminSelection, setAdminSelection] = useState(null);
   const [addingType, setAddingType] = useState(null);
   const [textbookOrder, setTextbookOrder] = useState([]);
@@ -240,6 +241,7 @@ function AppInner() {
                 ...section,
                 ...(typeof sectionEdit.text === 'string' ? { text: sectionEdit.text } : {}),
                 ...(typeof sectionEdit.kundoku === 'string' ? { kundoku: sectionEdit.kundoku } : {}),
+                ...(typeof sectionEdit.modern === 'string' ? { modern: sectionEdit.modern } : {}),
                 ...(typeof sectionEdit.notes === 'string' ? { notes: sectionEdit.notes } : {}),
                 ...(typeof sectionEdit.kanbunSyntax === 'string' ? { kanbunSyntax: sectionEdit.kanbunSyntax } : {}),
                 ...(Array.isArray(sectionEdit.kundokuQuestions) ? { kundokuQuestions: sectionEdit.kundokuQuestions } : {}),
@@ -376,6 +378,7 @@ function AppInner() {
     setAdminSelection(null);
     setAddingType(null);
     setLastDeletedTarget(null);
+    setLessonViewMode(false);
   };
 
   const handleMoveTextbook = async (id, direction) => {
@@ -450,6 +453,7 @@ function AppInner() {
     setPinnedPhrase(null);
     setAdminSelection(null);
     setAddingType(null);
+    setLessonViewMode(false);
   };
 
   const selectType = (type) => {
@@ -656,13 +660,14 @@ function AppInner() {
     await setDoc(doc(db, 'editedSections', `${textId}__${section.id}`), {
       textId,
       sectionId: section.id,
-      section: {
-        text: Object.prototype.hasOwnProperty.call(updates, 'text') ? updates.text : (section.text ?? ''),
-        kundoku: Object.prototype.hasOwnProperty.call(updates, 'kundoku') ? updates.kundoku : (section.kundoku ?? ''),
-        notes: Object.prototype.hasOwnProperty.call(updates, 'notes') ? updates.notes : (section.notes ?? ''),
-        kanbunSyntax: Object.prototype.hasOwnProperty.call(updates, 'kanbunSyntax') ? updates.kanbunSyntax : (section.kanbunSyntax ?? ''),
-        kundokuQuestions: Object.prototype.hasOwnProperty.call(updates, 'kundokuQuestions') ? updates.kundokuQuestions : (section.kundokuQuestions ?? []),
-      },
+        section: {
+          text: Object.prototype.hasOwnProperty.call(updates, 'text') ? updates.text : (section.text ?? ''),
+          kundoku: Object.prototype.hasOwnProperty.call(updates, 'kundoku') ? updates.kundoku : (section.kundoku ?? ''),
+          modern: Object.prototype.hasOwnProperty.call(updates, 'modern') ? updates.modern : (section.modern ?? ''),
+          notes: Object.prototype.hasOwnProperty.call(updates, 'notes') ? updates.notes : (section.notes ?? ''),
+          kanbunSyntax: Object.prototype.hasOwnProperty.call(updates, 'kanbunSyntax') ? updates.kanbunSyntax : (section.kanbunSyntax ?? ''),
+          kundokuQuestions: Object.prototype.hasOwnProperty.call(updates, 'kundokuQuestions') ? updates.kundokuQuestions : (section.kundokuQuestions ?? []),
+        },
       updatedBy: user.uid,
       updatedByEmail: user.email,
       updatedAt: serverTimestamp(),
@@ -752,7 +757,7 @@ function AppInner() {
   }
 
   return (
-    <div className="app-root">
+    <div className={`app-root${lessonViewMode ? ' app-root--lesson-view' : ''}`}>
       <header className="app-header">
         <div className="header-left">
           <span className="app-title">古典ポータル</span>
@@ -810,7 +815,7 @@ function AppInner() {
         </div>
       </header>
 
-      <div className={`app-body${noSelection ? ' app-body--select' : ''}${rightCollapsed && !noSelection ? ' app-body--right-collapsed' : ''}`}>
+      <div className={`app-body${noSelection ? ' app-body--select' : ''}${rightCollapsed && !noSelection ? ' app-body--right-collapsed' : ''}${lessonViewMode ? ' app-body--lesson-view' : ''}`}>
         {isAdmin && !viewAsStudent && showAdminDashboard ? (
           <AdminDashboard
             isAdmin={isAdmin}
@@ -991,6 +996,7 @@ function AppInner() {
               onBackToSelect={handleBackToSelect}
               onContactAdmin={() => setContactOpen(true)}
               isKanbunTextbook={currentIsKanbun}
+              onViewModeChange={setLessonViewMode}
               shareBoard={(
                 <ShareBoard
                   analysis={analysis}
