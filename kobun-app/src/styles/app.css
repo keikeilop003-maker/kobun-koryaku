@@ -438,7 +438,7 @@ body {
   --lesson-view-scale: 1;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 0;
   min-height: 100%;
   background: #000;
   color: #fff;
@@ -497,9 +497,9 @@ body {
 .lesson-view-section {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  min-height: calc(100dvh - 72px);
-  padding: 24px 30px 30px;
+  gap: 8px;
+  min-height: 100dvh;
+  padding: 8px 28px 24px;
   border: 1px solid #1f1f1f;
   border-radius: 0;
   background: #000;
@@ -538,7 +538,7 @@ body {
   min-height: 0;
   overflow-x: hidden;
   overflow-y: visible;
-  padding: 8px 0 18px;
+  padding: 0 0 14px;
   scrollbar-width: thin;
   scrollbar-color: #555 transparent;
 }
@@ -568,7 +568,7 @@ body {
   flex-direction: column;
   align-items: center;
   min-width: calc(3.2rem * var(--lesson-view-scale));
-  max-height: calc(100dvh - 150px);
+  max-height: calc(100dvh - 78px);
 }
 
 .lesson-view-reveal-frame {
@@ -617,14 +617,14 @@ body {
 .lesson-view-text {
   margin: 0;
   color: #fff;
-  font-family: 'UD Digi Kyokasho NK-R', 'UD Digi Kyokasho N-R', 'UD Digi Kyokasho NP-R', 'UD デジタル 教科書体 NK-R', 'UD デジタル 教科書体 N-R', 'BIZ UDPGothic', 'BIZ UDGothic', 'Yu Gothic UI', 'Yu Gothic', 'Hiragino Kaku Gothic ProN', Meiryo, system-ui, sans-serif;
+  font-family: 'UD Digi Kyokasho NK-R', 'UD Digi Kyokasho N-R', 'UD Digi Kyokasho NP-R', "UD\000020\30C7\30B8\30BF\30EB\000020\6559\79D1\66F8\4F53\000020 NK-R", "UD\000020\30C7\30B8\30BF\30EB\000020\6559\79D1\66F8\4F53\000020 N-R", 'BIZ UDPGothic', 'BIZ UDGothic', 'Yu Gothic UI', 'Yu Gothic', 'Hiragino Kaku Gothic ProN', Meiryo, system-ui, sans-serif;
   writing-mode: vertical-rl;
   text-orientation: mixed;
   white-space: pre-wrap;
   font-size: 2.58rem;
   line-height: 1.65;
   letter-spacing: 0.04em;
-  max-height: calc(100dvh - 188px);
+  max-height: calc(100dvh - 96px);
 }
 
 .lesson-view-column--source .lesson-view-text {
@@ -644,16 +644,21 @@ body {
 }
 
 .lesson-view-controls {
-  position: sticky;
-  top: 0;
+  position: fixed;
+  top: 8px;
+  right: 18px;
   z-index: 4;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
-  padding: 10px 30px;
-  border-bottom: 1px solid #222;
-  background: rgba(0,0,0,0.92);
+  justify-content: flex-end;
+  gap: 8px;
+  max-width: min(640px, calc(100vw - 80px));
+  padding: 6px 8px;
+  border: 1px solid #222;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.82);
+  backdrop-filter: blur(4px);
 }
 
 .lesson-view-controls button,

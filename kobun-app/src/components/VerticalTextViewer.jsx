@@ -1803,7 +1803,7 @@ function maskedTextParts(text, hiddenWords) {
 
 function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, onRevealMask, revealed = true, framed = false, onToggle }) {
   if (!text && !framed) return null;
-  const content = text || '?';
+  const content = text || '\u3000';
   return (
     <section
       className={`lesson-view-column lesson-view-column--${kind}${framed ? ' lesson-view-column--framed' : ''}${revealed ? ' is-revealed' : ' is-hidden'}`}
@@ -1813,7 +1813,7 @@ function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, o
         className="lesson-view-reveal-frame"
         onClick={onToggle}
         disabled={!onToggle}
-        aria-label={revealed ? '??????' : '????'}
+        aria-label={revealed ? '\u975e\u8868\u793a\u306b\u3059\u308b' : '\u8868\u793a\u3059\u308b'}
       >
         <span className="lesson-view-text">
           {revealed ? maskedTextParts(content, hiddenWords).map((part, index) => {
@@ -1837,7 +1837,7 @@ function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, o
                     onRevealMask(maskKey);
                   }
                 }}
-                aria-label="???????"
+                aria-label={'\u96a0\u3057\u305f\u8a9e\u3092\u8868\u793a'}
               >
                 ?
               </span>
@@ -1869,7 +1869,7 @@ function LessonViewEditor({ section, kundoku, onCancel, onSave }) {
       onCancel?.();
     } catch (err) {
       console.error('[LessonViewEditor] save failed:', err);
-      setMessage('保存に失敗しました');
+      setMessage('\u4fdd\u5b58\u306b\u5931\u6557\u3057\u307e\u3057\u305f');
     } finally {
       setSaving(false);
     }
@@ -1879,24 +1879,24 @@ function LessonViewEditor({ section, kundoku, onCancel, onSave }) {
     <div className="lesson-view-editor">
       <div className="lesson-view-editor-grid">
         <label>
-          原文
+          {'\u539f\u6587'}
           <textarea value={sourceText} onChange={(event) => setSourceText(event.target.value)} />
         </label>
         <label>
-          現代語訳
+          {'\u73fe\u4ee3\u8a9e\u8a33'}
           <textarea value={modernText} onChange={(event) => setModernText(event.target.value)} />
         </label>
         {kundoku || section.kundoku ? (
           <label>
-            書き下し文
+            {'\u66f8\u304d\u4e0b\u3057\u6587'}
             <textarea value={kundokuText} onChange={(event) => setKundokuText(event.target.value)} />
           </label>
         ) : null}
       </div>
       <div className="lesson-view-editor-actions">
         {message && <span>{message}</span>}
-        <button type="button" onClick={onCancel} disabled={saving}>キャンセル</button>
-        <button type="button" onClick={save} disabled={saving}>{saving ? '保存中...' : '保存'}</button>
+        <button type="button" onClick={onCancel} disabled={saving}>{'\u30ad\u30e3\u30f3\u30bb\u30eb'}</button>
+        <button type="button" onClick={save} disabled={saving}>{saving ? '\u4fdd\u5b58\u4e2d...' : '\u4fdd\u5b58'}</button>
       </div>
     </div>
   );
@@ -1944,7 +1944,7 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
     <div className="lesson-view-mode">
       <div className="lesson-view-controls">
         <label className="lesson-view-mask-form">
-          <span>{'???'}</span>
+          <span>{'\u96a0\u3059\u8a9e'}</span>
           <input
             value={maskDraft}
             onChange={(event) => setMaskDraft(event.target.value)}
@@ -1955,13 +1955,13 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
               }
             }}
           />
-          <button type="button" onClick={addHiddenWord}>{'??'}</button>
+          <button type="button" onClick={addHiddenWord}>{'\u8ffd\u52a0'}</button>
         </label>
         {hiddenWords.length > 0 && (
           <div className="lesson-view-mask-list">
             {hiddenWords.map(word => (
               <button type="button" key={word} onClick={() => removeHiddenWord(word)}>
-                {word} ?
+                {word} {'\u00d7'}
               </button>
             ))}
           </div>
@@ -1988,7 +1988,7 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
               <span>{section.title}</span>
               {isAdmin && (
                 <button type="button" onClick={() => setEditingSectionId(editing ? null : section.id)}>
-                  {editing ? '??????' : '??'}
+                  {editing ? '\u7de8\u96c6\u3092\u9589\u3058\u308b' : '\u7de8\u96c6'}
                 </button>
               )}
             </div>
