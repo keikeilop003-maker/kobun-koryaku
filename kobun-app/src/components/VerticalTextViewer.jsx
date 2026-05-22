@@ -1801,12 +1801,12 @@ function maskedTextParts(text, hiddenWords) {
   return parts;
 }
 
-function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, onRevealMask, revealed = true, framed = false, onToggle }) {
+function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, onRevealMask, revealed = true, framed = false, onToggle, isKanbunSource = false }) {
   if (!text && !framed) return null;
   const content = text || '\u3000';
   return (
     <section
-      className={`lesson-view-column lesson-view-column--${kind}${framed ? ' lesson-view-column--framed' : ''}${revealed ? ' is-revealed' : ' is-hidden'}`}
+      className={`lesson-view-column lesson-view-column--${kind}${isKanbunSource ? ' lesson-view-column--kanbun-source' : ''}${framed ? ' lesson-view-column--framed' : ''}${revealed ? ' is-revealed' : ' is-hidden'}`}
     >
       <button
         type="button"
@@ -1948,15 +1948,16 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, onAddMaskRul
   );
 }
 
-function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmin, onUpdateLessonViewSection }) {
+function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isKanbunTextbook, isAdmin, onUpdateLessonViewSection, onUpdateLessonViewPublished }) {
   const visibleSections = sections.filter(section => !section.sectionless);
   const [editingSectionId, setEditingSectionId] = useState(null);
   const [editingAll, setEditingAll] = useState(false);
   const [revealedColumns, setRevealedColumns] = useState(() => new Set());
   const [maskRules, setMaskRules] = useState([]);
   const [revealedMasks, setRevealedMasks] = useState(() => new Set());
+  const [maskActive, setMaskActive] = useState(false);
   const [slideIndex, setSlideIndex] = useState(0);
-  const pairsPerSlide = 4;
+  const pairsPerSlide = 5;
 
   const addMaskRule = (rule) => {
     const word = String(rule?.word ?? '').trim();
@@ -2037,16 +2038,23 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
   return (
     <div className="lesson-view-mode">
       {isAdmin && (
-        <button
-          type="button"
-          className="lesson-view-floating-edit"
-          onClick={() => {
-            setEditingSectionId(null);
-            setEditingAll(value => !value);
-          }}
-        >
-          {editingAll ? '\u7de8\u96c6\u3092\u9589\u3058\u308b' : '\u7de8\u96c6'}
-        </button>
+        <div className="lesson-view-floating-actions">
+          <button
+            type="button"
+            onClick={() => {
+              setEditingSectionId(null);
+              setEditingAll(value => !value);
+            }}
+          >
+            {editingAll ? '\u7de8\u96c6\u3092\u9589\u3058\u308b' : '\u7de8\u96c6'}
+          </button>
+          <button type="button" onClick={() => setMaskActive(value => !value)}>
+            {maskActive ? '\u96a0\u3055\u306a\u3044' : '\u96a0\u3059'}
+          </button>
+          <button type="button" onClick={() => onUpdateLessonViewPublished?.(!lessonViewPublished)}>
+            {lessonViewPublished ? '\u975e\u516c\u958b\u306b\u3059\u308b' : '\u516c\u958b\u3059\u308b'}
+          </button>
+        </div>
       )}
       {activeSlide ? (() => {
         const { section, lessonSection, kundoku, isKanbun, sourceLines, modernLines, kundokuLines, lineCount, start, end } = activeSlide;
@@ -2078,6 +2086,7 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
                   const lineHiddenWords = maskRules
                     .filter(rule => rule.sectionId === section.id && rule.lineIndex === index)
                     .map(rule => rule.word);
+                  const activeHiddenWords = maskActive ? lineHiddenWords : [];
                   return (
                     <div className="lesson-view-pair" key={`${section.id}-${index}`}>
                       <LessonViewColumn
@@ -2087,6 +2096,7 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
                         hiddenWords={[]}
                         revealedMasks={revealedMasks}
                         onRevealMask={revealMask}
+                        isKanbunSource={isKanbun}
                       />
                       {isKanbun && (
                         <LessonViewColumn
@@ -2105,7 +2115,7 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
                         text={modern}
                         kind="modern"
                         columnKey={modernKey}
-                        hiddenWords={lineHiddenWords}
+                        hiddenWords={activeHiddenWords}
                         revealedMasks={revealedMasks}
                         onRevealMask={revealMask}
                         framed
@@ -2170,10 +2180,11 @@ function NotesTab({ textId, notes, sections, isAdmin, onUpdateSection }) {
   );
 }
 
-export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, lessonViewSections, onUpdateLessonViewSection, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false, correctKaeritenLines = {}, shareBoard = null, onViewModeChange }) {
+export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, lessonViewSections, lessonViewPublished, onUpdateLessonViewSection, onUpdateLessonViewPublished, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false, correctKaeritenLines = {}, shareBoard = null, onViewModeChange }) {
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
-  const visibleTab = activeTab === 'view' && !isAdmin ? 'source' : activeTab;
+  const canViewLesson = isAdmin || lessonViewPublished;
+  const visibleTab = activeTab === 'view' && !canViewLesson ? 'source' : activeTab;
   const sourceHeightScale = textId === 'gyofunori' ? 0.63 : 1;
   const compactKanbunSourceHeight = textId === 'mujun';
   const correctKaeritenLineKeys = useMemo(() => new Set(Object.keys(correctKaeritenLines).filter(key => correctKaeritenLines[key])), [correctKaeritenLines]);
@@ -2203,7 +2214,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
           >
             {'\u539f\u6587'}
           </button>
-          {isAdmin && (
+          {canViewLesson && (
             <button
               type="button"
               role="tab"
@@ -2263,7 +2274,15 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
             />
           ))
         ) : visibleTab === 'view' ? (
-          <LessonViewMode sections={sections} lessonViewSections={lessonViewSections} isKanbunTextbook={isKanbunTextbook} isAdmin={isAdmin} onUpdateLessonViewSection={onUpdateLessonViewSection} />
+          <LessonViewMode
+            sections={sections}
+            lessonViewSections={lessonViewSections}
+            lessonViewPublished={lessonViewPublished}
+            isKanbunTextbook={isKanbunTextbook}
+            isAdmin={isAdmin}
+            onUpdateLessonViewSection={onUpdateLessonViewSection}
+            onUpdateLessonViewPublished={onUpdateLessonViewPublished}
+          />
         ) : visibleTab === 'notes' ? (
           <NotesTab textId={textId} notes={notes} sections={sections} isAdmin={isAdmin} onUpdateSection={onUpdateSection} />
         ) : (

@@ -144,6 +144,7 @@ function AppInner() {
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [lessonViewMode, setLessonViewMode] = useState(false);
   const [lessonViewSectionMap, setLessonViewSectionMap] = useState(() => new Map());
+  const [lessonViewPublished, setLessonViewPublished] = useState(false);
   const [adminSelection, setAdminSelection] = useState(null);
   const [addingType, setAddingType] = useState(null);
   const [textbookOrder, setTextbookOrder] = useState([]);
@@ -179,6 +180,14 @@ function AppInner() {
         if (data.sectionId) next.set(data.sectionId, { id: item.id, ...data });
       });
       setLessonViewSectionMap(next);
+    });
+  }, [textId]);
+
+  useEffect(() => {
+    setLessonViewPublished(false);
+    if (!textId) return undefined;
+    return onSnapshot(doc(db, 'lessonViewSettings', textId), (snapshot) => {
+      setLessonViewPublished(Boolean(snapshot.data()?.published));
     });
   }, [textId]);
 
@@ -705,6 +714,17 @@ function AppInner() {
     });
   }, [effectiveIsAdmin, textId, user]);
 
+  const handleUpdateLessonViewPublished = useCallback(async (published) => {
+    if (!effectiveIsAdmin || !user || !textId) return;
+    await setDoc(doc(db, 'lessonViewSettings', textId), {
+      textId,
+      published: Boolean(published),
+      updatedBy: user.uid,
+      updatedByEmail: user.email,
+      updatedAt: serverTimestamp(),
+    }, { merge: true });
+  }, [effectiveIsAdmin, textId, user]);
+
   const handleUpdateNormalQuestion = useCallback(async (question, updates) => {
     const payload = typeof updates === 'string' ? { question: updates } : (updates ?? {});
     const questionText = payload.question?.trim();
@@ -1021,7 +1041,9 @@ function AppInner() {
               isAdmin={effectiveIsAdmin}
               onUpdateSection={handleUpdateSection}
               lessonViewSections={lessonViewSectionMap}
+              lessonViewPublished={lessonViewPublished}
               onUpdateLessonViewSection={handleUpdateLessonViewSection}
+              onUpdateLessonViewPublished={handleUpdateLessonViewPublished}
               onUpdateTarget={handleUpdateTarget}
               onRecord={handleRecord}
               correctKaeritenLines={correctKaeritenLines}

@@ -450,6 +450,22 @@ service cloud.firestore {
         && request.resource.data.section.modern.size() <= 20000;
       allow delete: if isAdmin();
     }
+    match /lessonViewSettings/{textId} {
+      allow read: if request.auth != null;
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly([
+          'textId',
+          'published',
+          'updatedBy',
+          'updatedByEmail',
+          'updatedAt'
+        ])
+        && request.resource.data.textId is string
+        && request.resource.data.published is bool
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.updatedByEmail == request.auth.token.email;
+      allow delete: if isAdmin();
+    }
     match /editedNormalQuestions/{questionId} {
       allow read: if request.auth != null;
       allow create, update: if isAdmin()

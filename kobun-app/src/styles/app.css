@@ -638,6 +638,11 @@ body {
   letter-spacing: 0.16em;
 }
 
+.lesson-view-column--kanbun-source .lesson-view-text {
+  font-size: 4.06rem;
+  line-height: 1.48;
+}
+
 .lesson-view-column--kundoku .lesson-view-text {
   color: #ffc2e2;
   font-size: 2.3rem;
@@ -652,11 +657,17 @@ body {
   line-height: 1.46;
 }
 
-.lesson-view-floating-edit {
+.lesson-view-floating-actions {
   position: fixed;
   right: 22px;
   bottom: 22px;
   z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lesson-view-floating-actions button {
   border: 1px solid #f2f2f2;
   border-radius: 8px;
   background: #f2f2f2;
@@ -670,7 +681,7 @@ body {
   box-shadow: 0 8px 24px rgba(0,0,0,0.42);
 }
 
-.lesson-view-floating-edit:hover {
+.lesson-view-floating-actions button:hover {
   background: #fff;
 }
 
