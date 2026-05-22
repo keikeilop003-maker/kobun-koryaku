@@ -1849,10 +1849,12 @@ function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, o
   );
 }
 
-function LessonViewEditor({ section, kundoku, onCancel, onSave }) {
+function LessonViewEditor({ section, kundoku, lineCount, maskRules, onAddMaskRule, onRemoveMaskRule, onCancel, onSave }) {
   const [sourceText, setSourceText] = useState(section.text ?? '');
   const [modernText, setModernText] = useState(section.modern ?? '');
   const [kundokuText, setKundokuText] = useState(kundoku ?? '');
+  const [maskLineIndex, setMaskLineIndex] = useState(0);
+  const [maskWord, setMaskWord] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -1875,6 +1877,17 @@ function LessonViewEditor({ section, kundoku, onCancel, onSave }) {
     }
   };
 
+  const addMask = () => {
+    const word = maskWord.trim();
+    if (!word) return;
+    onAddMaskRule?.({
+      sectionId: section.id,
+      lineIndex: maskLineIndex,
+      word,
+    });
+    setMaskWord('');
+  };
+
   return (
     <div className="lesson-view-editor">
       <div className="lesson-view-editor-grid">
@@ -1893,6 +1906,39 @@ function LessonViewEditor({ section, kundoku, onCancel, onSave }) {
           </label>
         ) : null}
       </div>
+      <div className="lesson-view-mask-editor">
+        <label>
+          {'\u5bfe\u8c61\u884c'}
+          <select value={maskLineIndex} onChange={(event) => setMaskLineIndex(Number(event.target.value))}>
+            {Array.from({ length: Math.max(lineCount, 1) }).map((_, index) => (
+              <option value={index} key={index}>{`${index + 1}\u884c\u76ee`}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          {'\u96a0\u3059\u8a9e'}
+          <input
+            value={maskWord}
+            onChange={(event) => setMaskWord(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                addMask();
+              }
+            }}
+          />
+        </label>
+        <button type="button" onClick={addMask}>{'\u8ffd\u52a0'}</button>
+        {maskRules.length > 0 && (
+          <div className="lesson-view-mask-editor-list">
+            {maskRules.map(rule => (
+              <button type="button" key={rule.id} onClick={() => onRemoveMaskRule?.(rule.id)}>
+                {`${rule.lineIndex + 1}\u884c\u76ee: ${rule.word} \u00d7`}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
       <div className="lesson-view-editor-actions">
         {message && <span>{message}</span>}
         <button type="button" onClick={onCancel} disabled={saving}>{'\u30ad\u30e3\u30f3\u30bb\u30eb'}</button>
@@ -1905,21 +1951,29 @@ function LessonViewEditor({ section, kundoku, onCancel, onSave }) {
 function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmin, onUpdateLessonViewSection }) {
   const visibleSections = sections.filter(section => !section.sectionless);
   const [editingSectionId, setEditingSectionId] = useState(null);
+  const [editingAll, setEditingAll] = useState(false);
   const [revealedColumns, setRevealedColumns] = useState(() => new Set());
-  const [maskDraft, setMaskDraft] = useState('');
-  const [hiddenWords, setHiddenWords] = useState([]);
+  const [maskRules, setMaskRules] = useState([]);
   const [revealedMasks, setRevealedMasks] = useState(() => new Set());
 
-  const addHiddenWord = () => {
-    const word = maskDraft.trim();
-    if (!word) return;
-    setHiddenWords(current => (current.includes(word) ? current : [...current, word]));
-    setMaskDraft('');
+  const addMaskRule = (rule) => {
+    const word = String(rule?.word ?? '').trim();
+    if (!word || !rule?.sectionId || !Number.isInteger(rule.lineIndex)) return;
+    setMaskRules(current => {
+      const exists = current.some(item => item.sectionId === rule.sectionId && item.lineIndex === rule.lineIndex && item.word === word);
+      if (exists) return current;
+      return [...current, {
+        id: `${rule.sectionId}:${rule.lineIndex}:${word}:${Date.now()}`,
+        sectionId: rule.sectionId,
+        lineIndex: rule.lineIndex,
+        word,
+      }];
+    });
     setRevealedMasks(new Set());
   };
 
-  const removeHiddenWord = (word) => {
-    setHiddenWords(current => current.filter(item => item !== word));
+  const removeMaskRule = (ruleId) => {
+    setMaskRules(current => current.filter(item => item.id !== ruleId));
     setRevealedMasks(new Set());
   };
 
@@ -1942,31 +1996,18 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
 
   return (
     <div className="lesson-view-mode">
-      <div className="lesson-view-controls">
-        <label className="lesson-view-mask-form">
-          <span>{'\u96a0\u3059\u8a9e'}</span>
-          <input
-            value={maskDraft}
-            onChange={(event) => setMaskDraft(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault();
-                addHiddenWord();
-              }
-            }}
-          />
-          <button type="button" onClick={addHiddenWord}>{'\u8ffd\u52a0'}</button>
-        </label>
-        {hiddenWords.length > 0 && (
-          <div className="lesson-view-mask-list">
-            {hiddenWords.map(word => (
-              <button type="button" key={word} onClick={() => removeHiddenWord(word)}>
-                {word} {'\u00d7'}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      {isAdmin && (
+        <button
+          type="button"
+          className="lesson-view-floating-edit"
+          onClick={() => {
+            setEditingSectionId(null);
+            setEditingAll(value => !value);
+          }}
+        >
+          {editingAll ? '\u7de8\u96c6\u3092\u9589\u3058\u308b' : '\u7de8\u96c6'}
+        </button>
+      )}
       {visibleSections.map(section => {
         const lessonEdit = lessonViewSections?.get(section.id)?.section ?? {};
         const lessonSection = {
@@ -1981,13 +2022,20 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
         const modernLines = splitModernForSourceLines(lessonSection.modern, sourceLines);
         const kundokuLines = isKanbun ? splitViewLines(kundoku) : [];
         const lineCount = Math.max(sourceLines.length, modernLines.length, kundokuLines.length, 1);
-        const editing = editingSectionId === section.id;
+        const editing = editingAll || editingSectionId === section.id;
+        const sectionMaskRules = maskRules.filter(rule => rule.sectionId === section.id);
         return (
           <article className="lesson-view-section" key={section.id}>
             <div className="lesson-view-section-title">
               <span>{section.title}</span>
               {isAdmin && (
-                <button type="button" onClick={() => setEditingSectionId(editing ? null : section.id)}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (editingAll) setEditingAll(false);
+                    else setEditingSectionId(editing ? null : section.id);
+                  }}
+                >
                   {editing ? '\u7de8\u96c6\u3092\u9589\u3058\u308b' : '\u7de8\u96c6'}
                 </button>
               )}
@@ -1996,6 +2044,10 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
               <LessonViewEditor
                 section={lessonSection}
                 kundoku={kundoku}
+                lineCount={lineCount}
+                maskRules={sectionMaskRules}
+                onAddMaskRule={addMaskRule}
+                onRemoveMaskRule={removeMaskRule}
                 onCancel={() => setEditingSectionId(null)}
                 onSave={onUpdateLessonViewSection}
               />
@@ -2008,13 +2060,16 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
                   const reading = kundokuLines[index] ?? '';
                   const modernKey = `${section.id}-${index}-modern`;
                   const kundokuKey = `${section.id}-${index}-kundoku`;
+                  const lineHiddenWords = maskRules
+                    .filter(rule => rule.sectionId === section.id && rule.lineIndex === index)
+                    .map(rule => rule.word);
                   return (
                     <div className="lesson-view-pair" key={`${section.id}-${index}`}>
                       <LessonViewColumn
                         text={source}
                         kind="source"
                         columnKey={`${section.id}-${index}-source`}
-                        hiddenWords={hiddenWords}
+                        hiddenWords={lineHiddenWords}
                         revealedMasks={revealedMasks}
                         onRevealMask={revealMask}
                       />
@@ -2023,7 +2078,7 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
                           text={reading}
                           kind="kundoku"
                           columnKey={kundokuKey}
-                          hiddenWords={hiddenWords}
+                          hiddenWords={lineHiddenWords}
                           revealedMasks={revealedMasks}
                           onRevealMask={revealMask}
                           framed
@@ -2035,7 +2090,7 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
                         text={modern}
                         kind="modern"
                         columnKey={modernKey}
-                        hiddenWords={hiddenWords}
+                        hiddenWords={lineHiddenWords}
                         revealedMasks={revealedMasks}
                         onRevealMask={revealMask}
                         framed

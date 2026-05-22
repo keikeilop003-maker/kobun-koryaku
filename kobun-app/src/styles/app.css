@@ -574,7 +574,7 @@ body {
 .lesson-view-reveal-frame {
   display: flex;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: flex-start;
   min-width: 100%;
   min-height: calc(7.4rem * var(--lesson-view-scale));
   border: 0;
@@ -621,26 +621,50 @@ body {
   writing-mode: vertical-rl;
   text-orientation: mixed;
   white-space: pre-wrap;
-  font-size: 2.58rem;
+  font-size: 2.84rem;
   line-height: 1.65;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   max-height: calc(100dvh - 96px);
 }
 
 .lesson-view-column--source .lesson-view-text {
   font-weight: 800;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
 }
 
 .lesson-view-column--kundoku .lesson-view-text {
   color: #ffc2e2;
-  font-size: 1.9rem;
+  font-size: 2.09rem;
+  letter-spacing: 0;
 }
 
 .lesson-view-column--modern .lesson-view-text {
   color: #fffbd1;
-  font-size: 1.96rem;
+  font-size: 2.16rem;
+  letter-spacing: 0;
   line-height: 1.6;
+}
+
+.lesson-view-floating-edit {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 8;
+  border: 1px solid #f2f2f2;
+  border-radius: 8px;
+  background: #f2f2f2;
+  color: #111;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  padding: 10px 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.42);
+}
+
+.lesson-view-floating-edit:hover {
+  background: #fff;
 }
 
 .lesson-view-controls {
@@ -708,6 +732,50 @@ body {
   background: #2a2a2a;
   font-size: 0.82rem;
   padding: 5px 9px;
+}
+
+.lesson-view-mask-editor {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #333;
+}
+
+.lesson-view-mask-editor label {
+  width: auto;
+  min-width: 120px;
+}
+
+.lesson-view-mask-editor select,
+.lesson-view-mask-editor input {
+  border: 1px solid #555;
+  border-radius: 6px;
+  background: #050505;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 8px 10px;
+}
+
+.lesson-view-mask-editor button {
+  border: 1px solid #555;
+  border-radius: 6px;
+  background: #1f1f1f;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  padding: 8px 12px;
+}
+
+.lesson-view-mask-editor-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .lesson-view-mask {
