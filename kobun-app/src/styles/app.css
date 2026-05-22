@@ -549,7 +549,7 @@ body {
   flex-wrap: wrap;
   align-items: stretch;
   justify-content: flex-start;
-  gap: 5.2rem 4.6rem;
+  gap: 3.4rem 2.4rem;
   min-height: 100%;
   width: 100%;
   margin-left: auto;
@@ -559,8 +559,8 @@ body {
   display: flex;
   flex-direction: row-reverse;
   align-items: flex-start;
-  gap: 1.6rem;
-  padding-inline: 0.4rem;
+  gap: 1.05rem;
+  padding-inline: 0.18rem;
 }
 
 .lesson-view-column {
@@ -627,7 +627,7 @@ body {
   writing-mode: vertical-rl;
   text-orientation: mixed;
   white-space: pre-wrap;
-  font-size: 2.84rem;
+  font-size: 3.12rem;
   line-height: 1.65;
   letter-spacing: 0;
   max-height: calc(100dvh - 48px);
@@ -635,20 +635,21 @@ body {
 
 .lesson-view-column--source .lesson-view-text {
   font-weight: 800;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
 }
 
 .lesson-view-column--kundoku .lesson-view-text {
   color: #ffc2e2;
-  font-size: 2.09rem;
+  font-size: 2.3rem;
   letter-spacing: 0;
+  line-height: 1.45;
 }
 
 .lesson-view-column--modern .lesson-view-text {
   color: #fffbd1;
-  font-size: 2.16rem;
+  font-size: 2.38rem;
   letter-spacing: 0;
-  line-height: 1.6;
+  line-height: 1.46;
 }
 
 .lesson-view-floating-edit {
@@ -671,6 +672,41 @@ body {
 
 .lesson-view-floating-edit:hover {
   background: #fff;
+}
+
+.lesson-view-slide-controls {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateX(-50%);
+  padding: 7px 10px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.84);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.lesson-view-slide-controls button {
+  border: 1px solid #555;
+  border-radius: 6px;
+  background: #1f1f1f;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 6px 12px;
+}
+
+.lesson-view-slide-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 .lesson-view-controls {

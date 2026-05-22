@@ -1955,6 +1955,8 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
   const [revealedColumns, setRevealedColumns] = useState(() => new Set());
   const [maskRules, setMaskRules] = useState([]);
   const [revealedMasks, setRevealedMasks] = useState(() => new Set());
+  const [slideIndex, setSlideIndex] = useState(0);
+  const pairsPerSlide = 4;
 
   const addMaskRule = (rule) => {
     const word = String(rule?.word ?? '').trim();
@@ -1999,6 +2001,39 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
     setEditingSectionId(null);
   };
 
+  const preparedSections = visibleSections.map(section => {
+    const lessonEdit = lessonViewSections?.get(section.id)?.section ?? {};
+    const lessonSection = {
+      ...section,
+      ...(typeof lessonEdit.text === 'string' ? { text: lessonEdit.text } : {}),
+      ...(typeof lessonEdit.kundoku === 'string' ? { kundoku: lessonEdit.kundoku } : {}),
+      ...(typeof lessonEdit.modern === 'string' ? { modern: lessonEdit.modern } : {}),
+    };
+    const kundoku = getKundoku(lessonSection);
+    const isKanbun = isKanbunSection(lessonSection, isKanbunTextbook);
+    const sourceLines = splitViewLines(lessonSection.text);
+    const modernLines = splitModernForSourceLines(lessonSection.modern, sourceLines);
+    const kundokuLines = isKanbun ? splitViewLines(kundoku) : [];
+    const lineCount = Math.max(sourceLines.length, modernLines.length, kundokuLines.length, 1);
+    return { section, lessonSection, kundoku, isKanbun, sourceLines, modernLines, kundokuLines, lineCount };
+  });
+
+  const slides = preparedSections.flatMap(item => {
+    const count = Math.max(item.lineCount, 1);
+    const result = [];
+    for (let start = 0; start < count; start += pairsPerSlide) {
+      result.push({ ...item, start, end: Math.min(start + pairsPerSlide, count) });
+    }
+    return result;
+  });
+  const activeSlide = slides[Math.min(slideIndex, Math.max(slides.length - 1, 0))];
+  const canGoPrev = slideIndex > 0;
+  const canGoNext = slideIndex < slides.length - 1;
+
+  useEffect(() => {
+    if (slideIndex > Math.max(slides.length - 1, 0)) setSlideIndex(Math.max(slides.length - 1, 0));
+  }, [slideIndex, slides.length]);
+
   return (
     <div className="lesson-view-mode">
       {isAdmin && (
@@ -2013,24 +2048,12 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
           {editingAll ? '\u7de8\u96c6\u3092\u9589\u3058\u308b' : '\u7de8\u96c6'}
         </button>
       )}
-      {visibleSections.map(section => {
-        const lessonEdit = lessonViewSections?.get(section.id)?.section ?? {};
-        const lessonSection = {
-          ...section,
-          ...(typeof lessonEdit.text === 'string' ? { text: lessonEdit.text } : {}),
-          ...(typeof lessonEdit.kundoku === 'string' ? { kundoku: lessonEdit.kundoku } : {}),
-          ...(typeof lessonEdit.modern === 'string' ? { modern: lessonEdit.modern } : {}),
-        };
-        const kundoku = getKundoku(lessonSection);
-        const isKanbun = isKanbunSection(lessonSection, isKanbunTextbook);
-        const sourceLines = splitViewLines(lessonSection.text);
-        const modernLines = splitModernForSourceLines(lessonSection.modern, sourceLines);
-        const kundokuLines = isKanbun ? splitViewLines(kundoku) : [];
-        const lineCount = Math.max(sourceLines.length, modernLines.length, kundokuLines.length, 1);
+      {activeSlide ? (() => {
+        const { section, lessonSection, kundoku, isKanbun, sourceLines, modernLines, kundokuLines, lineCount, start, end } = activeSlide;
         const editing = editingAll || editingSectionId === section.id;
         const sectionMaskRules = maskRules.filter(rule => rule.sectionId === section.id);
         return (
-          <article className="lesson-view-section" key={section.id}>
+          <article className="lesson-view-section" key={`${section.id}-${start}`}>
             {editing && (
               <LessonViewEditor
                 section={lessonSection}
@@ -2045,7 +2068,8 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
             )}
             <div className="lesson-view-scroll">
               <div className="lesson-view-line-pairs">
-                {Array.from({ length: lineCount }).map((_, index) => {
+                {Array.from({ length: end - start }).map((_, offset) => {
+                  const index = start + offset;
                   const source = sourceLines[index] ?? (index === 0 ? String(lessonSection.text ?? '').trim() : '');
                   const modern = modernLines.length > 1 ? modernLines[index] : (index === 0 ? String(lessonSection.modern ?? '').trim() : '');
                   const reading = kundokuLines[index] ?? '';
@@ -2095,7 +2119,18 @@ function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmi
             </div>
           </article>
         );
-      })}
+      })() : null}
+      {slides.length > 1 && (
+        <div className="lesson-view-slide-controls" aria-label="\u30b9\u30e9\u30a4\u30c9\u64cd\u4f5c">
+          <button type="button" onClick={() => setSlideIndex(index => Math.max(index - 1, 0))} disabled={!canGoPrev}>
+            {'\u524d\u3078'}
+          </button>
+          <span>{`${Math.min(slideIndex + 1, slides.length)} / ${slides.length}`}</span>
+          <button type="button" onClick={() => setSlideIndex(index => Math.min(index + 1, slides.length - 1))} disabled={!canGoNext}>
+            {'\u6b21\u3078'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
