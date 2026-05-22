@@ -1776,6 +1776,36 @@ function splitModernForSourceLines(modernText, sourceLines) {
   return chunks;
 }
 
+function lessonLineIndexForTarget(sourceLines, target) {
+  if (Number.isInteger(target?.lineIndex)) return target.lineIndex;
+  if (!Number.isInteger(target?.start)) return 0;
+  let cursor = 0;
+  for (let index = 0; index < sourceLines.length; index += 1) {
+    const length = String(sourceLines[index] ?? '').length;
+    if (target.start < cursor + length) return index;
+    cursor += length;
+  }
+  return Math.max(sourceLines.length - 1, 0);
+}
+
+function lessonVocabMaskRules(section, sourceLines) {
+  return (section.targets ?? [])
+    .filter(target => target.type === 'vocab')
+    .flatMap(target => {
+      const lineIndex = lessonLineIndexForTarget(sourceLines, target);
+      return [target.answer, ...(target.alternativeAnswers ?? [])]
+        .map(word => String(word ?? '').trim())
+        .filter(Boolean)
+        .map(word => ({
+          id: `auto:${section.id}:${target.id}:${lineIndex}:${word}`,
+          sectionId: section.id,
+          lineIndex,
+          word,
+          auto: true,
+        }));
+    });
+}
+
 function maskedTextParts(text, hiddenWords) {
   const words = hiddenWords
     .map(word => String(word ?? '').trim())
@@ -1956,8 +1986,9 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
   const [maskRules, setMaskRules] = useState([]);
   const [revealedMasks, setRevealedMasks] = useState(() => new Set());
   const [maskActive, setMaskActive] = useState(false);
+  const [controlsOpen, setControlsOpen] = useState(false);
   const [slideIndex, setSlideIndex] = useState(0);
-  const pairsPerSlide = 5;
+  const pairsPerSlide = isKanbunTextbook ? 4 : 5;
 
   const addMaskRule = (rule) => {
     const word = String(rule?.word ?? '').trim();
@@ -2016,7 +2047,8 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
     const modernLines = splitModernForSourceLines(lessonSection.modern, sourceLines);
     const kundokuLines = isKanbun ? splitViewLines(kundoku) : [];
     const lineCount = Math.max(sourceLines.length, modernLines.length, kundokuLines.length, 1);
-    return { section, lessonSection, kundoku, isKanbun, sourceLines, modernLines, kundokuLines, lineCount };
+    const autoMaskRules = lessonVocabMaskRules(lessonSection, sourceLines);
+    return { section, lessonSection, kundoku, isKanbun, sourceLines, modernLines, kundokuLines, lineCount, autoMaskRules };
   });
 
   const slides = preparedSections.flatMap(item => {
@@ -2037,29 +2069,19 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
 
   return (
     <div className="lesson-view-mode">
-      {isAdmin && (
-        <div className="lesson-view-floating-actions">
-          <button
-            type="button"
-            onClick={() => {
-              setEditingSectionId(null);
-              setEditingAll(value => !value);
-            }}
-          >
-            {editingAll ? '\u7de8\u96c6\u3092\u9589\u3058\u308b' : '\u7de8\u96c6'}
-          </button>
-          <button type="button" onClick={() => setMaskActive(value => !value)}>
-            {maskActive ? '\u96a0\u3055\u306a\u3044' : '\u96a0\u3059'}
-          </button>
-          <button type="button" onClick={() => onUpdateLessonViewPublished?.(!lessonViewPublished)}>
-            {lessonViewPublished ? '\u975e\u516c\u958b\u306b\u3059\u308b' : '\u516c\u958b\u3059\u308b'}
-          </button>
-        </div>
-      )}
+      <button
+        type="button"
+        className={`lesson-view-controls-toggle${controlsOpen ? ' is-open' : ''}`}
+        onClick={() => setControlsOpen(value => !value)}
+        aria-label={controlsOpen ? '\u64cd\u4f5c\u3092\u9589\u3058\u308b' : '\u64cd\u4f5c\u3092\u958b\u304f'}
+      >
+        ^
+      </button>
       {activeSlide ? (() => {
-        const { section, lessonSection, kundoku, isKanbun, sourceLines, modernLines, kundokuLines, lineCount, start, end } = activeSlide;
+        const { section, lessonSection, kundoku, isKanbun, sourceLines, modernLines, kundokuLines, lineCount, start, end, autoMaskRules } = activeSlide;
         const editing = editingAll || editingSectionId === section.id;
-        const sectionMaskRules = maskRules.filter(rule => rule.sectionId === section.id);
+        const manualSectionMaskRules = maskRules.filter(rule => rule.sectionId === section.id);
+        const sectionMaskRules = [...autoMaskRules, ...manualSectionMaskRules];
         return (
           <article className="lesson-view-section" key={`${section.id}-${start}`}>
             {editing && (
@@ -2067,7 +2089,7 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
                 section={lessonSection}
                 kundoku={kundoku}
                 lineCount={lineCount}
-                maskRules={sectionMaskRules}
+                maskRules={manualSectionMaskRules}
                 onAddMaskRule={addMaskRule}
                 onRemoveMaskRule={removeMaskRule}
                 onCancel={closeEditor}
@@ -2083,7 +2105,7 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
                   const reading = kundokuLines[index] ?? '';
                   const modernKey = `${section.id}-${index}-modern`;
                   const kundokuKey = `${section.id}-${index}-kundoku`;
-                  const lineHiddenWords = maskRules
+                  const lineHiddenWords = sectionMaskRules
                     .filter(rule => rule.sectionId === section.id && rule.lineIndex === index)
                     .map(rule => rule.word);
                   const activeHiddenWords = maskActive ? lineHiddenWords : [];
@@ -2130,17 +2152,38 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
           </article>
         );
       })() : null}
-      {slides.length > 1 && (
-        <div className="lesson-view-slide-controls" aria-label="\u30b9\u30e9\u30a4\u30c9\u64cd\u4f5c">
-          <button type="button" onClick={() => setSlideIndex(index => Math.max(index - 1, 0))} disabled={!canGoPrev}>
-            {'\u524d\u3078'}
-          </button>
-          <span>{`${Math.min(slideIndex + 1, slides.length)} / ${slides.length}`}</span>
-          <button type="button" onClick={() => setSlideIndex(index => Math.min(index + 1, slides.length - 1))} disabled={!canGoNext}>
-            {'\u6b21\u3078'}
-          </button>
-        </div>
-      )}
+      <div className={`lesson-view-bottom-panel${controlsOpen ? ' is-open' : ''}`}>
+        {slides.length > 1 && (
+          <div className="lesson-view-slide-controls" aria-label="\u30b9\u30e9\u30a4\u30c9\u64cd\u4f5c">
+            <button type="button" onClick={() => setSlideIndex(index => Math.max(index - 1, 0))} disabled={!canGoPrev}>
+              {'\u524d\u3078'}
+            </button>
+            <span>{`${Math.min(slideIndex + 1, slides.length)} / ${slides.length}`}</span>
+            <button type="button" onClick={() => setSlideIndex(index => Math.min(index + 1, slides.length - 1))} disabled={!canGoNext}>
+              {'\u6b21\u3078'}
+            </button>
+          </div>
+        )}
+        {isAdmin && (
+          <div className="lesson-view-floating-actions">
+            <button
+              type="button"
+              onClick={() => {
+                setEditingSectionId(null);
+                setEditingAll(value => !value);
+              }}
+            >
+              {editingAll ? '\u7de8\u96c6\u3092\u9589\u3058\u308b' : '\u7de8\u96c6'}
+            </button>
+            <button type="button" onClick={() => setMaskActive(value => !value)}>
+              {maskActive ? '\u96a0\u3055\u306a\u3044' : '\u96a0\u3059'}
+            </button>
+            <button type="button" onClick={() => onUpdateLessonViewPublished?.(!lessonViewPublished)}>
+              {lessonViewPublished ? '\u975e\u516c\u958b\u306b\u3059\u308b' : '\u516c\u958b\u3059\u308b'}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -2212,7 +2255,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
             className={`left-tab-button${visibleTab === 'source' ? ' active' : ''}`}
             onClick={() => setActiveTab('source')}
           >
-            {'\u539f\u6587'}
+            {'\u6f14\u7fd2'}
           </button>
           {canViewLesson && (
             <button
