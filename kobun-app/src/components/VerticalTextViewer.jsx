@@ -1776,36 +1776,6 @@ function splitModernForSourceLines(modernText, sourceLines) {
   return chunks;
 }
 
-function lessonLineIndexForTarget(sourceLines, target) {
-  if (Number.isInteger(target?.lineIndex)) return target.lineIndex;
-  if (!Number.isInteger(target?.start)) return 0;
-  let cursor = 0;
-  for (let index = 0; index < sourceLines.length; index += 1) {
-    const length = String(sourceLines[index] ?? '').length;
-    if (target.start < cursor + length) return index;
-    cursor += length;
-  }
-  return Math.max(sourceLines.length - 1, 0);
-}
-
-function lessonVocabMaskRules(section, sourceLines) {
-  return (section.targets ?? [])
-    .filter(target => target.type === 'vocab')
-    .flatMap(target => {
-      const lineIndex = lessonLineIndexForTarget(sourceLines, target);
-      return [target.answer, ...(target.alternativeAnswers ?? [])]
-        .map(word => String(word ?? '').trim())
-        .filter(Boolean)
-        .map(word => ({
-          id: `auto:${section.id}:${target.id}:${lineIndex}:${word}`,
-          sectionId: section.id,
-          lineIndex,
-          word,
-          auto: true,
-        }));
-    });
-}
-
 function maskedTextParts(text, hiddenWords) {
   const words = hiddenWords
     .map(word => String(word ?? '').trim())
@@ -2047,8 +2017,7 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
     const modernLines = splitModernForSourceLines(lessonSection.modern, sourceLines);
     const kundokuLines = isKanbun ? splitViewLines(kundoku) : [];
     const lineCount = Math.max(sourceLines.length, modernLines.length, kundokuLines.length, 1);
-    const autoMaskRules = lessonVocabMaskRules(lessonSection, sourceLines);
-    return { section, lessonSection, kundoku, isKanbun, sourceLines, modernLines, kundokuLines, lineCount, autoMaskRules };
+    return { section, lessonSection, kundoku, isKanbun, sourceLines, modernLines, kundokuLines, lineCount };
   });
 
   const slides = preparedSections.flatMap(item => {
@@ -2078,10 +2047,9 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
         ^
       </button>
       {activeSlide ? (() => {
-        const { section, lessonSection, kundoku, isKanbun, sourceLines, modernLines, kundokuLines, lineCount, start, end, autoMaskRules } = activeSlide;
+        const { section, lessonSection, kundoku, isKanbun, sourceLines, modernLines, kundokuLines, lineCount, start, end } = activeSlide;
         const editing = editingAll || editingSectionId === section.id;
-        const manualSectionMaskRules = maskRules.filter(rule => rule.sectionId === section.id);
-        const sectionMaskRules = [...autoMaskRules, ...manualSectionMaskRules];
+        const sectionMaskRules = maskRules.filter(rule => rule.sectionId === section.id);
         return (
           <article className="lesson-view-section" key={`${section.id}-${start}`}>
             {editing && (
@@ -2089,7 +2057,7 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
                 section={lessonSection}
                 kundoku={kundoku}
                 lineCount={lineCount}
-                maskRules={manualSectionMaskRules}
+                maskRules={sectionMaskRules}
                 onAddMaskRule={addMaskRule}
                 onRemoveMaskRule={removeMaskRule}
                 onCancel={closeEditor}
