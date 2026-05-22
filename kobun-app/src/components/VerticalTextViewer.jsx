@@ -1801,28 +1801,50 @@ function maskedTextParts(text, hiddenWords) {
   return parts;
 }
 
-function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, onRevealMask }) {
-  if (!text) return null;
+function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, onRevealMask, revealed = true, framed = false, onToggle }) {
+  if (!text && !framed) return null;
+  const content = text || '?';
   return (
-    <section className={`lesson-view-column lesson-view-column--${kind}`}>
-      <p className="lesson-view-text">
-        {maskedTextParts(text, hiddenWords).map((part, index) => {
-          if (part.type === 'text') return <span key={`${columnKey}-text-${index}`}>{part.value}</span>;
-          const maskKey = `${columnKey}:${part.start}:${part.value}`;
-          if (revealedMasks.has(maskKey)) return <span key={maskKey}>{part.value}</span>;
-          return (
-            <button
-              key={maskKey}
-              type="button"
-              className="lesson-view-mask"
-              onClick={() => onRevealMask(maskKey)}
-              aria-label="隠した語を表示"
-            >
-              ?
-            </button>
-          );
-        })}
-      </p>
+    <section
+      className={`lesson-view-column lesson-view-column--${kind}${framed ? ' lesson-view-column--framed' : ''}${revealed ? ' is-revealed' : ' is-hidden'}`}
+    >
+      <button
+        type="button"
+        className="lesson-view-reveal-frame"
+        onClick={onToggle}
+        disabled={!onToggle}
+        aria-label={revealed ? '??????' : '????'}
+      >
+        <span className="lesson-view-text">
+          {revealed ? maskedTextParts(content, hiddenWords).map((part, index) => {
+            if (part.type === 'text') return <span key={`${columnKey}-text-${index}`}>{part.value}</span>;
+            const maskKey = `${columnKey}:${part.start}:${part.value}`;
+            if (revealedMasks.has(maskKey)) return <span key={maskKey}>{part.value}</span>;
+            return (
+              <span
+                key={maskKey}
+                role="button"
+                tabIndex={0}
+                className="lesson-view-mask"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onRevealMask(maskKey);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onRevealMask(maskKey);
+                  }
+                }}
+                aria-label="???????"
+              >
+                ?
+              </span>
+            );
+          }) : content}
+        </span>
+      </button>
     </section>
   );
 }
@@ -1880,11 +1902,10 @@ function LessonViewEditor({ section, kundoku, onCancel, onSave }) {
   );
 }
 
-function LessonViewMode({ sections, isKanbunTextbook, isAdmin, onUpdateSection }) {
+function LessonViewMode({ sections, lessonViewSections, isKanbunTextbook, isAdmin, onUpdateLessonViewSection }) {
   const visibleSections = sections.filter(section => !section.sectionless);
   const [editingSectionId, setEditingSectionId] = useState(null);
-  const [showModernText, setShowModernText] = useState(false);
-  const [showKundokuText, setShowKundokuText] = useState(false);
+  const [revealedColumns, setRevealedColumns] = useState(() => new Set());
   const [maskDraft, setMaskDraft] = useState('');
   const [hiddenWords, setHiddenWords] = useState([]);
   const [revealedMasks, setRevealedMasks] = useState(() => new Set());
@@ -1910,17 +1931,20 @@ function LessonViewMode({ sections, isKanbunTextbook, isAdmin, onUpdateSection }
     });
   };
 
+  const toggleColumn = (columnKey) => {
+    setRevealedColumns(current => {
+      const next = new Set(current);
+      if (next.has(columnKey)) next.delete(columnKey);
+      else next.add(columnKey);
+      return next;
+    });
+  };
+
   return (
     <div className="lesson-view-mode">
       <div className="lesson-view-controls">
-        <button type="button" onClick={() => setShowModernText(value => !value)}>
-          {showModernText ? '現代語訳を隠す' : '現代語訳を表示'}
-        </button>
-        <button type="button" onClick={() => setShowKundokuText(value => !value)}>
-          {showKundokuText ? '書き下し文を隠す' : '書き下し文を表示'}
-        </button>
         <label className="lesson-view-mask-form">
-          <span>隠す語</span>
+          <span>{'???'}</span>
           <input
             value={maskDraft}
             onChange={(event) => setMaskDraft(event.target.value)}
@@ -1931,23 +1955,30 @@ function LessonViewMode({ sections, isKanbunTextbook, isAdmin, onUpdateSection }
               }
             }}
           />
-          <button type="button" onClick={addHiddenWord}>追加</button>
+          <button type="button" onClick={addHiddenWord}>{'??'}</button>
         </label>
         {hiddenWords.length > 0 && (
           <div className="lesson-view-mask-list">
             {hiddenWords.map(word => (
               <button type="button" key={word} onClick={() => removeHiddenWord(word)}>
-                {word} ×
+                {word} ?
               </button>
             ))}
           </div>
         )}
       </div>
       {visibleSections.map(section => {
-        const kundoku = getKundoku(section);
-        const isKanbun = isKanbunSection(section, isKanbunTextbook);
-        const sourceLines = splitViewLines(section.text);
-        const modernLines = splitModernForSourceLines(section.modern, sourceLines);
+        const lessonEdit = lessonViewSections?.get(section.id)?.section ?? {};
+        const lessonSection = {
+          ...section,
+          ...(typeof lessonEdit.text === 'string' ? { text: lessonEdit.text } : {}),
+          ...(typeof lessonEdit.kundoku === 'string' ? { kundoku: lessonEdit.kundoku } : {}),
+          ...(typeof lessonEdit.modern === 'string' ? { modern: lessonEdit.modern } : {}),
+        };
+        const kundoku = getKundoku(lessonSection);
+        const isKanbun = isKanbunSection(lessonSection, isKanbunTextbook);
+        const sourceLines = splitViewLines(lessonSection.text);
+        const modernLines = splitModernForSourceLines(lessonSection.modern, sourceLines);
         const kundokuLines = isKanbun ? splitViewLines(kundoku) : [];
         const lineCount = Math.max(sourceLines.length, modernLines.length, kundokuLines.length, 1);
         const editing = editingSectionId === section.id;
@@ -1957,24 +1988,26 @@ function LessonViewMode({ sections, isKanbunTextbook, isAdmin, onUpdateSection }
               <span>{section.title}</span>
               {isAdmin && (
                 <button type="button" onClick={() => setEditingSectionId(editing ? null : section.id)}>
-                  {editing ? '編集を閉じる' : '編集'}
+                  {editing ? '??????' : '??'}
                 </button>
               )}
             </div>
             {editing && (
               <LessonViewEditor
-                section={section}
+                section={lessonSection}
                 kundoku={kundoku}
                 onCancel={() => setEditingSectionId(null)}
-                onSave={onUpdateSection}
+                onSave={onUpdateLessonViewSection}
               />
             )}
             <div className="lesson-view-scroll">
               <div className="lesson-view-line-pairs">
                 {Array.from({ length: lineCount }).map((_, index) => {
-                  const source = sourceLines[index] ?? (index === 0 ? String(section.text ?? '').trim() : '');
-                  const modern = modernLines.length > 1 ? modernLines[index] : (index === 0 ? String(section.modern ?? '').trim() : '');
+                  const source = sourceLines[index] ?? (index === 0 ? String(lessonSection.text ?? '').trim() : '');
+                  const modern = modernLines.length > 1 ? modernLines[index] : (index === 0 ? String(lessonSection.modern ?? '').trim() : '');
                   const reading = kundokuLines[index] ?? '';
+                  const modernKey = `${section.id}-${index}-modern`;
+                  const kundokuKey = `${section.id}-${index}-kundoku`;
                   return (
                     <div className="lesson-view-pair" key={`${section.id}-${index}`}>
                       <LessonViewColumn
@@ -1985,26 +2018,30 @@ function LessonViewMode({ sections, isKanbunTextbook, isAdmin, onUpdateSection }
                         revealedMasks={revealedMasks}
                         onRevealMask={revealMask}
                       />
-                      {showKundokuText && reading && (
+                      {isKanbun && (
                         <LessonViewColumn
                           text={reading}
                           kind="kundoku"
-                          columnKey={`${section.id}-${index}-kundoku`}
+                          columnKey={kundokuKey}
                           hiddenWords={hiddenWords}
                           revealedMasks={revealedMasks}
                           onRevealMask={revealMask}
+                          framed
+                          revealed={revealedColumns.has(kundokuKey)}
+                          onToggle={() => toggleColumn(kundokuKey)}
                         />
                       )}
-                      {showModernText && (
-                        <LessonViewColumn
-                          text={modern}
-                          kind="modern"
-                          columnKey={`${section.id}-${index}-modern`}
-                          hiddenWords={hiddenWords}
-                          revealedMasks={revealedMasks}
-                          onRevealMask={revealMask}
-                        />
-                      )}
+                      <LessonViewColumn
+                        text={modern}
+                        kind="modern"
+                        columnKey={modernKey}
+                        hiddenWords={hiddenWords}
+                        revealedMasks={revealedMasks}
+                        onRevealMask={revealMask}
+                        framed
+                        revealed={revealedColumns.has(modernKey)}
+                        onToggle={() => toggleColumn(modernKey)}
+                      />
                     </div>
                   );
                 })}
@@ -2052,7 +2089,7 @@ function NotesTab({ textId, notes, sections, isAdmin, onUpdateSection }) {
   );
 }
 
-export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false, correctKaeritenLines = {}, shareBoard = null, onViewModeChange }) {
+export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, lessonViewSections, onUpdateLessonViewSection, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false, correctKaeritenLines = {}, shareBoard = null, onViewModeChange }) {
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
   const visibleTab = activeTab === 'view' && !isAdmin ? 'source' : activeTab;
@@ -2145,7 +2182,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
             />
           ))
         ) : visibleTab === 'view' ? (
-          <LessonViewMode sections={sections} isKanbunTextbook={isKanbunTextbook} isAdmin={isAdmin} onUpdateSection={onUpdateSection} />
+          <LessonViewMode sections={sections} lessonViewSections={lessonViewSections} isKanbunTextbook={isKanbunTextbook} isAdmin={isAdmin} onUpdateLessonViewSection={onUpdateLessonViewSection} />
         ) : visibleTab === 'notes' ? (
           <NotesTab textId={textId} notes={notes} sections={sections} isAdmin={isAdmin} onUpdateSection={onUpdateSection} />
         ) : (

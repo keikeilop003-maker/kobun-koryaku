@@ -24,7 +24,7 @@ import useHiddenNormalQuestions from './hooks/useHiddenNormalQuestions';
 import useAnalysis from './hooks/useAnalysis';
 import { useMyInboxMessages, useTopInformation } from './hooks/useTopCommunications';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { addDoc, collection, deleteDoc, doc, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, onSnapshot, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore';
 import { db } from './services/firebase';
 import { TITLE_COLOR, normalizeEquipped } from './data/items';
 import './styles/app.css';
@@ -143,6 +143,7 @@ function AppInner() {
   const [viewAsStudent, setViewAsStudent] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
   const [lessonViewMode, setLessonViewMode] = useState(false);
+  const [lessonViewSectionMap, setLessonViewSectionMap] = useState(() => new Map());
   const [adminSelection, setAdminSelection] = useState(null);
   const [addingType, setAddingType] = useState(null);
   const [textbookOrder, setTextbookOrder] = useState([]);
@@ -165,6 +166,20 @@ function AppInner() {
   const { profile, awardPoints, unlockItem, equipItem } = useProfile(user?.uid);
   useEffect(() => {
     setCorrectKaeritenLines({});
+  }, [textId]);
+
+  useEffect(() => {
+    setLessonViewSectionMap(new Map());
+    if (!textId) return undefined;
+    const q = query(collection(db, 'lessonViewSections'), where('textId', '==', textId));
+    return onSnapshot(q, (snapshot) => {
+      const next = new Map();
+      snapshot.forEach(item => {
+        const data = item.data();
+        if (data.sectionId) next.set(data.sectionId, { id: item.id, ...data });
+      });
+      setLessonViewSectionMap(next);
+    });
   }, [textId]);
 
   const handleKaeritenLineCorrect = useCallback((target, section) => {
@@ -674,6 +689,22 @@ function AppInner() {
     });
   }, [effectiveIsAdmin, textId, user]);
 
+  const handleUpdateLessonViewSection = useCallback(async (section, updates) => {
+    if (!effectiveIsAdmin || !user || !textId || !section?.id) return;
+    await setDoc(doc(db, 'lessonViewSections', `${textId}__${section.id}`), {
+      textId,
+      sectionId: section.id,
+      section: {
+        text: Object.prototype.hasOwnProperty.call(updates, 'text') ? updates.text : (section.text ?? ''),
+        kundoku: Object.prototype.hasOwnProperty.call(updates, 'kundoku') ? updates.kundoku : (section.kundoku ?? ''),
+        modern: Object.prototype.hasOwnProperty.call(updates, 'modern') ? updates.modern : (section.modern ?? ''),
+      },
+      updatedBy: user.uid,
+      updatedByEmail: user.email,
+      updatedAt: serverTimestamp(),
+    });
+  }, [effectiveIsAdmin, textId, user]);
+
   const handleUpdateNormalQuestion = useCallback(async (question, updates) => {
     const payload = typeof updates === 'string' ? { question: updates } : (updates ?? {});
     const questionText = payload.question?.trim();
@@ -989,6 +1020,8 @@ function AppInner() {
               showModern={effectiveIsAdmin}
               isAdmin={effectiveIsAdmin}
               onUpdateSection={handleUpdateSection}
+              lessonViewSections={lessonViewSectionMap}
+              onUpdateLessonViewSection={handleUpdateLessonViewSection}
               onUpdateTarget={handleUpdateTarget}
               onRecord={handleRecord}
               correctKaeritenLines={correctKaeritenLines}

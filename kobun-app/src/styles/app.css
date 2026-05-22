@@ -571,6 +571,39 @@ body {
   max-height: calc(100dvh - 150px);
 }
 
+.lesson-view-reveal-frame {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 100%;
+  min-height: calc(7.4rem * var(--lesson-view-scale));
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  cursor: default;
+  font: inherit;
+  padding: 0.28rem;
+}
+
+.lesson-view-reveal-frame:disabled {
+  color: inherit;
+}
+
+.lesson-view-column--framed .lesson-view-reveal-frame {
+  min-width: calc(3.8rem * var(--lesson-view-scale));
+  border: 2px solid currentColor;
+  cursor: pointer;
+}
+
+.lesson-view-column--framed.is-hidden .lesson-view-text {
+  visibility: hidden;
+}
+
+.lesson-view-column--framed .lesson-view-reveal-frame:hover {
+  background: rgba(255,255,255,0.08);
+}
+
 .lesson-view-label {
   writing-mode: horizontal-tb;
   color: #888;
