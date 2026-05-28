@@ -1858,6 +1858,20 @@ function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, o
   );
 }
 
+function LineNumberedTextarea({ value, onChange }) {
+  const lineCount = Math.max(String(value ?? '').split(/\r?\n/).length, 1);
+  return (
+    <div className="lesson-view-numbered-textarea">
+      <div className="lesson-view-line-numbers" aria-hidden="true">
+        {Array.from({ length: lineCount }).map((_, index) => (
+          <span key={index}>{index + 1}</span>
+        ))}
+      </div>
+      <textarea value={value} onChange={onChange} />
+    </div>
+  );
+}
+
 function LessonViewEditor({ section, kundoku, lineCount, maskRules, onAddMaskRule, onRemoveMaskRule, onCancel, onSave }) {
   const [sourceText, setSourceText] = useState(section.text ?? '');
   const [modernText, setModernText] = useState(section.modern ?? '');
@@ -1903,11 +1917,11 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, onAddMaskRul
       <div className="lesson-view-editor-grid">
         <label>
           {'\u539f\u6587'}
-          <textarea value={sourceText} onChange={(event) => setSourceText(event.target.value)} />
+          <LineNumberedTextarea value={sourceText} onChange={(event) => setSourceText(event.target.value)} />
         </label>
         <label>
           {'\u73fe\u4ee3\u8a9e\u8a33'}
-          <textarea value={modernText} onChange={(event) => setModernText(event.target.value)} />
+          <LineNumberedTextarea value={modernText} onChange={(event) => setModernText(event.target.value)} />
         </label>
         {kundoku || section.kundoku ? (
           <label>

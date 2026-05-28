@@ -902,6 +902,37 @@ body {
   outline-offset: 2px;
 }
 
+.lesson-view-numbered-textarea {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr);
+  min-height: 220px;
+}
+
+.lesson-view-numbered-textarea textarea {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.lesson-view-line-numbers {
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+  border: 1px solid #555;
+  border-right: 0;
+  border-radius: 6px 0 0 6px;
+  background: #161616;
+  color: #9ab0d8;
+  font-family: 'BIZ UDPGothic', 'BIZ UDGothic', 'Yu Gothic UI', 'Yu Gothic', Meiryo, system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  padding: 10px 8px;
+  text-align: right;
+}
+
+.lesson-view-line-numbers span {
+  min-height: 1.7em;
+}
+
 .lesson-view-editor-actions {
   display: flex;
   align-items: center;
