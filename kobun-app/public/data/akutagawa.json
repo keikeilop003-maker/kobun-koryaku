@@ -7,8 +7,8 @@
     {
       "id": "s1",
       "title": "第一段",
-      "text": "昔、男ありけり。女のえ得まじかりけるを、年を経てよばひわたりけるを、からうじて盗み出でて、いと暗きに来けり。芥川といふ川を率て行きければ、草の上に置きたりける露を、「かれは何ぞ。」となむ男に問ひける。行く先多く、夜も更けにければ、鬼ある所とも知らで、神さへいといみじう鳴り、雨もいたう降りければ、あばらなる蔵に、女をば奥に押し入れて、男、弓・胡籙を負ひて戸口に居り。\n　はや夜も明けなむと思ひつつ居たりけるに、鬼はや一口に食ひてけり。「あなや。」と言ひけれど、神鳴る騒ぎにえ聞かざりけり。やうやう夜も明けゆくに、見れば、率て来し女もなし。足ずりをして泣けどもかひなし。\n　　白玉か何ぞと人の問ひしとき露と答へて消えなましものを\n　これは、二条の后の、いとこの女御の御もとに、仕うまつるやうにて居たまへりけるを、かたちのいとめでたくおはしければ、盗みて負ひて出でたりけるを、御兄人堀河の大臣、太郎国経の大納言、まだ下﨟にて内裏へ参りたまふに、いみじう泣く人あるを聞きつけて、とどめて取り返したまうてけり。それを、かく鬼とは言ふなりけり。まだいと若うて、后のただにおはしけるときとや。（第六段）",
-      "modern": "昔、男がいた。女で手に入れることができそうになかった女を、長年にわたって求婚し続けていたが、やっとのことで盗み出して、とても暗いときに逃げて来た。芥川という川（のほとり）を（女を）連れて行ったところ、草の上に降りていた夜露を、「あれは何ですか。」と（女は）男に尋ねた。行く先が遠く、夜も更けてしまったので、鬼が棲むところとも知らないで、そのうえ雷までもたいそうひどく鳴り、雨も激しく降ったので、荒れてがらんとした蔵に、女を奥の方に押し入れて、男は、弓・胡籙を背負って戸口にいる。\n早く夜が明けてほしいと思いながら座っていたところ、（その間に）鬼が（女を）たちまち一口で食ってしまった。（女は）「あれぇ。」と言ったが、雷が鳴る騒がしさに（男は女の悲鳴を）聞くことができなかった。だんだん夜も明けていくので、（蔵の中を）見ると、連れてきた女はいない。（男は）地だんだを踏んでくやしがって泣くけれどもどうしようもない。\n「（あれは）真珠かしら、何かしら。」とあの人が尋ねたとき、「露だよ。」と答えて、（露と同じように私も）消えてしまえばよかったのに。（そうしたらこんな悲しみもなかったであろうに。）\n　この話は、二条の后が、いとこの女御のおそばに、（女房として）お仕え申し上げるようなかたちでおいでになっていたが、（后は）容貌がとても美しくていらっしゃったので、（男が）盗み出して背負って出ていったところ、（后の）兄上である、堀河大臣基経と、ご長男の国経大納言が、まだ官位も低い者であって、参内なさるときに、ひどく泣く人がいるのを聞きつけて、引きとどめて取り返しなさった。それを、このように鬼と言うのであった。（后が）まだとても若く、后が入内なさる以前のことだったということだ。",
+      "text": "昔、男ありけり。女のえ得まじかりけるを、\n年を経てよばひわたりけるを、からうじて\n盗み出でて、いと暗きに来けり。\n芥川といふ川を率て行きければ、\n草の上に置きたりける露を、\n「かれは何ぞ。」となむ男に問ひける。\n行く先多く、夜も更けにければ、\n鬼ある所とも知らで、\n神さへいといみじう鳴り、\n雨もいたう降りければ、\nあばらなる蔵に、女をば奥に押し入れて、\n男、弓・胡籙を負ひて戸口に居り。",
+      "modern": "昔、男がいた。女で手に入れることができそうになかった女を、長年にわたって求婚し続けていたが、やっとのことで盗み出して、とても暗いときに逃げて来た。芥川という川（のほとり）を（女を）連れて行ったところ、草の上に降りていた夜露を、「あれは何ですか。」と（女は）男に尋ねた。行く先が遠く、夜も更けてしまったので、鬼が棲むところとも知らないで、そのうえ雷までもたいそうひどく鳴り、雨も激しく降ったので、荒れてがらんとした蔵に、女を奥の方に押し入れて、男は、弓・胡籙を背負って戸口にいる。",
       "notes": "",
       "targets": [
         {
@@ -20,7 +20,8 @@
           "start": 3,
           "end": 5,
           "conjugationType": "ラ行変格活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "aux-s1-1",
@@ -30,7 +31,8 @@
           "explanation": "過去の助動詞・終止形",
           "start": 5,
           "end": 7,
-          "formInText": "終止形"
+          "formInText": "終止形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-1",
@@ -40,7 +42,8 @@
           "explanation": "格助詞（同格）",
           "start": 9,
           "end": 10,
-          "particleQuestionType": "translation"
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "vocab-s1-1",
@@ -49,7 +52,8 @@
           "answer": "副詞",
           "explanation": "副詞",
           "start": 10,
-          "end": 11
+          "end": 11,
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-2",
@@ -60,7 +64,8 @@
           "start": 11,
           "end": 12,
           "conjugationType": "ア行下二段活用",
-          "formInText": "終止形"
+          "formInText": "終止形",
+          "sectionId": "s1"
         },
         {
           "id": "aux-s1-2",
@@ -70,7 +75,8 @@
           "explanation": "打消推量の助動詞・連用形",
           "start": 12,
           "end": 16,
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "aux-s1-3",
@@ -80,7 +86,8 @@
           "explanation": "過去の助動詞・連体形",
           "start": 16,
           "end": 18,
-          "formInText": "連体形"
+          "formInText": "連体形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-2",
@@ -90,7 +97,8 @@
           "explanation": "格助詞（対象）",
           "start": 18,
           "end": 19,
-          "particleQuestionType": "translation"
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-3",
@@ -98,9 +106,10 @@
           "surface": "を",
           "answer": "格助詞（時）",
           "explanation": "格助詞（時）",
-          "start": 21,
-          "end": 22,
-          "particleQuestionType": "translation"
+          "start": 22,
+          "end": 23,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-3",
@@ -108,10 +117,11 @@
           "surface": "経",
           "answer": "ハ行下二段活用・連用形",
           "explanation": "ハ行下二段活用・連用形",
-          "start": 22,
-          "end": 23,
+          "start": 23,
+          "end": 24,
           "conjugationType": "ハ行下二段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-4",
@@ -119,9 +129,10 @@
           "surface": "て",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 23,
-          "end": 24,
-          "particleQuestionType": "translation"
+          "start": 24,
+          "end": 25,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-4",
@@ -129,10 +140,11 @@
           "surface": "よばひ",
           "answer": "ハ行四段活用・連用形",
           "explanation": "ハ行四段活用・連用形",
-          "start": 24,
-          "end": 27,
+          "start": 25,
+          "end": 28,
           "conjugationType": "ハ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-5",
@@ -140,10 +152,11 @@
           "surface": "わたり",
           "answer": "ラ行四段活用・連用形",
           "explanation": "ラ行四段活用・連用形",
-          "start": 27,
-          "end": 30,
+          "start": 28,
+          "end": 31,
           "conjugationType": "ラ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "aux-s1-4",
@@ -151,9 +164,10 @@
           "surface": "ける",
           "answer": "過去の助動詞・連体形",
           "explanation": "過去の助動詞・連体形",
-          "start": 30,
-          "end": 32,
-          "formInText": "連体形"
+          "start": 31,
+          "end": 33,
+          "formInText": "連体形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-5",
@@ -161,9 +175,10 @@
           "surface": "を",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 32,
-          "end": 33,
-          "particleQuestionType": "translation"
+          "start": 33,
+          "end": 34,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "vocab-s1-2",
@@ -171,8 +186,9 @@
           "surface": "からうじて",
           "answer": "副詞",
           "explanation": "副詞",
-          "start": 34,
-          "end": 39
+          "start": 35,
+          "end": 40,
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-6",
@@ -180,10 +196,11 @@
           "surface": "盗み",
           "answer": "マ行四段活用・連用形",
           "explanation": "マ行四段活用・連用形",
-          "start": 39,
-          "end": 41,
+          "start": 41,
+          "end": 43,
           "conjugationType": "マ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-7",
@@ -191,10 +208,11 @@
           "surface": "出で",
           "answer": "ダ行下二段活用・連用形",
           "explanation": "ダ行下二段活用・連用形",
-          "start": 41,
-          "end": 43,
+          "start": 43,
+          "end": 45,
           "conjugationType": "ダ行下二段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-6",
@@ -202,9 +220,10 @@
           "surface": "て",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 43,
-          "end": 44,
-          "particleQuestionType": "translation"
+          "start": 39,
+          "end": 40,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "vocab-s1-3",
@@ -212,8 +231,9 @@
           "surface": "いと",
           "answer": "副詞",
           "explanation": "副詞",
-          "start": 45,
-          "end": 47
+          "start": 47,
+          "end": 49,
+          "sectionId": "s1"
         },
         {
           "id": "adj-s1-1",
@@ -221,10 +241,11 @@
           "surface": "暗き",
           "answer": "ク活用形容詞・連体形",
           "explanation": "ク活用形容詞・連体形",
-          "start": 47,
-          "end": 49,
+          "start": 49,
+          "end": 51,
           "conjugationType": "ク活用形容詞",
-          "formInText": "連体形"
+          "formInText": "連体形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-7",
@@ -232,9 +253,10 @@
           "surface": "に",
           "answer": "格助詞（時）",
           "explanation": "格助詞（時）",
-          "start": 49,
-          "end": 50,
-          "particleQuestionType": "translation"
+          "start": 51,
+          "end": 52,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-8",
@@ -242,10 +264,11 @@
           "surface": "来",
           "answer": "カ行変格活用・連用形",
           "explanation": "カ行変格活用・連用形",
-          "start": 50,
-          "end": 51,
+          "start": 52,
+          "end": 53,
           "conjugationType": "カ行変格活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "aux-s1-5",
@@ -253,9 +276,10 @@
           "surface": "けり",
           "answer": "過去の助動詞・終止形",
           "explanation": "過去の助動詞・終止形",
-          "start": 51,
-          "end": 53,
-          "formInText": "終止形"
+          "start": 53,
+          "end": 55,
+          "formInText": "終止形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-8",
@@ -263,9 +287,10 @@
           "surface": "と",
           "answer": "格助詞（引用）",
           "explanation": "格助詞（引用）",
-          "start": 56,
-          "end": 57,
-          "particleQuestionType": "translation"
+          "start": 48,
+          "end": 49,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-9",
@@ -273,10 +298,11 @@
           "surface": "いふ",
           "answer": "ハ行四段活用・連体形",
           "explanation": "ハ行四段活用・連体形",
-          "start": 57,
-          "end": 59,
+          "start": 60,
+          "end": 62,
           "conjugationType": "ハ行四段活用",
-          "formInText": "連体形"
+          "formInText": "連体形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-9",
@@ -284,9 +310,10 @@
           "surface": "を",
           "answer": "格助詞（場所）",
           "explanation": "格助詞（場所）",
-          "start": 60,
-          "end": 61,
-          "particleQuestionType": "translation"
+          "start": 63,
+          "end": 64,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-10",
@@ -294,10 +321,11 @@
           "surface": "率",
           "answer": "ワ行上一段活用・連用形",
           "explanation": "ワ行上一段活用・連用形",
-          "start": 61,
-          "end": 62,
+          "start": 64,
+          "end": 65,
           "conjugationType": "ワ行上一段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-10",
@@ -305,9 +333,10 @@
           "surface": "て",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 62,
-          "end": 63,
-          "particleQuestionType": "translation"
+          "start": 45,
+          "end": 46,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-11",
@@ -315,10 +344,11 @@
           "surface": "行き",
           "answer": "カ行四段活用・連用形",
           "explanation": "カ行四段活用・連用形",
-          "start": 63,
-          "end": 65,
+          "start": 66,
+          "end": 68,
           "conjugationType": "カ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "aux-s1-6",
@@ -326,9 +356,10 @@
           "surface": "けれ",
           "answer": "過去の助動詞・已然形",
           "explanation": "過去の助動詞・已然形",
-          "start": 65,
-          "end": 67,
-          "formInText": "已然形"
+          "start": 68,
+          "end": 70,
+          "formInText": "已然形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-11",
@@ -336,9 +367,10 @@
           "surface": "ば",
           "answer": "接続助詞（順確偶然）",
           "explanation": "接続助詞（順確偶然）",
-          "start": 67,
-          "end": 68,
-          "particleQuestionType": "translation"
+          "start": 26,
+          "end": 27,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-12",
@@ -346,9 +378,10 @@
           "surface": "の",
           "answer": "格助詞（連体）",
           "explanation": "格助詞（連体）",
-          "start": 70,
-          "end": 71,
-          "particleQuestionType": "translation"
+          "start": 74,
+          "end": 75,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-13",
@@ -356,9 +389,10 @@
           "surface": "に",
           "answer": "格助詞（場所）",
           "explanation": "格助詞（場所）",
-          "start": 72,
-          "end": 73,
-          "particleQuestionType": "translation"
+          "start": 76,
+          "end": 77,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-12",
@@ -366,10 +400,11 @@
           "surface": "置き",
           "answer": "カ行四段活用・連用形",
           "explanation": "カ行四段活用・連用形",
-          "start": 73,
-          "end": 75,
+          "start": 77,
+          "end": 79,
           "conjugationType": "カ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "aux-s1-7",
@@ -377,9 +412,10 @@
           "surface": "たり",
           "answer": "存続の助動詞・連用形",
           "explanation": "存続の助動詞・連用形",
-          "start": 75,
-          "end": 77,
-          "formInText": "連用形"
+          "start": 29,
+          "end": 31,
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "aux-s1-8",
@@ -387,9 +423,10 @@
           "surface": "ける",
           "answer": "過去の助動詞・連体形",
           "explanation": "過去の助動詞・連体形",
-          "start": 77,
-          "end": 79,
-          "formInText": "連体形"
+          "start": 81,
+          "end": 83,
+          "formInText": "連体形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-14",
@@ -397,9 +434,10 @@
           "surface": "を",
           "answer": "格助詞（対象）",
           "explanation": "格助詞（対象）",
-          "start": 80,
-          "end": 81,
-          "particleQuestionType": "translation"
+          "start": 84,
+          "end": 85,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-15",
@@ -407,9 +445,10 @@
           "surface": "は",
           "answer": "係助詞（区別）",
           "explanation": "係助詞（区別）",
-          "start": 85,
-          "end": 86,
-          "particleQuestionType": "translation"
+          "start": 90,
+          "end": 91,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-16",
@@ -417,9 +456,10 @@
           "surface": "ぞ",
           "answer": "係助詞（強意）",
           "explanation": "係助詞（強意）",
-          "start": 87,
-          "end": 88,
-          "particleQuestionType": "translation"
+          "start": 92,
+          "end": 93,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-17",
@@ -427,9 +467,10 @@
           "surface": "と",
           "answer": "格助詞（引用）",
           "explanation": "格助詞（引用）",
-          "start": 90,
-          "end": 91,
-          "particleQuestionType": "translation"
+          "start": 59,
+          "end": 60,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-18",
@@ -437,9 +478,10 @@
           "surface": "なむ",
           "answer": "係助詞（強意）",
           "explanation": "係助詞（強意）",
-          "start": 91,
-          "end": 93,
-          "particleQuestionType": "translation"
+          "start": 96,
+          "end": 98,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-19",
@@ -447,9 +489,10 @@
           "surface": "に",
           "answer": "格助詞（対象）",
           "explanation": "格助詞（対象）",
-          "start": 94,
-          "end": 95,
-          "particleQuestionType": "translation"
+          "start": 99,
+          "end": 100,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-13",
@@ -457,10 +500,11 @@
           "surface": "問ひ",
           "answer": "ハ行四段活用・連用形",
           "explanation": "ハ行四段活用・連用形",
-          "start": 95,
-          "end": 97,
+          "start": 100,
+          "end": 102,
           "conjugationType": "ハ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "aux-s1-9",
@@ -468,9 +512,10 @@
           "surface": "ける",
           "answer": "過去の助動詞・連体形",
           "explanation": "過去の助動詞・連体形",
-          "start": 97,
-          "end": 99,
-          "formInText": "連体形"
+          "start": 102,
+          "end": 104,
+          "formInText": "連体形",
+          "sectionId": "s1"
         },
         {
           "id": "adj-s1-2",
@@ -478,10 +523,11 @@
           "surface": "多く",
           "answer": "ク活用形容詞・連用形",
           "explanation": "ク活用形容詞・連用形",
-          "start": 103,
-          "end": 105,
+          "start": 109,
+          "end": 111,
           "conjugationType": "ク活用形容詞",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-20",
@@ -489,9 +535,10 @@
           "surface": "も",
           "answer": "係助詞（同趣）",
           "explanation": "係助詞（同趣）",
-          "start": 107,
-          "end": 108,
-          "particleQuestionType": "translation"
+          "start": 113,
+          "end": 114,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-14",
@@ -499,10 +546,11 @@
           "surface": "更け",
           "answer": "カ行下二段活用・連用形",
           "explanation": "カ行下二段活用・連用形",
-          "start": 108,
-          "end": 110,
+          "start": 114,
+          "end": 116,
           "conjugationType": "カ行下二段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "aux-s1-10",
@@ -510,9 +558,10 @@
           "surface": "に",
           "answer": "完了の助動詞・連用形",
           "explanation": "完了の助動詞・連用形",
-          "start": 110,
-          "end": 111,
-          "formInText": "連用形"
+          "start": 116,
+          "end": 117,
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "aux-s1-11",
@@ -520,9 +569,10 @@
           "surface": "けれ",
           "answer": "過去の助動詞・已然形",
           "explanation": "過去の助動詞・已然形",
-          "start": 111,
-          "end": 113,
-          "formInText": "已然形"
+          "start": 117,
+          "end": 119,
+          "formInText": "已然形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-21",
@@ -530,9 +580,10 @@
           "surface": "ば",
           "answer": "接続助詞（順確原因）",
           "explanation": "接続助詞（順確原因）",
-          "start": 113,
-          "end": 114,
-          "particleQuestionType": "translation"
+          "start": 70,
+          "end": 71,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-15",
@@ -540,10 +591,11 @@
           "surface": "ある",
           "answer": "ラ行変格活用・連体形",
           "explanation": "ラ行変格活用・連体形",
-          "start": 116,
-          "end": 118,
+          "start": 123,
+          "end": 125,
           "conjugationType": "ラ行変格活用",
-          "formInText": "連体形"
+          "formInText": "連体形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-22",
@@ -551,9 +603,10 @@
           "surface": "と",
           "answer": "格助詞（引用）",
           "explanation": "格助詞（引用）",
-          "start": 119,
-          "end": 120,
-          "particleQuestionType": "translation"
+          "start": 95,
+          "end": 96,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-23",
@@ -561,9 +614,10 @@
           "surface": "も",
           "answer": "係助詞（強意）",
           "explanation": "係助詞（強意）",
-          "start": 120,
-          "end": 121,
-          "particleQuestionType": "translation"
+          "start": 127,
+          "end": 128,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-16",
@@ -571,10 +625,11 @@
           "surface": "知ら",
           "answer": "ラ行四段活用・未然形",
           "explanation": "ラ行四段活用・未然形",
-          "start": 121,
-          "end": 123,
+          "start": 128,
+          "end": 130,
           "conjugationType": "ラ行四段活用",
-          "formInText": "未然形"
+          "formInText": "未然形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-24",
@@ -582,9 +637,10 @@
           "surface": "で",
           "answer": "接続助詞（打接）",
           "explanation": "接続助詞（打接）",
-          "start": 123,
-          "end": 124,
-          "particleQuestionType": "translation"
+          "start": 44,
+          "end": 45,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-25",
@@ -592,9 +648,10 @@
           "surface": "さへ",
           "answer": "副助詞（添加）",
           "explanation": "副助詞（添加）",
-          "start": 126,
-          "end": 128,
-          "particleQuestionType": "translation"
+          "start": 134,
+          "end": 136,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "vocab-s1-4",
@@ -602,8 +659,9 @@
           "surface": "いと",
           "answer": "副詞",
           "explanation": "副詞",
-          "start": 128,
-          "end": 130
+          "start": 136,
+          "end": 138,
+          "sectionId": "s1"
         },
         {
           "id": "adj-s1-3",
@@ -611,10 +669,11 @@
           "surface": "いみじう",
           "answer": "シク活用形容詞・連用形・ウ音便",
           "explanation": "シク活用形容詞・連用形・ウ音便",
-          "start": 130,
-          "end": 134,
+          "start": 138,
+          "end": 142,
           "conjugationType": "シク活用形容詞",
-          "formInText": "ウ音便"
+          "formInText": "ウ音便",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-17",
@@ -622,10 +681,11 @@
           "surface": "鳴り",
           "answer": "ラ行四段活用・連用形",
           "explanation": "ラ行四段活用・連用形",
-          "start": 134,
-          "end": 136,
+          "start": 142,
+          "end": 144,
           "conjugationType": "ラ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-26",
@@ -633,9 +693,10 @@
           "surface": "も",
           "answer": "係助詞（同趣）",
           "explanation": "係助詞（同趣）",
-          "start": 138,
-          "end": 139,
-          "particleQuestionType": "translation"
+          "start": 147,
+          "end": 148,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "adj-s1-4",
@@ -643,10 +704,11 @@
           "surface": "いたう",
           "answer": "ク活用形容詞・連用形・ウ音便",
           "explanation": "ク活用形容詞・連用形・ウ音便",
-          "start": 139,
-          "end": 142,
+          "start": 148,
+          "end": 151,
           "conjugationType": "ク活用形容詞",
-          "formInText": "ウ音便"
+          "formInText": "ウ音便",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-18",
@@ -654,10 +716,11 @@
           "surface": "降り",
           "answer": "ラ行四段活用・連用形",
           "explanation": "ラ行四段活用・連用形",
-          "start": 142,
-          "end": 144,
+          "start": 151,
+          "end": 153,
           "conjugationType": "ラ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "aux-s1-12",
@@ -665,9 +728,10 @@
           "surface": "けれ",
           "answer": "過去の助動詞・已然形",
           "explanation": "過去の助動詞・已然形",
-          "start": 144,
-          "end": 146,
-          "formInText": "已然形"
+          "start": 153,
+          "end": 155,
+          "formInText": "已然形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-27",
@@ -675,9 +739,10 @@
           "surface": "ば",
           "answer": "接続助詞（順確原因）",
           "explanation": "接続助詞（順確原因）",
-          "start": 146,
-          "end": 147,
-          "particleQuestionType": "translation"
+          "start": 119,
+          "end": 120,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "adj-s1-5",
@@ -685,10 +750,11 @@
           "surface": "あばらなる",
           "answer": "ナリ活用形容動詞・連体形",
           "explanation": "ナリ活用形容動詞・連体形",
-          "start": 148,
-          "end": 153,
+          "start": 158,
+          "end": 163,
           "conjugationType": "ナリ活用形容動詞",
-          "formInText": "連体形"
+          "formInText": "連体形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-28",
@@ -696,9 +762,10 @@
           "surface": "に",
           "answer": "格助詞（場所）",
           "explanation": "格助詞（場所）",
-          "start": 154,
-          "end": 155,
-          "particleQuestionType": "translation"
+          "start": 164,
+          "end": 165,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-29",
@@ -706,9 +773,10 @@
           "surface": "を",
           "answer": "格助詞（対象）",
           "explanation": "格助詞（対象）",
-          "start": 157,
-          "end": 158,
-          "particleQuestionType": "translation"
+          "start": 167,
+          "end": 168,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-30",
@@ -716,9 +784,10 @@
           "surface": "ば",
           "answer": "係助詞（区別）",
           "explanation": "係助詞（区別）",
-          "start": 158,
-          "end": 159,
-          "particleQuestionType": "translation"
+          "start": 155,
+          "end": 156,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-31",
@@ -726,9 +795,10 @@
           "surface": "に",
           "answer": "格助詞（場所）",
           "explanation": "格助詞（場所）",
-          "start": 160,
-          "end": 161,
-          "particleQuestionType": "translation"
+          "start": 170,
+          "end": 171,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-19",
@@ -736,10 +806,11 @@
           "surface": "押し入れ",
           "answer": "ラ行下二段活用・連用形",
           "explanation": "ラ行下二段活用・連用形",
-          "start": 161,
-          "end": 165,
+          "start": 171,
+          "end": 175,
           "conjugationType": "ラ行下二段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-32",
@@ -747,9 +818,10 @@
           "surface": "て",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 165,
-          "end": 166,
-          "particleQuestionType": "translation"
+          "start": 65,
+          "end": 66,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-33",
@@ -757,9 +829,10 @@
           "surface": "を",
           "answer": "格助詞（対象）",
           "explanation": "格助詞（対象）",
-          "start": 173,
-          "end": 174,
-          "particleQuestionType": "translation"
+          "start": 184,
+          "end": 185,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-20",
@@ -767,10 +840,11 @@
           "surface": "負ひ",
           "answer": "ハ行四段活用・連用形",
           "explanation": "ハ行四段活用・連用形",
-          "start": 174,
-          "end": 176,
+          "start": 185,
+          "end": 187,
           "conjugationType": "ハ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-34",
@@ -778,9 +852,10 @@
           "surface": "て",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 176,
-          "end": 177,
-          "particleQuestionType": "translation"
+          "start": 175,
+          "end": 176,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "particle-s1-35",
@@ -788,9 +863,10 @@
           "surface": "に",
           "answer": "格助詞（場所）",
           "explanation": "格助詞（場所）",
-          "start": 179,
-          "end": 180,
-          "particleQuestionType": "translation"
+          "start": 190,
+          "end": 191,
+          "particleQuestionType": "translation",
+          "sectionId": "s1"
         },
         {
           "id": "verb-s1-21",
@@ -798,19 +874,30 @@
           "surface": "居り",
           "answer": "ラ行変格活用・終止形",
           "explanation": "ラ行変格活用・終止形",
-          "start": 180,
-          "end": 182,
+          "start": 191,
+          "end": 193,
           "conjugationType": "ラ行変格活用",
-          "formInText": "終止形"
-        },
+          "formInText": "終止形",
+          "sectionId": "s1"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "title": "第二段",
+      "text": "はや夜も明けなむと思ひつつ居たりけるに、\n鬼はや一口に食ひてけり。\n「あなや。」と言ひけれど、\n神鳴る騒ぎにえ聞かざりけり。\nやうやう夜も明けゆくに、\n見れば、率て来し女もなし。\n足ずりをして泣けどもかひなし。\n　白玉か何ぞと人の問ひしとき\n　露と答へて消えなましものを",
+      "modern": "早く夜が明けてほしいと思いながら座っていたところ、（その間に）鬼が（女を）たちまち一口で食ってしまった。（女は）「あれぇ。」と言ったが、雷が鳴る騒がしさに（男は女の悲鳴を）聞くことができなかった。だんだん夜も明けていくので、（蔵の中を）見ると、連れてきた女はいない。（男は）地だんだを踏んでくやしがって泣くけれどもどうしようもない。\n「（あれは）真珠かしら、何かしら。」とあの人が尋ねたとき、「露だよ。」と答えて、（露と同じように私も）消えてしまえばよかったのに。（そうしたらこんな悲しみもなかったであろうに。）",
+      "notes": "",
+      "targets": [
         {
           "id": "vocab-s1-5",
           "type": "vocab",
           "surface": "はや",
           "answer": "副詞",
           "explanation": "副詞",
-          "start": 185,
-          "end": 187
+          "start": 0,
+          "end": 2,
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-36",
@@ -818,9 +905,10 @@
           "surface": "も",
           "answer": "係助詞（強意）",
           "explanation": "係助詞（強意）",
-          "start": 188,
-          "end": 189,
-          "particleQuestionType": "translation"
+          "start": 3,
+          "end": 4,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-22",
@@ -828,10 +916,11 @@
           "surface": "明け",
           "answer": "カ行下二段活用・未然形",
           "explanation": "カ行下二段活用・未然形",
-          "start": 189,
-          "end": 191,
+          "start": 4,
+          "end": 6,
           "conjugationType": "カ行下二段活用",
-          "formInText": "未然形"
+          "formInText": "未然形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-37",
@@ -839,9 +928,10 @@
           "surface": "なむ",
           "answer": "終助詞（願望）",
           "explanation": "終助詞（願望）",
-          "start": 191,
-          "end": 193,
-          "particleQuestionType": "translation"
+          "start": 6,
+          "end": 8,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-38",
@@ -849,9 +939,10 @@
           "surface": "と",
           "answer": "格助詞（引用）",
           "explanation": "格助詞（引用）",
-          "start": 193,
-          "end": 194,
-          "particleQuestionType": "translation"
+          "start": 8,
+          "end": 9,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-23",
@@ -859,10 +950,11 @@
           "surface": "思ひ",
           "answer": "ハ行四段活用・連用形",
           "explanation": "ハ行四段活用・連用形",
-          "start": 194,
-          "end": 196,
+          "start": 9,
+          "end": 11,
           "conjugationType": "ハ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-39",
@@ -870,9 +962,10 @@
           "surface": "つつ",
           "answer": "接続助詞（並行）",
           "explanation": "接続助詞（並行）",
-          "start": 196,
-          "end": 198,
-          "particleQuestionType": "translation"
+          "start": 11,
+          "end": 13,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-24",
@@ -880,10 +973,11 @@
           "surface": "居",
           "answer": "ワ行上一段活用・連用形",
           "explanation": "ワ行上一段活用・連用形",
-          "start": 198,
-          "end": 199,
+          "start": 13,
+          "end": 14,
           "conjugationType": "ワ行上一段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s2"
         },
         {
           "id": "aux-s1-13",
@@ -891,9 +985,10 @@
           "surface": "たり",
           "answer": "存続の助動詞・連用形",
           "explanation": "存続の助動詞・連用形",
-          "start": 199,
-          "end": 201,
-          "formInText": "連用形"
+          "start": 14,
+          "end": 16,
+          "formInText": "連用形",
+          "sectionId": "s2"
         },
         {
           "id": "aux-s1-14",
@@ -901,9 +996,10 @@
           "surface": "ける",
           "answer": "過去の助動詞・連体形",
           "explanation": "過去の助動詞・連体形",
-          "start": 201,
-          "end": 203,
-          "formInText": "連体形"
+          "start": 16,
+          "end": 18,
+          "formInText": "連体形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-40",
@@ -911,9 +1007,10 @@
           "surface": "に",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 203,
-          "end": 204,
-          "particleQuestionType": "translation"
+          "start": 18,
+          "end": 19,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "vocab-s1-6",
@@ -921,8 +1018,9 @@
           "surface": "はや",
           "answer": "副詞",
           "explanation": "副詞",
-          "start": 206,
-          "end": 208
+          "start": 22,
+          "end": 24,
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-41",
@@ -930,9 +1028,10 @@
           "surface": "に",
           "answer": "格助詞（手段）",
           "explanation": "格助詞（手段）",
-          "start": 210,
-          "end": 211,
-          "particleQuestionType": "translation"
+          "start": 26,
+          "end": 27,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-25",
@@ -940,10 +1039,11 @@
           "surface": "食ひ",
           "answer": "ハ行四段活用・連用形",
           "explanation": "ハ行四段活用・連用形",
-          "start": 211,
-          "end": 213,
+          "start": 27,
+          "end": 29,
           "conjugationType": "ハ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s2"
         },
         {
           "id": "aux-s1-15",
@@ -951,9 +1051,10 @@
           "surface": "て",
           "answer": "完了の助動詞・連用形",
           "explanation": "完了の助動詞・連用形",
-          "start": 213,
-          "end": 214,
-          "formInText": "連用形"
+          "start": 29,
+          "end": 30,
+          "formInText": "連用形",
+          "sectionId": "s2"
         },
         {
           "id": "aux-s1-16",
@@ -961,9 +1062,10 @@
           "surface": "けり",
           "answer": "過去の助動詞・終止形",
           "explanation": "過去の助動詞・終止形",
-          "start": 214,
-          "end": 216,
-          "formInText": "終止形"
+          "start": 30,
+          "end": 32,
+          "formInText": "終止形",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-26",
@@ -971,10 +1073,11 @@
           "surface": "あな",
           "answer": "感動詞",
           "explanation": "感動詞",
-          "start": 218,
-          "end": 220,
+          "start": 35,
+          "end": 37,
           "conjugationType": "",
-          "formInText": "感動詞"
+          "formInText": "感動詞",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-42",
@@ -982,9 +1085,10 @@
           "surface": "や",
           "answer": "間投助詞（詠嘆）",
           "explanation": "間投助詞（詠嘆）",
-          "start": 220,
-          "end": 221,
-          "particleQuestionType": "translation"
+          "start": 1,
+          "end": 2,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-43",
@@ -992,9 +1096,10 @@
           "surface": "と",
           "answer": "格助詞（引用）",
           "explanation": "格助詞（引用）",
-          "start": 223,
-          "end": 224,
-          "particleQuestionType": "translation"
+          "start": 40,
+          "end": 41,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-27",
@@ -1002,10 +1107,11 @@
           "surface": "言ひ",
           "answer": "ハ行四段活用・連用形",
           "explanation": "ハ行四段活用・連用形",
-          "start": 224,
-          "end": 226,
+          "start": 41,
+          "end": 43,
           "conjugationType": "ハ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s2"
         },
         {
           "id": "aux-s1-17",
@@ -1013,9 +1119,10 @@
           "surface": "けれ",
           "answer": "過去の助動詞・已然形",
           "explanation": "過去の助動詞・已然形",
-          "start": 226,
-          "end": 228,
-          "formInText": "已然形"
+          "start": 43,
+          "end": 45,
+          "formInText": "已然形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-44",
@@ -1023,9 +1130,10 @@
           "surface": "ど",
           "answer": "接続助詞（逆確）",
           "explanation": "接続助詞（逆確）",
-          "start": 228,
-          "end": 229,
-          "particleQuestionType": "translation"
+          "start": 45,
+          "end": 46,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-28",
@@ -1033,10 +1141,11 @@
           "surface": "鳴る",
           "answer": "ラ行四段活用・連体形",
           "explanation": "ラ行四段活用・連体形",
-          "start": 231,
-          "end": 233,
+          "start": 49,
+          "end": 51,
           "conjugationType": "ラ行四段活用",
-          "formInText": "連体形"
+          "formInText": "連体形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-45",
@@ -1044,9 +1153,10 @@
           "surface": "に",
           "answer": "格助詞（原因）",
           "explanation": "格助詞（原因）",
-          "start": 235,
-          "end": 236,
-          "particleQuestionType": "translation"
+          "start": 53,
+          "end": 54,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "vocab-s1-7",
@@ -1054,8 +1164,9 @@
           "surface": "え",
           "answer": "副詞",
           "explanation": "副詞",
-          "start": 236,
-          "end": 237
+          "start": 54,
+          "end": 55,
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-29",
@@ -1063,10 +1174,11 @@
           "surface": "聞か",
           "answer": "カ行四段活用・未然形",
           "explanation": "カ行四段活用・未然形",
-          "start": 237,
-          "end": 239,
+          "start": 55,
+          "end": 57,
           "conjugationType": "カ行四段活用",
-          "formInText": "未然形"
+          "formInText": "未然形",
+          "sectionId": "s2"
         },
         {
           "id": "aux-s1-18",
@@ -1074,9 +1186,10 @@
           "surface": "ざり",
           "answer": "打消の助動詞・連用形",
           "explanation": "打消の助動詞・連用形",
-          "start": 239,
-          "end": 241,
-          "formInText": "連用形"
+          "start": 57,
+          "end": 59,
+          "formInText": "連用形",
+          "sectionId": "s2"
         },
         {
           "id": "aux-s1-19",
@@ -1084,9 +1197,10 @@
           "surface": "けり",
           "answer": "過去の助動詞・終止形",
           "explanation": "過去の助動詞・終止形",
-          "start": 241,
-          "end": 243,
-          "formInText": "終止形"
+          "start": 59,
+          "end": 61,
+          "formInText": "終止形",
+          "sectionId": "s2"
         },
         {
           "id": "vocab-s1-8",
@@ -1094,8 +1208,9 @@
           "surface": "やうやう",
           "answer": "副詞",
           "explanation": "副詞",
-          "start": 244,
-          "end": 248
+          "start": 63,
+          "end": 67,
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-46",
@@ -1103,9 +1218,10 @@
           "surface": "も",
           "answer": "係助詞（強意）",
           "explanation": "係助詞（強意）",
-          "start": 249,
-          "end": 250,
-          "particleQuestionType": "translation"
+          "start": 68,
+          "end": 69,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-30",
@@ -1113,10 +1229,11 @@
           "surface": "明けゆく",
           "answer": "カ行四段活用・連体形",
           "explanation": "カ行四段活用・連体形",
-          "start": 250,
-          "end": 254,
+          "start": 69,
+          "end": 73,
           "conjugationType": "カ行四段活用",
-          "formInText": "連体形"
+          "formInText": "連体形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-47",
@@ -1124,9 +1241,10 @@
           "surface": "に",
           "answer": "接続助詞（順確）",
           "explanation": "接続助詞（順確）",
-          "start": 254,
-          "end": 255,
-          "particleQuestionType": "translation"
+          "start": 73,
+          "end": 74,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-31",
@@ -1134,10 +1252,11 @@
           "surface": "見れ",
           "answer": "マ行上一段活用・已然形",
           "explanation": "マ行上一段活用・已然形",
-          "start": 256,
-          "end": 258,
+          "start": 76,
+          "end": 78,
           "conjugationType": "マ行上一段活用",
-          "formInText": "已然形"
+          "formInText": "已然形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-48",
@@ -1145,9 +1264,10 @@
           "surface": "ば",
           "answer": "接続助詞（順確偶然）",
           "explanation": "接続助詞（順確偶然）",
-          "start": 258,
-          "end": 259,
-          "particleQuestionType": "translation"
+          "start": 78,
+          "end": 79,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-32",
@@ -1155,10 +1275,11 @@
           "surface": "率",
           "answer": "ワ行上一段活用・連用形",
           "explanation": "ワ行上一段活用・連用形",
-          "start": 260,
-          "end": 261,
+          "start": 80,
+          "end": 81,
           "conjugationType": "ワ行上一段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-49",
@@ -1166,9 +1287,10 @@
           "surface": "て",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 261,
-          "end": 262,
-          "particleQuestionType": "translation"
+          "start": 81,
+          "end": 82,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-33",
@@ -1176,10 +1298,11 @@
           "surface": "来",
           "answer": "カ行変格活用・未然形",
           "explanation": "カ行変格活用・未然形",
-          "start": 262,
-          "end": 263,
+          "start": 82,
+          "end": 83,
           "conjugationType": "カ行変格活用",
-          "formInText": "未然形"
+          "formInText": "未然形",
+          "sectionId": "s2"
         },
         {
           "id": "aux-s1-20",
@@ -1187,9 +1310,10 @@
           "surface": "し",
           "answer": "過去の助動詞・連体形",
           "explanation": "過去の助動詞・連体形",
-          "start": 263,
-          "end": 264,
-          "formInText": "連体形"
+          "start": 83,
+          "end": 84,
+          "formInText": "連体形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-50",
@@ -1197,9 +1321,10 @@
           "surface": "も",
           "answer": "係助詞（強意）",
           "explanation": "係助詞（強意）",
-          "start": 265,
-          "end": 266,
-          "particleQuestionType": "translation"
+          "start": 85,
+          "end": 86,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "adj-s1-6",
@@ -1207,10 +1332,11 @@
           "surface": "なし",
           "answer": "ク活用形容詞・終止形",
           "explanation": "ク活用形容詞・終止形",
-          "start": 266,
-          "end": 268,
+          "start": 86,
+          "end": 88,
           "conjugationType": "ク活用形容詞",
-          "formInText": "終止形"
+          "formInText": "終止形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-51",
@@ -1218,9 +1344,10 @@
           "surface": "を",
           "answer": "格助詞（対象）",
           "explanation": "格助詞（対象）",
-          "start": 272,
-          "end": 273,
-          "particleQuestionType": "translation"
+          "start": 93,
+          "end": 94,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-34",
@@ -1228,10 +1355,11 @@
           "surface": "し",
           "answer": "サ行変格活用・連用形",
           "explanation": "サ行変格活用・連用形",
-          "start": 273,
-          "end": 274,
+          "start": 87,
+          "end": 88,
           "conjugationType": "サ行変格活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-52",
@@ -1239,9 +1367,10 @@
           "surface": "て",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 274,
-          "end": 275,
-          "particleQuestionType": "translation"
+          "start": 95,
+          "end": 96,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-35",
@@ -1249,10 +1378,11 @@
           "surface": "泣け",
           "answer": "カ行四段活用・已然形",
           "explanation": "カ行四段活用・已然形",
-          "start": 275,
-          "end": 277,
+          "start": 96,
+          "end": 98,
           "conjugationType": "カ行四段活用",
-          "formInText": "已然形"
+          "formInText": "已然形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-53",
@@ -1260,9 +1390,10 @@
           "surface": "ども",
           "answer": "接続助詞（逆確）",
           "explanation": "接続助詞（逆確）",
-          "start": 277,
-          "end": 279,
-          "particleQuestionType": "translation"
+          "start": 98,
+          "end": 100,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "adj-s1-7",
@@ -1270,10 +1401,11 @@
           "surface": "かひなし",
           "answer": "ク活用形容詞・終止形",
           "explanation": "ク活用形容詞・終止形",
-          "start": 279,
-          "end": 283,
+          "start": 100,
+          "end": 104,
           "conjugationType": "ク活用形容詞",
-          "formInText": "終止形"
+          "formInText": "終止形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-54",
@@ -1281,9 +1413,10 @@
           "surface": "か",
           "answer": "係助詞（疑問）",
           "explanation": "係助詞（疑問）",
-          "start": 289,
-          "end": 290,
-          "particleQuestionType": "translation"
+          "start": 56,
+          "end": 57,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-55",
@@ -1291,9 +1424,10 @@
           "surface": "ぞ",
           "answer": "係助詞（強意）",
           "explanation": "係助詞（強意）",
-          "start": 291,
-          "end": 292,
-          "particleQuestionType": "translation"
+          "start": 111,
+          "end": 112,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-56",
@@ -1301,9 +1435,10 @@
           "surface": "と",
           "answer": "格助詞（引用）",
           "explanation": "格助詞（引用）",
-          "start": 292,
-          "end": 293,
-          "particleQuestionType": "translation"
+          "start": 112,
+          "end": 113,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-57",
@@ -1311,9 +1446,10 @@
           "surface": "の",
           "answer": "格助詞（主格）",
           "explanation": "格助詞（主格）",
-          "start": 294,
-          "end": 295,
-          "particleQuestionType": "translation"
+          "start": 114,
+          "end": 115,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-36",
@@ -1321,10 +1457,11 @@
           "surface": "問ひ",
           "answer": "ハ行四段活用・連用形",
           "explanation": "ハ行四段活用・連用形",
-          "start": 295,
-          "end": 297,
+          "start": 115,
+          "end": 117,
           "conjugationType": "ハ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s2"
         },
         {
           "id": "aux-s1-21",
@@ -1332,9 +1469,10 @@
           "surface": "し",
           "answer": "過去の助動詞・連体形",
           "explanation": "過去の助動詞・連体形",
-          "start": 297,
-          "end": 298,
-          "formInText": "連体形"
+          "start": 94,
+          "end": 95,
+          "formInText": "連体形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-58",
@@ -1342,9 +1480,10 @@
           "surface": "と",
           "answer": "格助詞（引用）",
           "explanation": "格助詞（引用）",
-          "start": 298,
-          "end": 299,
-          "particleQuestionType": "translation"
+          "start": 118,
+          "end": 119,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-37",
@@ -1352,10 +1491,11 @@
           "surface": "答へ",
           "answer": "ハ行下二段活用・連用形",
           "explanation": "ハ行下二段活用・連用形",
-          "start": 302,
-          "end": 304,
+          "start": 124,
+          "end": 126,
           "conjugationType": "ハ行下二段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-59",
@@ -1363,9 +1503,10 @@
           "surface": "て",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 304,
-          "end": 305,
-          "particleQuestionType": "translation"
+          "start": 126,
+          "end": 127,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
         },
         {
           "id": "verb-s1-38",
@@ -1373,10 +1514,11 @@
           "surface": "消え",
           "answer": "ヤ行下二段活用・連用形",
           "explanation": "ヤ行下二段活用・連用形",
-          "start": 305,
-          "end": 307,
+          "start": 127,
+          "end": 129,
           "conjugationType": "ヤ行下二段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s2"
         },
         {
           "id": "aux-s1-22",
@@ -1384,9 +1526,10 @@
           "surface": "な",
           "answer": "強意の助動詞・未然形",
           "explanation": "強意の助動詞・未然形",
-          "start": 307,
-          "end": 308,
-          "formInText": "未然形"
+          "start": 6,
+          "end": 7,
+          "formInText": "未然形",
+          "sectionId": "s2"
         },
         {
           "id": "aux-s1-23",
@@ -1394,9 +1537,10 @@
           "surface": "まし",
           "answer": "実現不可能な希望の助動詞・連体形",
           "explanation": "実現不可能な希望の助動詞・連体形",
-          "start": 308,
-          "end": 310,
-          "formInText": "連体形"
+          "start": 130,
+          "end": 132,
+          "formInText": "連体形",
+          "sectionId": "s2"
         },
         {
           "id": "particle-s1-60",
@@ -1404,19 +1548,30 @@
           "surface": "ものを",
           "answer": "接続助詞（詠嘆）",
           "explanation": "接続助詞（詠嘆）",
-          "start": 310,
-          "end": 313,
-          "particleQuestionType": "translation"
-        },
+          "start": 132,
+          "end": 135,
+          "particleQuestionType": "translation",
+          "sectionId": "s2"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "title": "第三段",
+      "text": "これは、二条の后の、いとこの女御の御もとに、\n仕うまつるやうにて居たまへりけるを、\nかたちのいとめでたくおはしければ、\n盗みて負ひて出でたりけるを、\n御兄人堀河の大臣、太郎国経の大納言、\nまだ下﨟にて内裏へ参りたまふに、\nいみじう泣く人あるを聞きつけて、\nとどめて取り返したまうてけり。\nそれを、かく鬼とは言ふなりけり。\nまだいと若うて、后のただにおはしけるときとや。",
+      "modern": "この話は、二条の后が、いとこの女御のおそばに、（女房として）お仕え申し上げるようなかたちでおいでになっていたが、（后は）容貌がとても美しくていらっしゃったので、（男が）盗み出して背負って出ていったところ、（后の）兄上である、堀河大臣基経と、ご長男の国経大納言が、まだ官位も低い者であって、参内なさるときに、ひどく泣く人がいるのを聞きつけて、引きとどめて取り返しなさった。それを、このように鬼と言うのであった。（后が）まだとても若く、后が入内なさる以前のことだったということだ。",
+      "notes": "",
+      "targets": [
         {
           "id": "particle-s1-61",
           "type": "particle",
           "surface": "は",
           "answer": "係助詞（区別）",
           "explanation": "係助詞（区別）",
-          "start": 317,
-          "end": 318,
-          "particleQuestionType": "translation"
+          "start": 2,
+          "end": 3,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-62",
@@ -1424,9 +1579,10 @@
           "surface": "の",
           "answer": "格助詞（主格）",
           "explanation": "格助詞（主格）",
-          "start": 321,
-          "end": 322,
-          "particleQuestionType": "translation"
+          "start": 6,
+          "end": 7,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-63",
@@ -1434,9 +1590,10 @@
           "surface": "の",
           "answer": "格助詞（連体）",
           "explanation": "格助詞（連体）",
-          "start": 323,
-          "end": 324,
-          "particleQuestionType": "translation"
+          "start": 8,
+          "end": 9,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-64",
@@ -1444,9 +1601,10 @@
           "surface": "の",
           "answer": "格助詞（連体）",
           "explanation": "格助詞（連体）",
-          "start": 328,
-          "end": 329,
-          "particleQuestionType": "translation"
+          "start": 13,
+          "end": 14,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-65",
@@ -1454,9 +1612,10 @@
           "surface": "に",
           "answer": "格助詞（場所）",
           "explanation": "格助詞（場所）",
-          "start": 335,
-          "end": 336,
-          "particleQuestionType": "translation"
+          "start": 20,
+          "end": 21,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-39",
@@ -1464,10 +1623,11 @@
           "surface": "仕うまつる",
           "answer": "ラ行四段活用・連体形・謙譲",
           "explanation": "ラ行四段活用・連体形・謙譲",
-          "start": 337,
-          "end": 342,
+          "start": 23,
+          "end": 28,
           "conjugationType": "ラ行四段活用",
-          "formInText": "謙譲"
+          "formInText": "謙譲",
+          "sectionId": "s3"
         },
         {
           "id": "aux-s1-24",
@@ -1475,9 +1635,10 @@
           "surface": "やうに",
           "answer": "比況の助動詞・連用形",
           "explanation": "比況の助動詞・連用形",
-          "start": 342,
-          "end": 345,
-          "formInText": "連用形"
+          "start": 28,
+          "end": 31,
+          "formInText": "連用形",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-66",
@@ -1485,9 +1646,10 @@
           "surface": "て",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 345,
-          "end": 346,
-          "particleQuestionType": "translation"
+          "start": 31,
+          "end": 32,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-40",
@@ -1495,10 +1657,11 @@
           "surface": "居",
           "answer": "ワ行上一段活用・連用形",
           "explanation": "ワ行上一段活用・連用形",
-          "start": 346,
-          "end": 347,
+          "start": 32,
+          "end": 33,
           "conjugationType": "ワ行上一段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-41",
@@ -1506,10 +1669,11 @@
           "surface": "たまへ",
           "answer": "ハ行四段活用・已然形・尊敬・補助",
           "explanation": "ハ行四段活用・已然形・尊敬・補助",
-          "start": 347,
-          "end": 350,
+          "start": 33,
+          "end": 36,
           "conjugationType": "ハ行四段活用",
-          "formInText": "補助"
+          "formInText": "補助",
+          "sectionId": "s3"
         },
         {
           "id": "aux-s1-25",
@@ -1517,9 +1681,10 @@
           "surface": "り",
           "answer": "存続の助動詞・連用形",
           "explanation": "存続の助動詞・連用形",
-          "start": 350,
-          "end": 351,
-          "formInText": "連用形"
+          "start": 36,
+          "end": 37,
+          "formInText": "連用形",
+          "sectionId": "s3"
         },
         {
           "id": "aux-s1-26",
@@ -1527,9 +1692,10 @@
           "surface": "ける",
           "answer": "過去の助動詞・連体形",
           "explanation": "過去の助動詞・連体形",
-          "start": 351,
-          "end": 353,
-          "formInText": "連体形"
+          "start": 37,
+          "end": 39,
+          "formInText": "連体形",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-67",
@@ -1537,9 +1703,10 @@
           "surface": "を",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 353,
-          "end": 354,
-          "particleQuestionType": "translation"
+          "start": 39,
+          "end": 40,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-68",
@@ -1547,9 +1714,10 @@
           "surface": "の",
           "answer": "格助詞（主格）",
           "explanation": "格助詞（主格）",
-          "start": 358,
-          "end": 359,
-          "particleQuestionType": "translation"
+          "start": 16,
+          "end": 17,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "vocab-s1-9",
@@ -1557,8 +1725,9 @@
           "surface": "いと",
           "answer": "副詞",
           "explanation": "副詞",
-          "start": 359,
-          "end": 361
+          "start": 10,
+          "end": 12,
+          "sectionId": "s3"
         },
         {
           "id": "adj-s1-8",
@@ -1566,10 +1735,11 @@
           "surface": "めでたく",
           "answer": "ク活用形容詞・連用形",
           "explanation": "ク活用形容詞・連用形",
-          "start": 361,
-          "end": 365,
+          "start": 48,
+          "end": 52,
           "conjugationType": "ク活用形容詞",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-42",
@@ -1577,10 +1747,11 @@
           "surface": "おはし",
           "answer": "サ行変格活用・連用形・尊敬・補助",
           "explanation": "サ行変格活用・連用形・尊敬・補助",
-          "start": 365,
-          "end": 368,
+          "start": 52,
+          "end": 55,
           "conjugationType": "サ行変格活用",
-          "formInText": "補助"
+          "formInText": "補助",
+          "sectionId": "s3"
         },
         {
           "id": "aux-s1-27",
@@ -1588,9 +1759,10 @@
           "surface": "けれ",
           "answer": "過去の助動詞・已然形",
           "explanation": "過去の助動詞・已然形",
-          "start": 368,
-          "end": 370,
-          "formInText": "已然形"
+          "start": 55,
+          "end": 57,
+          "formInText": "已然形",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-69",
@@ -1598,9 +1770,10 @@
           "surface": "ば",
           "answer": "接続助詞（順確原因）",
           "explanation": "接続助詞（順確原因）",
-          "start": 370,
-          "end": 371,
-          "particleQuestionType": "translation"
+          "start": 57,
+          "end": 58,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-43",
@@ -1608,10 +1781,11 @@
           "surface": "盗み",
           "answer": "マ行四段活用・連用形",
           "explanation": "マ行四段活用・連用形",
-          "start": 372,
-          "end": 374,
+          "start": 60,
+          "end": 62,
           "conjugationType": "マ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-70",
@@ -1619,9 +1793,10 @@
           "surface": "て",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 374,
-          "end": 375,
-          "particleQuestionType": "translation"
+          "start": 62,
+          "end": 63,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-44",
@@ -1629,10 +1804,11 @@
           "surface": "負ひ",
           "answer": "ハ行四段活用・連用形",
           "explanation": "ハ行四段活用・連用形",
-          "start": 375,
-          "end": 377,
+          "start": 63,
+          "end": 65,
           "conjugationType": "ハ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-71",
@@ -1640,9 +1816,10 @@
           "surface": "て",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 377,
-          "end": 378,
-          "particleQuestionType": "translation"
+          "start": 65,
+          "end": 66,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-45",
@@ -1650,10 +1827,11 @@
           "surface": "出で",
           "answer": "ダ行下二段活用・連用形",
           "explanation": "ダ行下二段活用・連用形",
-          "start": 378,
-          "end": 380,
+          "start": 66,
+          "end": 68,
           "conjugationType": "ダ行下二段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s3"
         },
         {
           "id": "aux-s1-28",
@@ -1661,9 +1839,10 @@
           "surface": "たり",
           "answer": "完了の助動詞・連用形",
           "explanation": "完了の助動詞・連用形",
-          "start": 380,
-          "end": 382,
-          "formInText": "連用形"
+          "start": 68,
+          "end": 70,
+          "formInText": "連用形",
+          "sectionId": "s3"
         },
         {
           "id": "aux-s1-29",
@@ -1671,9 +1850,10 @@
           "surface": "ける",
           "answer": "過去の助動詞・連体形",
           "explanation": "過去の助動詞・連体形",
-          "start": 382,
-          "end": 384,
-          "formInText": "連体形"
+          "start": 70,
+          "end": 72,
+          "formInText": "連体形",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-72",
@@ -1681,9 +1861,10 @@
           "surface": "を",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 384,
-          "end": 385,
-          "particleQuestionType": "translation"
+          "start": 72,
+          "end": 73,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "vocab-s1-10",
@@ -1691,8 +1872,9 @@
           "surface": "まだ",
           "answer": "副詞",
           "explanation": "副詞",
-          "start": 404,
-          "end": 406
+          "start": 94,
+          "end": 96,
+          "sectionId": "s3"
         },
         {
           "id": "aux-s1-30",
@@ -1700,9 +1882,10 @@
           "surface": "に",
           "answer": "断定の助動詞・連用形",
           "explanation": "断定の助動詞・連用形",
-          "start": 408,
-          "end": 409,
-          "formInText": "連用形"
+          "start": 30,
+          "end": 31,
+          "formInText": "連用形",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-73",
@@ -1710,9 +1893,10 @@
           "surface": "て",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 409,
-          "end": 410,
-          "particleQuestionType": "translation"
+          "start": 99,
+          "end": 100,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-74",
@@ -1720,9 +1904,10 @@
           "surface": "へ",
           "answer": "格助詞（方向）",
           "explanation": "格助詞（方向）",
-          "start": 412,
-          "end": 413,
-          "particleQuestionType": "translation"
+          "start": 35,
+          "end": 36,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-46",
@@ -1730,10 +1915,11 @@
           "surface": "参り",
           "answer": "ラ行四段活用・連用形・謙譲",
           "explanation": "ラ行四段活用・連用形・謙譲",
-          "start": 413,
-          "end": 415,
+          "start": 103,
+          "end": 105,
           "conjugationType": "ラ行四段活用",
-          "formInText": "謙譲"
+          "formInText": "謙譲",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-47",
@@ -1741,10 +1927,11 @@
           "surface": "たまふ",
           "answer": "ハ行四段活用・連体形・尊敬・補助",
           "explanation": "ハ行四段活用・連体形・尊敬・補助",
-          "start": 415,
-          "end": 418,
+          "start": 105,
+          "end": 108,
           "conjugationType": "ハ行四段活用",
-          "formInText": "補助"
+          "formInText": "補助",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-75",
@@ -1752,9 +1939,10 @@
           "surface": "に",
           "answer": "格助詞（時）",
           "explanation": "格助詞（時）",
-          "start": 418,
-          "end": 419,
-          "particleQuestionType": "translation"
+          "start": 98,
+          "end": 99,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "adj-s1-9",
@@ -1762,10 +1950,11 @@
           "surface": "いみじう",
           "answer": "シク活用形容詞・連用形・ウ音便",
           "explanation": "シク活用形容詞・連用形・ウ音便",
-          "start": 420,
-          "end": 424,
+          "start": 111,
+          "end": 115,
           "conjugationType": "シク活用形容詞",
-          "formInText": "ウ音便"
+          "formInText": "ウ音便",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-48",
@@ -1773,10 +1962,11 @@
           "surface": "泣く",
           "answer": "カ行四段活用・連体形",
           "explanation": "カ行四段活用・連体形",
-          "start": 424,
-          "end": 426,
+          "start": 115,
+          "end": 117,
           "conjugationType": "カ行四段活用",
-          "formInText": "連体形"
+          "formInText": "連体形",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-49",
@@ -1784,10 +1974,11 @@
           "surface": "ある",
           "answer": "ラ行変格活用・連体形",
           "explanation": "ラ行変格活用・連体形",
-          "start": 427,
-          "end": 429,
+          "start": 118,
+          "end": 120,
           "conjugationType": "ラ行変格活用",
-          "formInText": "連体形"
+          "formInText": "連体形",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-76",
@@ -1795,9 +1986,10 @@
           "surface": "を",
           "answer": "格助詞（対象）",
           "explanation": "格助詞（対象）",
-          "start": 429,
-          "end": 430,
-          "particleQuestionType": "translation"
+          "start": 120,
+          "end": 121,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-50",
@@ -1805,10 +1997,11 @@
           "surface": "聞きつけ",
           "answer": "カ行下二段活用・連用形",
           "explanation": "カ行下二段活用・連用形",
-          "start": 430,
-          "end": 434,
+          "start": 121,
+          "end": 125,
           "conjugationType": "カ行下二段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-77",
@@ -1816,9 +2009,10 @@
           "surface": "て",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 434,
-          "end": 435,
-          "particleQuestionType": "translation"
+          "start": 125,
+          "end": 126,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-51",
@@ -1826,10 +2020,11 @@
           "surface": "とどめ",
           "answer": "マ行下二段活用・連用形",
           "explanation": "マ行下二段活用・連用形",
-          "start": 436,
-          "end": 439,
+          "start": 128,
+          "end": 131,
           "conjugationType": "マ行下二段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-78",
@@ -1837,9 +2032,10 @@
           "surface": "て",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 439,
-          "end": 440,
-          "particleQuestionType": "translation"
+          "start": 131,
+          "end": 132,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-52",
@@ -1847,10 +2043,11 @@
           "surface": "取り返し",
           "answer": "サ行四段活用・連用形",
           "explanation": "サ行四段活用・連用形",
-          "start": 440,
-          "end": 444,
+          "start": 132,
+          "end": 136,
           "conjugationType": "サ行四段活用",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-53",
@@ -1858,10 +2055,11 @@
           "surface": "たまう",
           "answer": "ハ行四段活用・連用形・ウ音便・尊敬・補助",
           "explanation": "ハ行四段活用・連用形・ウ音便・尊敬・補助",
-          "start": 444,
-          "end": 447,
+          "start": 136,
+          "end": 139,
           "conjugationType": "ハ行四段活用",
-          "formInText": "補助"
+          "formInText": "補助",
+          "sectionId": "s3"
         },
         {
           "id": "aux-s1-31",
@@ -1869,9 +2067,10 @@
           "surface": "て",
           "answer": "完了の助動詞・連用形",
           "explanation": "完了の助動詞・連用形",
-          "start": 447,
-          "end": 448,
-          "formInText": "連用形"
+          "start": 139,
+          "end": 140,
+          "formInText": "連用形",
+          "sectionId": "s3"
         },
         {
           "id": "aux-s1-32",
@@ -1879,9 +2078,10 @@
           "surface": "けり",
           "answer": "過去の助動詞・終止形",
           "explanation": "過去の助動詞・終止形",
-          "start": 448,
-          "end": 450,
-          "formInText": "終止形"
+          "start": 140,
+          "end": 142,
+          "formInText": "終止形",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-79",
@@ -1889,9 +2089,10 @@
           "surface": "を",
           "answer": "格助詞（対象）",
           "explanation": "格助詞（対象）",
-          "start": 453,
-          "end": 454,
-          "particleQuestionType": "translation"
+          "start": 146,
+          "end": 147,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "vocab-s1-11",
@@ -1899,8 +2100,9 @@
           "surface": "かく",
           "answer": "副詞",
           "explanation": "副詞",
-          "start": 455,
-          "end": 457
+          "start": 148,
+          "end": 150,
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-80",
@@ -1908,9 +2110,10 @@
           "surface": "と",
           "answer": "格助詞（引用）",
           "explanation": "格助詞（引用）",
-          "start": 458,
-          "end": 459,
-          "particleQuestionType": "translation"
+          "start": 11,
+          "end": 12,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-81",
@@ -1918,9 +2121,10 @@
           "surface": "は",
           "answer": "係助詞（区別）",
           "explanation": "係助詞（区別）",
-          "start": 459,
-          "end": 460,
-          "particleQuestionType": "translation"
+          "start": 53,
+          "end": 54,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-54",
@@ -1928,10 +2132,11 @@
           "surface": "言ふ",
           "answer": "ハ行四段活用・連体形",
           "explanation": "ハ行四段活用・連体形",
-          "start": 460,
-          "end": 462,
+          "start": 153,
+          "end": 155,
           "conjugationType": "ハ行四段活用",
-          "formInText": "連体形"
+          "formInText": "連体形",
+          "sectionId": "s3"
         },
         {
           "id": "aux-s1-33",
@@ -1939,9 +2144,10 @@
           "surface": "なり",
           "answer": "断定の助動詞・連用形",
           "explanation": "断定の助動詞・連用形",
-          "start": 462,
-          "end": 464,
-          "formInText": "連用形"
+          "start": 155,
+          "end": 157,
+          "formInText": "連用形",
+          "sectionId": "s3"
         },
         {
           "id": "aux-s1-34",
@@ -1949,9 +2155,10 @@
           "surface": "けり",
           "answer": "過去の助動詞・終止形",
           "explanation": "過去の助動詞・終止形",
-          "start": 464,
-          "end": 466,
-          "formInText": "終止形"
+          "start": 157,
+          "end": 159,
+          "formInText": "終止形",
+          "sectionId": "s3"
         },
         {
           "id": "vocab-s1-12",
@@ -1959,8 +2166,9 @@
           "surface": "まだ",
           "answer": "副詞",
           "explanation": "副詞",
-          "start": 467,
-          "end": 469
+          "start": 161,
+          "end": 163,
+          "sectionId": "s3"
         },
         {
           "id": "vocab-s1-13",
@@ -1968,8 +2176,9 @@
           "surface": "いと",
           "answer": "副詞",
           "explanation": "副詞",
-          "start": 469,
-          "end": 471
+          "start": 46,
+          "end": 48,
+          "sectionId": "s3"
         },
         {
           "id": "adj-s1-10",
@@ -1977,10 +2186,11 @@
           "surface": "若う",
           "answer": "ク活用形容詞・連用形・ウ音便",
           "explanation": "ク活用形容詞・連用形・ウ音便",
-          "start": 471,
-          "end": 473,
+          "start": 165,
+          "end": 167,
           "conjugationType": "ク活用形容詞",
-          "formInText": "ウ音便"
+          "formInText": "ウ音便",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-82",
@@ -1988,9 +2198,10 @@
           "surface": "て",
           "answer": "接続助詞（単純）",
           "explanation": "接続助詞（単純）",
-          "start": 473,
-          "end": 474,
-          "particleQuestionType": "translation"
+          "start": 167,
+          "end": 168,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "particle-s1-83",
@@ -1998,9 +2209,10 @@
           "surface": "の",
           "answer": "格助詞（主格）",
           "explanation": "格助詞（主格）",
-          "start": 476,
-          "end": 477,
-          "particleQuestionType": "translation"
+          "start": 45,
+          "end": 46,
+          "particleQuestionType": "translation",
+          "sectionId": "s3"
         },
         {
           "id": "adj-s1-11",
@@ -2008,10 +2220,11 @@
           "surface": "ただに",
           "answer": "ナリ活用形容動詞・連用形",
           "explanation": "ナリ活用形容動詞・連用形",
-          "start": 477,
-          "end": 480,
+          "start": 171,
+          "end": 174,
           "conjugationType": "ナリ活用形容動詞",
-          "formInText": "連用形"
+          "formInText": "連用形",
+          "sectionId": "s3"
         },
         {
           "id": "verb-s1-55",
@@ -2019,10 +2232,11 @@
           "surface": "おはし",
           "answer": "サ行変格活用・連用形・尊敬・補助",
           "explanation": "サ行変格活用・連用形・尊敬・補助",
-          "start": 480,
-          "end": 483,
+          "start": 174,
+          "end": 177,
           "conjugationType": "サ行変格活用",
-          "formInText": "補助"
+          "formInText": "補助",
+          "sectionId": "s3"
         },
         {
           "id": "aux-s1-35",
@@ -2030,9 +2244,10 @@
           "surface": "ける",
           "answer": "過去の助動詞・連体形",
           "explanation": "過去の助動詞・連体形",
-          "start": 483,
-          "end": 485,
-          "formInText": "連体形"
+          "start": 177,
+          "end": 179,
+          "formInText": "連体形",
+          "sectionId": "s3"
         },
         {
           "id": "vocab-s1-14",
@@ -2040,19 +2255,21 @@
           "surface": "とや",
           "answer": "連語",
           "explanation": "連語",
-          "start": 487,
-          "end": 489
+          "start": 181,
+          "end": 183,
+          "sectionId": "s3"
         },
         {
           "id": "vocab-s1-15",
           "type": "vocab",
-          "surface": "めでたし",
-          "pos": "形容詞",
-          "conjugationType": "ク",
-          "meaning": "すばらしい",
-          "detail": "（省略可）",
-          "answer": "すばらしい",
-          "explanation": "（省略可）"
+          "surface": "????",
+          "sectionId": "s3",
+          "pos": "???",
+          "conjugationType": "?",
+          "meaning": "?????",
+          "detail": "???????????????????",
+          "answer": "?????",
+          "explanation": "???????????????????"
         }
       ]
     }
@@ -2184,7 +2401,7 @@
       "title": "現代語訳③",
       "question": "「はや夜も明けなむ」を現代語訳せよ。",
       "targetText": "はや夜も明けなむ",
-      "sectionId": "s1",
+      "sectionId": "s2",
       "answer": "早く夜が明けてほしい。",
       "explanation": ""
     },
@@ -2194,7 +2411,7 @@
       "title": "現代語訳④",
       "question": "「え聞かざりけり」を主語、目的語を補って現代語訳せよ。",
       "targetText": "え聞かざりけり",
-      "sectionId": "s1",
+      "sectionId": "s2",
       "answer": "男は女の悲鳴を聞くことができなかった。",
       "explanation": ""
     },
@@ -2204,7 +2421,7 @@
       "local": true,
       "title": "内容読解⑫",
       "question": "「白玉か…」の和歌に用いられている修辞は何か。（短答・AI採点なし）",
-      "sectionId": "s1",
+      "sectionId": "s2",
       "answer": "縁語",
       "explanation": ""
     },
@@ -2214,7 +2431,7 @@
       "title": "現代語訳⑤",
       "question": "「かたちのいとめでたくおはしければ」を現代語訳せよ。",
       "targetText": "かたちのいとめでたくおはしければ",
-      "sectionId": "s1",
+      "sectionId": "s3",
       "answer": "容貌がとても美しくていらっしゃったので",
       "explanation": ""
     },
@@ -2223,7 +2440,7 @@
       "type": "content",
       "title": "内容読解⑬",
       "question": "備考の絵巻の中で、本文の描写と異なる描かれ方をしている場面はどこか。",
-      "sectionId": "s1",
+      "sectionId": "s2",
       "answer": "絵巻左の、鬼に食われる女を見て男が足ずりをしている場面。",
       "explanation": ""
     },
@@ -2243,7 +2460,7 @@
       "title": "現代語訳⑦",
       "question": "第二段落で語られている事の顚末を説明せよ。",
       "targetText": "第二段落で語られている事の顚末",
-      "sectionId": "s1",
+      "sectionId": "s3",
       "answer": "男は、「いとこの女御」のもとにいた藤原高子（後の二条の后）を盗み出したが、高子の兄たちが取り返した。",
       "explanation": ""
     },
@@ -2253,7 +2470,7 @@
       "title": "現代語訳⑧",
       "question": "「足ずりをして」とあるが、ここから男のどのような心情が読み取れるか。",
       "targetText": "足ずりをして",
-      "sectionId": "s1",
+      "sectionId": "s2",
       "answer": "女を失った悲しみ。鬼の棲む蔵に女を入れてしまったことへの後悔。不本意な現実をどうすることもできないもどかしさ。",
       "explanation": ""
     }
@@ -2262,8 +2479,25 @@
   "lessonViewSections": {
     "s1": {
       "section": {
-        "text": "昔、男ありけり。女のえ得まじかりけるを、年を経てよばひわたりけるを、からうじて盗み出でて、いと暗きに来けり。芥川といふ川を率て行きければ、草の上に置きたりける露を、「かれは何ぞ。」となむ男に問ひける。行く先多く、夜も更けにければ、鬼ある所とも知らで、神さへいといみじう鳴り、雨もいたう降りければ、あばらなる蔵に、女をば奥に押し入れて、男、弓・胡籙を負ひて戸口に居り。\n　はや夜も明けなむと思ひつつ居たりけるに、鬼はや一口に食ひてけり。「あなや。」と言ひけれど、神鳴る騒ぎにえ聞かざりけり。やうやう夜も明けゆくに、見れば、率て来し女もなし。足ずりをして泣けどもかひなし。\n　　白玉か何ぞと人の問ひしとき露と答へて消えなましものを\n　これは、二条の后の、いとこの女御の御もとに、仕うまつるやうにて居たまへりけるを、かたちのいとめでたくおはしければ、盗みて負ひて出でたりけるを、御兄人堀河の大臣、太郎国経の大納言、まだ下﨟にて内裏へ参りたまふに、いみじう泣く人あるを聞きつけて、とどめて取り返したまうてけり。それを、かく鬼とは言ふなりけり。まだいと若うて、后のただにおはしけるときとや。（第六段）",
-        "modern": "昔、男がいた。女で手に入れることができそうになかった女を、長年にわたって求婚し続けていたが、やっとのことで盗み出して、とても暗いときに逃げて来た。芥川という川（のほとり）を（女を）連れて行ったところ、草の上に降りていた夜露を、「あれは何ですか。」と（女は）男に尋ねた。行く先が遠く、夜も更けてしまったので、鬼が棲むところとも知らないで、そのうえ雷までもたいそうひどく鳴り、雨も激しく降ったので、荒れてがらんとした蔵に、女を奥の方に押し入れて、男は、弓・胡籙を背負って戸口にいる。\n早く夜が明けてほしいと思いながら座っていたところ、（その間に）鬼が（女を）たちまち一口で食ってしまった。（女は）「あれぇ。」と言ったが、雷が鳴る騒がしさに（男は女の悲鳴を）聞くことができなかった。だんだん夜も明けていくので、（蔵の中を）見ると、連れてきた女はいない。（男は）地だんだを踏んでくやしがって泣くけれどもどうしようもない。\n「（あれは）真珠かしら、何かしら。」とあの人が尋ねたとき、「露だよ。」と答えて、（露と同じように私も）消えてしまえばよかったのに。（そうしたらこんな悲しみもなかったであろうに。）\n　この話は、二条の后が、いとこの女御のおそばに、（女房として）お仕え申し上げるようなかたちでおいでになっていたが、（后は）容貌がとても美しくていらっしゃったので、（男が）盗み出して背負って出ていったところ、（后の）兄上である、堀河大臣基経と、ご長男の国経大納言が、まだ官位も低い者であって、参内なさるときに、ひどく泣く人がいるのを聞きつけて、引きとどめて取り返しなさった。それを、このように鬼と言うのであった。（后が）まだとても若く、后が入内なさる以前のことだったということだ。"
+        "text": "昔、男ありけり。女のえ得まじかりけるを、\n年を経てよばひわたりけるを、からうじて\n盗み出でて、いと暗きに来けり。\n芥川といふ川を率て行きければ、\n草の上に置きたりける露を、\n「かれは何ぞ。」となむ男に問ひける。\n行く先多く、夜も更けにければ、\n鬼ある所とも知らで、\n神さへいといみじう鳴り、\n雨もいたう降りければ、\nあばらなる蔵に、女をば奥に押し入れて、\n男、弓・胡籙を負ひて戸口に居り。",
+        "modern": "昔、男がいた。女で手に入れることができそうになかった女を、長年にわたって求婚し続けていたが、やっとのことで盗み出して、とても暗いときに逃げて来た。芥川という川（のほとり）を（女を）連れて行ったところ、草の上に降りていた夜露を、「あれは何ですか。」と（女は）男に尋ねた。行く先が遠く、夜も更けてしまったので、鬼が棲むところとも知らないで、そのうえ雷までもたいそうひどく鳴り、雨も激しく降ったので、荒れてがらんとした蔵に、女を奥の方に押し入れて、男は、弓・胡籙を背負って戸口にいる。",
+        "kundoku": ""
+      },
+      "published": true
+    },
+    "s2": {
+      "section": {
+        "text": "はや夜も明けなむと思ひつつ居たりけるに、\n鬼はや一口に食ひてけり。\n「あなや。」と言ひけれど、\n神鳴る騒ぎにえ聞かざりけり。\nやうやう夜も明けゆくに、\n見れば、率て来し女もなし。\n足ずりをして泣けどもかひなし。\n　白玉か何ぞと人の問ひしとき\n　露と答へて消えなましものを",
+        "modern": "早く夜が明けてほしいと思いながら座っていたところ、（その間に）鬼が（女を）たちまち一口で食ってしまった。（女は）「あれぇ。」と言ったが、雷が鳴る騒がしさに（男は女の悲鳴を）聞くことができなかった。だんだん夜も明けていくので、（蔵の中を）見ると、連れてきた女はいない。（男は）地だんだを踏んでくやしがって泣くけれどもどうしようもない。\n「（あれは）真珠かしら、何かしら。」とあの人が尋ねたとき、「露だよ。」と答えて、（露と同じように私も）消えてしまえばよかったのに。（そうしたらこんな悲しみもなかったであろうに。）",
+        "kundoku": ""
+      },
+      "published": true
+    },
+    "s3": {
+      "section": {
+        "text": "これは、二条の后の、いとこの女御の御もとに、\n仕うまつるやうにて居たまへりけるを、\nかたちのいとめでたくおはしければ、\n盗みて負ひて出でたりけるを、\n御兄人堀河の大臣、太郎国経の大納言、\nまだ下﨟にて内裏へ参りたまふに、\nいみじう泣く人あるを聞きつけて、\nとどめて取り返したまうてけり。\nそれを、かく鬼とは言ふなりけり。\nまだいと若うて、后のただにおはしけるときとや。",
+        "modern": "この話は、二条の后が、いとこの女御のおそばに、（女房として）お仕え申し上げるようなかたちでおいでになっていたが、（后は）容貌がとても美しくていらっしゃったので、（男が）盗み出して背負って出ていったところ、（后の）兄上である、堀河大臣基経と、ご長男の国経大納言が、まだ官位も低い者であって、参内なさるときに、ひどく泣く人がいるのを聞きつけて、引きとどめて取り返しなさった。それを、このように鬼と言うのであった。（后が）まだとても若く、后が入内なさる以前のことだったということだ。",
+        "kundoku": ""
       },
       "published": true
     }
