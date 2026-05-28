@@ -1965,7 +1965,6 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
   const [maskRules, setMaskRules] = useState([]);
   const [revealedMasks, setRevealedMasks] = useState(() => new Set());
   const [maskActive, setMaskActive] = useState(false);
-  const [controlsOpen, setControlsOpen] = useState(false);
   const [slideIndex, setSlideIndex] = useState(0);
   const pairsPerSlide = isKanbunTextbook ? 4 : 5;
 
@@ -2069,14 +2068,38 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
 
   return (
     <div className="lesson-view-mode">
-      <button
-        type="button"
-        className={`lesson-view-controls-toggle${controlsOpen ? ' is-open' : ''}`}
-        onClick={() => setControlsOpen(value => !value)}
-        aria-label={controlsOpen ? '\u64cd\u4f5c\u3092\u9589\u3058\u308b' : '\u64cd\u4f5c\u3092\u958b\u304f'}
-      >
-        ^
-      </button>
+      <div className="lesson-view-side-controls">
+        {slides.length > 1 && (
+          <div className="lesson-view-slide-controls" aria-label="\u30b9\u30e9\u30a4\u30c9\u64cd\u4f5c">
+            <button type="button" onClick={() => setSlideIndex(index => Math.max(index - 1, 0))} disabled={!canGoPrev}>
+              {'\u524d\u3078'}
+            </button>
+            <span>{`${Math.min(slideIndex + 1, slides.length)} / ${slides.length}`}</span>
+            <button type="button" onClick={() => setSlideIndex(index => Math.min(index + 1, slides.length - 1))} disabled={!canGoNext}>
+              {'\u6b21\u3078'}
+            </button>
+          </div>
+        )}
+        {isAdmin && (
+          <div className="lesson-view-floating-actions">
+            <button
+              type="button"
+              onClick={() => {
+                setEditingSectionId(null);
+                setEditingAll(value => !value);
+              }}
+            >
+              {editingAll ? '\u7de8\u96c6\u3092\u9589\u3058\u308b' : '\u7de8\u96c6'}
+            </button>
+            <button type="button" onClick={() => setMaskActive(value => !value)}>
+              {maskActive ? '\u96a0\u3055\u306a\u3044' : '\u96a0\u3059'}
+            </button>
+            <button type="button" onClick={() => onUpdateLessonViewPublished?.(!lessonViewPublished)}>
+              {lessonViewPublished ? '\u975e\u516c\u958b\u306b\u3059\u308b' : '\u516c\u958b\u3059\u308b'}
+            </button>
+          </div>
+        )}
+      </div>
       {activeSlide ? (() => {
         const { section, lessonSection, kundoku, isKanbun, sourceLines, modernLines, kundokuLines, lineCount, start, end } = activeSlide;
         const editing = editingAll || editingSectionId === section.id;
@@ -2151,38 +2174,6 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
           </article>
         );
       })() : null}
-      <div className={`lesson-view-bottom-panel${controlsOpen ? ' is-open' : ''}`}>
-        {slides.length > 1 && (
-          <div className="lesson-view-slide-controls" aria-label="\u30b9\u30e9\u30a4\u30c9\u64cd\u4f5c">
-            <button type="button" onClick={() => setSlideIndex(index => Math.max(index - 1, 0))} disabled={!canGoPrev}>
-              {'\u524d\u3078'}
-            </button>
-            <span>{`${Math.min(slideIndex + 1, slides.length)} / ${slides.length}`}</span>
-            <button type="button" onClick={() => setSlideIndex(index => Math.min(index + 1, slides.length - 1))} disabled={!canGoNext}>
-              {'\u6b21\u3078'}
-            </button>
-          </div>
-        )}
-        {isAdmin && (
-          <div className="lesson-view-floating-actions">
-            <button
-              type="button"
-              onClick={() => {
-                setEditingSectionId(null);
-                setEditingAll(value => !value);
-              }}
-            >
-              {editingAll ? '\u7de8\u96c6\u3092\u9589\u3058\u308b' : '\u7de8\u96c6'}
-            </button>
-            <button type="button" onClick={() => setMaskActive(value => !value)}>
-              {maskActive ? '\u96a0\u3055\u306a\u3044' : '\u96a0\u3059'}
-            </button>
-            <button type="button" onClick={() => onUpdateLessonViewPublished?.(!lessonViewPublished)}>
-              {lessonViewPublished ? '\u975e\u516c\u958b\u306b\u3059\u308b' : '\u516c\u958b\u3059\u308b'}
-            </button>
-          </div>
-        )}
-      </div>
     </div>
   );
 }

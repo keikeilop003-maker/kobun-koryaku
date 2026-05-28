@@ -659,6 +659,7 @@ body {
 
 .lesson-view-floating-actions {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 8px;
 }
@@ -674,6 +675,7 @@ body {
   font-weight: 800;
   letter-spacing: 0;
   padding: 10px 18px;
+  width: 100%;
 }
 
 .lesson-view-floating-actions button:hover {
@@ -682,6 +684,7 @@ body {
 
 .lesson-view-slide-controls {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 10px;
   padding: 7px 10px;
@@ -691,6 +694,18 @@ body {
   color: #fff;
   font-size: 0.9rem;
   font-weight: 700;
+}
+
+.lesson-view-side-controls {
+  position: fixed;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 112px;
 }
 
 .lesson-view-slide-controls button {
@@ -708,51 +723,6 @@ body {
 .lesson-view-slide-controls button:disabled {
   cursor: not-allowed;
   opacity: 0.45;
-}
-
-.lesson-view-controls-toggle {
-  position: fixed;
-  right: 22px;
-  bottom: 18px;
-  z-index: 10;
-  width: 44px;
-  height: 38px;
-  border: 1px solid #f2f2f2;
-  border-radius: 8px;
-  background: #f2f2f2;
-  color: #111;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 1.2rem;
-  font-weight: 900;
-  line-height: 1;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.42);
-}
-
-.lesson-view-controls-toggle.is-open {
-  bottom: 78px;
-}
-
-.lesson-view-bottom-panel {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  min-height: 64px;
-  padding: 10px 86px 12px 18px;
-  border-top: 1px solid #333;
-  background: rgba(0,0,0,0.9);
-  transform: translateY(112%);
-  transition: transform 0.18s ease;
-}
-
-.lesson-view-bottom-panel.is-open {
-  transform: translateY(0);
 }
 
 .lesson-view-controls {
