@@ -382,6 +382,7 @@ function ShareTheme({ theme, posts, reactions, analysis, avatarSeed, equipped, c
   const [message, setMessage] = useState('');
   const { topLevel, repliesByParent } = useMemo(() => splitPosts(posts), [posts]);
   const uncorrectedCount = posts.filter(post => !post.replyTo && !post.correction).length;
+  const modelAnswerPublished = Boolean(theme.modelAnswer && theme.modelAnswerPublished);
 
   const correctAll = async () => {
     if (correcting) return;
@@ -404,13 +405,13 @@ function ShareTheme({ theme, posts, reactions, analysis, avatarSeed, equipped, c
         <div className="analysis-thread">
           {isAdmin && (
             <div className="share-theme-tools">
-              <button type="button" onClick={correctAll} disabled={correcting || uncorrectedCount === 0}>
+              <button type="button" onClick={correctAll} disabled={correcting || (uncorrectedCount === 0 && modelAnswerPublished)}>
                 {correcting ? '添削中...' : `一斉添削 (${uncorrectedCount})`}
               </button>
               {message && <span className={message.includes('失敗') ? 'analysis-admin-error' : 'analysis-admin-done'}>{message}</span>}
             </div>
           )}
-          {theme.modelAnswer && (
+          {modelAnswerPublished && (
             <div className="analysis-model-answer">
               <div className="analysis-model-answer-title">模範解答</div>
               <p>{theme.modelAnswer}</p>

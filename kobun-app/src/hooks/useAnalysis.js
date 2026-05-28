@@ -194,6 +194,7 @@ export default function useAnalysis(textId, user, isAdmin = false) {
       title: safeTitle,
       description: cleanText(description, 1000),
       modelAnswer: cleanText(modelAnswer, 2000),
+      modelAnswerPublished: false,
       attachments: (attachments ?? []).filter(a => a.name?.trim() && a.url?.trim()),
     };
     await setDoc(doc(db, 'analysisThemes', textId), {
@@ -209,17 +210,20 @@ export default function useAnalysis(textId, user, isAdmin = false) {
     const safeTitle = cleanText(title, 120);
     if (!textId || !themeId || !safeTitle) return;
     const currentThemes = Array.isArray(theme?.themes) ? theme.themes : [];
-    const nextThemes = currentThemes.map((item) => (
-      item.id === themeId
-        ? {
-            ...item,
-            title: safeTitle,
-            description: cleanText(description, 1000),
-            modelAnswer: cleanText(modelAnswer, 2000),
-            attachments: (attachments ?? []).filter(a => a.name?.trim() && a.url?.trim()),
-          }
-        : item
-    ));
+    const nextModelAnswer = cleanText(modelAnswer, 2000);
+    const nextThemes = currentThemes.map((item) => {
+      if (item.id !== themeId) return item;
+      const modelAnswerChanged = nextModelAnswer !== (item.modelAnswer ?? '');
+      return {
+        ...item,
+        title: safeTitle,
+        description: cleanText(description, 1000),
+        modelAnswer: nextModelAnswer,
+        modelAnswerPublished: modelAnswerChanged ? false : Boolean(item.modelAnswerPublished),
+        modelAnswerPublishedBy: modelAnswerChanged ? '' : (item.modelAnswerPublishedBy ?? ''),
+        attachments: (attachments ?? []).filter(a => a.name?.trim() && a.url?.trim()),
+      };
+    });
     await setDoc(doc(db, 'analysisThemes', textId), {
       ...(theme ?? {}),
       themes: nextThemes,
@@ -251,6 +255,7 @@ export default function useAnalysis(textId, user, isAdmin = false) {
     if (!isAdmin) throw new Error('permission_denied');
     const targetTheme = themes.find(item => item.id === themeId);
     if (!targetTheme) return { corrected: 0 };
+    const currentThemes = Array.isArray(theme?.themes) ? theme.themes : [];
     const targets = posts.filter(post => (
       post.themeId === themeId && !post.replyTo && !post.correction && cleanText(post.text)
     ));
@@ -274,6 +279,22 @@ export default function useAnalysis(textId, user, isAdmin = false) {
       });
       corrected += 1;
     }
+    const nextThemes = currentThemes.map((item) => (
+      item.id === themeId
+        ? {
+            ...item,
+            modelAnswerPublished: true,
+            modelAnswerPublishedBy: uid,
+          }
+        : item
+    ));
+    await setDoc(doc(db, 'analysisThemes', textId), {
+      ...(theme ?? {}),
+      themes: nextThemes,
+      updatedBy: uid,
+      updatedByEmail: email,
+      updatedAt: serverTimestamp(),
+    }, { merge: true });
     return { corrected };
   };
 
