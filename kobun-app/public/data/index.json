@@ -3,5 +3,6 @@
   { "id": "tanba", "title": "丹波に出雲といふ所あり", "source": "徒然草", "status": "draft" },
   { "id": "tsurezure", "title": "つれづれなるままに", "source": "徒然草", "status": "draft" },
   { "id": "mujun", "title": "矛盾", "source": "韓非子", "status": "draft" },
-  { "id": "gyofunori", "title": "漁夫之利", "source": "戦国策", "status": "draft" }
+  { "id": "gyofunori", "title": "漁夫之利", "source": "戦国策", "status": "draft" },
+  { "id": "akutagawa", "title": "芥川", "source": "伊勢物語", "status": "draft" }
 ]
