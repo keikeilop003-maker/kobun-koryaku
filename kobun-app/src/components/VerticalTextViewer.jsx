@@ -1834,6 +1834,7 @@ function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, o
                 role="button"
                 tabIndex={0}
                 className="lesson-view-mask"
+                style={{ '--mask-length': Array.from(part.value).length }}
                 onClick={(event) => {
                   event.stopPropagation();
                   onRevealMask(maskKey);
@@ -2091,7 +2092,10 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
             >
               {editingAll ? '\u7de8\u96c6\u3092\u9589\u3058\u308b' : '\u7de8\u96c6'}
             </button>
-            <button type="button" onClick={() => setMaskActive(value => !value)}>
+            <button type="button" onClick={() => {
+              setRevealedMasks(new Set());
+              setMaskActive(value => !value);
+            }}>
               {maskActive ? '\u96a0\u3055\u306a\u3044' : '\u96a0\u3059'}
             </button>
             <button type="button" onClick={() => onUpdateLessonViewPublished?.(!lessonViewPublished)}>
