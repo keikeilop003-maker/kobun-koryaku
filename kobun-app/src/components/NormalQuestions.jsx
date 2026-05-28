@@ -142,6 +142,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
   const [questionType, setQuestionType] = useState(q.type ?? 'content');
   const [questionText, setQuestionText] = useState(q.question ?? '');
   const [answerText, setAnswerText] = useState(q.answer ?? '');
+  const [explanationText, setExplanationText] = useState(q.explanation ?? '');
   const [alternativeAnswers, setAlternativeAnswers] = useState(() => [...(q.alternativeAnswers ?? []), '', '', '', '', ''].slice(0, 5));
   const [savingQuestion, setSavingQuestion] = useState(false);
   const [deletingQuestion, setDeletingQuestion] = useState(false);
@@ -160,6 +161,10 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
   useEffect(() => {
     setAnswerText(q.answer ?? '');
   }, [q.answer]);
+
+  useEffect(() => {
+    setExplanationText(q.explanation ?? '');
+  }, [q.explanation]);
 
   useEffect(() => {
     setAlternativeAnswers([...(q.alternativeAnswers ?? []), '', '', '', '', ''].slice(0, 5));
@@ -192,7 +197,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
     } else if (q.type === 'translation') {
       res = await reviewTranslation({ targetText: q.targetText, sentence: section?.text ?? '', userAnswer: ans, correctAnswer: q.answer, acceptedAnswers: q.alternativeAnswers, explanation: q.explanation });
     } else {
-      res = await reviewContent({ question: q.question, userAnswer: ans, correctAnswer: q.answer, explanation: q.explanation });
+      res = await reviewContent({ question: q.question, userAnswer: ans, correctAnswer: q.answer, acceptedAnswers: q.alternativeAnswers, explanation: q.explanation });
     }
     setLoading(false);
     setResult(res);
@@ -217,6 +222,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
       type: questionType,
       question: questionText,
       answer: answerText,
+      explanation: explanationText,
       alternativeAnswers,
     });
     setSavingQuestion(false);
@@ -302,24 +308,26 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
                   模範解答
                   <textarea value={answerText} onChange={e => setAnswerText(e.target.value)} rows={3} />
                 </label>
-                {questionType === 'translation' && (
-                  <fieldset className="nq-admin-alt-answers">
-                    <legend>別解（5個まで）</legend>
-                    {alternativeAnswers.map((value, index) => (
-                      <input
-                        key={index}
-                        value={value}
-                        onChange={(e) => updateAlternativeAnswer(index, e.target.value)}
-                        placeholder={`別解${index + 1}`}
-                      />
-                    ))}
-                  </fieldset>
-                )}
+                <fieldset className="nq-admin-alt-answers">
+                  <legend>別解（5個まで）</legend>
+                  {alternativeAnswers.map((value, index) => (
+                    <input
+                      key={index}
+                      value={value}
+                      onChange={(e) => updateAlternativeAnswer(index, e.target.value)}
+                      placeholder={`別解${index + 1}`}
+                    />
+                  ))}
+                </fieldset>
+                <label>
+                  解説
+                  <textarea value={explanationText} onChange={e => setExplanationText(e.target.value)} rows={3} />
+                </label>
                 <div className="nq-admin-question-actions">
                   <button onClick={saveQuestion} disabled={savingQuestion || !questionText.trim() || !answerText.trim()}>
                     {savingQuestion ? '保存中...' : '保存'}
                   </button>
-                  <button className="nq-admin-secondary" onClick={() => { setQuestionText(q.question ?? ''); setAnswerText(q.answer ?? ''); setEditingQuestion(false); }} disabled={savingQuestion}>
+                  <button className="nq-admin-secondary" onClick={() => { setQuestionText(q.question ?? ''); setAnswerText(q.answer ?? ''); setExplanationText(q.explanation ?? ''); setEditingQuestion(false); }} disabled={savingQuestion}>
                     キャンセル
                   </button>
                 </div>
@@ -409,6 +417,7 @@ function AddNormalQuestionForm({ nextOrder, onAddQuestion }) {
   const [questionType, setQuestionType] = useState('content');
   const [questionText, setQuestionText] = useState('');
   const [answerText, setAnswerText] = useState('');
+  const [explanationText, setExplanationText] = useState('');
   const [alternativeAnswers, setAlternativeAnswers] = useState(['', '', '', '', '']);
   const [saving, setSaving] = useState(false);
 
@@ -416,6 +425,7 @@ function AddNormalQuestionForm({ nextOrder, onAddQuestion }) {
     setQuestionType('content');
     setQuestionText('');
     setAnswerText('');
+    setExplanationText('');
     setAlternativeAnswers(['', '', '', '', '']);
     setAdding(false);
   };
@@ -429,6 +439,7 @@ function AddNormalQuestionForm({ nextOrder, onAddQuestion }) {
       type: questionType,
       question: questionText,
       answer: answerText,
+      explanation: explanationText,
       alternativeAnswers,
       order: nextOrder,
       custom: true,
@@ -472,19 +483,21 @@ function AddNormalQuestionForm({ nextOrder, onAddQuestion }) {
           模範解答
           <textarea value={answerText} onChange={e => setAnswerText(e.target.value)} rows={3} />
         </label>
-        {questionType === 'translation' && (
-          <fieldset className="nq-admin-alt-answers">
-            <legend>別解（5個まで）</legend>
-            {alternativeAnswers.map((value, index) => (
-              <input
-                key={index}
-                value={value}
-                onChange={(e) => updateAlternativeAnswer(index, e.target.value)}
-                placeholder={`別解${index + 1}`}
-              />
-            ))}
-          </fieldset>
-        )}
+        <fieldset className="nq-admin-alt-answers">
+          <legend>別解（5個まで）</legend>
+          {alternativeAnswers.map((value, index) => (
+            <input
+              key={index}
+              value={value}
+              onChange={(e) => updateAlternativeAnswer(index, e.target.value)}
+              placeholder={`別解${index + 1}`}
+            />
+          ))}
+        </fieldset>
+        <label>
+          解説
+          <textarea value={explanationText} onChange={e => setExplanationText(e.target.value)} rows={3} />
+        </label>
         <div className="nq-admin-question-actions">
           <button type="button" onClick={save} disabled={saving || !questionText.trim() || !answerText.trim()}>
             {saving ? '保存中...' : '追加'}

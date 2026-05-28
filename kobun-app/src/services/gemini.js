@@ -475,10 +475,11 @@ export async function reviewTranslation({ targetText, sentence, userAnswer, corr
   return result;
 }
 
-export async function reviewContent({ question, userAnswer, correctAnswer, explanation }) {
+export async function reviewContent({ question, userAnswer, correctAnswer, acceptedAnswers, explanation }) {
   return review('content', {
     question: clip(question, 120),
     correctAnswer,
+    acceptedAnswers,
     explanation: clip(explanation, 80),
     userAnswer,
   });

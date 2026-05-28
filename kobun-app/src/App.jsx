@@ -325,6 +325,7 @@ function AppInner() {
             ...(edit.answer ? { answer: edit.answer } : {}),
             ...(edit.type ? { type: edit.type } : {}),
             ...(Number.isFinite(edit.order) ? { order: edit.order } : {}),
+            ...(typeof edit.explanation === 'string' ? { explanation: edit.explanation } : {}),
             ...(Array.isArray(edit.alternativeAnswers) ? { alternativeAnswers: edit.alternativeAnswers } : {}),
             edited: true,
           };
@@ -339,6 +340,7 @@ function AppInner() {
               type: item.type === 'translation' ? 'translation' : 'content',
               question: item.question ?? '',
               answer: item.answer ?? '',
+              explanation: item.explanation ?? '',
               alternativeAnswers: Array.isArray(item.alternativeAnswers) ? item.alternativeAnswers : [],
               order: Number.isFinite(item.order) ? item.order : Number.MAX_SAFE_INTEGER,
               custom: true,
@@ -766,6 +768,7 @@ function AppInner() {
     const answerText = payload.answer?.trim();
     const questionType = payload.type === 'content' ? 'content' : payload.type === 'translation' ? 'translation' : question.type;
     const order = Number.isFinite(payload.order) ? payload.order : (Number.isFinite(question.order) ? question.order : null);
+    const explanation = typeof payload.explanation === 'string' ? payload.explanation.trim() : (question.explanation ?? '');
     const alternativeAnswers = (payload.alternativeAnswers ?? []).map(item => item.trim()).filter(Boolean).slice(0, 5);
     if (!effectiveIsAdmin || !user || !textId || !question || !questionText) return;
     if (!answerText) return;
@@ -777,7 +780,8 @@ function AppInner() {
         answer: answerText,
         type: questionType,
         ...(order !== null ? { order } : {}),
-        ...(questionType === 'translation' ? { alternativeAnswers } : {}),
+        explanation,
+        alternativeAnswers,
         updatedBy: user.uid,
         updatedByEmail: user.email,
         updatedAt: serverTimestamp(),
@@ -824,7 +828,8 @@ function AppInner() {
         answer: question.answer ?? '',
         type: questionType,
         order: index,
-        ...(questionType === 'translation' ? { alternativeAnswers: (question.alternativeAnswers ?? []).slice(0, 5) } : {}),
+        explanation: question.explanation ?? '',
+        alternativeAnswers: (question.alternativeAnswers ?? []).slice(0, 5),
         updatedBy: user.uid,
         updatedByEmail: user.email,
         updatedAt: serverTimestamp(),

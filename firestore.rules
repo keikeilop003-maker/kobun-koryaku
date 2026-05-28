@@ -478,6 +478,7 @@ service cloud.firestore {
             'answer',
             'type',
             'order',
+            'explanation',
             'alternativeAnswers',
             'updatedBy',
             'updatedByEmail',
@@ -499,6 +500,13 @@ service cloud.firestore {
             || (
               request.resource.data.answer is string
               && request.resource.data.answer.size() <= 2000
+            )
+          )
+          && (
+            !request.resource.data.keys().hasAny(['explanation'])
+            || (
+              request.resource.data.explanation is string
+              && request.resource.data.explanation.size() <= 2000
             )
           )
           && (
