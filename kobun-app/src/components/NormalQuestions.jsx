@@ -404,6 +404,98 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
   );
 }
 
+function AddNormalQuestionForm({ nextOrder, onAddQuestion }) {
+  const [adding, setAdding] = useState(false);
+  const [questionType, setQuestionType] = useState('content');
+  const [questionText, setQuestionText] = useState('');
+  const [answerText, setAnswerText] = useState('');
+  const [alternativeAnswers, setAlternativeAnswers] = useState(['', '', '', '', '']);
+  const [saving, setSaving] = useState(false);
+
+  const reset = () => {
+    setQuestionType('content');
+    setQuestionText('');
+    setAnswerText('');
+    setAlternativeAnswers(['', '', '', '', '']);
+    setAdding(false);
+  };
+
+  const save = async () => {
+    if (saving || !questionText.trim() || !answerText.trim()) return;
+    setSaving(true);
+    const id = `custom-normal-${Date.now()}`;
+    await onAddQuestion?.({
+      id,
+      type: questionType,
+      question: questionText,
+      answer: answerText,
+      alternativeAnswers,
+      order: nextOrder,
+      custom: true,
+    });
+    setSaving(false);
+    reset();
+  };
+
+  const updateAlternativeAnswer = (index, value) => {
+    setAlternativeAnswers((current) => {
+      const next = [...current];
+      next[index] = value;
+      return next;
+    });
+  };
+
+  if (!adding) {
+    return (
+      <div className="nq-admin-add">
+        <button type="button" onClick={() => setAdding(true)}>読解問題を追加</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="nq-admin-add nq-admin-add--editing">
+      <div className="nq-admin-add-title">読解問題を追加</div>
+      <div className="nq-admin-question-form">
+        <label>
+          種別
+          <select value={questionType} onChange={e => setQuestionType(e.target.value)}>
+            <option value="content">内容読解</option>
+            <option value="translation">現代語訳</option>
+          </select>
+        </label>
+        <label>
+          問題文
+          <textarea value={questionText} onChange={e => setQuestionText(e.target.value)} rows={3} />
+        </label>
+        <label>
+          模範解答
+          <textarea value={answerText} onChange={e => setAnswerText(e.target.value)} rows={3} />
+        </label>
+        {questionType === 'translation' && (
+          <fieldset className="nq-admin-alt-answers">
+            <legend>別解（5個まで）</legend>
+            {alternativeAnswers.map((value, index) => (
+              <input
+                key={index}
+                value={value}
+                onChange={(e) => updateAlternativeAnswer(index, e.target.value)}
+                placeholder={`別解${index + 1}`}
+              />
+            ))}
+          </fieldset>
+        )}
+        <div className="nq-admin-question-actions">
+          <button type="button" onClick={save} disabled={saving || !questionText.trim() || !answerText.trim()}>
+            {saving ? '保存中...' : '追加'}
+          </button>
+          <button type="button" className="nq-admin-secondary" onClick={reset} disabled={saving}>キャンセル</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onOpenQuestionChange, isAdmin, onUpdateQuestion, onDeleteQuestion, onReorderQuestions }) {
   const safeQuestions = useMemo(() => questions ?? [], [questions]);
   const [openQuestionId, setOpenQuestionId] = useState(null);
@@ -415,7 +507,6 @@ export default function NormalQuestions({ questions, sections, historyEntries, o
     onExpandHandled?.();
   }, [expandedNqId, safeQuestions, onOpenQuestionChange, onExpandHandled]);
 
-  if (!safeQuestions.length) return null;
   const counters = {};
   const sorted = [...safeQuestions].sort((a, b) => {
     const aOrder = Number.isFinite(a.order) ? a.order : safeQuestions.findIndex(item => item.id === a.id);
@@ -447,6 +538,13 @@ export default function NormalQuestions({ questions, sections, historyEntries, o
   return (
     <div className="normal-questions">
       <div className="nq-section-title">通常問題</div>
+      {isAdmin && (
+        <AddNormalQuestionForm
+          nextOrder={sorted.length}
+          onAddQuestion={(question) => onUpdateQuestion?.(question, question)}
+        />
+      )}
+      {!safeQuestions.length && <div className="empty-message">読解問題はまだありません。</div>}
       {sorted.map((q, index) => (
         <QuestionItem
           key={q.id}

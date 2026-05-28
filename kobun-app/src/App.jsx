@@ -328,7 +328,23 @@ function AppInner() {
             ...(Array.isArray(edit.alternativeAnswers) ? { alternativeAnswers: edit.alternativeAnswers } : {}),
             edited: true,
           };
-        }),
+        })
+        .concat(
+          [...editedNormalQuestionMap.values()]
+            .filter(item => item?.questionId && !(textData.normalQuestions ?? []).some(question => question.id === item.questionId))
+            .filter(item => !hiddenNormalQuestionIds.has(item.questionId))
+            .map(item => ({
+              id: item.questionId,
+              title: item.type === 'translation' ? '追加した現代語訳' : '追加した内容読解',
+              type: item.type === 'translation' ? 'translation' : 'content',
+              question: item.question ?? '',
+              answer: item.answer ?? '',
+              alternativeAnswers: Array.isArray(item.alternativeAnswers) ? item.alternativeAnswers : [],
+              order: Number.isFinite(item.order) ? item.order : Number.MAX_SAFE_INTEGER,
+              custom: true,
+              edited: true,
+            })),
+        ),
     };
   }, [textData, customTargets, hiddenTargetKeys, editedTargetMap, editedSectionMap, editedNormalQuestionMap, hiddenNormalQuestionIds]);
   const currentTextData = displayTextData ?? textData;

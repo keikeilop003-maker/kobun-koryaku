@@ -3612,6 +3612,38 @@ span.kaeriten-source-hyphen.active {
   cursor: not-allowed;
 }
 
+.nq-admin-add {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.nq-admin-add > button {
+  border: none;
+  border-radius: 4px;
+  background: #2d3a5e;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: bold;
+  padding: 7px 12px;
+}
+
+.nq-admin-add--editing {
+  background: #faf8f4;
+  border: 1px solid #ddd8cc;
+  border-radius: 8px;
+  display: block;
+  padding: 12px;
+}
+
+.nq-admin-add-title {
+  color: #2d3a5e;
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
 .nq-admin-delete-btn:hover {
   background: #a64c4c;
 }
