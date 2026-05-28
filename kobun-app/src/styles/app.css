@@ -840,8 +840,8 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: calc(max(1, var(--mask-length, 1)) * 1.05em);
-  min-height: 1.25em;
+  width: 1.25em;
+  min-height: calc(max(1, var(--mask-length, 1)) * 1.05em);
   margin: 0.1em 0;
   border: 2px dashed currentColor;
   border-radius: 4px;
