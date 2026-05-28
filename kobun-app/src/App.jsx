@@ -339,7 +339,7 @@ function AppInner() {
   const unreadInboxCount = inboxMessages.filter(message => message.status !== 'read').length;
 
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}data/index.json`)
+    fetch(`${import.meta.env.BASE_URL}data/index.json?v=${Date.now()}`)
       .then(r => r.json())
       .then(setTextbooks)
       .catch(console.error);
@@ -381,7 +381,7 @@ function AppInner() {
   useEffect(() => {
     if (!selectedTextId) return;
     setTextData(null);
-    fetch(`${import.meta.env.BASE_URL}data/${selectedTextId}.json`)
+    fetch(`${import.meta.env.BASE_URL}data/${selectedTextId}.json?v=${Date.now()}`)
       .then(r => r.json())
       .then(setTextData)
       .catch(console.error);
