@@ -24,7 +24,7 @@ import useHiddenNormalQuestions from './hooks/useHiddenNormalQuestions';
 import useAnalysis from './hooks/useAnalysis';
 import { useMyInboxMessages, useTopInformation } from './hooks/useTopCommunications';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { addDoc, collection, deleteDoc, doc, onSnapshot, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, onSnapshot, query, serverTimestamp, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
 import { db } from './services/firebase';
 import { TITLE_COLOR, normalizeEquipped } from './data/items';
 import './styles/app.css';
@@ -323,6 +323,8 @@ function AppInner() {
             ...question,
             ...(edit.question ? { question: edit.question } : {}),
             ...(edit.answer ? { answer: edit.answer } : {}),
+            ...(edit.type ? { type: edit.type } : {}),
+            ...(Number.isFinite(edit.order) ? { order: edit.order } : {}),
             ...(Array.isArray(edit.alternativeAnswers) ? { alternativeAnswers: edit.alternativeAnswers } : {}),
             edited: true,
           };
@@ -746,6 +748,8 @@ function AppInner() {
     const payload = typeof updates === 'string' ? { question: updates } : (updates ?? {});
     const questionText = payload.question?.trim();
     const answerText = payload.answer?.trim();
+    const questionType = payload.type === 'content' ? 'content' : payload.type === 'translation' ? 'translation' : question.type;
+    const order = Number.isFinite(payload.order) ? payload.order : (Number.isFinite(question.order) ? question.order : null);
     const alternativeAnswers = (payload.alternativeAnswers ?? []).map(item => item.trim()).filter(Boolean).slice(0, 5);
     if (!effectiveIsAdmin || !user || !textId || !question || !questionText) return;
     if (!answerText) return;
@@ -755,7 +759,9 @@ function AppInner() {
         questionId: question.id,
         question: questionText,
         answer: answerText,
-        ...(question.type === 'translation' ? { alternativeAnswers } : {}),
+        type: questionType,
+        ...(order !== null ? { order } : {}),
+        ...(questionType === 'translation' ? { alternativeAnswers } : {}),
         updatedBy: user.uid,
         updatedByEmail: user.email,
         updatedAt: serverTimestamp(),
@@ -786,6 +792,35 @@ function AppInner() {
       window.alert(`読解問題の削除に失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
     }
   }, [effectiveIsAdmin, textId, user]);
+
+  const handleReorderNormalQuestions = useCallback(async (orderedIds) => {
+    if (!effectiveIsAdmin || !user || !textId || !currentTextData?.normalQuestions?.length) return;
+    const byId = new Map(currentTextData.normalQuestions.map(question => [question.id, question]));
+    const batch = writeBatch(db);
+    orderedIds.forEach((id, index) => {
+      const question = byId.get(id);
+      if (!question) return;
+      const questionType = question.type === 'content' ? 'content' : 'translation';
+      batch.set(doc(db, 'editedNormalQuestions', `${textId}__${question.id}`), {
+        textId,
+        questionId: question.id,
+        question: question.question ?? '',
+        answer: question.answer ?? '',
+        type: questionType,
+        order: index,
+        ...(questionType === 'translation' ? { alternativeAnswers: (question.alternativeAnswers ?? []).slice(0, 5) } : {}),
+        updatedBy: user.uid,
+        updatedByEmail: user.email,
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+    });
+    try {
+      await batch.commit();
+    } catch (err) {
+      console.error('[reorder normal questions] failed:', err);
+      window.alert(`読解問題の並び替えに失敗しました: ${err.code ?? err.message ?? 'unknown error'}`);
+    }
+  }, [currentTextData?.normalQuestions, effectiveIsAdmin, textId, user]);
 
   const isLoadingText = selectedTextId !== null && textData === null;
   const noSelection = selectedTextId === null;
@@ -1214,6 +1249,7 @@ function AppInner() {
                   isAdmin={effectiveIsAdmin}
                   onUpdateQuestion={handleUpdateNormalQuestion}
                   onDeleteQuestion={handleDeleteNormalQuestion}
+                  onReorderQuestions={handleReorderNormalQuestions}
                 />
               </div>
               <div style={{ display: rightTab === 'analysis' ? 'block' : 'none' }}>

@@ -3570,8 +3570,16 @@ span.kaeriten-source-hyphen.active {
   gap: 6px;
 }
 
+.nq-admin-header-actions {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
 .nq-admin-edit-btn,
 .nq-admin-delete-btn,
+.nq-admin-header-actions button,
 .nq-admin-question-actions button {
   border: none;
   border-radius: 4px;
@@ -3586,12 +3594,22 @@ span.kaeriten-source-hyphen.active {
 
 .nq-admin-edit-btn:hover,
 .nq-admin-delete-btn:hover,
+.nq-admin-header-actions button:hover:not(:disabled),
 .nq-admin-question-actions button:hover:not(:disabled) {
   background: #4a6fa5;
 }
 
 .nq-admin-delete-btn {
   background: #8a3b3b;
+}
+
+.nq-admin-header-actions button {
+  padding: 5px 8px;
+}
+
+.nq-admin-header-actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .nq-admin-delete-btn:hover {
@@ -3646,6 +3664,15 @@ span.kaeriten-source-hyphen.active {
 .nq-admin-question-actions {
   display: flex;
   gap: 8px;
+}
+
+.nq-admin-question-form select {
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  color: #2c2c2c;
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 7px 9px;
 }
 
 .nq-admin-delete-btn:disabled,

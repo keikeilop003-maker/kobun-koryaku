@@ -476,6 +476,8 @@ service cloud.firestore {
             'questionId',
             'question',
             'answer',
+            'type',
+            'order',
             'alternativeAnswers',
             'updatedBy',
             'updatedByEmail',
@@ -487,6 +489,11 @@ service cloud.firestore {
           && request.resource.data.questionId is string
           && request.resource.data.question is string
           && request.resource.data.question.size() <= 1000
+          && request.resource.data.type in ['translation', 'content']
+          && (
+            !request.resource.data.keys().hasAny(['order'])
+            || request.resource.data.order is int
+          )
           && (
             !request.resource.data.keys().hasAny(['answer'])
             || (

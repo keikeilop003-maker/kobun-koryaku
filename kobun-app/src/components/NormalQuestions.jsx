@@ -133,12 +133,13 @@ function HighlightQuestionText({ text, surface, surfaces }) {
   return <>{nodes}</>;
 }
 
-function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen, isAdmin, onUpdateQuestion, onDeleteQuestion }) {
+function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen, isAdmin, onUpdateQuestion, onDeleteQuestion, onMoveQuestion, canMoveUp, canMoveDown }) {
   const lastFeedback = historyEntry?.attempts?.at(-1)?.feedback ?? null;
   const [ans, setAns] = useState(lastFeedback?.userAnswer ?? '');
   const [result, setResult] = useState(lastFeedback ?? null);
   const [loading, setLoading] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState(false);
+  const [questionType, setQuestionType] = useState(q.type ?? 'content');
   const [questionText, setQuestionText] = useState(q.question ?? '');
   const [answerText, setAnswerText] = useState(q.answer ?? '');
   const [alternativeAnswers, setAlternativeAnswers] = useState(() => [...(q.alternativeAnswers ?? []), '', '', '', '', ''].slice(0, 5));
@@ -152,8 +153,9 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
   const isChoice = q.inputType === 'choice';
 
   useEffect(() => {
+    setQuestionType(q.type ?? 'content');
     setQuestionText(q.question ?? '');
-  }, [q.question]);
+  }, [q.question, q.type]);
 
   useEffect(() => {
     setAnswerText(q.answer ?? '');
@@ -212,6 +214,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
     if (!questionText.trim() || !answerText.trim() || savingQuestion) return;
     setSavingQuestion(true);
     await onUpdateQuestion?.(q, {
+      type: questionType,
       question: questionText,
       answer: answerText,
       alternativeAnswers,
@@ -256,22 +259,26 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
         <span className={`type-badge type-${q.type}`}>{q.type === 'translation' ? '現代語訳' : '内容読解'}</span>
         <span className="nq-title">{q.displayTitle ?? q.title}</span>
         {isAdmin && (
-          <button
-            type="button"
-            className={`nq-admin-delete-btn nq-admin-delete-btn--header${confirmingDelete ? ' nq-admin-delete-btn--confirm' : ''}`}
-            onMouseDown={(event) => event.stopPropagation()}
-            onPointerDown={deleteQuestion}
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') deleteQuestion(event);
-            }}
-            disabled={deletingQuestion}
-          >
-            {deletingQuestion ? '削除中...' : confirmingDelete ? 'もう一度押す' : '削除'}
-          </button>
+          <div className="nq-admin-header-actions" onClick={(event) => event.stopPropagation()}>
+            <button type="button" onClick={() => onMoveQuestion?.(q.id, -1)} disabled={!canMoveUp}>↑</button>
+            <button type="button" onClick={() => onMoveQuestion?.(q.id, 1)} disabled={!canMoveDown}>↓</button>
+            <button
+              type="button"
+              className={`nq-admin-delete-btn nq-admin-delete-btn--header${confirmingDelete ? ' nq-admin-delete-btn--confirm' : ''}`}
+              onMouseDown={(event) => event.stopPropagation()}
+              onPointerDown={deleteQuestion}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') deleteQuestion(event);
+              }}
+              disabled={deletingQuestion}
+            >
+              {deletingQuestion ? '削除中...' : confirmingDelete ? 'もう一度押す' : '削除'}
+            </button>
+          </div>
         )}
         <span className="nq-toggle">{open ? '▲' : '▼'}</span>
       </div>
@@ -281,6 +288,13 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
             {editingQuestion ? (
               <div className="nq-admin-question-form">
                 <label>
+                  種別
+                  <select value={questionType} onChange={e => setQuestionType(e.target.value)}>
+                    <option value="translation">現代語訳</option>
+                    <option value="content">内容読解</option>
+                  </select>
+                </label>
+                <label>
                   問題文
                   <textarea value={questionText} onChange={e => setQuestionText(e.target.value)} rows={3} />
                 </label>
@@ -288,7 +302,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
                   模範解答
                   <textarea value={answerText} onChange={e => setAnswerText(e.target.value)} rows={3} />
                 </label>
-                {q.type === 'translation' && (
+                {questionType === 'translation' && (
                   <fieldset className="nq-admin-alt-answers">
                     <legend>別解（5個まで）</legend>
                     {alternativeAnswers.map((value, index) => (
@@ -390,7 +404,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
   );
 }
 
-export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onOpenQuestionChange, isAdmin, onUpdateQuestion, onDeleteQuestion }) {
+export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onOpenQuestionChange, isAdmin, onUpdateQuestion, onDeleteQuestion, onReorderQuestions }) {
   const safeQuestions = useMemo(() => questions ?? [], [questions]);
   const [openQuestionId, setOpenQuestionId] = useState(null);
   useEffect(() => {
@@ -404,8 +418,9 @@ export default function NormalQuestions({ questions, sections, historyEntries, o
   if (!safeQuestions.length) return null;
   const counters = {};
   const sorted = [...safeQuestions].sort((a, b) => {
-    if (a.type === b.type) return 0;
-    return a.type === 'translation' ? -1 : 1;
+    const aOrder = Number.isFinite(a.order) ? a.order : safeQuestions.findIndex(item => item.id === a.id);
+    const bOrder = Number.isFinite(b.order) ? b.order : safeQuestions.findIndex(item => item.id === b.id);
+    return aOrder - bOrder;
   }).map((q) => {
     const label = q.type === 'translation' ? '現代語訳' : '内容読解';
     counters[q.type] = (counters[q.type] ?? 0) + 1;
@@ -420,10 +435,19 @@ export default function NormalQuestions({ questions, sections, historyEntries, o
     });
   };
 
+  const moveQuestion = (questionId, direction) => {
+    const index = sorted.findIndex(question => question.id === questionId);
+    const nextIndex = index + direction;
+    if (index < 0 || nextIndex < 0 || nextIndex >= sorted.length) return;
+    const next = [...sorted];
+    [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+    onReorderQuestions?.(next.map(question => question.id));
+  };
+
   return (
     <div className="normal-questions">
       <div className="nq-section-title">通常問題</div>
-      {sorted.map(q => (
+      {sorted.map((q, index) => (
         <QuestionItem
           key={q.id}
           q={q}
@@ -435,6 +459,9 @@ export default function NormalQuestions({ questions, sections, historyEntries, o
           isAdmin={isAdmin}
           onUpdateQuestion={onUpdateQuestion}
           onDeleteQuestion={onDeleteQuestion}
+          onMoveQuestion={moveQuestion}
+          canMoveUp={index > 0}
+          canMoveDown={index < sorted.length - 1}
         />
       ))}
     </div>
