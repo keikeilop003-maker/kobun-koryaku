@@ -263,6 +263,7 @@ function AppInner() {
           const displaySection = sectionEdit
             ? {
                 ...section,
+                ...(typeof sectionEdit.title === 'string' ? { title: sectionEdit.title } : {}),
                 ...(typeof sectionEdit.text === 'string' ? { text: sectionEdit.text } : {}),
                 ...(typeof sectionEdit.kundoku === 'string' ? { kundoku: sectionEdit.kundoku } : {}),
                 ...(typeof sectionEdit.modern === 'string' ? { modern: sectionEdit.modern } : {}),
@@ -288,6 +289,21 @@ function AppInner() {
           ].sort((a, b) => targetOrder(displaySection, a) - targetOrder(displaySection, b));
           return { ...displaySection, targets, editedSection: Boolean(sectionEdit) };
         }),
+        ...[...editedSectionMap.values()]
+          .filter(item => item?.sectionId && !(textData.sections ?? []).some(section => section.id === item.sectionId))
+          .map(item => ({
+            id: item.sectionId,
+            title: item.section?.title ?? '追加した段',
+            text: item.section?.text ?? '',
+            kundoku: item.section?.kundoku ?? '',
+            modern: item.section?.modern ?? '',
+            notes: item.section?.notes ?? '',
+            kanbunSyntax: item.section?.kanbunSyntax ?? '',
+            kundokuQuestions: item.section?.kundokuQuestions ?? [],
+            targets: [],
+            customSection: true,
+            editedSection: true,
+          })),
         ...(sectionlessTargets.length > 0
           ? [{
               id: SECTIONLESS_CUSTOM_SECTION_ID,
@@ -685,6 +701,7 @@ function AppInner() {
       textId,
       sectionId: section.id,
         section: {
+          title: Object.prototype.hasOwnProperty.call(updates, 'title') ? updates.title : (section.title ?? ''),
           text: Object.prototype.hasOwnProperty.call(updates, 'text') ? updates.text : (section.text ?? ''),
           kundoku: Object.prototype.hasOwnProperty.call(updates, 'kundoku') ? updates.kundoku : (section.kundoku ?? ''),
           modern: Object.prototype.hasOwnProperty.call(updates, 'modern') ? updates.modern : (section.modern ?? ''),

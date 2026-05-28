@@ -410,7 +410,9 @@ service cloud.firestore {
         && request.resource.data.textId is string
         && request.resource.data.sectionId is string
         && request.resource.data.section is map
-        && request.resource.data.section.keys().hasOnly(['text', 'kundoku', 'modern', 'notes', 'kanbunSyntax', 'kundokuQuestions'])
+        && request.resource.data.section.keys().hasOnly(['title', 'text', 'kundoku', 'modern', 'notes', 'kanbunSyntax', 'kundokuQuestions'])
+        && request.resource.data.section.title is string
+        && request.resource.data.section.title.size() <= 80
         && request.resource.data.section.text is string
         && request.resource.data.section.text.size() <= 20000
         && request.resource.data.section.kundoku is string

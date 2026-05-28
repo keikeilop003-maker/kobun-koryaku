@@ -1056,7 +1056,8 @@ function KaeritenInlineExercise({ target, section, isAdmin, onRecord, onUpdateTa
   );
 }
 
-function SectionEditor({ section, kundoku, onCancel, onSave }) {
+function SectionEditor({ section, kundoku, onCancel, onSave, allowTitle = false }) {
+  const [title, setTitle] = useState(section.title ?? '');
   const [sourceText, setSourceText] = useState(section.text ?? '');
   const [kundokuText, setKundokuText] = useState(kundoku ?? '');
   const [modernText, setModernText] = useState(section.modern ?? '');
@@ -1069,6 +1070,7 @@ function SectionEditor({ section, kundoku, onCancel, onSave }) {
     setMessage('');
     try {
       await onSave?.({
+        ...(allowTitle ? { title: title.trim() || '追加した段' } : {}),
         text: sourceText,
         kundoku: kundokuText,
         modern: modernText,
@@ -1085,6 +1087,12 @@ function SectionEditor({ section, kundoku, onCancel, onSave }) {
 
   return (
     <div className="admin-section-editor">
+      {allowTitle && (
+        <label>
+          段の見出し
+          <input value={title} onChange={(e) => setTitle(e.target.value)} />
+        </label>
+      )}
       <label>
         原文
         <textarea rows={8} value={sourceText} onChange={(e) => setSourceText(e.target.value)} />
@@ -2156,6 +2164,47 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
   );
 }
 
+function AddSectionEditor({ onSave }) {
+  const [adding, setAdding] = useState(false);
+
+  const createSection = async (updates) => {
+    const id = `custom-section-${Date.now()}`;
+    await onSave?.({
+      id,
+      title: updates.title || '追加した段',
+      text: '',
+      kundoku: '',
+      modern: '',
+      notes: '',
+      kanbunSyntax: '',
+      kundokuQuestions: [],
+      customSection: true,
+    }, updates);
+    setAdding(false);
+  };
+
+  if (!adding) {
+    return (
+      <div className="admin-add-section">
+        <button type="button" onClick={() => setAdding(true)}>段を追加</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="admin-add-section admin-add-section--editing">
+      <div className="admin-add-section-title">段を追加</div>
+      <SectionEditor
+        section={{ title: '追加した段', text: '', kundoku: '', modern: '' }}
+        kundoku=""
+        allowTitle
+        onCancel={() => setAdding(false)}
+        onSave={createSection}
+      />
+    </div>
+  );
+}
+
 function NotesTab({ textId, notes, sections, isAdmin, onUpdateSection }) {
   const visibleSections = sections.filter(section => !section.sectionless);
   const items = visibleSections
@@ -2261,29 +2310,32 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
       </div>
       <div className="left-view-body">
         {visibleTab === 'source' ? (
-          visibleSections.map((section) => (
-            <SectionCard
-              key={section.id}
-              section={section}
-              selectedTarget={selectedTarget}
-              onSelectTarget={onSelectTarget}
-              activeType={activeType}
-              pinnedPhrase={pinnedPhrase}
-              selectionMode={selectionMode}
-              selectionRange={selectionRange}
-              onRangeSelect={onRangeSelect}
-              showModern={showModern}
-              isAdmin={isAdmin}
-              onUpdateSection={onUpdateSection}
-              onUpdateTarget={onUpdateTarget}
-              onRecord={onRecord}
-              onCreateTarget={onCreateTarget}
-              sourceHeightScale={sourceHeightScale}
-              isKanbunTextbook={isKanbunTextbook}
-              compactKanbunSourceHeight={compactKanbunSourceHeight}
-              correctKaeritenLines={correctKaeritenLineKeys}
-            />
-          ))
+          <>
+            {isAdmin && <AddSectionEditor onSave={onUpdateSection} />}
+            {visibleSections.map((section) => (
+              <SectionCard
+                key={section.id}
+                section={section}
+                selectedTarget={selectedTarget}
+                onSelectTarget={onSelectTarget}
+                activeType={activeType}
+                pinnedPhrase={pinnedPhrase}
+                selectionMode={selectionMode}
+                selectionRange={selectionRange}
+                onRangeSelect={onRangeSelect}
+                showModern={showModern}
+                isAdmin={isAdmin}
+                onUpdateSection={onUpdateSection}
+                onUpdateTarget={onUpdateTarget}
+                onRecord={onRecord}
+                onCreateTarget={onCreateTarget}
+                sourceHeightScale={sourceHeightScale}
+                isKanbunTextbook={isKanbunTextbook}
+                compactKanbunSourceHeight={compactKanbunSourceHeight}
+                correctKaeritenLines={correctKaeritenLineKeys}
+              />
+            ))}
+          </>
         ) : visibleTab === 'view' ? (
           <LessonViewMode
             sections={sections}

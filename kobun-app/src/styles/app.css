@@ -1100,6 +1100,39 @@ body {
   background: #e5eefc;
 }
 
+.admin-add-section {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.admin-add-section--editing {
+  border: 1px solid #d8d1c1;
+  border-radius: 8px;
+  background: #fffdf8;
+  display: block;
+  padding: 12px;
+}
+
+.admin-add-section > button {
+  border: 1px solid #b8cdef;
+  border-radius: 4px;
+  background: #f2f6ff;
+  color: #174c8f;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: bold;
+  padding: 6px 12px;
+}
+
+.admin-add-section-title {
+  color: #2d3a5e;
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
 .admin-section-editor {
   border: 1px solid #ddd8cc;
   border-radius: 6px;
@@ -1120,6 +1153,7 @@ body {
   font-weight: bold;
 }
 
+.admin-section-editor input,
 .admin-section-editor textarea {
   width: 100%;
   border: 1.5px solid #ccc;
@@ -1132,6 +1166,7 @@ body {
   resize: vertical;
 }
 
+.admin-section-editor input:focus,
 .admin-section-editor textarea:focus {
   outline: none;
   border-color: #4a6fa5;
