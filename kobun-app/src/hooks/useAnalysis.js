@@ -255,7 +255,6 @@ export default function useAnalysis(textId, user, isAdmin = false) {
     if (!isAdmin) throw new Error('permission_denied');
     const targetTheme = themes.find(item => item.id === themeId);
     if (!targetTheme) return { corrected: 0 };
-    const currentThemes = Array.isArray(theme?.themes) ? theme.themes : [];
     const targets = posts.filter(post => (
       post.themeId === themeId && !post.replyTo && !post.correction && cleanText(post.text)
     ));
@@ -279,6 +278,13 @@ export default function useAnalysis(textId, user, isAdmin = false) {
       });
       corrected += 1;
     }
+    return { corrected };
+  };
+
+  const publishThemeModelAnswer = async (themeId) => {
+    if (!isAdmin) throw new Error('permission_denied');
+    if (!textId || !themeId) return;
+    const currentThemes = Array.isArray(theme?.themes) ? theme.themes : [];
     const nextThemes = currentThemes.map((item) => (
       item.id === themeId
         ? {
@@ -295,7 +301,6 @@ export default function useAnalysis(textId, user, isAdmin = false) {
       updatedByEmail: email,
       updatedAt: serverTimestamp(),
     }, { merge: true });
-    return { corrected };
   };
 
   return {
@@ -315,5 +320,6 @@ export default function useAnalysis(textId, user, isAdmin = false) {
     updateThemeModelAnswer,
     deleteTheme,
     batchCorrectThemePosts,
+    publishThemeModelAnswer,
   };
 }

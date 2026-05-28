@@ -379,6 +379,7 @@ function ShareTheme({ theme, posts, reactions, analysis, avatarSeed, equipped, c
   const [open, setOpen] = useState(false);
   const [replyContext, setReplyContext] = useState(null);
   const [correcting, setCorrecting] = useState(false);
+  const [publishingAnswer, setPublishingAnswer] = useState(false);
   const [message, setMessage] = useState('');
   const { topLevel, repliesByParent } = useMemo(() => splitPosts(posts), [posts]);
   const uncorrectedCount = posts.filter(post => !post.replyTo && !post.correction).length;
@@ -398,6 +399,20 @@ function ShareTheme({ theme, posts, reactions, analysis, avatarSeed, equipped, c
     }
   };
 
+  const showModelAnswer = async () => {
+    if (publishingAnswer || modelAnswerPublished) return;
+    setPublishingAnswer(true);
+    setMessage('');
+    try {
+      await analysis.publishThemeModelAnswer(theme.id);
+      setMessage('模範解答を表示しました');
+    } catch (e) {
+      setMessage(`模範解答の表示に失敗しました: ${e.code ?? e.message ?? 'unknown error'}`);
+    } finally {
+      setPublishingAnswer(false);
+    }
+  };
+
   return (
     <section className={`analysis-theme-item${open ? ' open' : ''}`}>
       <ThemeHeader theme={theme} open={open} onToggle={() => setOpen(value => !value)} postCount={posts.length} />
@@ -405,8 +420,11 @@ function ShareTheme({ theme, posts, reactions, analysis, avatarSeed, equipped, c
         <div className="analysis-thread">
           {isAdmin && (
             <div className="share-theme-tools">
-              <button type="button" onClick={correctAll} disabled={correcting || (uncorrectedCount === 0 && modelAnswerPublished)}>
+              <button type="button" onClick={correctAll} disabled={correcting || uncorrectedCount === 0}>
                 {correcting ? '添削中...' : `一斉添削 (${uncorrectedCount})`}
+              </button>
+              <button type="button" onClick={showModelAnswer} disabled={publishingAnswer || modelAnswerPublished || !theme.modelAnswer}>
+                {publishingAnswer ? '表示中...' : '解答表示'}
               </button>
               {message && <span className={message.includes('失敗') ? 'analysis-admin-error' : 'analysis-admin-done'}>{message}</span>}
             </div>
