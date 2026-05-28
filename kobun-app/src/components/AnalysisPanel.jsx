@@ -399,15 +399,16 @@ function ShareTheme({ theme, posts, reactions, analysis, avatarSeed, equipped, c
     }
   };
 
-  const showModelAnswer = async () => {
-    if (publishingAnswer || modelAnswerPublished) return;
+  const toggleModelAnswer = async () => {
+    if (publishingAnswer || !theme.modelAnswer) return;
     setPublishingAnswer(true);
     setMessage('');
     try {
-      await analysis.publishThemeModelAnswer(theme.id);
-      setMessage('模範解答を表示しました');
+      const nextPublished = !modelAnswerPublished;
+      await analysis.setThemeModelAnswerPublished(theme.id, nextPublished);
+      setMessage(nextPublished ? '模範解答を表示しました' : '模範解答を非表示にしました');
     } catch (e) {
-      setMessage(`模範解答の表示に失敗しました: ${e.code ?? e.message ?? 'unknown error'}`);
+      setMessage(`模範解答の表示切り替えに失敗しました: ${e.code ?? e.message ?? 'unknown error'}`);
     } finally {
       setPublishingAnswer(false);
     }
@@ -423,8 +424,8 @@ function ShareTheme({ theme, posts, reactions, analysis, avatarSeed, equipped, c
               <button type="button" onClick={correctAll} disabled={correcting || uncorrectedCount === 0}>
                 {correcting ? '添削中...' : `一斉添削 (${uncorrectedCount})`}
               </button>
-              <button type="button" onClick={showModelAnswer} disabled={publishingAnswer || modelAnswerPublished || !theme.modelAnswer}>
-                {publishingAnswer ? '表示中...' : '解答表示'}
+              <button type="button" onClick={toggleModelAnswer} disabled={publishingAnswer || !theme.modelAnswer}>
+                {publishingAnswer ? '切替中...' : (modelAnswerPublished ? '解答非表示' : '解答表示')}
               </button>
               {message && <span className={message.includes('失敗') ? 'analysis-admin-error' : 'analysis-admin-done'}>{message}</span>}
             </div>

@@ -281,7 +281,7 @@ export default function useAnalysis(textId, user, isAdmin = false) {
     return { corrected };
   };
 
-  const publishThemeModelAnswer = async (themeId) => {
+  const setThemeModelAnswerPublished = async (themeId, published) => {
     if (!isAdmin) throw new Error('permission_denied');
     if (!textId || !themeId) return;
     const currentThemes = Array.isArray(theme?.themes) ? theme.themes : [];
@@ -289,8 +289,8 @@ export default function useAnalysis(textId, user, isAdmin = false) {
       item.id === themeId
         ? {
             ...item,
-            modelAnswerPublished: true,
-            modelAnswerPublishedBy: uid,
+            modelAnswerPublished: Boolean(published),
+            modelAnswerPublishedBy: published ? uid : '',
           }
         : item
     ));
@@ -320,6 +320,6 @@ export default function useAnalysis(textId, user, isAdmin = false) {
     updateThemeModelAnswer,
     deleteTheme,
     batchCorrectThemePosts,
-    publishThemeModelAnswer,
+    setThemeModelAnswerPublished,
   };
 }
