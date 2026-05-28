@@ -1875,6 +1875,7 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, onAddMaskRul
         text: sourceText,
         modern: modernText,
         kundoku: kundokuText,
+        maskRules,
       });
       onCancel?.();
     } catch (err) {
@@ -1968,6 +1969,27 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
   const [slideIndex, setSlideIndex] = useState(0);
   const pairsPerSlide = isKanbunTextbook ? 4 : 5;
 
+  useEffect(() => {
+    const next = [];
+    lessonViewSections?.forEach(item => {
+      const rules = Array.isArray(item?.section?.maskRules) ? item.section.maskRules : [];
+      rules.forEach((rule, index) => {
+        const sectionId = rule?.sectionId || item.sectionId;
+        const word = String(rule?.word ?? '').trim();
+        const lineIndex = Number(rule?.lineIndex);
+        if (!sectionId || !word || !Number.isInteger(lineIndex)) return;
+        next.push({
+          id: rule.id || `${sectionId}:${lineIndex}:${word}:${index}`,
+          sectionId,
+          lineIndex,
+          word,
+        });
+      });
+    });
+    setMaskRules(next);
+    setRevealedMasks(new Set());
+  }, [lessonViewSections]);
+
   const addMaskRule = (rule) => {
     const word = String(rule?.word ?? '').trim();
     if (!word || !rule?.sectionId || !Number.isInteger(rule.lineIndex)) return;
@@ -2018,6 +2040,7 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
       ...(typeof lessonEdit.text === 'string' ? { text: lessonEdit.text } : {}),
       ...(typeof lessonEdit.kundoku === 'string' ? { kundoku: lessonEdit.kundoku } : {}),
       ...(typeof lessonEdit.modern === 'string' ? { modern: lessonEdit.modern } : {}),
+      ...(Array.isArray(lessonEdit.maskRules) ? { maskRules: lessonEdit.maskRules } : {}),
     };
     const kundoku = getKundoku(lessonSection);
     const isKanbun = isKanbunSection(lessonSection, isKanbunTextbook);
