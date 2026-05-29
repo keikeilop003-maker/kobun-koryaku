@@ -1824,12 +1824,71 @@ function maskedTextParts(text, hiddenWords) {
 }
 
 const LESSON_GRAMMAR_TYPES = new Set(['verb', 'adj', 'aux']);
+const LESSON_FORM_ABBR = {
+  '未然形': '未',
+  '連用形': '用',
+  '終止形': '終',
+  '連体形': '体',
+  '已然形': '已',
+  '命令形': '命',
+};
+const LESSON_EUPHONY_ABBR = {
+  'ウ音便': 'ウ音',
+  'イ音便': 'イ音',
+  '撥音便': '撥',
+  '促音便': '促',
+};
+
+function lessonGrammarSourceText(target) {
+  return [
+    target?.conjugationType,
+    target?.formInText,
+    target?.answer,
+    target?.explanation,
+  ].map(value => String(value ?? '')).join('・');
+}
+
+function lessonFormAbbr(target) {
+  const source = lessonGrammarSourceText(target);
+  return Object.entries(LESSON_FORM_ABBR).find(([word]) => source.includes(word))?.[1] ?? '';
+}
+
+function lessonEuphonyAbbr(target) {
+  const source = lessonGrammarSourceText(target);
+  return Object.entries(LESSON_EUPHONY_ABBR)
+    .filter(([word]) => source.includes(word))
+    .map(([, abbr]) => abbr);
+}
+
+function shortenLessonConjugation(value, type) {
+  let text = String(value ?? '').trim();
+  if (!text || text === '?') return '';
+  text = text
+    .replace(/形容動詞/g, '')
+    .replace(/形容詞/g, '')
+    .replace(/活用/g, '')
+    .replace(/変格/g, '変');
+  if (type === 'verb') text = text.replace(/行/g, '');
+  return text;
+}
+
+function lessonAuxiliaryKind(target) {
+  return String(target?.answer ?? target?.explanation ?? '')
+    .replace(/の助動詞/g, '')
+    .split('・')[0]
+    .trim();
+}
 
 function grammarTooltipText(target) {
-  const conjugationType = String(target?.conjugationType ?? '').trim();
-  const formInText = String(target?.formInText ?? '').trim();
-  if (conjugationType && formInText) return `${conjugationType}・${formInText}`;
-  return String(target?.explanation ?? target?.answer ?? '').trim();
+  const form = lessonFormAbbr(target);
+  const euphony = lessonEuphonyAbbr(target);
+  const isSupplementary = lessonGrammarSourceText(target).includes('補助');
+  if (target?.type === 'aux') {
+    return [lessonAuxiliaryKind(target), form, ...euphony].filter(Boolean).join('・');
+  }
+  const conjugation = shortenLessonConjugation(target?.conjugationType, target?.type);
+  return [conjugation, form, ...euphony, isSupplementary ? '補' : ''].filter(Boolean).join('・')
+    || String(target?.explanation ?? target?.answer ?? '').trim();
 }
 
 function buildLessonGrammarSegments(text, targets) {
@@ -2127,6 +2186,8 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
       const rect = element.getBoundingClientRect();
       const centerY = rect.top + rect.height / 2;
       const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+      const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+      const horizontal = rect.right > viewportWidth * 0.78 ? 'left' : 'right';
       const align = centerY < viewportHeight * 0.34
         ? 'top'
         : centerY > viewportHeight * 0.66
@@ -2135,9 +2196,10 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
       return [...current, {
         key: target.bubbleKey,
         text,
-        left: rect.right + 10,
+        left: horizontal === 'left' ? rect.left - 10 : rect.right + 10,
         top: align === 'top' ? rect.top : align === 'bottom' ? rect.bottom : centerY,
         align,
+        horizontal,
         zIndex: grammarBubbleZ.current += 1,
         fontSize: window.getComputedStyle(element).fontSize,
       }];
@@ -2313,7 +2375,7 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
               {grammarBubbles.map(bubble => (
                 <div
                   key={bubble.key}
-                  className={`lesson-view-grammar-bubble lesson-view-grammar-bubble--${bubble.align}`}
+                  className={`lesson-view-grammar-bubble lesson-view-grammar-bubble--${bubble.align} lesson-view-grammar-bubble--${bubble.horizontal}`}
                   style={{
                     left: `${bubble.left}px`,
                     top: `${bubble.top}px`,

@@ -699,6 +699,18 @@ body {
   transform: translateY(-100%);
 }
 
+.lesson-view-grammar-bubble--left {
+  transform: translateX(-100%);
+}
+
+.lesson-view-grammar-bubble--middle.lesson-view-grammar-bubble--left {
+  transform: translate(-100%, -50%);
+}
+
+.lesson-view-grammar-bubble--bottom.lesson-view-grammar-bubble--left {
+  transform: translate(-100%, -100%);
+}
+
 .lesson-view-floating-actions {
   display: flex;
   flex-direction: column;
