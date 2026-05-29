@@ -2333,7 +2333,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
             className={`left-tab-button${visibleTab === 'share' ? ' active' : ''}`}
             onClick={() => setActiveTab('share')}
           >
-            {'\u5171\u6709\u30dc\u30fc\u30c9'}
+            {'\u5206\u6790\u7814\u7a76'}
           </button>
         </div>
         <div className="left-tab-bottom-actions">
@@ -2381,7 +2381,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
         ) : visibleTab === 'notes' ? (
           <NotesTab textId={textId} notes={notes} sections={sections} isAdmin={isAdmin} onUpdateSection={onUpdateSection} />
         ) : (
-          shareBoard ?? <p className="analysis-empty">{'\u5171\u6709\u30dc\u30fc\u30c9\u3092\u8aad\u307f\u8fbc\u307f\u4e2d\u3067\u3059\u3002'}</p>
+          shareBoard ?? <p className="analysis-empty">{'\u5206\u6790\u7814\u7a76\u3092\u8aad\u307f\u8fbc\u307f\u4e2d\u3067\u3059\u3002'}</p>
         )}
       </div>
     </div>
