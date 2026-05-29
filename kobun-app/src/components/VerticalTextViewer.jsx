@@ -1868,7 +1868,7 @@ function shortenLessonConjugation(value, type) {
     .replace(/形容詞/g, '')
     .replace(/活用/g, '')
     .replace(/変格/g, '変');
-  if (type === 'verb') text = text.replace(/行/g, '');
+  if (type === 'verb') text = text.replace(/行/g, '').replace(/段/g, '');
   return text;
 }
 
@@ -1887,7 +1887,8 @@ function grammarTooltipText(target) {
     return [lessonAuxiliaryKind(target), form, ...euphony].filter(Boolean).join('・');
   }
   const conjugation = shortenLessonConjugation(target?.conjugationType, target?.type);
-  return [conjugation, form, ...euphony, isSupplementary ? '補' : ''].filter(Boolean).join('・')
+  const core = [conjugation, form].filter(Boolean).join('');
+  return [core, ...euphony, isSupplementary ? '補' : ''].filter(Boolean).join('・')
     || String(target?.explanation ?? target?.answer ?? '').trim();
 }
 
