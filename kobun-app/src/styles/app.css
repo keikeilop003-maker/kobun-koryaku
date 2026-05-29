@@ -659,14 +659,14 @@ body {
 
 .lesson-view-grammar-token {
   cursor: pointer;
-  border-inline-end: 0.08em solid rgba(255, 242, 0, 0.82);
+  border-inline-end: 0.06em solid rgba(255, 255, 255, 0.38);
   border-radius: 0.08em;
-  background: rgba(255, 242, 0, 0.08);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .lesson-view-grammar-token:hover,
 .lesson-view-grammar-token:focus {
-  background: rgba(255, 242, 0, 0.2);
+  background: rgba(255, 255, 255, 0.14);
   outline: none;
 }
 
@@ -676,7 +676,7 @@ body {
 
 .lesson-view-grammar-bubble {
   position: fixed;
-  writing-mode: horizontal-tb;
+  writing-mode: vertical-rl;
   text-orientation: mixed;
   white-space: nowrap;
   max-width: none;
