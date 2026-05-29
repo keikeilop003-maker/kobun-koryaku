@@ -487,7 +487,7 @@ export function ShareBoard({ analysis, avatarSeed, equipped, currentUid, isAdmin
 
   return (
     <div className="share-board">
-      <div className="share-board-title">共有ボード</div>
+      <div className="share-board-title">分析研究</div>
       {analysis?.loadingThemes && <p className="analysis-empty">テーマを読み込み中です。</p>}
       {themes.map(theme => (
         <ShareTheme
@@ -543,7 +543,7 @@ export default function AnalysisPanel({ analysis, avatarSeed, equipped, isAdmin 
     <div className="analysis-panel">
       <div className="analysis-panel-intro">
         <strong>分析研究</strong>
-        <span>テーマごとに意見を投稿できます。投稿後は左の共有ボードに表示されます。</span>
+        <span>テーマごとに意見を投稿できます。投稿後は左の分析研究に表示されます。</span>
       </div>
       {isAdmin && <ThemeForm onSave={analysis.addTheme} />}
       {analysis?.loadingThemes && <p className="analysis-empty">テーマを読み込み中です。</p>}
