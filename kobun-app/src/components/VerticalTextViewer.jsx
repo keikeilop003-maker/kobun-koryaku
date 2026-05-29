@@ -2144,35 +2144,9 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarTarge
       ) : (
         <div className="lesson-view-grammar-editor">
           <div className="lesson-view-editor-subtitle">文法吹き出し</div>
-          <div className="lesson-view-grammar-add">
-            <label>
-              対象行
-              <select value={grammarLineIndex} onChange={(event) => setGrammarLineIndex(Number(event.target.value))}>
-                {Array.from({ length: Math.max(lineCount, 1) }).map((_, index) => (
-                  <option value={index} key={index}>{`${index + 1}行目`}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              品詞
-              <select value={grammarType} onChange={(event) => setGrammarType(event.target.value)}>
-                <option value="verb">動詞</option>
-                <option value="adj">形容詞・形容動詞</option>
-                <option value="aux">助動詞</option>
-              </select>
-            </label>
-            <label>
-              語
-              <input value={grammarSurface} onChange={(event) => setGrammarSurface(event.target.value)} />
-            </label>
-            <label>
-              表示
-              <input value={grammarLabel} onChange={(event) => setGrammarLabel(event.target.value)} />
-            </label>
-            <button type="button" onClick={addGrammar}>追加</button>
-          </div>
-          <div className="lesson-view-grammar-editor-list">
-            {grammarTargets.map(target => (
+          <div className="lesson-view-grammar-editor-layout">
+            <div className="lesson-view-grammar-editor-list">
+              {grammarTargets.map(target => (
                 <div key={target.id} className="lesson-view-grammar-editor-row">
                   <span>{target.surface}</span>
                   <input
@@ -2184,6 +2158,34 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarTarge
                   <button type="button" onClick={() => onRemoveGrammarTarget?.(target)}>削除</button>
                 </div>
               ))}
+            </div>
+            <div className="lesson-view-grammar-add">
+              <label>
+                対象行
+                <select value={grammarLineIndex} onChange={(event) => setGrammarLineIndex(Number(event.target.value))}>
+                  {Array.from({ length: Math.max(lineCount, 1) }).map((_, index) => (
+                    <option value={index} key={index}>{`${index + 1}行目`}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                品詞
+                <select value={grammarType} onChange={(event) => setGrammarType(event.target.value)}>
+                  <option value="verb">動詞</option>
+                  <option value="adj">形容詞・形容動詞</option>
+                  <option value="aux">助動詞</option>
+                </select>
+              </label>
+              <label>
+                語
+                <input value={grammarSurface} onChange={(event) => setGrammarSurface(event.target.value)} />
+              </label>
+              <label>
+                表示
+                <input value={grammarLabel} onChange={(event) => setGrammarLabel(event.target.value)} />
+              </label>
+              <button type="button" onClick={addGrammar}>追加</button>
+            </div>
           </div>
         </div>
       )}
