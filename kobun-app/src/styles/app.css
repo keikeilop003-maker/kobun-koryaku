@@ -634,7 +634,8 @@ body {
 }
 
 .lesson-view-column--source .lesson-view-text {
-  font-weight: 800;
+  font-family: 'BIZ UDGothic', 'BIZ UDPGothic', 'Yu Gothic UI', 'Yu Gothic', 'Hiragino Kaku Gothic ProN', Meiryo, system-ui, sans-serif;
+  font-weight: 900;
   letter-spacing: 0.16em;
 }
 
@@ -651,8 +652,7 @@ body {
 }
 
 .lesson-view-column--modern .lesson-view-text {
-  color: #fffbd1;
-  font-size: 2.38rem;
+  color: #fff45c;
   letter-spacing: 0;
   line-height: 1.46;
 }
@@ -7232,8 +7232,7 @@ span.kaeriten-source-hyphen.active {
     line-height: 1.8;
   }
 
-  .lesson-view-column--kundoku .lesson-view-text,
-  .lesson-view-column--modern .lesson-view-text {
+  .lesson-view-column--kundoku .lesson-view-text {
     font-size: 1.34rem;
   }
 
