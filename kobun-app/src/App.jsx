@@ -746,6 +746,8 @@ function AppInner() {
         modern: Object.prototype.hasOwnProperty.call(updates, 'modern') ? updates.modern : (section.modern ?? ''),
         maskRules: Object.prototype.hasOwnProperty.call(updates, 'maskRules') ? updates.maskRules : (section.maskRules ?? []),
         grammarLabelOverrides: Object.prototype.hasOwnProperty.call(updates, 'grammarLabelOverrides') ? updates.grammarLabelOverrides : (section.grammarLabelOverrides ?? {}),
+        customGrammarTargets: Object.prototype.hasOwnProperty.call(updates, 'customGrammarTargets') ? updates.customGrammarTargets : (section.customGrammarTargets ?? []),
+        hiddenGrammarTargetIds: Object.prototype.hasOwnProperty.call(updates, 'hiddenGrammarTargetIds') ? updates.hiddenGrammarTargetIds : (section.hiddenGrammarTargetIds ?? []),
       },
       updatedBy: user.uid,
       updatedByEmail: user.email,

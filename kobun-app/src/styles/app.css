@@ -870,13 +870,13 @@ body {
 
 .lesson-view-grammar-editor-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 8px;
 }
 
 .lesson-view-grammar-editor-row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
   color: #f0f0f0;
@@ -891,6 +891,48 @@ body {
 }
 
 .lesson-view-grammar-editor-row input {
+  min-width: 0;
+  color: #fff;
+  background: #050505;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 7px 9px;
+  font-family: inherit;
+  font-size: 0.88rem;
+}
+
+.lesson-view-grammar-editor-row button,
+.lesson-view-grammar-add button {
+  color: #fff;
+  cursor: pointer;
+  background: #1f1f1f;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.lesson-view-grammar-add {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) auto;
+  align-items: end;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.lesson-view-grammar-add label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #f0f0f0;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.lesson-view-grammar-add select,
+.lesson-view-grammar-add input {
   min-width: 0;
   color: #fff;
   background: #050505;
@@ -964,6 +1006,30 @@ body {
   border-radius: 8px;
   background: #101010;
   padding: 14px;
+}
+
+.lesson-view-editor-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #333;
+}
+
+.lesson-view-editor-tabs button {
+  color: #ddd;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  padding: 7px 12px;
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.lesson-view-editor-tabs button.active {
+  color: #fff;
+  border-bottom-color: #fff200;
 }
 
 .lesson-view-editor-grid {

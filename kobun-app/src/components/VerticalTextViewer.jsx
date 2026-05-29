@@ -2007,12 +2007,17 @@ function LineNumberedTextarea({ value, onChange }) {
   );
 }
 
-function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarLabelOverrides, onGrammarLabelOverrideChange, onAddMaskRule, onRemoveMaskRule, onCancel, onSave }) {
+function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarTargets, customGrammarTargets, hiddenGrammarTargetIds, grammarLabelOverrides, onGrammarLabelOverrideChange, onAddGrammarTarget, onRemoveGrammarTarget, onAddMaskRule, onRemoveMaskRule, onCancel, onSave }) {
+  const [editorTab, setEditorTab] = useState('text');
   const [sourceText, setSourceText] = useState(section.text ?? '');
   const [modernText, setModernText] = useState(section.modern ?? '');
   const [kundokuText, setKundokuText] = useState(kundoku ?? '');
   const [maskLineIndex, setMaskLineIndex] = useState(0);
   const [maskWord, setMaskWord] = useState('');
+  const [grammarLineIndex, setGrammarLineIndex] = useState(0);
+  const [grammarSurface, setGrammarSurface] = useState('');
+  const [grammarLabel, setGrammarLabel] = useState('');
+  const [grammarType, setGrammarType] = useState('verb');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -2027,6 +2032,8 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarLabel
         kundoku: kundokuText,
         maskRules,
         grammarLabelOverrides,
+        customGrammarTargets,
+        hiddenGrammarTargetIds,
       });
       onCancel?.();
     } catch (err) {
@@ -2048,32 +2055,125 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarLabel
     setMaskWord('');
   };
 
+  const addGrammar = () => {
+    const surface = grammarSurface.trim();
+    const label = grammarLabel.trim();
+    if (!surface || !label) return;
+    const lineEntries = splitViewLineEntries(sourceText);
+    const entry = lineEntries[grammarLineIndex];
+    if (!entry) return;
+    const localIndex = entry.text.indexOf(surface);
+    if (localIndex === -1) {
+      setMessage('対象行にその語が見つかりません');
+      return;
+    }
+    onAddGrammarTarget?.({
+      id: `custom-grammar-${section.id}-${Date.now()}`,
+      sectionId: section.id,
+      type: grammarType,
+      surface,
+      start: entry.start + localIndex,
+      end: entry.start + localIndex + surface.length,
+      answer: label,
+      explanation: label,
+      customLessonGrammar: true,
+    });
+    setGrammarSurface('');
+    setGrammarLabel('');
+    setMessage('');
+  };
+
   return (
     <div className="lesson-view-editor">
-      <div className="lesson-view-editor-grid">
-        <label>
-          {'\u539f\u6587'}
-          <LineNumberedTextarea value={sourceText} onChange={(event) => setSourceText(event.target.value)} />
-        </label>
-        <label>
-          {'\u73fe\u4ee3\u8a9e\u8a33'}
-          <LineNumberedTextarea value={modernText} onChange={(event) => setModernText(event.target.value)} />
-        </label>
-        {kundoku || section.kundoku ? (
-          <label>
-            {'\u66f8\u304d\u4e0b\u3057\u6587'}
-            <textarea value={kundokuText} onChange={(event) => setKundokuText(event.target.value)} />
-          </label>
-        ) : null}
+      <div className="lesson-view-editor-tabs" role="tablist" aria-label="授業表示編集">
+        <button type="button" className={editorTab === 'text' ? 'active' : ''} onClick={() => setEditorTab('text')}>本文</button>
+        <button type="button" className={editorTab === 'grammar' ? 'active' : ''} onClick={() => setEditorTab('grammar')}>吹き出し</button>
       </div>
-      {section.targets?.some(target => LESSON_GRAMMAR_TYPES.has(target.type)) && (
+      {editorTab === 'text' ? (
+        <>
+          <div className="lesson-view-editor-grid">
+            <label>
+              {'\u539f\u6587'}
+              <LineNumberedTextarea value={sourceText} onChange={(event) => setSourceText(event.target.value)} />
+            </label>
+            <label>
+              {'\u73fe\u4ee3\u8a9e\u8a33'}
+              <LineNumberedTextarea value={modernText} onChange={(event) => setModernText(event.target.value)} />
+            </label>
+            {kundoku || section.kundoku ? (
+              <label>
+                {'\u66f8\u304d\u4e0b\u3057\u6587'}
+                <textarea value={kundokuText} onChange={(event) => setKundokuText(event.target.value)} />
+              </label>
+            ) : null}
+          </div>
+          <div className="lesson-view-mask-editor">
+            <label>
+              {'\u5bfe\u8c61\u884c'}
+              <select value={maskLineIndex} onChange={(event) => setMaskLineIndex(Number(event.target.value))}>
+                {Array.from({ length: Math.max(lineCount, 1) }).map((_, index) => (
+                  <option value={index} key={index}>{`${index + 1}\u884c\u76ee`}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              {'\u73fe\u4ee3\u8a9e\u8a33\u306e\u96a0\u3059\u8a9e'}
+              <input
+                value={maskWord}
+                onChange={(event) => setMaskWord(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    addMask();
+                  }
+                }}
+              />
+            </label>
+            <button type="button" onClick={addMask}>{'\u8ffd\u52a0'}</button>
+            {maskRules.length > 0 && (
+              <div className="lesson-view-mask-editor-list">
+                {maskRules.map(rule => (
+                  <button type="button" key={rule.id} onClick={() => onRemoveMaskRule?.(rule.id)}>
+                    {`${rule.lineIndex + 1}\u884c\u76ee: ${rule.word} \u00d7`}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
         <div className="lesson-view-grammar-editor">
           <div className="lesson-view-editor-subtitle">文法吹き出し</div>
+          <div className="lesson-view-grammar-add">
+            <label>
+              対象行
+              <select value={grammarLineIndex} onChange={(event) => setGrammarLineIndex(Number(event.target.value))}>
+                {Array.from({ length: Math.max(lineCount, 1) }).map((_, index) => (
+                  <option value={index} key={index}>{`${index + 1}行目`}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              品詞
+              <select value={grammarType} onChange={(event) => setGrammarType(event.target.value)}>
+                <option value="verb">動詞</option>
+                <option value="adj">形容詞・形容動詞</option>
+                <option value="aux">助動詞</option>
+              </select>
+            </label>
+            <label>
+              語
+              <input value={grammarSurface} onChange={(event) => setGrammarSurface(event.target.value)} />
+            </label>
+            <label>
+              表示
+              <input value={grammarLabel} onChange={(event) => setGrammarLabel(event.target.value)} />
+            </label>
+            <button type="button" onClick={addGrammar}>追加</button>
+          </div>
           <div className="lesson-view-grammar-editor-list">
-            {section.targets
-              .filter(target => LESSON_GRAMMAR_TYPES.has(target.type))
-              .map(target => (
-                <label key={target.id} className="lesson-view-grammar-editor-row">
+            {grammarTargets.map(target => (
+                <div key={target.id} className="lesson-view-grammar-editor-row">
                   <span>{target.surface}</span>
                   <input
                     type="text"
@@ -2081,44 +2181,12 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarLabel
                     placeholder={grammarTooltipText(target)}
                     onChange={(event) => onGrammarLabelOverrideChange?.(target.id, event.target.value)}
                   />
-                </label>
+                  <button type="button" onClick={() => onRemoveGrammarTarget?.(target)}>削除</button>
+                </div>
               ))}
           </div>
         </div>
       )}
-      <div className="lesson-view-mask-editor">
-        <label>
-          {'\u5bfe\u8c61\u884c'}
-          <select value={maskLineIndex} onChange={(event) => setMaskLineIndex(Number(event.target.value))}>
-            {Array.from({ length: Math.max(lineCount, 1) }).map((_, index) => (
-              <option value={index} key={index}>{`${index + 1}\u884c\u76ee`}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          {'\u73fe\u4ee3\u8a9e\u8a33\u306e\u96a0\u3059\u8a9e'}
-          <input
-            value={maskWord}
-            onChange={(event) => setMaskWord(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault();
-                addMask();
-              }
-            }}
-          />
-        </label>
-        <button type="button" onClick={addMask}>{'\u8ffd\u52a0'}</button>
-        {maskRules.length > 0 && (
-          <div className="lesson-view-mask-editor-list">
-            {maskRules.map(rule => (
-              <button type="button" key={rule.id} onClick={() => onRemoveMaskRule?.(rule.id)}>
-                {`${rule.lineIndex + 1}\u884c\u76ee: ${rule.word} \u00d7`}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
       <div className="lesson-view-editor-actions">
         {message && <span>{message}</span>}
         <button type="button" onClick={onCancel} disabled={saving}>{'\u30ad\u30e3\u30f3\u30bb\u30eb'}</button>
@@ -2139,6 +2207,8 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
   const [slideIndex, setSlideIndex] = useState(0);
   const [grammarBubbles, setGrammarBubbles] = useState([]);
   const [grammarLabelOverrides, setGrammarLabelOverrides] = useState({});
+  const [customGrammarTargets, setCustomGrammarTargets] = useState([]);
+  const [hiddenGrammarTargetIds, setHiddenGrammarTargetIds] = useState(() => new Set());
   const grammarBubbleZ = useRef(1000);
   const pairsPerSlide = isKanbunTextbook ? 4 : 5;
   const lessonGrammarEnabled = textId === 'akutagawa';
@@ -2166,15 +2236,43 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
 
   useEffect(() => {
     const next = {};
+    const nextCustomTargets = [];
+    const nextHiddenIds = new Set();
     lessonViewSections?.forEach(item => {
       const overrides = item?.section?.grammarLabelOverrides;
-      if (!overrides || typeof overrides !== 'object' || Array.isArray(overrides)) return;
-      Object.entries(overrides).forEach(([targetId, value]) => {
-        const label = String(value ?? '').trim();
-        if (targetId && label) next[targetId] = label;
+      if (overrides && typeof overrides === 'object' && !Array.isArray(overrides)) {
+        Object.entries(overrides).forEach(([targetId, value]) => {
+          const label = String(value ?? '').trim();
+          if (targetId && label) next[targetId] = label;
+        });
+      }
+      const customTargets = Array.isArray(item?.section?.customGrammarTargets) ? item.section.customGrammarTargets : [];
+      customTargets.forEach(target => {
+        const surface = String(target?.surface ?? '').trim();
+        const id = String(target?.id ?? '').trim();
+        const sectionId = String(target?.sectionId ?? item.sectionId ?? '').trim();
+        if (!id || !sectionId || !surface || !LESSON_GRAMMAR_TYPES.has(target?.type)) return;
+        nextCustomTargets.push({
+          id,
+          sectionId,
+          type: target.type,
+          surface,
+          start: Number(target.start),
+          end: Number(target.end),
+          answer: String(target.answer ?? '').trim(),
+          explanation: String(target.explanation ?? '').trim(),
+          customLessonGrammar: true,
+        });
+      });
+      const hiddenIds = Array.isArray(item?.section?.hiddenGrammarTargetIds) ? item.section.hiddenGrammarTargetIds : [];
+      hiddenIds.forEach(id => {
+        const targetId = String(id ?? '').trim();
+        if (targetId) nextHiddenIds.add(targetId);
       });
     });
     setGrammarLabelOverrides(next);
+    setCustomGrammarTargets(nextCustomTargets);
+    setHiddenGrammarTargetIds(nextHiddenIds);
     setGrammarBubbles([]);
   }, [lessonViewSections]);
 
@@ -2208,6 +2306,27 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
       return next;
     });
     setGrammarBubbles(current => current.filter(item => item.targetId !== targetId));
+  };
+
+  const addGrammarTarget = (target) => {
+    if (!target?.id || !target?.sectionId || !target?.surface || !LESSON_GRAMMAR_TYPES.has(target.type)) return;
+    setCustomGrammarTargets(current => [...current.filter(item => item.id !== target.id), target]);
+    updateGrammarLabelOverride(target.id, target.answer ?? target.explanation ?? '');
+  };
+
+  const removeGrammarTarget = (target) => {
+    if (!target?.id) return;
+    if (target.customLessonGrammar) {
+      setCustomGrammarTargets(current => current.filter(item => item.id !== target.id));
+    } else {
+      setHiddenGrammarTargetIds(current => {
+        const next = new Set(current);
+        next.add(target.id);
+        return next;
+      });
+    }
+    updateGrammarLabelOverride(target.id, '');
+    setGrammarBubbles(current => current.filter(item => item.targetId !== target.id));
   };
 
   const revealMask = (maskKey) => {
@@ -2271,6 +2390,8 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
       ...(typeof lessonEdit.modern === 'string' ? { modern: lessonEdit.modern } : {}),
       ...(Array.isArray(lessonEdit.maskRules) ? { maskRules: lessonEdit.maskRules } : {}),
       ...(lessonEdit.grammarLabelOverrides && typeof lessonEdit.grammarLabelOverrides === 'object' ? { grammarLabelOverrides: lessonEdit.grammarLabelOverrides } : {}),
+      ...(Array.isArray(lessonEdit.customGrammarTargets) ? { customGrammarTargets: lessonEdit.customGrammarTargets } : {}),
+      ...(Array.isArray(lessonEdit.hiddenGrammarTargetIds) ? { hiddenGrammarTargetIds: lessonEdit.hiddenGrammarTargetIds } : {}),
     };
     const kundoku = getKundoku(lessonSection);
     const isKanbun = isKanbunSection(lessonSection, isKanbunTextbook);
@@ -2343,7 +2464,15 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
         const { section, lessonSection, kundoku, isKanbun, sourceLineEntries, sourceLines, modernLines, kundokuLines, lineCount, start, end } = activeSlide;
         const editing = editingAll || editingSectionId === section.id;
         const sectionMaskRules = maskRules.filter(rule => rule.sectionId === section.id);
-        const sectionTargetIds = new Set((lessonSection.targets ?? []).map(target => target.id));
+        const sectionCustomGrammarTargets = customGrammarTargets.filter(target => target.sectionId === section.id);
+        const sectionHiddenGrammarTargetIds = [...hiddenGrammarTargetIds].filter(targetId => (lessonSection.targets ?? []).some(target => target.id === targetId));
+        const visibleGrammarTargets = [
+          ...(lessonSection.targets ?? [])
+            .filter(target => LESSON_GRAMMAR_TYPES.has(target.type))
+            .filter(target => !hiddenGrammarTargetIds.has(target.id)),
+          ...sectionCustomGrammarTargets,
+        ];
+        const sectionTargetIds = new Set(visibleGrammarTargets.map(target => target.id));
         const sectionGrammarLabelOverrides = Object.fromEntries(
           Object.entries(grammarLabelOverrides).filter(([targetId]) => sectionTargetIds.has(targetId))
         );
@@ -2355,8 +2484,13 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
                 kundoku={kundoku}
                 lineCount={lineCount}
                 maskRules={sectionMaskRules}
+                grammarTargets={visibleGrammarTargets}
+                customGrammarTargets={sectionCustomGrammarTargets}
+                hiddenGrammarTargetIds={sectionHiddenGrammarTargetIds}
                 grammarLabelOverrides={sectionGrammarLabelOverrides}
                 onGrammarLabelOverrideChange={updateGrammarLabelOverride}
+                onAddGrammarTarget={addGrammarTarget}
+                onRemoveGrammarTarget={removeGrammarTarget}
                 onAddMaskRule={addMaskRule}
                 onRemoveMaskRule={removeMaskRule}
                 onCancel={closeEditor}
@@ -2370,8 +2504,8 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
                   const source = sourceLines[index] ?? (index === 0 ? String(lessonSection.text ?? '').trim() : '');
                   const sourceEntry = sourceLineEntries[index];
                   const grammarTargets = lessonGrammarEnabled && sourceEntry
-                    ? (lessonSection.targets ?? [])
-                        .filter(target => LESSON_GRAMMAR_TYPES.has(target.type) && target.sectionId === section.id)
+                    ? visibleGrammarTargets
+                        .filter(target => target.sectionId === section.id)
                         .filter(target => Number.isInteger(target.start) && target.start >= sourceEntry.start && target.start < sourceEntry.end)
                         .map(target => ({
                           ...target,
