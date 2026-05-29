@@ -657,6 +657,48 @@ body {
   line-height: 1.46;
 }
 
+.lesson-view-grammar-token {
+  cursor: pointer;
+  border-inline-end: 0.08em solid rgba(255, 242, 0, 0.82);
+  border-radius: 0.08em;
+  background: rgba(255, 242, 0, 0.08);
+}
+
+.lesson-view-grammar-token:hover,
+.lesson-view-grammar-token:focus {
+  background: rgba(255, 242, 0, 0.2);
+  outline: none;
+}
+
+.lesson-view-grammar-bubbles {
+  pointer-events: none;
+}
+
+.lesson-view-grammar-bubble {
+  position: fixed;
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+  white-space: nowrap;
+  max-width: none;
+  color: #111;
+  background: #fff7b0;
+  border: 2px solid #ffdc00;
+  border-radius: 8px;
+  padding: 0.18em 0.42em;
+  font-family: 'BIZ UDGothic', 'BIZ UDPGothic', 'Yu Gothic UI', 'Yu Gothic', 'Hiragino Kaku Gothic ProN', Meiryo, system-ui, sans-serif;
+  font-weight: 900;
+  line-height: 1.15;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+}
+
+.lesson-view-grammar-bubble--middle {
+  transform: translateY(-50%);
+}
+
+.lesson-view-grammar-bubble--bottom {
+  transform: translateY(-100%);
+}
+
 .lesson-view-floating-actions {
   display: flex;
   flex-direction: column;

@@ -1744,6 +1744,20 @@ function splitViewLines(value) {
     .filter(Boolean);
 }
 
+function splitViewLineEntries(value) {
+  const text = String(value ?? '');
+  const entries = [];
+  let cursor = 0;
+  text.split(/\r?\n/).forEach((rawLine) => {
+    const leading = rawLine.match(/^\s*/u)?.[0]?.length ?? 0;
+    const trimmed = rawLine.trim();
+    const lineStart = cursor + leading;
+    if (trimmed) entries.push({ text: trimmed, start: lineStart, end: lineStart + trimmed.length });
+    cursor += rawLine.length + 1;
+  });
+  return entries;
+}
+
 function snapViewSplit(chars, target, min, max) {
   const punctuation = /[\u3001\u3002\uff0c\uff0e\uff1f\uff01\u300d\u300f]/u;
   for (let offset = 0; offset <= 16; offset += 1) {
@@ -1809,9 +1823,44 @@ function maskedTextParts(text, hiddenWords) {
   return parts;
 }
 
-function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, onRevealMask, revealed = true, framed = false, onToggle, isKanbunSource = false }) {
+const LESSON_GRAMMAR_TYPES = new Set(['verb', 'adj', 'aux']);
+
+function grammarTooltipText(target) {
+  const conjugationType = String(target?.conjugationType ?? '').trim();
+  const formInText = String(target?.formInText ?? '').trim();
+  if (conjugationType && formInText) return `${conjugationType}・${formInText}`;
+  return String(target?.explanation ?? target?.answer ?? '').trim();
+}
+
+function buildLessonGrammarSegments(text, targets) {
+  const located = (targets ?? [])
+    .filter(target => LESSON_GRAMMAR_TYPES.has(target.type) && grammarTooltipText(target))
+    .map(target => {
+      const surface = String(target.surface ?? '');
+      if (!surface) return null;
+      const start = Number.isInteger(target.lineStart) ? target.lineStart : text.indexOf(surface);
+      if (start < 0 || text.slice(start, start + surface.length) !== surface) return null;
+      return { target, start, end: start + surface.length };
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
+
+  const segments = [];
+  let cursor = 0;
+  located.forEach(({ target, start, end }) => {
+    if (start < cursor) return;
+    if (start > cursor) segments.push({ type: 'text', value: text.slice(cursor, start) });
+    segments.push({ type: 'grammar', value: text.slice(start, end), target });
+    cursor = end;
+  });
+  if (cursor < text.length) segments.push({ type: 'text', value: text.slice(cursor) });
+  return segments.length ? segments : [{ type: 'text', value: text }];
+}
+
+function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, onRevealMask, revealed = true, framed = false, onToggle, isKanbunSource = false, grammarTargets = [], onGrammarTargetClick }) {
   if (!text && !framed) return null;
   const content = text || '\u3000';
+  const grammarSegments = grammarTargets.length ? buildLessonGrammarSegments(content, grammarTargets) : null;
   return (
     <section
       className={`lesson-view-column lesson-view-column--${kind}${isKanbunSource ? ' lesson-view-column--kanbun-source' : ''}${framed ? ' lesson-view-column--framed' : ''}${revealed ? ' is-revealed' : ' is-hidden'}`}
@@ -1820,11 +1869,35 @@ function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, o
         type="button"
         className="lesson-view-reveal-frame"
         onClick={onToggle}
-        disabled={!onToggle}
+        disabled={!onToggle && !grammarSegments}
         aria-label={revealed ? '\u975e\u8868\u793a\u306b\u3059\u308b' : '\u8868\u793a\u3059\u308b'}
       >
         <span className="lesson-view-text">
-          {revealed ? maskedTextParts(content, hiddenWords).map((part, index) => {
+          {revealed && grammarSegments ? grammarSegments.map((part, index) => {
+            if (part.type === 'text') return <span key={`${columnKey}-grammar-text-${index}`}>{part.value}</span>;
+            const bubbleText = grammarTooltipText(part.target);
+            return (
+              <span
+                key={`${columnKey}-grammar-${part.target.id}-${index}`}
+                role="button"
+                tabIndex={0}
+                className="lesson-view-grammar-token"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onGrammarTargetClick?.(part.target, bubbleText, event.currentTarget);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onGrammarTargetClick?.(part.target, bubbleText, event.currentTarget);
+                  }
+                }}
+              >
+                {part.value}
+              </span>
+            );
+          }) : revealed ? maskedTextParts(content, hiddenWords).map((part, index) => {
             if (part.type === 'text') return <span key={`${columnKey}-text-${index}`}>{part.value}</span>;
             const maskKey = `${columnKey}:${part.start}:${part.value}`;
             if (revealedMasks.has(maskKey)) return <span key={maskKey}>{part.value}</span>;
@@ -1972,7 +2045,7 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, onAddMaskRul
   );
 }
 
-function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isKanbunTextbook, isAdmin, onUpdateLessonViewSection, onUpdateLessonViewPublished }) {
+function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublished, isKanbunTextbook, isAdmin, onUpdateLessonViewSection, onUpdateLessonViewPublished }) {
   const visibleSections = sections.filter(section => !section.sectionless);
   const [editingSectionId, setEditingSectionId] = useState(null);
   const [editingAll, setEditingAll] = useState(false);
@@ -1981,7 +2054,10 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
   const [revealedMasks, setRevealedMasks] = useState(() => new Set());
   const [maskActive, setMaskActive] = useState(false);
   const [slideIndex, setSlideIndex] = useState(0);
+  const [grammarBubbles, setGrammarBubbles] = useState([]);
+  const grammarBubbleZ = useRef(1000);
   const pairsPerSlide = isKanbunTextbook ? 4 : 5;
+  const lessonGrammarEnabled = textId === 'akutagawa';
 
   useEffect(() => {
     const next = [];
@@ -2042,6 +2118,32 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
     });
   };
 
+  const toggleGrammarBubble = (target, text, element) => {
+    if (!target?.bubbleKey || !text || !element) return;
+    setGrammarBubbles(current => {
+      if (current.some(item => item.key === target.bubbleKey)) {
+        return current.filter(item => item.key !== target.bubbleKey);
+      }
+      const rect = element.getBoundingClientRect();
+      const centerY = rect.top + rect.height / 2;
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+      const align = centerY < viewportHeight * 0.34
+        ? 'top'
+        : centerY > viewportHeight * 0.66
+          ? 'bottom'
+          : 'middle';
+      return [...current, {
+        key: target.bubbleKey,
+        text,
+        left: rect.right + 10,
+        top: align === 'top' ? rect.top : align === 'bottom' ? rect.bottom : centerY,
+        align,
+        zIndex: grammarBubbleZ.current += 1,
+        fontSize: window.getComputedStyle(element).fontSize,
+      }];
+    });
+  };
+
   const closeEditor = () => {
     setEditingAll(false);
     setEditingSectionId(null);
@@ -2058,11 +2160,12 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
     };
     const kundoku = getKundoku(lessonSection);
     const isKanbun = isKanbunSection(lessonSection, isKanbunTextbook);
-    const sourceLines = splitViewLines(lessonSection.text);
+    const sourceLineEntries = splitViewLineEntries(lessonSection.text);
+    const sourceLines = sourceLineEntries.map(entry => entry.text);
     const modernLines = splitModernForSourceLines(lessonSection.modern, sourceLines);
     const kundokuLines = isKanbun ? splitViewLines(kundoku) : [];
     const lineCount = Math.max(sourceLines.length, modernLines.length, kundokuLines.length, 1);
-    return { section, lessonSection, kundoku, isKanbun, sourceLines, modernLines, kundokuLines, lineCount };
+    return { section, lessonSection, kundoku, isKanbun, sourceLineEntries, sourceLines, modernLines, kundokuLines, lineCount };
   });
 
   const slides = preparedSections.flatMap(item => {
@@ -2080,6 +2183,10 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
   useEffect(() => {
     if (slideIndex > Math.max(slides.length - 1, 0)) setSlideIndex(Math.max(slides.length - 1, 0));
   }, [slideIndex, slides.length]);
+
+  useEffect(() => {
+    setGrammarBubbles([]);
+  }, [slideIndex, textId]);
 
   return (
     <div className="lesson-view-mode">
@@ -2119,7 +2226,7 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
         )}
       </div>
       {activeSlide ? (() => {
-        const { section, lessonSection, kundoku, isKanbun, sourceLines, modernLines, kundokuLines, lineCount, start, end } = activeSlide;
+        const { section, lessonSection, kundoku, isKanbun, sourceLineEntries, sourceLines, modernLines, kundokuLines, lineCount, start, end } = activeSlide;
         const editing = editingAll || editingSectionId === section.id;
         const sectionMaskRules = maskRules.filter(rule => rule.sectionId === section.id);
         return (
@@ -2141,6 +2248,17 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
                 {Array.from({ length: end - start }).map((_, offset) => {
                   const index = start + offset;
                   const source = sourceLines[index] ?? (index === 0 ? String(lessonSection.text ?? '').trim() : '');
+                  const sourceEntry = sourceLineEntries[index];
+                  const grammarTargets = lessonGrammarEnabled && sourceEntry
+                    ? (lessonSection.targets ?? [])
+                        .filter(target => LESSON_GRAMMAR_TYPES.has(target.type) && target.sectionId === section.id)
+                        .filter(target => Number.isInteger(target.start) && target.start >= sourceEntry.start && target.start < sourceEntry.end)
+                        .map(target => ({
+                          ...target,
+                          lineStart: target.start - sourceEntry.start,
+                          bubbleKey: `${section.id}-${index}-${target.id}`,
+                        }))
+                    : [];
                   const modern = modernLines.length > 1 ? modernLines[index] : (index === 0 ? String(lessonSection.modern ?? '').trim() : '');
                   const reading = kundokuLines[index] ?? '';
                   const modernKey = `${section.id}-${index}-modern`;
@@ -2159,6 +2277,8 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
                         revealedMasks={revealedMasks}
                         onRevealMask={revealMask}
                         isKanbunSource={isKanbun}
+                        grammarTargets={grammarTargets}
+                        onGrammarTargetClick={toggleGrammarBubble}
                       />
                       {isKanbun && (
                         <LessonViewColumn
@@ -2188,6 +2308,22 @@ function LessonViewMode({ sections, lessonViewSections, lessonViewPublished, isK
                   );
                 })}
               </div>
+            </div>
+            <div className="lesson-view-grammar-bubbles" aria-live="polite">
+              {grammarBubbles.map(bubble => (
+                <div
+                  key={bubble.key}
+                  className={`lesson-view-grammar-bubble lesson-view-grammar-bubble--${bubble.align}`}
+                  style={{
+                    left: `${bubble.left}px`,
+                    top: `${bubble.top}px`,
+                    zIndex: bubble.zIndex,
+                    fontSize: bubble.fontSize,
+                  }}
+                >
+                  {bubble.text}
+                </div>
+              ))}
             </div>
           </article>
         );
@@ -2370,6 +2506,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
           </>
         ) : visibleTab === 'view' ? (
           <LessonViewMode
+            textId={textId}
             sections={sections}
             lessonViewSections={lessonViewSections}
             lessonViewPublished={lessonViewPublished}
