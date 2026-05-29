@@ -1880,6 +1880,8 @@ function lessonAuxiliaryKind(target) {
 }
 
 function grammarTooltipText(target) {
+  const override = String(target?.lessonGrammarLabelOverride ?? '').trim();
+  if (override) return override;
   const form = lessonFormAbbr(target);
   const euphony = lessonEuphonyAbbr(target);
   const isSupplementary = lessonGrammarSourceText(target).includes('補助');
@@ -2005,7 +2007,7 @@ function LineNumberedTextarea({ value, onChange }) {
   );
 }
 
-function LessonViewEditor({ section, kundoku, lineCount, maskRules, onAddMaskRule, onRemoveMaskRule, onCancel, onSave }) {
+function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarLabelOverrides, onGrammarLabelOverrideChange, onAddMaskRule, onRemoveMaskRule, onCancel, onSave }) {
   const [sourceText, setSourceText] = useState(section.text ?? '');
   const [modernText, setModernText] = useState(section.modern ?? '');
   const [kundokuText, setKundokuText] = useState(kundoku ?? '');
@@ -2024,6 +2026,7 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, onAddMaskRul
         modern: modernText,
         kundoku: kundokuText,
         maskRules,
+        grammarLabelOverrides,
       });
       onCancel?.();
     } catch (err) {
@@ -2063,6 +2066,26 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, onAddMaskRul
           </label>
         ) : null}
       </div>
+      {section.targets?.some(target => LESSON_GRAMMAR_TYPES.has(target.type)) && (
+        <div className="lesson-view-grammar-editor">
+          <div className="lesson-view-editor-subtitle">文法吹き出し</div>
+          <div className="lesson-view-grammar-editor-list">
+            {section.targets
+              .filter(target => LESSON_GRAMMAR_TYPES.has(target.type))
+              .map(target => (
+                <label key={target.id} className="lesson-view-grammar-editor-row">
+                  <span>{target.surface}</span>
+                  <input
+                    type="text"
+                    value={grammarLabelOverrides[target.id] ?? ''}
+                    placeholder={grammarTooltipText(target)}
+                    onChange={(event) => onGrammarLabelOverrideChange?.(target.id, event.target.value)}
+                  />
+                </label>
+              ))}
+          </div>
+        </div>
+      )}
       <div className="lesson-view-mask-editor">
         <label>
           {'\u5bfe\u8c61\u884c'}
@@ -2115,6 +2138,7 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
   const [maskActive, setMaskActive] = useState(false);
   const [slideIndex, setSlideIndex] = useState(0);
   const [grammarBubbles, setGrammarBubbles] = useState([]);
+  const [grammarLabelOverrides, setGrammarLabelOverrides] = useState({});
   const grammarBubbleZ = useRef(1000);
   const pairsPerSlide = isKanbunTextbook ? 4 : 5;
   const lessonGrammarEnabled = textId === 'akutagawa';
@@ -2140,6 +2164,20 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
     setRevealedMasks(new Set());
   }, [lessonViewSections]);
 
+  useEffect(() => {
+    const next = {};
+    lessonViewSections?.forEach(item => {
+      const overrides = item?.section?.grammarLabelOverrides;
+      if (!overrides || typeof overrides !== 'object' || Array.isArray(overrides)) return;
+      Object.entries(overrides).forEach(([targetId, value]) => {
+        const label = String(value ?? '').trim();
+        if (targetId && label) next[targetId] = label;
+      });
+    });
+    setGrammarLabelOverrides(next);
+    setGrammarBubbles([]);
+  }, [lessonViewSections]);
+
   const addMaskRule = (rule) => {
     const word = String(rule?.word ?? '').trim();
     if (!word || !rule?.sectionId || !Number.isInteger(rule.lineIndex)) return;
@@ -2159,6 +2197,17 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
   const removeMaskRule = (ruleId) => {
     setMaskRules(current => current.filter(item => item.id !== ruleId));
     setRevealedMasks(new Set());
+  };
+
+  const updateGrammarLabelOverride = (targetId, value) => {
+    setGrammarLabelOverrides(current => {
+      const next = { ...current };
+      const label = String(value ?? '').trim();
+      if (label) next[targetId] = label;
+      else delete next[targetId];
+      return next;
+    });
+    setGrammarBubbles(current => current.filter(item => item.targetId !== targetId));
   };
 
   const revealMask = (maskKey) => {
@@ -2196,6 +2245,7 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
           : 'middle';
       return [...current, {
         key: target.bubbleKey,
+        targetId: target.id,
         text,
         left: horizontal === 'left' ? rect.left - 10 : rect.right + 10,
         top: align === 'top' ? rect.top : align === 'bottom' ? rect.bottom : centerY,
@@ -2220,6 +2270,7 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
       ...(typeof lessonEdit.kundoku === 'string' ? { kundoku: lessonEdit.kundoku } : {}),
       ...(typeof lessonEdit.modern === 'string' ? { modern: lessonEdit.modern } : {}),
       ...(Array.isArray(lessonEdit.maskRules) ? { maskRules: lessonEdit.maskRules } : {}),
+      ...(lessonEdit.grammarLabelOverrides && typeof lessonEdit.grammarLabelOverrides === 'object' ? { grammarLabelOverrides: lessonEdit.grammarLabelOverrides } : {}),
     };
     const kundoku = getKundoku(lessonSection);
     const isKanbun = isKanbunSection(lessonSection, isKanbunTextbook);
@@ -2292,6 +2343,10 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
         const { section, lessonSection, kundoku, isKanbun, sourceLineEntries, sourceLines, modernLines, kundokuLines, lineCount, start, end } = activeSlide;
         const editing = editingAll || editingSectionId === section.id;
         const sectionMaskRules = maskRules.filter(rule => rule.sectionId === section.id);
+        const sectionTargetIds = new Set((lessonSection.targets ?? []).map(target => target.id));
+        const sectionGrammarLabelOverrides = Object.fromEntries(
+          Object.entries(grammarLabelOverrides).filter(([targetId]) => sectionTargetIds.has(targetId))
+        );
         return (
           <article className="lesson-view-section" key={`${section.id}-${start}`}>
             {editing && (
@@ -2300,6 +2355,8 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
                 kundoku={kundoku}
                 lineCount={lineCount}
                 maskRules={sectionMaskRules}
+                grammarLabelOverrides={sectionGrammarLabelOverrides}
+                onGrammarLabelOverrideChange={updateGrammarLabelOverride}
                 onAddMaskRule={addMaskRule}
                 onRemoveMaskRule={removeMaskRule}
                 onCancel={closeEditor}
@@ -2318,6 +2375,7 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
                         .filter(target => Number.isInteger(target.start) && target.start >= sourceEntry.start && target.start < sourceEntry.end)
                         .map(target => ({
                           ...target,
+                          lessonGrammarLabelOverride: grammarLabelOverrides[target.id] ?? '',
                           lineStart: target.start - sourceEntry.start,
                           bubbleKey: `${section.id}-${index}-${target.id}`,
                         }))

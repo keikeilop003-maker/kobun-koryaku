@@ -443,7 +443,7 @@ service cloud.firestore {
         && request.resource.data.textId is string
         && request.resource.data.sectionId is string
         && request.resource.data.section is map
-        && request.resource.data.section.keys().hasOnly(['text', 'kundoku', 'modern', 'maskRules'])
+        && request.resource.data.section.keys().hasOnly(['text', 'kundoku', 'modern', 'maskRules', 'grammarLabelOverrides'])
         && request.resource.data.section.text is string
         && request.resource.data.section.text.size() <= 20000
         && request.resource.data.section.kundoku is string
@@ -455,6 +455,13 @@ service cloud.firestore {
           || (
             request.resource.data.section.maskRules is list
             && request.resource.data.section.maskRules.size() <= 200
+          )
+        )
+        && (
+          !request.resource.data.section.keys().hasAny(['grammarLabelOverrides'])
+          || (
+            request.resource.data.section.grammarLabelOverrides is map
+            && request.resource.data.section.grammarLabelOverrides.keys().size() <= 300
           )
         );
       allow delete: if isAdmin();
