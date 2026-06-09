@@ -1945,6 +1945,30 @@ function buildLessonGrammarSegments(text, targets) {
   return segments.length ? segments : [{ type: 'text', value: text }];
 }
 
+function locateLessonGrammarTargetsInText(text, targets) {
+  const sourceText = String(text ?? '');
+  let cursor = 0;
+  return (targets ?? [])
+    .filter(target => LESSON_GRAMMAR_TYPES.has(target.type) && grammarTooltipText(target))
+    .sort((a, b) => {
+      const startA = Number.isFinite(a.start) ? a.start : Number.MAX_SAFE_INTEGER;
+      const startB = Number.isFinite(b.start) ? b.start : Number.MAX_SAFE_INTEGER;
+      return startA - startB;
+    })
+    .map(target => {
+      const surface = String(target.surface ?? '');
+      if (!surface) return null;
+      const exactStart = Number.isInteger(target.start) && sourceText.slice(target.start, target.start + surface.length) === surface
+        ? target.start
+        : -1;
+      const start = exactStart !== -1 ? exactStart : sourceText.indexOf(surface, cursor);
+      if (start < 0) return null;
+      cursor = Math.max(cursor, start + surface.length);
+      return { target, start, end: start + surface.length };
+    })
+    .filter(Boolean);
+}
+
 function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, onRevealMask, revealed = true, framed = false, onToggle, isKanbunSource = false, grammarTargets = [], onGrammarTargetClick }) {
   if (!text && !framed) return null;
   const content = text || '\u3000';
@@ -1982,9 +2006,6 @@ function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, o
                   }
                 }}
               >
-                <span className="lesson-view-grammar-label" aria-hidden="true">
-                  {bubbleText}
-                </span>
                 {part.value}
               </span>
             );
@@ -2504,6 +2525,7 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
             .filter(target => !hiddenGrammarTargetIds.has(target.id)),
           ...sectionCustomGrammarTargets,
         ];
+        const locatedGrammarTargets = locateLessonGrammarTargetsInText(lessonSection.text, visibleGrammarTargets);
         const sectionTargetIds = new Set(visibleGrammarTargets.map(target => target.id));
         const sectionGrammarLabelOverrides = Object.fromEntries(
           Object.entries(grammarLabelOverrides).filter(([targetId]) => sectionTargetIds.has(targetId))
@@ -2536,13 +2558,13 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
                   const source = sourceLines[index] ?? (index === 0 ? String(lessonSection.text ?? '').trim() : '');
                   const sourceEntry = sourceLineEntries[index];
                   const grammarTargets = lessonGrammarEnabled && sourceEntry
-                    ? visibleGrammarTargets
-                        .filter(target => target.sectionId === section.id)
-                        .filter(target => Number.isInteger(target.start) && target.start >= sourceEntry.start && target.start < sourceEntry.end)
-                        .map(target => ({
+                    ? locatedGrammarTargets
+                        .filter(({ target }) => target.sectionId === section.id)
+                        .filter(({ start: targetStart }) => targetStart >= sourceEntry.start && targetStart < sourceEntry.end)
+                        .map(({ target, start: targetStart }) => ({
                           ...target,
                           lessonGrammarLabelOverride: grammarLabelOverrides[target.id] ?? target.lessonGrammarLabelOverride ?? '',
-                          lineStart: target.start - sourceEntry.start,
+                          lineStart: targetStart - sourceEntry.start,
                           bubbleKey: `${section.id}-${index}-${target.id}`,
                         }))
                     : [];

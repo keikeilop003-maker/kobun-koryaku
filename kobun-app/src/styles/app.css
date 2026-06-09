@@ -664,36 +664,12 @@ body {
   border-inline-end: 0.06em solid rgba(255, 255, 255, 0.38);
   border-radius: 0.08em;
   background: rgba(255, 255, 255, 0.05);
-  padding-block-start: 0.24em;
 }
 
 .lesson-view-grammar-token:hover,
 .lesson-view-grammar-token:focus {
   background: rgba(255, 255, 255, 0.14);
   outline: none;
-}
-
-.lesson-view-grammar-label {
-  position: absolute;
-  inset-block-start: -0.05em;
-  inset-inline-start: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-  writing-mode: horizontal-tb;
-  text-orientation: mixed;
-  white-space: nowrap;
-  color: #1f2433;
-  background: #fff7b0;
-  border: 1px solid #ffdc00;
-  border-radius: 4px;
-  padding: 0.05em 0.22em;
-  font-family: 'BIZ UDGothic', 'BIZ UDPGothic', 'Yu Gothic UI', 'Yu Gothic', 'Hiragino Kaku Gothic ProN', Meiryo, system-ui, sans-serif;
-  font-size: 0.3em;
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: 0;
-  pointer-events: none;
-  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.26);
 }
 
 .lesson-view-grammar-bubbles {
