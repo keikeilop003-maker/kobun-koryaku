@@ -1982,6 +1982,9 @@ function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, o
                   }
                 }}
               >
+                <span className="lesson-view-grammar-label" aria-hidden="true">
+                  {bubbleText}
+                </span>
                 {part.value}
               </span>
             );
