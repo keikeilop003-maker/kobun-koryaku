@@ -70,6 +70,71 @@ function splitRaw(raw, type) {
 
 const prefix = { verb: 'verb', adj: 'adj', aux: 'aux', particle: 'particle', vocab: 'vocab' };
 
+const FORM_ABBR = {
+  '未然形': '未',
+  '連用形': '用',
+  '終止形': '終',
+  '連体形': '体',
+  '已然形': '已',
+  '命令形': '命',
+};
+
+function formAbbr(raw) {
+  return Object.entries(FORM_ABBR).find(([word]) => raw.includes(word))?.[1] ?? '';
+}
+
+function euphonyAbbr(raw) {
+  return [
+    raw.includes('ウ音便') ? 'ウ音' : '',
+    raw.includes('イ音便') ? 'イ音' : '',
+    raw.includes('撥音便') ? '撥' : '',
+    raw.includes('促音便') ? '促' : '',
+  ].filter(Boolean);
+}
+
+function shortConjugation(conjugationType, type) {
+  let text = String(conjugationType ?? '').trim();
+  if (!text) return '';
+  text = text
+    .replace(/形容動詞/g, '')
+    .replace(/形容詞/g, '')
+    .replace(/活用/g, '')
+    .replace(/変格/g, '変');
+  if (type === 'verb') text = text.replace(/行/g, '').replace(/段/g, '');
+  return text;
+}
+
+function particleLabel(raw) {
+  const [kind, usage] = String(raw ?? '').split('・').map(value => value.trim()).filter(Boolean);
+  const shortKind = String(kind ?? '')
+    .replace(/格助詞/g, '格')
+    .replace(/接続助詞/g, '接')
+    .replace(/係助詞/g, '係')
+    .replace(/副助詞/g, '副')
+    .replace(/終助詞/g, '終')
+    .replace(/間投助詞/g, '間');
+  const shortUsage = String(usage ?? '')
+    .replace(/連体修飾/g, '連体')
+    .replace(/単純接続/g, '単純')
+    .replace(/打消接続/g, '打消')
+    .replace(/順接確定条件/g, '順確')
+    .replace(/逆接確定条件/g, '逆確')
+    .replace(/逆接仮定条件/g, '逆仮');
+  return [shortKind, shortUsage].filter(Boolean).join('・');
+}
+
+function lessonLabel(type, raw, parsed) {
+  const form = formAbbr(raw);
+  if (type === 'aux') {
+    return [String(raw).replace(/の助動詞/g, '').split('・')[0], form, ...euphonyAbbr(raw)]
+      .filter(Boolean)
+      .join('・');
+  }
+  if (type === 'particle') return particleLabel(raw);
+  const core = [shortConjugation(parsed.conjugationType, type), form].filter(Boolean).join('');
+  return [core, ...euphonyAbbr(raw), String(raw).includes('補助') ? '補' : ''].filter(Boolean).join('・');
+}
+
 function buildTargets(section, entries) {
   const counts = {};
   let cursor = 0;
@@ -94,6 +159,7 @@ function buildTargets(section, entries) {
       ...parsed,
       answer: entry.raw,
       explanation: entry.raw,
+      lessonGrammarLabelOverride: lessonLabel(type, entry.raw, parsed),
       start,
       end: start + entry.surface.length,
       sectionId: section.id,

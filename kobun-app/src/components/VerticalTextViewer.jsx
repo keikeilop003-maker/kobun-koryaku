@@ -1823,7 +1823,7 @@ function maskedTextParts(text, hiddenWords) {
   return parts;
 }
 
-const LESSON_GRAMMAR_TYPES = new Set(['verb', 'adj', 'aux']);
+const LESSON_GRAMMAR_TYPES = new Set(['verb', 'adj', 'aux', 'particle']);
 const LESSON_FORM_ABBR = {
   '未然形': '未',
   '連用形': '用',
@@ -1879,6 +1879,29 @@ function lessonAuxiliaryKind(target) {
     .trim();
 }
 
+function lessonParticleKind(target) {
+  const [kind, usage] = String(target?.answer ?? target?.explanation ?? '')
+    .split('・')
+    .map(value => value.trim())
+    .filter(Boolean);
+  const shortKind = String(kind ?? '')
+    .replace(/格助詞/g, '格')
+    .replace(/接続助詞/g, '接')
+    .replace(/係助詞/g, '係')
+    .replace(/副助詞/g, '副')
+    .replace(/終助詞/g, '終')
+    .replace(/間投助詞/g, '間')
+    .replace(/格助詞/g, '格');
+  const shortUsage = String(usage ?? '')
+    .replace(/連体修飾/g, '連体')
+    .replace(/単純接続/g, '単純')
+    .replace(/打消接続/g, '打消')
+    .replace(/順接確定条件/g, '順確')
+    .replace(/逆接確定条件/g, '逆確')
+    .replace(/逆接仮定条件/g, '逆仮');
+  return [shortKind, shortUsage].filter(Boolean).join('・');
+}
+
 function grammarTooltipText(target) {
   const override = String(target?.lessonGrammarLabelOverride ?? '').trim();
   if (override) return override;
@@ -1887,6 +1910,9 @@ function grammarTooltipText(target) {
   const isSupplementary = lessonGrammarSourceText(target).includes('補助');
   if (target?.type === 'aux') {
     return [lessonAuxiliaryKind(target), form, ...euphony].filter(Boolean).join('・');
+  }
+  if (target?.type === 'particle') {
+    return lessonParticleKind(target);
   }
   const conjugation = shortenLessonConjugation(target?.conjugationType, target?.type);
   const core = [conjugation, form].filter(Boolean).join('');
@@ -2174,6 +2200,7 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarTarge
                   <option value="verb">動詞</option>
                   <option value="adj">形容詞・形容動詞</option>
                   <option value="aux">助動詞</option>
+                  <option value="particle">助詞</option>
                 </select>
               </label>
               <label>
@@ -2511,7 +2538,7 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
                         .filter(target => Number.isInteger(target.start) && target.start >= sourceEntry.start && target.start < sourceEntry.end)
                         .map(target => ({
                           ...target,
-                          lessonGrammarLabelOverride: grammarLabelOverrides[target.id] ?? '',
+                          lessonGrammarLabelOverride: grammarLabelOverrides[target.id] ?? target.lessonGrammarLabelOverride ?? '',
                           lineStart: target.start - sourceEntry.start,
                           bubbleKey: `${section.id}-${index}-${target.id}`,
                         }))
