@@ -97,7 +97,7 @@ function buildTargets(section, entries) {
       start,
       end: start + entry.surface.length,
       sectionId: section.id,
-      ...(type === 'particle' ? { particleQuestionType: 'translation' } : {}),
+      ...(type === 'particle' ? { particleQuestionType: 'usage' } : {}),
     });
   }
   return { targets, locatedEntries };

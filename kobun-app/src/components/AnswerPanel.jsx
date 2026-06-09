@@ -243,7 +243,7 @@ function QuestionHeader({ target }) {
   const suffix = {
     vocab: 'の意味', aux: 'の用法', verb: 'の文法事項',
     adj: 'の文法事項',
-    particle: target.particleQuestionType === 'usage' ? 'の用法' : 'の訳し方',
+    particle: 'の用法',
     grammar: 'の文法的な働きと訳し方',
     kundoku: 'を書き下す',
     kaeriten: 'に返り点を振る',
