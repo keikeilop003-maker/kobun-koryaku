@@ -2213,7 +2213,7 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
   const [hiddenGrammarTargetIds, setHiddenGrammarTargetIds] = useState(() => new Set());
   const grammarBubbleZ = useRef(1000);
   const pairsPerSlide = isKanbunTextbook ? 4 : 5;
-  const lessonGrammarEnabled = textId === 'akutagawa';
+  const lessonGrammarEnabled = ['akutagawa', 'tsutsuizutsu'].includes(textId);
 
   useEffect(() => {
     const next = [];
