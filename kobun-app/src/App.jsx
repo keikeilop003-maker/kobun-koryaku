@@ -249,6 +249,7 @@ function AppInner() {
         : Number.isInteger(item.anchor?.start) ? item.anchor.start : undefined;
       acc[sectionId].push({
         ...item.target,
+        sectionId,
         ...(Number.isInteger(orderStart) ? { start: orderStart } : {}),
       });
       return acc;
@@ -350,6 +351,25 @@ function AppInner() {
     };
   }, [textData, customTargets, hiddenTargetKeys, editedTargetMap, editedSectionMap, editedNormalQuestionMap, hiddenNormalQuestionIds]);
   const currentTextData = displayTextData ?? textData;
+  const effectiveLessonViewSectionMap = useMemo(() => {
+    const next = new Map();
+    const dataSections = currentTextData?.lessonViewSections;
+    if (dataSections && typeof dataSections === 'object' && !Array.isArray(dataSections)) {
+      Object.entries(dataSections).forEach(([sectionId, value]) => {
+        if (!sectionId || !value) return;
+        next.set(sectionId, {
+          id: `${textId}__${sectionId}__data`,
+          textId,
+          sectionId,
+          ...value,
+        });
+      });
+    }
+    lessonViewSectionMap.forEach((value, sectionId) => {
+      next.set(sectionId, value);
+    });
+    return next;
+  }, [currentTextData?.lessonViewSections, lessonViewSectionMap, textId]);
   const currentIsKanbun = isKanbunTextData(currentTextData);
   const visibleLegend = useMemo(() => LEGEND.filter(item => {
     if (!currentTextData) return true;
@@ -1117,7 +1137,7 @@ function AppInner() {
               showModern={effectiveIsAdmin}
               isAdmin={effectiveIsAdmin}
               onUpdateSection={handleUpdateSection}
-              lessonViewSections={lessonViewSectionMap}
+              lessonViewSections={effectiveLessonViewSectionMap}
               lessonViewPublished={lessonViewPublished}
               onUpdateLessonViewSection={handleUpdateLessonViewSection}
               onUpdateLessonViewPublished={handleUpdateLessonViewPublished}

@@ -2524,7 +2524,10 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
             .filter(target => LESSON_GRAMMAR_TYPES.has(target.type))
             .filter(target => !hiddenGrammarTargetIds.has(target.id)),
           ...sectionCustomGrammarTargets,
-        ];
+        ].map(target => ({
+          ...target,
+          sectionId: target.sectionId ?? section.id,
+        }));
         const locatedGrammarTargets = locateLessonGrammarTargetsInText(lessonSection.text, visibleGrammarTargets);
         const sectionTargetIds = new Set(visibleGrammarTargets.map(target => target.id));
         const sectionGrammarLabelOverrides = Object.fromEntries(
