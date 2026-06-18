@@ -318,13 +318,11 @@ function longestLineLength(text) {
 }
 
 function sectionTextStyle(sourceText, kundokuText, heightScale = 1, isKanbun = false, compactKanbunSourceHeight = false) {
-  const longest = Math.max(
-    longestLineLength(sourceText),
-    isKanbun && compactKanbunSourceHeight ? 0 : longestLineLength(kundokuText),
-    8,
-  );
+  void kundokuText;
+  void compactKanbunSourceHeight;
+  const longest = Math.max(longestLineLength(sourceText), 8);
   const sourceFontSizeRem = isKanbun ? 1.764 : 1.26;
-  return { '--source-text-height': `calc(${(longest + 1) * 1.1 * sourceFontSizeRem * heightScale}rem + 30px)` };
+  return { '--source-text-height': `calc(${(longest + 1) * 1.1 * sourceFontSizeRem * heightScale}rem + 18px)` };
 }
 
 function ReferenceBlock({ label, text }) {
@@ -1744,6 +1742,12 @@ function splitViewLines(value) {
     .filter(Boolean);
 }
 
+function splitParallelViewLines(value) {
+  return String(value ?? '')
+    .split(/\r?\n/)
+    .map(line => line.trim());
+}
+
 function splitViewLineEntries(value) {
   const text = String(value ?? '');
   const entries = [];
@@ -1770,7 +1774,7 @@ function snapViewSplit(chars, target, min, max) {
 }
 
 function splitModernForSourceLines(modernText, sourceLines) {
-  const explicitLines = splitViewLines(modernText);
+  const explicitLines = splitParallelViewLines(modernText);
   if (explicitLines.length !== 1 || sourceLines.length <= 1) return explicitLines;
 
   const chars = Array.from(explicitLines[0]);
@@ -1796,6 +1800,14 @@ function splitModernForSourceLines(modernText, sourceLines) {
   });
 
   return chunks;
+}
+
+function editorInitialParallelText(value, sourceText) {
+  const raw = String(value ?? '');
+  const sourceLines = splitViewLineEntries(sourceText).map(entry => entry.text);
+  const explicitLines = splitParallelViewLines(raw);
+  if (sourceLines.length <= 1 || explicitLines.length === sourceLines.length) return raw;
+  return splitModernForSourceLines(explicitLines.join(''), sourceLines).join('\n');
 }
 
 function maskedTextParts(text, hiddenWords) {
@@ -2043,16 +2055,21 @@ function LessonViewColumn({ text, kind, columnKey, hiddenWords, revealedMasks, o
   );
 }
 
-function LineNumberedTextarea({ value, onChange }) {
-  const lineCount = Math.max(String(value ?? '').split(/\r?\n/).length, 1);
+function LineNumberedTextarea({ value, onChange, lineCount }) {
+  const numbersRef = useRef(null);
+  const textareaLineCount = Math.max(String(value ?? '').split(/\r?\n/).length, 1);
+  const displayLineCount = Math.max(lineCount ?? textareaLineCount, 1);
+  const syncLineNumbers = (event) => {
+    if (numbersRef.current) numbersRef.current.scrollTop = event.currentTarget.scrollTop;
+  };
   return (
     <div className="lesson-view-numbered-textarea">
-      <div className="lesson-view-line-numbers" aria-hidden="true">
-        {Array.from({ length: lineCount }).map((_, index) => (
+      <div className="lesson-view-line-numbers" aria-hidden="true" ref={numbersRef}>
+        {Array.from({ length: displayLineCount }).map((_, index) => (
           <span key={index}>{index + 1}</span>
         ))}
       </div>
-      <textarea value={value} onChange={onChange} />
+      <textarea value={value} onChange={onChange} onScroll={syncLineNumbers} wrap="off" />
     </div>
   );
 }
@@ -2060,8 +2077,8 @@ function LineNumberedTextarea({ value, onChange }) {
 function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarTargets, customGrammarTargets, hiddenGrammarTargetIds, grammarLabelOverrides, onGrammarLabelOverrideChange, onAddGrammarTarget, onRemoveGrammarTarget, onAddMaskRule, onRemoveMaskRule, onCancel, onSave }) {
   const [editorTab, setEditorTab] = useState('text');
   const [sourceText, setSourceText] = useState(section.text ?? '');
-  const [modernText, setModernText] = useState(section.modern ?? '');
-  const [kundokuText, setKundokuText] = useState(kundoku ?? '');
+  const [modernText, setModernText] = useState(() => editorInitialParallelText(section.modern, section.text));
+  const [kundokuText, setKundokuText] = useState(() => editorInitialParallelText(kundoku, section.text));
   const [maskLineIndex, setMaskLineIndex] = useState(0);
   const [maskWord, setMaskWord] = useState('');
   const [grammarLineIndex, setGrammarLineIndex] = useState(0);
@@ -2070,6 +2087,8 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarTarge
   const [grammarType, setGrammarType] = useState('verb');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  void lineCount;
+  const editorLineCount = Math.max(splitViewLineEntries(sourceText).length, 1);
 
   const save = async () => {
     if (saving) return;
@@ -2097,12 +2116,18 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarTarge
   const addMask = () => {
     const word = maskWord.trim();
     if (!word) return;
+    const modernLine = String(modernText ?? '').split(/\r?\n/)[maskLineIndex] ?? '';
+    if (!modernLine.includes(word)) {
+      setMessage(`${maskLineIndex + 1}行目の現代語訳に「${word}」が見つかりません`);
+      return;
+    }
     onAddMaskRule?.({
       sectionId: section.id,
       lineIndex: maskLineIndex,
       word,
     });
     setMaskWord('');
+    setMessage('');
   };
 
   const addGrammar = () => {
@@ -2144,16 +2169,16 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarTarge
           <div className="lesson-view-editor-grid">
             <label>
               {'\u539f\u6587'}
-              <LineNumberedTextarea value={sourceText} onChange={(event) => setSourceText(event.target.value)} />
+              <LineNumberedTextarea value={sourceText} onChange={(event) => setSourceText(event.target.value)} lineCount={editorLineCount} />
             </label>
             <label>
               {'\u73fe\u4ee3\u8a9e\u8a33'}
-              <LineNumberedTextarea value={modernText} onChange={(event) => setModernText(event.target.value)} />
+              <LineNumberedTextarea value={modernText} onChange={(event) => setModernText(event.target.value)} lineCount={editorLineCount} />
             </label>
             {kundoku || section.kundoku ? (
               <label>
                 {'\u66f8\u304d\u4e0b\u3057\u6587'}
-                <textarea value={kundokuText} onChange={(event) => setKundokuText(event.target.value)} />
+                <LineNumberedTextarea value={kundokuText} onChange={(event) => setKundokuText(event.target.value)} lineCount={editorLineCount} />
               </label>
             ) : null}
           </div>
@@ -2161,7 +2186,7 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarTarge
             <label>
               {'\u5bfe\u8c61\u884c'}
               <select value={maskLineIndex} onChange={(event) => setMaskLineIndex(Number(event.target.value))}>
-                {Array.from({ length: Math.max(lineCount, 1) }).map((_, index) => (
+                {Array.from({ length: editorLineCount }).map((_, index) => (
                   <option value={index} key={index}>{`${index + 1}\u884c\u76ee`}</option>
                 ))}
               </select>
@@ -2213,7 +2238,7 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarTarge
               <label>
                 対象行
                 <select value={grammarLineIndex} onChange={(event) => setGrammarLineIndex(Number(event.target.value))}>
-                  {Array.from({ length: Math.max(lineCount, 1) }).map((_, index) => (
+                  {Array.from({ length: editorLineCount }).map((_, index) => (
                     <option value={index} key={index}>{`${index + 1}行目`}</option>
                   ))}
                 </select>
@@ -2263,7 +2288,7 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
   const [customGrammarTargets, setCustomGrammarTargets] = useState([]);
   const [hiddenGrammarTargetIds, setHiddenGrammarTargetIds] = useState(() => new Set());
   const grammarBubbleZ = useRef(1000);
-  const pairsPerSlide = isKanbunTextbook ? 4 : 5;
+  const pairsPerSlide = 3;
   const lessonGrammarEnabled = ['akutagawa', 'tsutsuizutsu'].includes(textId);
 
   useEffect(() => {
@@ -2451,7 +2476,7 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
     const sourceLineEntries = splitViewLineEntries(lessonSection.text);
     const sourceLines = sourceLineEntries.map(entry => entry.text);
     const modernLines = splitModernForSourceLines(lessonSection.modern, sourceLines);
-    const kundokuLines = isKanbun ? splitViewLines(kundoku) : [];
+    const kundokuLines = isKanbun ? splitParallelViewLines(kundoku) : [];
     const lineCount = Math.max(sourceLines.length, modernLines.length, kundokuLines.length, 1);
     return { section, lessonSection, kundoku, isKanbun, sourceLineEntries, sourceLines, modernLines, kundokuLines, lineCount };
   });
@@ -2571,7 +2596,7 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
                           bubbleKey: `${section.id}-${index}-${target.id}`,
                         }))
                     : [];
-                  const modern = modernLines.length > 1 ? modernLines[index] : (index === 0 ? String(lessonSection.modern ?? '').trim() : '');
+                  const modern = modernLines[index] ?? '';
                   const reading = kundokuLines[index] ?? '';
                   const modernKey = `${section.id}-${index}-modern`;
                   const kundokuKey = `${section.id}-${index}-kundoku`;

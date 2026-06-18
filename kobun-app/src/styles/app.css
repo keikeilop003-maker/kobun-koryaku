@@ -640,13 +640,13 @@ body {
 }
 
 .lesson-view-column--kanbun-source .lesson-view-text {
-  font-size: 4.06rem;
+  font-size: 3.82rem;
   line-height: 1.48;
 }
 
 .lesson-view-column--kundoku .lesson-view-text {
   color: #ffc2e2;
-  font-size: 2.3rem;
+  font-size: 2.54rem;
   letter-spacing: 0;
   line-height: 1.45;
 }
@@ -1070,8 +1070,10 @@ body {
   font-family: 'BIZ UDPGothic', 'BIZ UDGothic', 'Yu Gothic UI', 'Yu Gothic', Meiryo, system-ui, sans-serif;
   font-size: 1rem;
   line-height: 1.7;
+  overflow: auto;
   padding: 10px 12px;
   resize: vertical;
+  white-space: pre;
 }
 
 .lesson-view-editor textarea:focus {
@@ -1094,6 +1096,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 220px;
+  overflow: hidden;
   border: 1px solid #555;
   border-right: 0;
   border-radius: 6px 0 0 6px;
@@ -7422,8 +7425,12 @@ span.kaeriten-source-hyphen.active {
     line-height: 1.8;
   }
 
+  .lesson-view-column--kanbun-source .lesson-view-text {
+    font-size: 1.62rem;
+  }
+
   .lesson-view-column--kundoku .lesson-view-text {
-    font-size: 1.34rem;
+    font-size: 1.5rem;
   }
 
   .section-title {
