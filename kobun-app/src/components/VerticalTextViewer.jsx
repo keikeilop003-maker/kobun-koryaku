@@ -2288,7 +2288,7 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
   const [customGrammarTargets, setCustomGrammarTargets] = useState([]);
   const [hiddenGrammarTargetIds, setHiddenGrammarTargetIds] = useState(() => new Set());
   const grammarBubbleZ = useRef(1000);
-  const pairsPerSlide = 3;
+  const pairsPerSlide = 4;
   const lessonGrammarEnabled = ['akutagawa', 'tsutsuizutsu'].includes(textId);
 
   useEffect(() => {

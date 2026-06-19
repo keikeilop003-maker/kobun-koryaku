@@ -646,9 +646,9 @@ body {
 
 .lesson-view-column--kundoku .lesson-view-text {
   color: #ffc2e2;
-  font-size: 2.54rem;
+  font-size: 3.12rem;
   letter-spacing: 0;
-  line-height: 1.45;
+  line-height: 1.46;
 }
 
 .lesson-view-column--modern .lesson-view-text {
@@ -7430,7 +7430,7 @@ span.kaeriten-source-hyphen.active {
   }
 
   .lesson-view-column--kundoku .lesson-view-text {
-    font-size: 1.5rem;
+    font-size: 1.74rem;
   }
 
   .section-title {
