@@ -1,0 +1,522 @@
+{
+  "id": "chousanboshi",
+  "title": "朝三暮四",
+  "source": "列子",
+  "sections": [
+    {
+      "id": "s1",
+      "title": "第一段",
+      "text": "宋有狙公者。愛狙、養之成群。能解狙之意、狙亦得公之心。損其家口、充狙之欲。俄而匱焉。将限其食。",
+      "kundoku": "宋に狙公なる者有り。狙を愛し、之を養ひて群を成す。能く狙の意を解し、狙も亦公の心を得たり。其の家口を損じて、狙の欲を充たせり。俄かにして匱し。将に其の食を限らんとす。",
+      "modern": "宋に狙公という者がいた。猿をかわいがり、これを養って、猿は群れを成していた。狙公は猿の心を理解することができ、猿もまた狙公の心を理解していた。狙公は家族の食べ物を減らして、猿の食欲を満たしてやっていた。やがて食糧が乏しくなった。そこで狙公はその食糧を制限しようとした。",
+      "targets": [
+        {
+          "id": "vocab-s1-1",
+          "type": "vocab",
+          "surface": "宋",
+          "reading": "そう",
+          "pos": "名詞",
+          "meaning": "中国の国名。",
+          "detail": "物語の舞台。",
+          "answer": "中国の国名"
+        },
+        {
+          "id": "vocab-s1-2",
+          "type": "vocab",
+          "surface": "狙",
+          "reading": "そ",
+          "pos": "名詞",
+          "meaning": "猿。",
+          "detail": "「狙公」は猿を飼う人の意。",
+          "answer": "猿",
+          "alternativeAnswers": [
+            "さる"
+          ]
+        },
+        {
+          "id": "vocab-s1-3",
+          "type": "vocab",
+          "surface": "狙公",
+          "reading": "そこう",
+          "pos": "名詞",
+          "meaning": "猿を飼う老人。猿好きの人。",
+          "detail": "「公」は人に対する敬称。",
+          "answer": "猿を飼う老人",
+          "alternativeAnswers": [
+            "猿好きの人",
+            "猿を飼う人"
+          ]
+        },
+        {
+          "id": "vocab-s1-4",
+          "type": "vocab",
+          "surface": "之",
+          "reading": "これ",
+          "pos": "代名詞",
+          "meaning": "これ。この場合は猿を指す。",
+          "detail": "前に出た語を受ける指示語。",
+          "answer": "これ",
+          "alternativeAnswers": [
+            "猿",
+            "狙"
+          ]
+        },
+        {
+          "id": "vocab-s1-5",
+          "type": "vocab",
+          "surface": "能",
+          "reading": "よく",
+          "pos": "副詞",
+          "meaning": "よく。できる。",
+          "detail": "ここでは「能く解し」で「理解することができ」と訳す。",
+          "answer": "できる",
+          "alternativeAnswers": [
+            "よく"
+          ]
+        },
+        {
+          "id": "vocab-s1-6",
+          "type": "vocab",
+          "surface": "亦",
+          "reading": "また",
+          "pos": "副詞",
+          "meaning": "また。～もまた。",
+          "detail": "狙公だけでなく、猿も狙公の心を理解していたことを表す。",
+          "answer": "また",
+          "alternativeAnswers": [
+            "もまた",
+            "～もまた"
+          ]
+        },
+        {
+          "id": "vocab-s1-7",
+          "type": "vocab",
+          "surface": "其",
+          "reading": "その",
+          "pos": "代名詞",
+          "meaning": "その。",
+          "detail": "ここでは狙公の家族を指す。",
+          "answer": "その",
+          "alternativeAnswers": [
+            "狙公の"
+          ]
+        },
+        {
+          "id": "vocab-s1-8",
+          "type": "vocab",
+          "surface": "家口",
+          "reading": "かこう",
+          "pos": "名詞",
+          "meaning": "家族。家族の食べ物。",
+          "detail": "ここでは家族の食べ物を減らしたことを表す。",
+          "answer": "家族",
+          "alternativeAnswers": [
+            "家族の食べ物"
+          ]
+        },
+        {
+          "id": "vocab-s1-9",
+          "type": "vocab",
+          "surface": "欲",
+          "reading": "よく",
+          "pos": "名詞",
+          "meaning": "欲求。食欲。",
+          "detail": "猿が食べたいと思う気持ち。",
+          "answer": "欲求",
+          "alternativeAnswers": [
+            "食欲"
+          ]
+        },
+        {
+          "id": "vocab-s1-10",
+          "type": "vocab",
+          "surface": "俄",
+          "reading": "にわかに",
+          "pos": "副詞",
+          "meaning": "やがて。急に。",
+          "detail": "「俄かにして」で「やがて」と訳す。",
+          "answer": "やがて",
+          "alternativeAnswers": [
+            "急に",
+            "にわかに"
+          ]
+        },
+        {
+          "id": "grammar-s1-1",
+          "type": "grammar",
+          "surface": "而",
+          "reading": "しかして",
+          "answer": "置き字。順接を表し、「そして・すると・～て」と訳す。",
+          "explanation": "「俄而匱焉」では「俄かにして匱し」と読む。"
+        },
+        {
+          "id": "vocab-s1-11",
+          "type": "vocab",
+          "surface": "匱",
+          "reading": "とぼし",
+          "pos": "形容詞",
+          "meaning": "乏しい。不足する。",
+          "detail": "食糧が不足したことを表す。",
+          "answer": "乏しい",
+          "alternativeAnswers": [
+            "不足する",
+            "とぼし"
+          ]
+        },
+        {
+          "id": "grammar-s1-2",
+          "type": "grammar",
+          "surface": "焉",
+          "reading": "えん",
+          "answer": "置き字。ここでは強意を表す。",
+          "explanation": "PDFの重要語句では、ここでの「焉」は置き字で強意・断定の働きとされている。"
+        },
+        {
+          "id": "vocab-s1-12",
+          "type": "vocab",
+          "surface": "将",
+          "reading": "まさに",
+          "pos": "再読文字",
+          "meaning": "まさに～んとす。今にも～しようとする。",
+          "detail": "「将限其食」は「将に其の食を限らんとす」と読む。",
+          "answer": "今にも～しようとする",
+          "alternativeAnswers": [
+            "まさに～んとす",
+            "～しようとする"
+          ]
+        },
+        {
+          "id": "grammar-s1-3",
+          "type": "grammar",
+          "surface": "将限其食",
+          "reading": "まさにそのしょくをかぎらんとす",
+          "answer": "将に其の食を限らんとす。",
+          "explanation": "「将」は再読文字で、「まさに～んとす」と読む。"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "title": "第二段",
+      "text": "恐衆狙之不馴於己也、先誑之曰、「与若芧、朝三而暮四。足乎。」衆狙皆起而怒。俄而曰、「与若芧、朝四而暮三。足乎。」衆狙皆伏而喜。",
+      "kundoku": "衆狙の己に馴れざるを恐るるや、先づ之を誑きて曰はく、「若に芧を与ふるに、朝に三にして暮れに四にせん。足るか。」と。衆狙皆起ちて怒る。俄かにして曰はく、「若に芧を与ふるに、朝に四にして暮れに三にせん。足るか。」と。衆狙皆伏して喜ぶ。",
+      "modern": "狙公は猿たちが自分の言うことを聞かなくなるのを心配したので、まずはこれ、すなわち猿たちを欺いて言うことには、「おまえたちにトチの実を与えるのに、朝に三つにして夕方は四つにしよう。それで十分か。」と。猿たちは皆立ち上がって怒った。やがて言うことには、「おまえたちにトチの実を与えるのに、朝に四つにして夕方は三つにしよう。それで十分か。」と。猿たちは皆腹ばいになって喜んだ。",
+      "notes": "『列子』では、無為自然を尊び人為を否定する道家思想が説かれている。この話は、聖人が知恵を働かせて民衆を統治する方法を批判するために著された寓話である。",
+      "targets": [
+        {
+          "id": "vocab-s2-1",
+          "type": "vocab",
+          "surface": "衆狙",
+          "reading": "しゅうそ",
+          "pos": "名詞",
+          "meaning": "多くの猿。猿たち。",
+          "detail": "狙公が飼っている猿の群れ。",
+          "answer": "猿たち",
+          "alternativeAnswers": [
+            "多くの猿"
+          ]
+        },
+        {
+          "id": "grammar-s2-1",
+          "type": "grammar",
+          "surface": "之",
+          "reading": "の",
+          "answer": "主述の間に置かれ、読む場合は「の」と読む。",
+          "explanation": "「衆狙之不馴於己」で「衆狙の己に馴れざる」と読む。"
+        },
+        {
+          "id": "grammar-s2-2",
+          "type": "grammar",
+          "surface": "不",
+          "reading": "ず",
+          "answer": "打消。返読して「～ず」と読む。",
+          "explanation": "「不馴」で「馴れざる」と読む。"
+        },
+        {
+          "id": "grammar-s2-3",
+          "type": "grammar",
+          "surface": "於",
+          "reading": "おいて",
+          "answer": "置き字。ここでは場所・対象を示す。",
+          "explanation": "「於己」は「己に」と読む。"
+        },
+        {
+          "id": "grammar-s2-4",
+          "type": "grammar",
+          "surface": "也",
+          "reading": "や",
+          "answer": "文中で区切りを表す助字。ここでは「や」と読む。",
+          "explanation": "「恐るるや」と読み、理由・契機を導く。"
+        },
+        {
+          "id": "grammar-s2-5",
+          "type": "grammar",
+          "surface": "恐衆狙之不馴於己也",
+          "reading": "しゅうそのおのれになれざるをおそるるや",
+          "answer": "衆狙の己に馴れざるを恐るるや。",
+          "explanation": "「之」は主述の間の助字、「不」は打消、「於」は置き字。"
+        },
+        {
+          "id": "vocab-s2-2",
+          "type": "vocab",
+          "surface": "先",
+          "reading": "まず",
+          "pos": "副詞",
+          "meaning": "まず。先に。",
+          "detail": "猿の反応を考えて、先にだまして言ったことを表す。",
+          "answer": "まず",
+          "alternativeAnswers": [
+            "先に"
+          ]
+        },
+        {
+          "id": "vocab-s2-3",
+          "type": "vocab",
+          "surface": "誑",
+          "reading": "あざむく",
+          "pos": "動詞",
+          "meaning": "だます。欺く。",
+          "detail": "「誑きて之に曰はく」で、猿たちをだまして言うことには、の意。",
+          "answer": "だます",
+          "alternativeAnswers": [
+            "欺く",
+            "あざむく"
+          ]
+        },
+        {
+          "id": "vocab-s2-4",
+          "type": "vocab",
+          "surface": "若",
+          "reading": "なんじ",
+          "pos": "代名詞",
+          "meaning": "おまえたち。あなた。",
+          "detail": "二人称。ここでは猿たちに呼びかけている。",
+          "answer": "おまえたち",
+          "alternativeAnswers": [
+            "あなた",
+            "なんじ"
+          ]
+        },
+        {
+          "id": "vocab-s2-5",
+          "type": "vocab",
+          "surface": "芧",
+          "reading": "ちょ",
+          "pos": "名詞",
+          "meaning": "トチの実。",
+          "detail": "猿に与える食べ物。",
+          "answer": "トチの実",
+          "alternativeAnswers": [
+            "とちの実"
+          ]
+        },
+        {
+          "id": "grammar-s2-6",
+          "type": "grammar",
+          "surface": "而",
+          "reading": "しかして",
+          "answer": "置き字。順接を表し、「そして・～て」と訳す。",
+          "explanation": "「朝三而暮四」「朝四而暮三」では、朝と暮れの配分をつなぐ。"
+        },
+        {
+          "id": "grammar-s2-7",
+          "type": "grammar",
+          "surface": "与若芧、朝三而暮四",
+          "reading": "なんじにちょをあたうるに、あしたにさんにしてくれにしにせん",
+          "answer": "若に芧を与ふるに、朝に三にして暮れに四にせん。",
+          "explanation": "「若」は二人称、「芧」はトチの実。"
+        },
+        {
+          "id": "grammar-s2-8",
+          "type": "grammar",
+          "surface": "足乎",
+          "reading": "たるか",
+          "answer": "十分か。",
+          "explanation": "「乎」は疑問を表す助字。"
+        },
+        {
+          "id": "vocab-s2-6",
+          "type": "vocab",
+          "surface": "乎",
+          "reading": "か",
+          "pos": "助字",
+          "meaning": "疑問を表す。～か。",
+          "detail": "「足乎」で「足るか」と読む。",
+          "answer": "疑問",
+          "alternativeAnswers": [
+            "～か",
+            "か"
+          ]
+        },
+        {
+          "id": "vocab-s2-7",
+          "type": "vocab",
+          "surface": "皆",
+          "reading": "みな",
+          "pos": "副詞",
+          "meaning": "みな。すべて。",
+          "detail": "猿たち全員の反応を表す。",
+          "answer": "みな",
+          "alternativeAnswers": [
+            "すべて"
+          ]
+        },
+        {
+          "id": "vocab-s2-8",
+          "type": "vocab",
+          "surface": "伏",
+          "reading": "ふす",
+          "pos": "動詞",
+          "meaning": "腹ばいになる。ひれ伏す。",
+          "detail": "喜んで従う様子を表す。",
+          "answer": "腹ばいになる",
+          "alternativeAnswers": [
+            "ひれ伏す",
+            "伏す"
+          ]
+        },
+        {
+          "id": "content-s2-1",
+          "type": "grammar",
+          "surface": "朝三而暮四",
+          "answer": "朝に三つ、暮れに四つ。",
+          "explanation": "合計は七つ。"
+        },
+        {
+          "id": "content-s2-2",
+          "type": "grammar",
+          "surface": "朝四而暮三",
+          "answer": "朝に四つ、暮れに三つ。",
+          "explanation": "合計は七つで変わらない。"
+        }
+      ]
+    }
+  ],
+  "normalQuestions": [
+    {
+      "id": "trans-1",
+      "type": "translation",
+      "title": "書き下し①",
+      "question": "「将限其食」を書き下し文にしなさい。",
+      "targetText": "将限其食",
+      "sectionId": "s1",
+      "answer": "将に其の食を限らんとす。",
+      "explanation": "「将」は再読文字で、「まさに～んとす」と読む。"
+    },
+    {
+      "id": "content-1",
+      "type": "content",
+      "local": true,
+      "title": "重要語句①",
+      "question": "「狙」の意味を答えなさい。（短答・AI採点なし）",
+      "sectionId": "s1",
+      "answer": "猿",
+      "alternativeAnswers": [
+        "さる"
+      ],
+      "explanation": "「狙公」は猿を飼う人を指す。"
+    },
+    {
+      "id": "content-2",
+      "type": "content",
+      "local": true,
+      "title": "重要語句②",
+      "question": "「若」の意味を答えなさい。（短答・AI採点なし）",
+      "sectionId": "s2",
+      "answer": "おまえたち",
+      "alternativeAnswers": [
+        "あなた",
+        "なんじ",
+        "あなたたち"
+      ],
+      "explanation": "二人称を表す語。"
+    },
+    {
+      "id": "trans-2",
+      "type": "translation",
+      "title": "書き下し②",
+      "question": "「恐衆狙之不馴於己也」を書き下し文にしなさい。",
+      "targetText": "恐衆狙之不馴於己也",
+      "sectionId": "s2",
+      "answer": "衆狙の己に馴れざるを恐るるや。",
+      "explanation": "「之」は主述の間に置かれ、「於」は置き字。"
+    },
+    {
+      "id": "trans-3",
+      "type": "translation",
+      "title": "書き下し③",
+      "question": "「与若芧、朝三而暮四。足乎。」を書き下し文にしなさい。",
+      "targetText": "与若芧、朝三而暮四。足乎。",
+      "sectionId": "s2",
+      "answer": "若に芧を与ふるに、朝に三にして暮れに四にせん。足るか。",
+      "explanation": "「若」は二人称、「乎」は疑問を表す。"
+    },
+    {
+      "id": "content-3",
+      "type": "content",
+      "title": "内容読解①",
+      "question": "狙公と衆狙は、どのような関係だったか。",
+      "sectionId": "s1",
+      "answer": "狙公は猿たちをかわいがり、互いの気持ちを理解できるような関係だった。",
+      "explanation": "「能解狙之意、狙亦得公之心」から読み取る。"
+    },
+    {
+      "id": "content-4",
+      "type": "content",
+      "title": "内容読解②",
+      "question": "狙公が猿の食糧を制限しようとしたのはなぜか。",
+      "sectionId": "s1",
+      "answer": "家族の食べ物を減らして猿の食欲を満たしていたため、やがて食糧が乏しくなったから。",
+      "explanation": "「損其家口、充狙之欲。俄而匱焉。」に基づく。"
+    },
+    {
+      "id": "content-5",
+      "type": "content",
+      "title": "内容読解③",
+      "question": "狙公が「朝三而暮四」を「朝四而暮三」に変えた理由は何か。",
+      "sectionId": "s2",
+      "answer": "合計の個数を変えずに、猿たちに最初に示した三という数字を四に増やしたという印象を持たせるため。",
+      "explanation": "朝と暮れの数を入れ替えただけで、合計は七つのままである。"
+    },
+    {
+      "id": "content-6",
+      "type": "content",
+      "title": "内容読解④",
+      "question": "衆狙が「朝三而暮四」では怒り、「朝四而暮三」では喜んだのはなぜか。",
+      "sectionId": "s2",
+      "answer": "先に与えられる数の多さに気をとられて、全体の量が同じであることに気づかなかったため。",
+      "explanation": "どちらも一日の合計は七つで変わらない。"
+    },
+    {
+      "id": "content-7",
+      "type": "content",
+      "local": true,
+      "title": "ことばと表現①",
+      "question": "「足乎」を現代語訳しなさい。（短答・AI採点なし）",
+      "targetText": "足乎",
+      "sectionId": "s2",
+      "answer": "十分か",
+      "alternativeAnswers": [
+        "足りるか",
+        "それで十分か"
+      ],
+      "explanation": "「乎」は疑問を表す助字。"
+    },
+    {
+      "id": "content-8",
+      "type": "content",
+      "local": true,
+      "title": "ことばと表現②",
+      "question": "本文から置き字を一つ抜き出しなさい。（短答・AI採点なし）",
+      "sectionId": "s1",
+      "answer": "而",
+      "alternativeAnswers": [
+        "焉",
+        "於"
+      ],
+      "explanation": "「俄而匱焉」の「而・焉」、「不馴於己」の「於」などが該当する。"
+    }
+  ],
+  "notes": "『列子』では、無為自然を尊び人為を否定する道家思想が説かれている。この話は、聖人が知恵を働かせて民衆を統治する方法を批判するために著された寓話である。",
+  "textType": "kanbun"
+}
