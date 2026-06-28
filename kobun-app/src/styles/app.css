@@ -1218,8 +1218,7 @@ body {
 
 .source-kundoku-row {
   display: flex;
-  flex-direction: row-reverse;
-  align-items: flex-start;
+  flex-direction: column;
   gap: 14px;
 }
 
@@ -1229,8 +1228,8 @@ body {
 }
 
 .source-kundoku-row .student-kundoku-area {
-  flex: 0 0 auto;
-  max-width: 45%;
+  width: 100%;
+  max-width: none;
   margin-top: 0;
 }
 
@@ -7449,7 +7448,8 @@ span.kaeriten-source-hyphen.active {
   }
 
   .source-kundoku-row .student-kundoku-area {
-    max-width: 44%;
+    width: 100%;
+    max-width: none;
   }
 
   .vertical-text-scroll,
