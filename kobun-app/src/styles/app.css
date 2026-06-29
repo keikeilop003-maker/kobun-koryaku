@@ -1220,6 +1220,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  position: relative;
 }
 
 .source-text-pane {
@@ -1424,6 +1425,10 @@ body {
 }
 
 .kundoku-toggle-btn {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
   border: 1px solid #c8c2b4;
   border-radius: 4px;
   background: #fffdf8;
