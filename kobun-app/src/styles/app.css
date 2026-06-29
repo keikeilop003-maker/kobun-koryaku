@@ -1432,7 +1432,11 @@ body {
   font-family: inherit;
   font-size: 0.8rem;
   font-weight: bold;
-  padding: 6px 12px;
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  padding: 10px 6px;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
 }
 
 .kundoku-toggle-btn:hover {
