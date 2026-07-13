@@ -8,5 +8,6 @@
   { "id": "chousanboshi", "title": "朝三暮四", "source": "列子", "status": "published" },
   { "id": "akutagawa", "title": "芥川", "source": "伊勢物語", "status": "published" },
   { "id": "tsutsuizutsu", "title": "筒井筒", "source": "伊勢物語", "status": "published" },
-  { "id": "manyoshu", "title": "和歌_万葉集", "source": "万葉集", "status": "published", "tag": "2中" }
+  { "id": "manyoshu", "title": "和歌_万葉集", "source": "万葉集", "status": "published", "tag": "2中" },
+  { "id": "kokinwakashu", "title": "和歌_古今和歌集", "source": "古今和歌集", "status": "published", "tag": "2中" }
 ]
