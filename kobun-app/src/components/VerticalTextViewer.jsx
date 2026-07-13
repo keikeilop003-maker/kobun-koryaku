@@ -1587,6 +1587,8 @@ function SectionCard({ section, sectionIndex, collapsed, onToggleCollapsed, sele
 
   const selectedStart = selectionRange?.sectionId === section.id ? selectionRange.start : null;
   const selectedEnd = selectionRange?.sectionId === section.id ? selectionRange.end : null;
+  const focusedSectionId = selectedSection?.id ?? selectedTarget?.sectionId;
+  const isFocusedSection = Boolean(focusedSectionId && focusedSectionId === section.id);
   const sectionNumberText = sectionNumber(sectionIndex);
   const showModern = Boolean(section.modernVisible);
   const sectionTitle = (
@@ -1653,7 +1655,7 @@ function SectionCard({ section, sectionIndex, collapsed, onToggleCollapsed, sele
   };
 
   return (
-    <div className="section-card">
+    <div className={`section-card${isFocusedSection ? ' section-card--focused' : ''}`}>
       {sectionTitle}
       {!collapsed && isAdmin && !section.sectionless && (
         <div className="admin-section-tools">

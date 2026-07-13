@@ -1250,6 +1250,11 @@ body {
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
+.section-card--focused {
+  border-color: #4a6fa5;
+  box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.18), 0 2px 8px rgba(45, 58, 94, 0.12);
+}
+
 .section-title {
   align-items: center;
   display: flex;
@@ -1626,13 +1631,25 @@ body {
 .hl-all      { background: #e0e0e0; border-bottom-color: #9e9e9e; }
 .hl-vocab    { background: #fff176; border-bottom-color: #f9a825; }
 .hl-reading  { background: #b2ebf2; border-bottom-color: #00838f; }
-.hl-rhetoric {
+.hl-rhetoric { background: transparent; border-bottom-color: #c62828; }
+
+.highlight-token.hl-rhetoric {
   background: transparent;
-  border-bottom-color: #c62828;
   text-decoration-line: underline;
   text-decoration-color: #a11414;
   text-decoration-thickness: 2px;
   text-underline-offset: 0.18em;
+}
+
+.highlight-token.hl-rhetoric:hover,
+.highlight-token.hl-rhetoric:focus {
+  filter: none;
+  transform: none;
+}
+
+.highlight-token.hl-rhetoric.selected {
+  box-shadow: none;
+  transform: none;
 }
 .hl-aux      { background: #bbdefb; border-bottom-color: #1565c0; }
 .hl-verb     { background: #c8e6c9; border-bottom-color: #2e7d32; }
