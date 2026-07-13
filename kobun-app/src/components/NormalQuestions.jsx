@@ -57,6 +57,22 @@ function circledNumber(index) {
   return circled[index - 1] ?? `(${index})`;
 }
 
+function sectionNumber(index) {
+  return String(index + 1);
+}
+
+function questionSectionLabel(sections, sectionId) {
+  if (!sectionId) return '段未設定';
+  const visibleSections = (sections ?? []).filter(section => !section.sectionless);
+  const index = visibleSections.findIndex(section => section.id === sectionId);
+  return index === -1 ? '段未設定' : `${sectionNumber(index)}段`;
+}
+
+function normalizedSectionId(sections, sectionId) {
+  if (!sectionId) return '';
+  return (sections ?? []).some(section => !section.sectionless && section.id === sectionId) ? sectionId : '';
+}
+
 function boldTargets(surfaces, fallbackSurface) {
   const values = Array.isArray(surfaces) ? surfaces : [surfaces ?? fallbackSurface];
   return values
@@ -142,6 +158,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
   const [questionType, setQuestionType] = useState(q.type ?? 'content');
   const [questionText, setQuestionText] = useState(q.question ?? '');
   const [answerText, setAnswerText] = useState(q.answer ?? '');
+  const [questionSectionId, setQuestionSectionId] = useState(() => normalizedSectionId(sections, q.sectionId));
   const [explanationText, setExplanationText] = useState(q.explanation ?? '');
   const [alternativeAnswers, setAlternativeAnswers] = useState(() => [...(q.alternativeAnswers ?? []), '', '', '', '', ''].slice(0, 5));
   const [savingQuestion, setSavingQuestion] = useState(false);
@@ -161,6 +178,10 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
   useEffect(() => {
     setAnswerText(q.answer ?? '');
   }, [q.answer]);
+
+  useEffect(() => {
+    setQuestionSectionId(normalizedSectionId(sections, q.sectionId));
+  }, [q.sectionId, sections]);
 
   useEffect(() => {
     setExplanationText(q.explanation ?? '');
@@ -184,6 +205,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
   }, [editingQuestion, focusAnswerAfterEdit]);
 
   const section = sections.find(s => s.id === q.sectionId);
+  const sectionLabel = questionSectionLabel(sections, q.sectionId);
 
   const submit = async () => {
     if (!ans.trim()) return;
@@ -222,6 +244,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
       type: questionType,
       question: questionText,
       answer: answerText,
+      sectionId: questionSectionId,
       explanation: explanationText,
       alternativeAnswers,
     });
@@ -262,6 +285,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
   return (
     <div className="normal-question-card">
       <div className="nq-header" onClick={onToggleOpen}>
+        <span className={`nq-section-badge${sectionLabel === '段未設定' ? ' nq-section-badge--unset' : ''}`}>{sectionLabel}</span>
         <span className={`type-badge type-${q.type}`}>{q.type === 'translation' ? '現代語訳' : '内容読解'}</span>
         <span className="nq-title">{q.displayTitle ?? q.title}</span>
         {isAdmin && (
@@ -302,6 +326,14 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
                 </label>
                 <label>
                   問題文
+                  <select className="nq-section-select-inline" value={questionSectionId} onChange={e => setQuestionSectionId(e.target.value)}>
+                    <option value="">段未設定</option>
+                    {(sections ?? []).filter(sectionItem => !sectionItem.sectionless).map((sectionItem, index) => (
+                      <option key={sectionItem.id} value={sectionItem.id}>
+                        {sectionNumber(index)} {sectionItem.title}
+                      </option>
+                    ))}
+                  </select>
                   <textarea value={questionText} onChange={e => setQuestionText(e.target.value)} rows={3} />
                 </label>
                 <label>
@@ -327,7 +359,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
                   <button onClick={saveQuestion} disabled={savingQuestion || !questionText.trim() || !answerText.trim()}>
                     {savingQuestion ? '保存中...' : '保存'}
                   </button>
-                  <button className="nq-admin-secondary" onClick={() => { setQuestionText(q.question ?? ''); setAnswerText(q.answer ?? ''); setExplanationText(q.explanation ?? ''); setEditingQuestion(false); }} disabled={savingQuestion}>
+                  <button className="nq-admin-secondary" onClick={() => { setQuestionText(q.question ?? ''); setAnswerText(q.answer ?? ''); setQuestionSectionId(normalizedSectionId(sections, q.sectionId)); setExplanationText(q.explanation ?? ''); setEditingQuestion(false); }} disabled={savingQuestion}>
                     キャンセル
                   </button>
                 </div>
@@ -335,6 +367,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
             ) : (
               <div className="nq-question-row">
                 <p className="nq-question">
+                  <span className={`question-section-prefix${sectionLabel === '段未設定' ? ' question-section-prefix--unset' : ''}`}>{sectionLabel}</span>
                   <HighlightQuestionText text={q.question} surface={q.targetText} surfaces={q.questionSurfaces} />
                 </p>
                 {isAdmin && (
@@ -412,11 +445,12 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
   );
 }
 
-function AddNormalQuestionForm({ nextOrder, onAddQuestion }) {
+function AddNormalQuestionForm({ nextOrder, sections, onAddQuestion }) {
   const [adding, setAdding] = useState(false);
   const [questionType, setQuestionType] = useState('content');
   const [questionText, setQuestionText] = useState('');
   const [answerText, setAnswerText] = useState('');
+  const [questionSectionId, setQuestionSectionId] = useState('');
   const [explanationText, setExplanationText] = useState('');
   const [alternativeAnswers, setAlternativeAnswers] = useState(['', '', '', '', '']);
   const [saving, setSaving] = useState(false);
@@ -425,6 +459,7 @@ function AddNormalQuestionForm({ nextOrder, onAddQuestion }) {
     setQuestionType('content');
     setQuestionText('');
     setAnswerText('');
+    setQuestionSectionId('');
     setExplanationText('');
     setAlternativeAnswers(['', '', '', '', '']);
     setAdding(false);
@@ -439,6 +474,7 @@ function AddNormalQuestionForm({ nextOrder, onAddQuestion }) {
       type: questionType,
       question: questionText,
       answer: answerText,
+      sectionId: questionSectionId,
       explanation: explanationText,
       alternativeAnswers,
       order: nextOrder,
@@ -554,6 +590,7 @@ export default function NormalQuestions({ questions, sections, historyEntries, o
       {isAdmin && (
         <AddNormalQuestionForm
           nextOrder={sorted.length}
+          sections={sections}
           onAddQuestion={(question) => onUpdateQuestion?.(question, question)}
         />
       )}

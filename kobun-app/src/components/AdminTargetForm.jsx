@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { emptyKaeritenAnswer, serializeKaeritenAnswer } from '../utils/kaeriten';
 
 const TYPE_LABELS = {
-  vocab: '重要単語',
-  grammar: '文法・句法',
+  reading: '読み',
+  rhetoric: '修辞',
+  vocab: '語句',
+  grammar: '文法',
   verb: '動詞',
   adj: '形容詞',
   aux: '助動詞',
@@ -54,6 +56,8 @@ function defaultForm(type, selection, initialTarget = null, initialSectionId = '
 }
 
 function answerLabel(type, form) {
+  if (type === 'reading') return '読み';
+  if (type === 'rhetoric') return '修辞・表現';
   if (type === 'aux') return '用法';
   if (type === 'particle') return form.particleQuestionType === 'usage' ? '用法' : '訳し方';
   if (type === 'vocab') return '意味';

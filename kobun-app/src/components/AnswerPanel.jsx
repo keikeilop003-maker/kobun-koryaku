@@ -5,18 +5,20 @@ import { reviewVocab, reviewAux, reviewVerb, reviewAdj, reviewParticle, reviewGr
 import { kaeritenChars, parseKaeritenAnswer, serializeKaeritenAnswer } from '../utils/kaeriten';
 
 const TYPE_LABEL = {
-  vocab:    '重要単語',
+  vocab:    '語句',
+  reading:  '読み',
+  rhetoric: '修辞',
   aux:      '助動',
   verb:     '動',
   adj:      '形',
   particle: '助',
-  grammar:  '文法・句法',
+  grammar:  '文法',
   kundoku:  '書き下し',
   kaeriten: '返り点',
 };
 
-const SCORE_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar', 'kundoku', 'kaeriten']);
-const ADMIN_ADD_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'grammar', 'kaeriten']);
+const SCORE_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'reading', 'rhetoric', 'grammar', 'kundoku', 'kaeriten']);
+const ADMIN_ADD_TYPES = new Set(['aux', 'verb', 'adj', 'particle', 'vocab', 'reading', 'rhetoric', 'grammar', 'kaeriten']);
 const KAERITEN_MARK_OPTIONS = ['', '\u4e00', '\u4e8c', '\u4e09', '\u30ec', '\u4e00\u30ec', '\u4e0a', '\u4e0b'];
 const KAERITEN_INSTRUCTION = '行を選択し、漢字を選択して返り点を付けてください。';
 
@@ -166,6 +168,13 @@ function sectionOrder(sections, section) {
   return index === -1 ? Number.MAX_SAFE_INTEGER - 1 : index;
 }
 
+function sectionNumberLabel(sections, section) {
+  if (!section?.id || section.sectionless) return '段未設定';
+  const visibleSections = (sections ?? []).filter(item => !item.sectionless);
+  const index = visibleSections.findIndex(item => item.id === section.id);
+  return index === -1 ? '段未設定' : `${index + 1}段`;
+}
+
 function inputCls(judgement, value) {
   if (!value?.trim() || !judgement) return '';
   if (judgement === '正解') return 'input-correct';
@@ -238,12 +247,15 @@ function QuestionHeader({ target }) {
       </span>
     );
   }
-  const surface = target.type === 'grammar' || target.type === 'kaeriten' || target.type === 'kundoku' ? (target.questionSurface ?? target.surface) : target.surface;
+  const surface = target.type === 'grammar' || target.type === 'rhetoric' || target.type === 'kaeriten' || target.type === 'kundoku' ? (target.questionSurface ?? target.surface) : target.surface;
   const prefix = { aux: '助動詞', particle: '助詞' }[target.type] ?? '';
   const suffix = {
-    vocab: 'の意味', aux: 'の用法', verb: 'の文法事項',
+    vocab: 'の意味',
+    reading: 'の読み',
+    aux: 'の用法', verb: 'の文法事項',
     adj: 'の文法事項',
     particle: 'の用法',
+    rhetoric: 'の修辞・表現',
     grammar: 'の文法的な働きと訳し方',
     kundoku: 'を書き下す',
     kaeriten: 'に返り点を振る',
@@ -267,6 +279,52 @@ function UndoDeleteNotice({ deletedTargetNotice, onUndoDelete }) {
 
 function acceptedAnswers(target) {
   return [target.answer, ...(target.alternativeAnswers ?? [])].filter(Boolean);
+}
+
+function AnswerToggle({ children }) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className="answer-toggle-block">
+      <button
+        type="button"
+        className="answer-toggle-button"
+        onClick={() => setVisible(value => !value)}
+      >
+        {visible ? '答えを隠す' : '答えを見る'}
+      </button>
+      {visible && <div className="hint answer-toggle-content">{children}</div>}
+    </div>
+  );
+}
+
+function SimpleAnswerToggle({ answer }) {
+  return (
+    <AnswerToggle>
+      <div>模範解答：<em>{answer || '未設定'}</em></div>
+    </AnswerToggle>
+  );
+}
+
+function SyntaxAnswerToggle({ target }) {
+  const usage = target.syntaxUsage ?? '';
+  const translation = target.syntaxTranslation ?? '';
+  return (
+    <AnswerToggle>
+      {usage && <div>用法：<em>{usage}</em></div>}
+      {translation && <div>訳し方：<em>{translation}</em></div>}
+      {!usage && !translation && <div>模範解答：<em>{target.answer || '未設定'}</em></div>}
+    </AnswerToggle>
+  );
+}
+
+function ConjugationAnswerToggle({ target }) {
+  return (
+    <AnswerToggle>
+      <div>基本形：<em>{target.baseForm || '未設定'}</em></div>
+      <div>活用の種類：<em>{target.conjugationType || '未設定'}</em></div>
+      <div>文中の活用形：<em>{target.formInText || '未設定'}</em></div>
+    </AnswerToggle>
+  );
 }
 
 // ── 重要単語 ─────────────────────────────────────────────────
@@ -308,10 +366,10 @@ const VocabForm = forwardRef(function VocabForm({ target, onResult, initialResul
             <JudgeIcon judgement={result?.judgement} />
             {result?.judgement && <span className="judgement-text">{result.judgement}</span>}
           </div>
-          <div className="hint">模範解答：<em>{target.answer}</em></div>
           {target.explanation && <div className="explanation">{target.explanation}</div>}
         </>
       )}
+      <SimpleAnswerToggle answer={target.answer} />
     </div>
   );
 });
@@ -350,6 +408,7 @@ const AuxForm = forwardRef(function AuxForm({ target, section, onResult, initial
         />
         <JudgeIcon judgement={ans.trim() ? result?.judgement : null} />
       </div>
+      <SimpleAnswerToggle answer={target.answer} explanation={target.explanation} />
     </div>
   );
 });
@@ -421,6 +480,7 @@ const VerbForm = forwardRef(function VerbForm({ target, section, onResult, initi
           <JudgeIcon judgement={form.trim() ? formResult?.judgement : null} />
         </div>
       </div>
+      <ConjugationAnswerToggle target={target} />
     </div>
   );
 });
@@ -492,6 +552,7 @@ const AdjForm = forwardRef(function AdjForm({ target, section, onResult, initial
           <JudgeIcon judgement={form.trim() ? formResult?.judgement : null} />
         </div>
       </div>
+      <ConjugationAnswerToggle target={target} />
     </div>
   );
 });
@@ -530,6 +591,7 @@ const ParticleForm = forwardRef(function ParticleForm({ target, onResult, initia
         />
         <JudgeIcon judgement={ans.trim() ? result?.judgement : null} />
       </div>
+      <SimpleAnswerToggle answer={target.answer} explanation={target.explanation} />
     </div>
   );
 });
@@ -573,10 +635,10 @@ const GrammarForm = forwardRef(function GrammarForm({ target, section, onResult,
             <JudgeIcon judgement={result?.judgement} />
             {result?.judgement && <span className="judgement-text">{result.judgement}</span>}
           </div>
-          <div className="hint">模範解答：<em>{target.answer}</em></div>
           {target.explanation && <div className="explanation">{target.explanation}</div>}
         </>
       )}
+      <SimpleAnswerToggle answer={target.answer} />
     </div>
   );
 });
@@ -949,10 +1011,10 @@ const SyntaxGrammarForm = forwardRef(function SyntaxGrammarForm({ target, sectio
             <JudgeIcon judgement={result?.judgement} />
             {result?.judgement && <span className="judgement-text">{result.judgement}</span>}
           </div>
-          <div className="hint">模範解答：<em>{target.answer || '用法・訳し方が未登録です。'}</em></div>
           {target.explanation && <div className="explanation">{target.explanation}</div>}
         </>
       )}
+      <SyntaxAnswerToggle target={target} />
     </div>
   );
 });
@@ -1111,13 +1173,14 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
   const isScoreType = SCORE_TYPES.has(target.type);
   const formProps = { initialInputs, onInputChange };
   const showPanelHeader = target.type !== 'kaeriten';
+  const sectionLabel = sectionNumberLabel(sections, section);
 
   return (
     <div
       ref={cardRef}
       className={`question-card${isSelected ? ' question-card--selected' : ''}`}
       onFocus={(event) => {
-        if (editing || isSelected || event.target === event.currentTarget) return;
+        if (editing || event.target === event.currentTarget) return;
         const focusedElement = event.target;
         suppressAutoFocusRef.current = true;
         if (focusSyncTimerRef.current) {
@@ -1132,6 +1195,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
       }}
     >
       {showPanelHeader && <div className="panel-header">
+        <span className={`question-section-prefix${sectionLabel === '段未設定' ? ' question-section-prefix--unset' : ''}`}>{sectionLabel}</span>
         <span className={`type-badge type-${target.type}`}>{TYPE_LABEL[target.type] ?? '問題'}</span>
         <QuestionHeader target={target} />
         {isAdmin && (!target.generated || target.type === 'kundoku' || target.syntaxUsage !== undefined || target.syntaxTranslation !== undefined) && (
@@ -1196,6 +1260,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
         />
       )}
       {target.type === 'vocab'    && <VocabForm    ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'reading'  && <VocabForm    ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'aux'      && <AuxForm      ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'verb'     && <VerbForm     ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'adj'      && <AdjForm      ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
@@ -1203,6 +1268,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
       {target.type === 'grammar' && target.generated && (target.syntaxUsage !== undefined || target.syntaxTranslation !== undefined)
         ? <SyntaxGrammarForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />
         : target.type === 'grammar' && <GrammarForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
+      {target.type === 'rhetoric' && <GrammarForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'kundoku' && <KundokuForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {target.type === 'kaeriten' && <KaeritenForm ref={formRef} target={target} section={section} onResult={setResult} initialResult={feedback} onAdvance={onAdvance} {...formProps} />}
       {feedback && !isScoreType && <FeedbackCard type={target.type} data={feedback} />}
@@ -1214,6 +1280,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
 export default function AnswerPanel({
   activeType,
   sections,
+  collapsedSectionIds,
   selectedTarget,
   selectedSection,
   onFocusTarget,
@@ -1268,6 +1335,7 @@ export default function AnswerPanel({
   const questions = useMemo(() => {
     if (activeType === 'all') return [];
     const all = sections.flatMap(section => {
+      if (collapsedSectionIds?.has(section.id)) return [];
       const sectionTargets = (section.targets ?? [])
         .filter(t => t.type === activeType)
       const orderMap = buildTargetOrderMap(section, sectionTargets);
@@ -1287,7 +1355,7 @@ export default function AnswerPanel({
       if (sectionDiff !== 0) return sectionDiff;
       return (a.order ?? targetOrder(a.section, a.target)) - (b.order ?? targetOrder(b.section, b.target));
     });
-  }, [activeType, sections]);
+  }, [activeType, collapsedSectionIds, sections]);
 
   useEffect(() => {
     cardRefs.current = [];
@@ -1314,7 +1382,7 @@ export default function AnswerPanel({
   const undoNotice = isAdmin ? <UndoDeleteNotice deletedTargetNotice={deletedTargetNotice} onUndoDelete={onUndoDelete} /> : null;
 
   if (activeType === 'all') {
-    if (!selectedTarget) {
+    if (!selectedTarget || collapsedSectionIds?.has(selectedSection?.id ?? selectedTarget?.sectionId)) {
       return (
         <div className="answer-panel empty">
           <div className="empty-message">
@@ -1348,7 +1416,7 @@ export default function AnswerPanel({
   }
 
   if (activeType === 'kaeriten') {
-    if (selectedTarget?.type === 'kaeriten' && selectedSection) {
+    if (selectedTarget?.type === 'kaeriten' && selectedSection && !collapsedSectionIds?.has(selectedSection.id)) {
       return (
         <div className="answer-panel-list">
           {adminTools ?? undoNotice}
@@ -1388,7 +1456,7 @@ export default function AnswerPanel({
   }
 
   if (activeType === 'kundoku') {
-    if (selectedTarget?.type === 'kundoku' && selectedSection) {
+    if (selectedTarget?.type === 'kundoku' && selectedSection && !collapsedSectionIds?.has(selectedSection.id)) {
       const target = selectedTarget;
       const section = selectedSection;
       return (
@@ -1466,4 +1534,3 @@ export default function AnswerPanel({
     </div>
   );
 }
-

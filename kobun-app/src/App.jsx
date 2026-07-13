@@ -35,8 +35,10 @@ const DEFAULT_TEXTBOOK_TAG = '未分類';
 
 const LEGEND = [
   { type: 'all',      label: '全語句',   cls: 'hl-all' },
-  { type: 'vocab',    label: '重要単語', cls: 'hl-vocab' },
-  { type: 'grammar',  label: '文法・句法', cls: 'hl-grammar' },
+  { type: 'vocab',    label: '語句', cls: 'hl-vocab' },
+  { type: 'grammar',  label: '文法', cls: 'hl-grammar' },
+  { type: 'reading',  label: '読み', cls: 'hl-reading' },
+  { type: 'rhetoric', label: '修辞', cls: 'hl-rhetoric' },
   { type: 'verb',     label: '動',       cls: 'hl-verb' },
   { type: 'adj',      label: '形',       cls: 'hl-adj' },
   { type: 'aux',      label: '助動',     cls: 'hl-aux' },
@@ -142,6 +144,7 @@ function AppInner() {
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [viewAsStudent, setViewAsStudent] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
+  const [collapsedSectionIds, setCollapsedSectionIds] = useState(() => new Set());
   const [lessonViewMode, setLessonViewMode] = useState(false);
   const [lessonViewSectionMap, setLessonViewSectionMap] = useState(() => new Map());
   const [lessonViewPublished, setLessonViewPublished] = useState(false);
@@ -167,6 +170,7 @@ function AppInner() {
   const { profile, awardPoints, unlockItem, equipItem } = useProfile(user?.uid);
   useEffect(() => {
     setCorrectKaeritenLines({});
+    setCollapsedSectionIds(new Set());
   }, [textId]);
 
   useEffect(() => {
@@ -187,7 +191,8 @@ function AppInner() {
     setLessonViewPublished(false);
     if (!textId) return undefined;
     return onSnapshot(doc(db, 'lessonViewSettings', textId), (snapshot) => {
-      setLessonViewPublished(Boolean(snapshot.data()?.published));
+      const data = snapshot.data() ?? {};
+      setLessonViewPublished(Boolean(data.published));
     });
   }, [textId]);
 
@@ -198,12 +203,25 @@ function AppInner() {
     setCorrectKaeritenLines(current => ({ ...current, [key]: true }));
   }, []);
   const handleSelectTarget = useCallback((target, section) => {
-    setSelectedTarget(current => (
-      targetSelectionKey(current) === targetSelectionKey(target) ? current : target
-    ));
+    setSelectedTarget(target ? { ...target } : target);
     setSelectedSection(current => (
       current?.id === section?.id ? current : section
     ));
+  }, []);
+  const handleToggleSectionCollapsed = useCallback((sectionId) => {
+    if (!sectionId) return;
+    setCollapsedSectionIds(current => {
+      const next = new Set(current);
+      if (next.has(sectionId)) {
+        next.delete(sectionId);
+      } else {
+        next.add(sectionId);
+        setSelectedTarget(target => target?.sectionId === sectionId ? null : target);
+        setSelectedSection(section => section?.id === sectionId ? null : section);
+        setPinnedPhrase(phrase => phrase?.sectionId === sectionId ? null : phrase);
+      }
+      return next;
+    });
   }, []);
   const statusTextbooks = useMemo(
     () => textbooks.map(tb => ({
@@ -268,6 +286,7 @@ function AppInner() {
                 ...(typeof sectionEdit.text === 'string' ? { text: sectionEdit.text } : {}),
                 ...(typeof sectionEdit.kundoku === 'string' ? { kundoku: sectionEdit.kundoku } : {}),
                 ...(typeof sectionEdit.modern === 'string' ? { modern: sectionEdit.modern } : {}),
+                ...(typeof sectionEdit.modernVisible === 'boolean' ? { modernVisible: sectionEdit.modernVisible } : {}),
                 ...(typeof sectionEdit.notes === 'string' ? { notes: sectionEdit.notes } : {}),
                 ...(typeof sectionEdit.kanbunSyntax === 'string' ? { kanbunSyntax: sectionEdit.kanbunSyntax } : {}),
                 ...(Array.isArray(sectionEdit.kundokuQuestions) ? { kundokuQuestions: sectionEdit.kundokuQuestions } : {}),
@@ -324,6 +343,7 @@ function AppInner() {
             ...question,
             ...(edit.question ? { question: edit.question } : {}),
             ...(edit.answer ? { answer: edit.answer } : {}),
+            ...(typeof edit.sectionId === 'string' ? { sectionId: edit.sectionId } : {}),
             ...(edit.type ? { type: edit.type } : {}),
             ...(Number.isFinite(edit.order) ? { order: edit.order } : {}),
             ...(typeof edit.explanation === 'string' ? { explanation: edit.explanation } : {}),
@@ -341,6 +361,7 @@ function AppInner() {
               type: item.type === 'translation' ? 'translation' : 'content',
               question: item.question ?? '',
               answer: item.answer ?? '',
+              sectionId: typeof item.sectionId === 'string' ? item.sectionId : '',
               explanation: item.explanation ?? '',
               alternativeAnswers: Array.isArray(item.alternativeAnswers) ? item.alternativeAnswers : [],
               order: Number.isFinite(item.order) ? item.order : Number.MAX_SAFE_INTEGER,
@@ -351,6 +372,11 @@ function AppInner() {
     };
   }, [textData, customTargets, hiddenTargetKeys, editedTargetMap, editedSectionMap, editedNormalQuestionMap, hiddenNormalQuestionIds]);
   const currentTextData = displayTextData ?? textData;
+  const visibleNormalQuestions = useMemo(() => {
+    return (currentTextData?.normalQuestions ?? []).filter(question =>
+      !question.sectionId || !collapsedSectionIds.has(question.sectionId)
+    );
+  }, [collapsedSectionIds, currentTextData?.normalQuestions]);
   const effectiveLessonViewSectionMap = useMemo(() => {
     const next = new Map();
     const dataSections = currentTextData?.lessonViewSections;
@@ -745,6 +771,7 @@ function AppInner() {
           text: Object.prototype.hasOwnProperty.call(updates, 'text') ? updates.text : (section.text ?? ''),
           kundoku: Object.prototype.hasOwnProperty.call(updates, 'kundoku') ? updates.kundoku : (section.kundoku ?? ''),
           modern: Object.prototype.hasOwnProperty.call(updates, 'modern') ? updates.modern : (section.modern ?? ''),
+          modernVisible: Object.prototype.hasOwnProperty.call(updates, 'modernVisible') ? Boolean(updates.modernVisible) : Boolean(section.modernVisible),
           notes: Object.prototype.hasOwnProperty.call(updates, 'notes') ? updates.notes : (section.notes ?? ''),
           kanbunSyntax: Object.prototype.hasOwnProperty.call(updates, 'kanbunSyntax') ? updates.kanbunSyntax : (section.kanbunSyntax ?? ''),
           kundokuQuestions: Object.prototype.hasOwnProperty.call(updates, 'kundokuQuestions') ? updates.kundokuQuestions : (section.kundokuQuestions ?? []),
@@ -791,6 +818,7 @@ function AppInner() {
     const questionText = payload.question?.trim();
     const answerText = payload.answer?.trim();
     const questionType = payload.type === 'content' ? 'content' : payload.type === 'translation' ? 'translation' : question.type;
+    const sectionId = typeof payload.sectionId === 'string' ? payload.sectionId : (question.sectionId ?? '');
     const order = Number.isFinite(payload.order) ? payload.order : (Number.isFinite(question.order) ? question.order : null);
     const explanation = typeof payload.explanation === 'string' ? payload.explanation.trim() : (question.explanation ?? '');
     const alternativeAnswers = (payload.alternativeAnswers ?? []).map(item => item.trim()).filter(Boolean).slice(0, 5);
@@ -802,6 +830,7 @@ function AppInner() {
         questionId: question.id,
         question: questionText,
         answer: answerText,
+        sectionId,
         type: questionType,
         ...(order !== null ? { order } : {}),
         explanation,
@@ -850,6 +879,7 @@ function AppInner() {
         questionId: question.id,
         question: question.question ?? '',
         answer: question.answer ?? '',
+        sectionId: question.sectionId ?? '',
         type: questionType,
         order: index,
         explanation: question.explanation ?? '',
@@ -1128,13 +1158,15 @@ function AppInner() {
               notes={currentTextData.notes}
               sections={currentTextData.sections}
               selectedTarget={selectedTarget}
+              selectedSection={selectedSection}
+              collapsedSectionIds={collapsedSectionIds}
+              onToggleSectionCollapsed={handleToggleSectionCollapsed}
               onSelectTarget={handleSelectTarget}
               activeType={rightTab === 'knowledge' ? activeType : null}
               pinnedPhrase={rightTab === 'normal' ? pinnedPhrase : null}
               selectionMode={effectiveIsAdmin && Boolean(addingType)}
               selectionRange={adminSelection}
               onRangeSelect={setAdminSelection}
-              showModern={effectiveIsAdmin}
               isAdmin={effectiveIsAdmin}
               onUpdateSection={handleUpdateSection}
               lessonViewSections={effectiveLessonViewSectionMap}
@@ -1260,6 +1292,7 @@ function AppInner() {
                 <AnswerPanel
                   activeType={activeType}
                   sections={currentTextData.sections}
+                  collapsedSectionIds={collapsedSectionIds}
                   selectedTarget={selectedTarget}
                   selectedSection={selectedSection}
                   onFocusTarget={handleSelectTarget}
@@ -1281,7 +1314,7 @@ function AppInner() {
               </div>
               <div style={{ display: rightTab === 'normal' ? 'block' : 'none' }}>
                 <NormalQuestions
-                  questions={currentTextData.normalQuestions}
+                  questions={visibleNormalQuestions}
                   sections={currentTextData.sections}
                   historyEntries={entries}
                   onRecord={handleRecord}

@@ -30,7 +30,10 @@ export default function useWhispers(textId) {
     }
     const data = { textId, text: text.trim(), avatarSeed, createdAt: serverTimestamp() };
     if (questionId) { data.questionId = questionId; data.questionTitle = questionTitle ?? ''; }
-    await addDoc(collection(db, 'whispers'), data);
+    await addDoc(collection(db, 'whispers'), data).catch(e => {
+      console.error('[useWhispers] addDoc failed:', e.code, e.message);
+      throw e;
+    });
     localStorage.setItem(lastKey, String(Date.now()));
   };
 

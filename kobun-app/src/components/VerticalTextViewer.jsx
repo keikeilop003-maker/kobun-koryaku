@@ -137,7 +137,11 @@ function toFullWidthKatakana(value) {
 }
 
 function getNotes(section, textNotes, isFirstSection) {
-  return section.notes ?? section.remarks ?? section.memo ?? (isFirstSection ? textNotes : '') ?? '';
+  const sectionNotes = section.notes ?? section.remarks ?? section.memo;
+  if (Array.isArray(sectionNotes)) return sectionNotes;
+  if (typeof sectionNotes === 'string' && sectionNotes.trim()) return sectionNotes;
+  if (sectionNotes && typeof sectionNotes === 'object') return sectionNotes;
+  return isFirstSection ? (textNotes ?? '') : '';
 }
 
 function getKanbunSyntax(section) {
@@ -337,6 +341,35 @@ function ReferenceBlock({ label, text }) {
   );
 }
 
+function NotesContent({ label, notes }) {
+  if (!notes) return null;
+  if (!Array.isArray(notes)) return <ReferenceBlock label={label} text={notes} />;
+
+  return (
+    <div className="notes-list">
+      {notes.map((item, index) => {
+        const title = item?.title ?? `${label}${index + 1}`;
+        const body = item?.body ?? '';
+        const pdf = item?.pdf ?? item?.pdfSrc ?? '';
+        return (
+          <article className="notes-item" key={`${title}-${index}`}>
+            <h3>{title}</h3>
+            {body && <p>{body}</p>}
+            {pdf && (
+              <div className="notes-pdf-embed">
+                <iframe
+                  src={`${import.meta.env.BASE_URL}${pdf}`}
+                  title={title}
+                />
+              </div>
+            )}
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
 function KundokuTextBlock({ text, isKanbun, style }) {
   if (!text) return null;
   return (
@@ -363,10 +396,17 @@ function KundokuToggle({ kundoku, showKundoku, onToggle, isKanbun, sourceTextSty
   );
 }
 
-function SourceKundokuRow({ children, kundoku, showKundoku, onToggle, isKanbun, sourceTextStyle }) {
+function SourceKundokuRow({ children, kundoku, showKundoku, onToggle, isKanbun, sourceTextStyle, showModern, modernText }) {
   return (
     <div className="source-kundoku-row">
-      <div className="source-text-pane">{children}</div>
+      <div className={`source-modern-row${showModern && modernText ? ' source-modern-row--with-modern' : ''}`}>
+        <div className="source-text-pane">{children}</div>
+        {showModern && modernText && (
+          <div className="source-modern-pane">
+            <ReferenceBlock label="現代語訳" text={modernText} />
+          </div>
+        )}
+      </div>
       <KundokuToggle
         kundoku={kundoku}
         showKundoku={showKundoku}
@@ -1457,7 +1497,11 @@ function KanbunSyntaxBlock({ section, isAdmin, onUpdateSection, selectedTarget, 
   );
 }
 
-function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, sourceHeightScale, isKanbunTextbook, compactKanbunSourceHeight, correctKaeritenLines }) {
+function sectionNumber(index) {
+  return Number.isInteger(index) && index >= 0 ? String(index + 1) : '';
+}
+
+function SectionCard({ section, sectionIndex, collapsed, onToggleCollapsed, selectedTarget, selectedSection, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, sourceHeightScale, isKanbunTextbook, compactKanbunSourceHeight, correctKaeritenLines }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
   const pinnedRef = useRef(null);
@@ -1492,6 +1536,23 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
     return () => window.clearTimeout(timer);
   }, [pinnedPhrase, phrase]);
 
+  useEffect(() => {
+    const selectedSectionId = selectedSection?.id ?? selectedTarget?.sectionId;
+    if (!selectedTarget || selectedSectionId !== section.id) return;
+    const root = textRef.current;
+    if (!root) return;
+    const timer = window.setTimeout(() => {
+      const tokens = Array.from(root.querySelectorAll('[data-target-id]'));
+      const token = tokens.find((item) =>
+        item.dataset.targetId === selectedTarget.id ||
+        (selectedTarget.groupId && item.dataset.groupId === selectedTarget.groupId) ||
+        (item.dataset.groupId && item.dataset.groupId === selectedTarget.id)
+      );
+      token?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [selectedTarget, selectedSection?.id, section.id]);
+
   const isSelected = t =>
     selectedTarget?.id === t.id ||
     (selectedTarget?.groupId && selectedTarget.groupId === t.groupId) ||
@@ -1518,17 +1579,44 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
 
   const selectedStart = selectionRange?.sectionId === section.id ? selectionRange.start : null;
   const selectedEnd = selectionRange?.sectionId === section.id ? selectionRange.end : null;
+  const sectionNumberText = sectionNumber(sectionIndex);
+  const showModern = Boolean(section.modernVisible);
+  const sectionTitle = (
+    <div className="section-title">
+      <button
+        type="button"
+        className="section-collapse-btn"
+        onClick={() => onToggleCollapsed?.(section.id)}
+        aria-expanded={!collapsed}
+      >
+        {collapsed ? '+' : '-'}
+      </button>
+      {sectionNumberText && <span className="section-number-badge">{sectionNumberText}</span>}
+      <span>{section.title}</span>
+      {isAdmin && !section.sectionless && (
+        <button
+          type="button"
+          className={`section-modern-toggle${showModern ? ' section-modern-toggle--active' : ''}`}
+          onClick={() => onUpdateSection?.(section, { modernVisible: !showModern })}
+        >
+          {showModern ? '現代語訳を非表示' : '現代語訳を表示'}
+        </button>
+      )}
+    </div>
+  );
 
   if (selectionMode) {
     return (
       <div className="section-card section-card--selection">
-        <div className="section-title">{section.title}</div>
-        <SourceKundokuRow
+        {sectionTitle}
+        {!collapsed && <SourceKundokuRow
           kundoku={kundoku}
           showKundoku={showKundoku}
           onToggle={() => setShowKundoku(value => !value)}
           isKanbun={isKanbun}
           sourceTextStyle={sourceTextStyle}
+          showModern={showModern}
+          modernText={section.modern}
         >
           <div className="vertical-text-scroll" ref={scrollRef}>
             <div
@@ -1551,27 +1639,22 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
               })}
             </div>
           </div>
-        </SourceKundokuRow>
-        {showModern && (
-          <>
-            <ReferenceBlock label="現代語訳" text={section.modern} />
-          </>
-        )}
+        </SourceKundokuRow>}
       </div>
     );
   };
 
   return (
     <div className="section-card">
-      <div className="section-title">{section.title}</div>
-      {isAdmin && !section.sectionless && (
+      {sectionTitle}
+      {!collapsed && isAdmin && !section.sectionless && (
         <div className="admin-section-tools">
           <button type="button" onClick={() => setEditingSection(value => !value)}>
             {editingSection ? '編集を閉じる' : '原文・書き下し文を編集'}
           </button>
         </div>
       )}
-      {editingSection && (
+      {!collapsed && editingSection && (
         <SectionEditor
           section={section}
           kundoku={kundoku}
@@ -1579,12 +1662,14 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
           onSave={(updates) => onUpdateSection?.(section, updates)}
         />
       )}
-      <SourceKundokuRow
+      {!collapsed && <SourceKundokuRow
         kundoku={kundoku}
         showKundoku={showKundoku}
         onToggle={() => setShowKundoku(value => !value)}
         isKanbun={isKanbun}
         sourceTextStyle={sourceTextStyle}
+        showModern={showModern}
+        modernText={section.modern}
       >
         <div className="vertical-text-scroll" ref={scrollRef}>
           {activeType === 'kundoku' && isKanbun ? (
@@ -1659,8 +1744,8 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
             </div>
           )}
         </div>
-      </SourceKundokuRow>
-      {isKanbun && activeType === 'grammar' && (
+      </SourceKundokuRow>}
+      {!collapsed && isKanbun && activeType === 'grammar' && (
         <KanbunSyntaxBlock
           section={section}
           isAdmin={isAdmin}
@@ -1670,11 +1755,6 @@ function SectionCard({ section, selectedTarget, onSelectTarget, activeType, pinn
           activeType={activeType}
         />
       )}
-      {showModern ? (
-        <>
-          <ReferenceBlock label="現代語訳" text={section.modern} />
-        </>
-      ) : null}
     </div>
   );
 }
@@ -2727,9 +2807,9 @@ function NotesTab({ textId, notes, sections, isAdmin, onUpdateSection }) {
         items.map(item => (
           <div className="notes-section-card" key={item.id}>
             <div className="section-title">{item.title}</div>
-            {item.text ? <ReferenceBlock label="備考" text={item.text} /> : <p className="notes-empty notes-empty--inline">備考はありません。</p>}
+            {item.text ? <NotesContent label="備考" notes={item.text} /> : <p className="notes-empty notes-empty--inline">備考はありません。</p>}
             {textId === 'gyofunori' && item.text && <GyofunoriNotesImage />}
-            {isAdmin && (
+            {isAdmin && !Array.isArray(item.text) && (
               <NotesEditor
                 section={item.section}
                 initialText={item.text}
@@ -2745,7 +2825,7 @@ function NotesTab({ textId, notes, sections, isAdmin, onUpdateSection }) {
   );
 }
 
-export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, showModern, isAdmin, onUpdateSection, lessonViewSections, lessonViewPublished, onUpdateLessonViewSection, onUpdateLessonViewPublished, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false, correctKaeritenLines = {}, shareBoard = null, onViewModeChange }) {
+export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, selectedSection, collapsedSectionIds, onToggleSectionCollapsed, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, isAdmin, onUpdateSection, lessonViewSections, lessonViewPublished, onUpdateLessonViewSection, onUpdateLessonViewPublished, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false, correctKaeritenLines = {}, shareBoard = null, onViewModeChange }) {
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
   const canViewLesson = isAdmin || lessonViewPublished;
@@ -2757,6 +2837,10 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
   useEffect(() => {
     if (pinnedPhrase) setActiveTab('source');
   }, [pinnedPhrase]);
+
+  useEffect(() => {
+    if (selectedTarget) setActiveTab('source');
+  }, [selectedTarget]);
 
   useEffect(() => {
     onViewModeChange?.(visibleTab === 'view');
@@ -2779,6 +2863,15 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
           >
             {'\u6f14\u7fd2'}
           </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={visibleTab === 'notes'}
+            className={`left-tab-button${visibleTab === 'notes' ? ' active' : ''}`}
+            onClick={() => setActiveTab('notes')}
+          >
+            {'\u5099\u8003'}
+          </button>
           {canViewLesson && (
             <button
               type="button"
@@ -2790,15 +2883,6 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
               {'\u6388\u696d'}
             </button>
           )}
-          <button
-            type="button"
-            role="tab"
-            aria-selected={visibleTab === 'notes'}
-            className={`left-tab-button${visibleTab === 'notes' ? ' active' : ''}`}
-            onClick={() => setActiveTab('notes')}
-          >
-            {'\u5099\u8003'}
-          </button>
           <button
             type="button"
             role="tab"
@@ -2817,18 +2901,21 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
         {visibleTab === 'source' ? (
           <>
             {isAdmin && <AddSectionEditor onSave={onUpdateSection} />}
-            {visibleSections.map((section) => (
+            {visibleSections.map((section, sectionIndex) => (
               <SectionCard
                 key={section.id}
                 section={section}
+                sectionIndex={sectionIndex}
+                collapsed={collapsedSectionIds?.has(section.id) ?? false}
+                onToggleCollapsed={onToggleSectionCollapsed}
                 selectedTarget={selectedTarget}
+                selectedSection={selectedSection}
                 onSelectTarget={onSelectTarget}
                 activeType={activeType}
                 pinnedPhrase={pinnedPhrase}
                 selectionMode={selectionMode}
                 selectionRange={selectionRange}
                 onRangeSelect={onRangeSelect}
-                showModern={showModern}
                 isAdmin={isAdmin}
                 onUpdateSection={onUpdateSection}
                 onUpdateTarget={onUpdateTarget}

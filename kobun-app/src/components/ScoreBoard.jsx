@@ -2,20 +2,22 @@ import { useMemo, useState, useRef } from 'react';
 import { exportCsv } from '../services/export';
 
 const TYPE_LABEL = {
-  vocab: '重要単語',
+  reading: '読み',
+  rhetoric: '修辞',
+  vocab: '語句',
   aux: '助動詞',
   verb: '動詞',
   adj: '形容詞',
   particle: '助詞',
-  grammar: '文法・句法',
+  grammar: '文法',
   kundoku: '書き下し',
   kaeriten: '返り点',
   translation: '現代語訳',
   content: '内容読解',
 };
 
-const TYPE_ORDER = ['vocab', 'grammar', 'kundoku', 'kaeriten', 'verb', 'adj', 'aux', 'particle', 'translation', 'content'];
-const KNOWLEDGE_TYPES = ['vocab', 'grammar', 'kundoku', 'kaeriten', 'verb', 'adj', 'aux', 'particle'];
+const TYPE_ORDER = ['vocab', 'grammar', 'reading', 'rhetoric', 'kundoku', 'kaeriten', 'verb', 'adj', 'aux', 'particle', 'translation', 'content'];
+const KNOWLEDGE_TYPES = ['vocab', 'grammar', 'reading', 'rhetoric', 'kundoku', 'kaeriten', 'verb', 'adj', 'aux', 'particle'];
 const CORRECT = '正解';
 const PARTIAL = '部分正解';
 const WRONG = '不正解';
