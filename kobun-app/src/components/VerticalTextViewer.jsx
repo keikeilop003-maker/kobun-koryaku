@@ -85,6 +85,19 @@ function sourceBoldEntries(target) {
     .filter(item => item.text);
 }
 
+function sourceTargetEntries(target) {
+  const values = Array.isArray(target?.targetSurfaces)
+    ? target.targetSurfaces
+    : [target?.surface].filter(Boolean);
+  return values
+    .map((value) => ({
+      text: String(value?.text ?? value?.surface ?? value ?? '').trim(),
+      occurrence: Number.isInteger(value?.occurrence) ? value.occurrence : Number.parseInt(value?.occurrence, 10),
+    }))
+    .filter(item => item.text)
+    .slice(0, 3);
+}
+
 function findNthOccurrence(text, needle, occurrence) {
   if (!needle) return -1;
   const targetOccurrence = Number.isInteger(occurrence) && occurrence > 0 ? occurrence : 1;
@@ -102,9 +115,17 @@ function buildSegments(text, allTargets, activeType, pinnedPhrase) {
   const targets = activeType === 'all'
     ? allTargets
     : allTargets.filter(t => t.type === activeType);
+  const targetEntries = activeType === 'rhetoric'
+    ? targets.flatMap(t => sourceTargetEntries(t).map(entry => ({
+        ...t,
+        surface: entry.text,
+        occurrence: entry.occurrence,
+        originalTarget: t,
+      })))
+    : targets;
   const nextSearchStartBySurface = new Map();
 
-  const located = targets
+  const located = targetEntries
     .map(t => {
       const surface = t.surface ?? '';
       if (!surface) return { t, idx: -1, end: -1, pinned: false };
@@ -113,7 +134,10 @@ function buildSegments(text, allTargets, activeType, pinnedPhrase) {
         : -1;
       const hint = Math.max(0, (t.start ?? 0) - 5);
       const cursor = nextSearchStartBySurface.get(surface) ?? 0;
-      const hintedIdx = exactIdx !== -1 ? exactIdx : text.indexOf(surface, hint);
+      const occurrenceIdx = Number.isInteger(t.occurrence) && t.occurrence > 0
+        ? findNthOccurrence(text, surface, t.occurrence)
+        : -1;
+      const hintedIdx = occurrenceIdx !== -1 ? occurrenceIdx : exactIdx !== -1 ? exactIdx : text.indexOf(surface, hint);
       const sequentialIdx = hintedIdx !== -1 ? hintedIdx : text.indexOf(surface, cursor);
       const resolvedIdx = sequentialIdx !== -1 ? sequentialIdx : text.indexOf(surface);
       if (resolvedIdx !== -1) nextSearchStartBySurface.set(surface, resolvedIdx + surface.length);
@@ -1791,7 +1815,7 @@ function SectionCard({ section, sectionIndex, collapsed, onToggleCollapsed, sele
                     key={`${seg.target.id}-${seg.showAsAll}`}
                     target={seg.target}
                     isSelected={isSelected(seg.target)}
-                    onClick={t => onSelectTarget(t, section)}
+                    onClick={t => onSelectTarget(t.originalTarget ?? t, section)}
                     showAsAll={seg.showAsAll}
                   >
                     <AnnotatedSourceText text={seg.target.surface} start={seg.start} annotations={kaeritenAnnotations} />

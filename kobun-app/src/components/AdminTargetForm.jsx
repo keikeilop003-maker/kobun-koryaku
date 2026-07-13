@@ -14,6 +14,7 @@ const TYPE_LABELS = {
 };
 
 const BOLD_WORD_LIMIT = 4;
+const TARGET_SURFACE_LIMIT = 3;
 
 function normalizeQuestionSurface(value) {
   if (typeof value === 'string') return { text: value, occurrence: '' };
@@ -21,6 +22,23 @@ function normalizeQuestionSurface(value) {
     text: value?.text ?? value?.surface ?? '',
     occurrence: Number.isInteger(value?.occurrence) ? String(value.occurrence) : '',
   };
+}
+
+function normalizeTargetSurface(value) {
+  if (typeof value === 'string') return { text: value, occurrence: '' };
+  return {
+    text: value?.text ?? value?.surface ?? '',
+    occurrence: Number.isInteger(value?.occurrence) ? String(value.occurrence) : '',
+  };
+}
+
+function defaultTargetSurfaces(selection, initialTarget) {
+  const saved = Array.isArray(initialTarget?.targetSurfaces)
+    ? initialTarget.targetSurfaces
+    : [selection?.text ?? initialTarget?.surface ?? ''];
+  return [...saved.map(normalizeTargetSurface), {}, {}, {}]
+    .slice(0, TARGET_SURFACE_LIMIT)
+    .map(normalizeTargetSurface);
 }
 
 function defaultQuestionSurfaces(initialTarget) {
@@ -37,6 +55,7 @@ function defaultForm(type, selection, initialTarget = null, initialSectionId = '
     type,
     sectionId: selection?.sectionId ?? initialSectionId ?? '',
     surface: selection?.text ?? initialTarget?.surface ?? '',
+    targetSurfaces: defaultTargetSurfaces(selection, initialTarget),
     questionText: initialTarget?.questionText ?? '',
     questionSurfaces: defaultQuestionSurfaces(initialTarget),
     gradingMode: initialTarget?.gradingMode ?? 'local',
@@ -97,6 +116,9 @@ export default function AdminTargetForm({
       type,
       sectionId: selection?.sectionId ?? current.sectionId,
       surface: selection?.text ?? current.surface,
+      targetSurfaces: selection?.text
+        ? [{ text: selection.text, occurrence: '' }, ...current.targetSurfaces.slice(1)]
+        : current.targetSurfaces,
       answer: type === 'kaeriten' && selection?.text && !current.answer
         ? serializeKaeritenAnswer(emptyKaeritenAnswer(selection.text), selection.text)
         : current.answer,
@@ -128,6 +150,18 @@ export default function AdminTargetForm({
     });
     setMessage('');
   };
+  const updateTargetSurface = (index, key, value) => {
+    setForm((current) => {
+      const next = [...current.targetSurfaces];
+      next[index] = { ...next[index], [key]: value };
+      return {
+        ...current,
+        targetSurfaces: next,
+        surface: index === 0 && key === 'text' ? value : current.surface,
+      };
+    });
+    setMessage('');
+  };
 
   const isConjugationType = type === 'verb' || type === 'adj';
   const missingMessage = validationMessage(type, form, isConjugationType);
@@ -143,7 +177,20 @@ export default function AdminTargetForm({
     setSaving(true);
     setMessage('');
     try {
-      const surface = form.surface.trim();
+      const targetSurfaces = form.targetSurfaces
+        .map((item) => {
+          const text = item.text.trim();
+          if (!text) return null;
+          const occurrence = Number.parseInt(item.occurrence, 10);
+          return Number.isInteger(occurrence) && occurrence > 0
+            ? { text, occurrence }
+            : text;
+        })
+        .filter(Boolean)
+        .slice(0, TARGET_SURFACE_LIMIT);
+      const surface = (typeof targetSurfaces[0] === 'string'
+        ? targetSurfaces[0]
+        : targetSurfaces[0]?.text) ?? form.surface.trim();
       const preservesInitialAnchor = mode === 'edit'
         && initialTarget?.surface === surface
         && initialSectionId === form.sectionId
@@ -161,6 +208,8 @@ export default function AdminTargetForm({
         explanation: form.explanation.trim(),
         gradingMode: form.gradingMode,
       };
+      if (targetSurfaces.length > 0) target.targetSurfaces = targetSurfaces;
+      else delete target.targetSurfaces;
       if (start >= 0) target.start = start;
       else delete target.start;
       if (showMeaningField) target.meaning = form.meaning.trim();
@@ -242,7 +291,32 @@ export default function AdminTargetForm({
         </label>
         <label>
           対象語
-          <input value={form.surface} onChange={(e) => update('surface', e.target.value)} />
+          <input value={form.surface} onChange={(e) => updateTargetSurface(0, 'text', e.target.value)} />
+        </label>
+        <label>
+          対象語2・3
+          <div className="admin-bold-words">
+            {form.targetSurfaces.slice(1).map((value, offset) => {
+              const index = offset + 1;
+              return (
+                <div className="admin-bold-word-row" key={index}>
+                  <input
+                    value={value.text}
+                    onChange={(e) => updateTargetSurface(index, 'text', e.target.value)}
+                    placeholder={`対象語${index + 1}`}
+                  />
+                  <input
+                    type="number"
+                    min="1"
+                    value={value.occurrence}
+                    onChange={(e) => updateTargetSurface(index, 'occurrence', e.target.value)}
+                    placeholder="何個目"
+                    aria-label={`対象語${index + 1}の出現番号`}
+                  />
+                </div>
+              );
+            })}
+          </div>
         </label>
         <label>
           問題文
