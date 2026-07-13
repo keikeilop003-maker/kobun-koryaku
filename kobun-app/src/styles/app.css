@@ -1627,7 +1627,7 @@ body {
 .hl-vocab    { background: #fff176; border-bottom-color: #f9a825; }
 .hl-reading  { background: #b2ebf2; border-bottom-color: #00838f; }
 .hl-rhetoric {
-  background: #ffcdd2;
+  background: transparent;
   border-bottom-color: #c62828;
   text-decoration-line: underline;
   text-decoration-color: #a11414;
