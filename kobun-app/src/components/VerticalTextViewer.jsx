@@ -144,6 +144,14 @@ function getNotes(section, textNotes, isFirstSection) {
   return isFirstSection ? (textNotes ?? '') : '';
 }
 
+function getSectionNotes(section) {
+  const sectionNotes = section.notes ?? section.remarks ?? section.memo;
+  if (Array.isArray(sectionNotes)) return sectionNotes;
+  if (typeof sectionNotes === 'string' && sectionNotes.trim()) return sectionNotes;
+  if (sectionNotes && typeof sectionNotes === 'object') return sectionNotes;
+  return '';
+}
+
 function getKanbunSyntax(section) {
   return section.kanbunSyntax ?? section.syntaxGuide ?? section.syntax ?? '';
 }
@@ -2792,14 +2800,25 @@ function AddSectionEditor({ onSave }) {
 
 function NotesTab({ textId, notes, sections, isAdmin, onUpdateSection }) {
   const visibleSections = sections.filter(section => !section.sectionless);
-  const items = visibleSections
+  const globalNotesItem = Array.isArray(notes) && notes.length > 0
+    ? [{
+        id: `${textId}-global-notes`,
+        title: textId === 'manyoshu' ? '万葉集' : '教材全体',
+        section: null,
+        text: notes,
+        globalNotes: true,
+      }]
+    : [];
+  const items = [
+    ...globalNotesItem,
+    ...visibleSections
     .map((section, index) => ({
       id: section.id,
       title: section.title,
       section,
-      text: getNotes(section, notes, index === 0),
+      text: Array.isArray(notes) ? getSectionNotes(section) : getNotes(section, notes, index === 0),
     }))
-    .filter(item => isAdmin || item.text);
+  ].filter(item => isAdmin || item.text);
 
   return (
     <div className="notes-tab-content">
@@ -2809,7 +2828,7 @@ function NotesTab({ textId, notes, sections, isAdmin, onUpdateSection }) {
             <div className="section-title">{item.title}</div>
             {item.text ? <NotesContent label="備考" notes={item.text} /> : <p className="notes-empty notes-empty--inline">備考はありません。</p>}
             {textId === 'gyofunori' && item.text && <GyofunoriNotesImage />}
-            {isAdmin && !Array.isArray(item.text) && (
+            {isAdmin && item.section && !Array.isArray(item.text) && (
               <NotesEditor
                 section={item.section}
                 initialText={item.text}
