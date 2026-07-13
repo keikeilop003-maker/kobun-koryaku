@@ -73,6 +73,31 @@ function findSyntaxSurfacePiecesInText(text, surface) {
   return pieces;
 }
 
+function sourceBoldEntries(target) {
+  const values = Array.isArray(target?.questionSurfaces)
+    ? target.questionSurfaces
+    : [target?.questionSurface].filter(Boolean);
+  return values
+    .map((value) => ({
+      text: String(value?.text ?? value?.surface ?? value ?? '').trim(),
+      occurrence: Number.isInteger(value?.occurrence) ? value.occurrence : Number.parseInt(value?.occurrence, 10),
+    }))
+    .filter(item => item.text);
+}
+
+function findNthOccurrence(text, needle, occurrence) {
+  if (!needle) return -1;
+  const targetOccurrence = Number.isInteger(occurrence) && occurrence > 0 ? occurrence : 1;
+  let from = 0;
+  let index = -1;
+  for (let count = 0; count < targetOccurrence; count += 1) {
+    index = text.indexOf(needle, from);
+    if (index === -1) return -1;
+    from = index + needle.length;
+  }
+  return index;
+}
+
 function buildSegments(text, allTargets, activeType, pinnedPhrase) {
   const targets = activeType === 'all'
     ? allTargets
@@ -96,6 +121,22 @@ function buildSegments(text, allTargets, activeType, pinnedPhrase) {
     })
     .filter(({ idx }) => idx !== -1);
 
+  if (activeType === 'rhetoric') {
+    for (const target of targets) {
+      for (const entry of sourceBoldEntries(target)) {
+        const idx = findNthOccurrence(text, entry.text, entry.occurrence);
+        if (idx === -1) continue;
+        located.push({
+          t: { id: `${target.id}-bold-${idx}`, surface: entry.text },
+          idx,
+          end: idx + entry.text.length,
+          pinned: false,
+          bold: true,
+        });
+      }
+    }
+  }
+
   if (pinnedPhrase) {
     const match = findIgnoringLineBreaks(text, pinnedPhrase);
     if (match) {
@@ -108,15 +149,17 @@ function buildSegments(text, allTargets, activeType, pinnedPhrase) {
     }
   }
 
-  located.sort((a, b) => a.idx - b.idx);
+  located.sort((a, b) => a.idx - b.idx || (a.bold ? 1 : 0) - (b.bold ? 1 : 0));
 
   const segments = [];
   let pos = 0;
-  for (const { t, idx, end, pinned } of located) {
+  for (const { t, idx, end, pinned, bold } of located) {
     if (idx < pos) continue;
     if (idx > pos) segments.push({ type: 'plain', text: text.slice(pos, idx), start: pos, end: idx });
     if (pinned) {
       segments.push({ type: 'pinned', text: t.surface, start: idx, end });
+    } else if (bold) {
+      segments.push({ type: 'bold', text: t.surface, start: idx, end });
     } else {
       segments.push({ type: 'target', target: t, showAsAll: activeType === 'all', start: idx, end });
     }
@@ -1728,6 +1771,10 @@ function SectionCard({ section, sectionIndex, collapsed, onToggleCollapsed, sele
                   </span>
                 ) : seg.type === 'pinned' ? (
                   <span key={i} className="pinned-translation" ref={pinnedRef}>
+                    <AnnotatedSourceText text={seg.text} start={seg.start} annotations={kaeritenAnnotations} />
+                  </span>
+                ) : seg.type === 'bold' ? (
+                  <span key={i} className="source-bold-word">
                     <AnnotatedSourceText text={seg.text} start={seg.start} annotations={kaeritenAnnotations} />
                   </span>
                 ) : seg.target.type === 'kaeriten' && activeType === 'kaeriten' ? (

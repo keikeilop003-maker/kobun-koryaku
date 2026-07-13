@@ -1635,6 +1635,9 @@ body {
 
 .highlight-token.hl-rhetoric {
   background: transparent;
+  border-bottom: 0;
+  border-radius: 0;
+  padding: 0;
   text-decoration-line: underline;
   text-decoration-color: #a11414;
   text-decoration-thickness: 2px;
@@ -1650,6 +1653,10 @@ body {
 .highlight-token.hl-rhetoric.selected {
   box-shadow: none;
   transform: none;
+}
+
+.source-bold-word {
+  font-weight: 700;
 }
 .hl-aux      { background: #bbdefb; border-bottom-color: #1565c0; }
 .hl-verb     { background: #c8e6c9; border-bottom-color: #2e7d32; }
