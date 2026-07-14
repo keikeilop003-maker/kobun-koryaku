@@ -2436,7 +2436,7 @@ function LessonViewEditor({ section, kundoku, lineCount, maskRules, grammarTarge
   );
 }
 
-function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublished, isKanbunTextbook, isAdmin, onUpdateLessonViewSection, onUpdateLessonViewPublished }) {
+function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublished, lessonGrammarEnabled = false, isKanbunTextbook, isAdmin, onUpdateLessonViewSection, onUpdateLessonViewPublished }) {
   const visibleSections = sections.filter(section => !section.sectionless);
   const [editingSectionId, setEditingSectionId] = useState(null);
   const [editingAll, setEditingAll] = useState(false);
@@ -2451,7 +2451,7 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
   const [hiddenGrammarTargetIds, setHiddenGrammarTargetIds] = useState(() => new Set());
   const grammarBubbleZ = useRef(1000);
   const pairsPerSlide = 4;
-  const lessonGrammarEnabled = ['akutagawa', 'tsutsuizutsu'].includes(textId);
+  const grammarPopupEnabled = lessonGrammarEnabled || ['akutagawa', 'tsutsuizutsu'].includes(textId);
 
   useEffect(() => {
     const next = [];
@@ -2747,7 +2747,7 @@ function LessonViewMode({ textId, sections, lessonViewSections, lessonViewPublis
                   const index = start + offset;
                   const source = sourceLines[index] ?? (index === 0 ? String(lessonSection.text ?? '').trim() : '');
                   const sourceEntry = sourceLineEntries[index];
-                  const grammarTargets = lessonGrammarEnabled && sourceEntry
+                  const grammarTargets = grammarPopupEnabled && sourceEntry
                     ? locatedGrammarTargets
                         .filter(({ target }) => target.sectionId === section.id)
                         .filter(({ start: targetStart }) => targetStart >= sourceEntry.start && targetStart < sourceEntry.end)
@@ -2918,7 +2918,7 @@ function NotesTab({ textId, notes, sections, isAdmin, onUpdateSection }) {
   );
 }
 
-export default function VerticalTextViewer({ textId, notes, sections, sectionNumberStart = 1, selectedTarget, selectedSection, collapsedSectionIds, onToggleSectionCollapsed, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, isAdmin, onUpdateSection, lessonViewSections, lessonViewPublished, onUpdateLessonViewSection, onUpdateLessonViewPublished, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false, correctKaeritenLines = {}, shareBoard = null, onViewModeChange }) {
+export default function VerticalTextViewer({ textId, notes, sections, sectionNumberStart = 1, lessonGrammarEnabled = false, selectedTarget, selectedSection, collapsedSectionIds, onToggleSectionCollapsed, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, isAdmin, onUpdateSection, lessonViewSections, lessonViewPublished, onUpdateLessonViewSection, onUpdateLessonViewPublished, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false, correctKaeritenLines = {}, shareBoard = null, onViewModeChange }) {
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
   const canViewLesson = isAdmin || lessonViewPublished;
@@ -3028,6 +3028,7 @@ export default function VerticalTextViewer({ textId, notes, sections, sectionNum
             sections={sections}
             lessonViewSections={lessonViewSections}
             lessonViewPublished={lessonViewPublished}
+            lessonGrammarEnabled={lessonGrammarEnabled}
             isKanbunTextbook={isKanbunTextbook}
             isAdmin={isAdmin}
             onUpdateLessonViewSection={onUpdateLessonViewSection}

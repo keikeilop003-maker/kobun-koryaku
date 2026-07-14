@@ -1158,6 +1158,7 @@ function AppInner() {
               notes={currentTextData.notes}
               sections={currentTextData.sections}
               sectionNumberStart={currentTextData.sectionNumberStart}
+              lessonGrammarEnabled={currentTextData.lessonGrammarEnabled ?? currentTextData.title?.startsWith('和歌_')}
               selectedTarget={selectedTarget}
               selectedSection={selectedSection}
               collapsedSectionIds={collapsedSectionIds}
