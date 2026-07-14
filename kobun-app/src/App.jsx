@@ -1157,6 +1157,7 @@ function AppInner() {
               textId={textId}
               notes={currentTextData.notes}
               sections={currentTextData.sections}
+              sectionNumberStart={currentTextData.sectionNumberStart}
               selectedTarget={selectedTarget}
               selectedSection={selectedSection}
               collapsedSectionIds={collapsedSectionIds}
@@ -1292,6 +1293,7 @@ function AppInner() {
                 <AnswerPanel
                   activeType={activeType}
                   sections={currentTextData.sections}
+                  sectionNumberStart={currentTextData.sectionNumberStart}
                   collapsedSectionIds={collapsedSectionIds}
                   selectedTarget={selectedTarget}
                   selectedSection={selectedSection}
@@ -1316,6 +1318,7 @@ function AppInner() {
                 <NormalQuestions
                   questions={visibleNormalQuestions}
                   sections={currentTextData.sections}
+                  sectionNumberStart={currentTextData.sectionNumberStart}
                   historyEntries={entries}
                   onRecord={handleRecord}
                   expandedNqId={expandedNqId}

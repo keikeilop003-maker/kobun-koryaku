@@ -57,15 +57,16 @@ function circledNumber(index) {
   return circled[index - 1] ?? `(${index})`;
 }
 
-function sectionNumber(index) {
-  return String(index + 1);
+function sectionNumber(index, sectionNumberStart = 1) {
+  const start = Number.isInteger(sectionNumberStart) ? sectionNumberStart : 1;
+  return String(start + index);
 }
 
-function questionSectionLabel(sections, sectionId) {
+function questionSectionLabel(sections, sectionId, sectionNumberStart = 1) {
   if (!sectionId) return '段未設定';
   const visibleSections = (sections ?? []).filter(section => !section.sectionless);
   const index = visibleSections.findIndex(section => section.id === sectionId);
-  return index === -1 ? '段未設定' : `${sectionNumber(index)}段`;
+  return index === -1 ? '段未設定' : `${sectionNumber(index, sectionNumberStart)}段`;
 }
 
 function normalizedSectionId(sections, sectionId) {
@@ -149,7 +150,7 @@ function HighlightQuestionText({ text, surface, surfaces }) {
   return <>{nodes}</>;
 }
 
-function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen, isAdmin, onUpdateQuestion, onDeleteQuestion, onMoveQuestion, canMoveUp, canMoveDown }) {
+function QuestionItem({ q, sections, sectionNumberStart, onRecord, historyEntry, open, onToggleOpen, isAdmin, onUpdateQuestion, onDeleteQuestion, onMoveQuestion, canMoveUp, canMoveDown }) {
   const lastFeedback = historyEntry?.attempts?.at(-1)?.feedback ?? null;
   const [ans, setAns] = useState(lastFeedback?.userAnswer ?? '');
   const [result, setResult] = useState(lastFeedback ?? null);
@@ -205,7 +206,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
   }, [editingQuestion, focusAnswerAfterEdit]);
 
   const section = sections.find(s => s.id === q.sectionId);
-  const sectionLabel = questionSectionLabel(sections, q.sectionId);
+  const sectionLabel = questionSectionLabel(sections, q.sectionId, sectionNumberStart);
 
   const submit = async () => {
     if (!ans.trim()) return;
@@ -330,7 +331,7 @@ function QuestionItem({ q, sections, onRecord, historyEntry, open, onToggleOpen,
                     <option value="">段未設定</option>
                     {(sections ?? []).filter(sectionItem => !sectionItem.sectionless).map((sectionItem, index) => (
                       <option key={sectionItem.id} value={sectionItem.id}>
-                        {sectionNumber(index)} {sectionItem.title}
+                        {sectionNumber(index, sectionNumberStart)} {sectionItem.title}
                       </option>
                     ))}
                   </select>
@@ -545,7 +546,7 @@ function AddNormalQuestionForm({ nextOrder, sections, onAddQuestion }) {
   );
 }
 
-export default function NormalQuestions({ questions, sections, historyEntries, onRecord, expandedNqId, onExpandHandled, onOpenQuestionChange, isAdmin, onUpdateQuestion, onDeleteQuestion, onReorderQuestions }) {
+export default function NormalQuestions({ questions, sections, sectionNumberStart = 1, historyEntries, onRecord, expandedNqId, onExpandHandled, onOpenQuestionChange, isAdmin, onUpdateQuestion, onDeleteQuestion, onReorderQuestions }) {
   const safeQuestions = useMemo(() => questions ?? [], [questions]);
   const [openQuestionId, setOpenQuestionId] = useState(null);
   useEffect(() => {
@@ -600,6 +601,7 @@ export default function NormalQuestions({ questions, sections, historyEntries, o
           key={q.id}
           q={q}
           sections={sections}
+          sectionNumberStart={sectionNumberStart}
           onRecord={onRecord}
           historyEntry={historyEntries?.[`nq_${q.id}`]}
           open={openQuestionId === q.id}

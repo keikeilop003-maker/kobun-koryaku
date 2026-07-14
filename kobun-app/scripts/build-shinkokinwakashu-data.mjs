@@ -302,6 +302,7 @@ const data = {
   title: '和歌_新古今和歌集',
   source: '新古今和歌集',
   genre: '古文',
+  sectionNumberStart: 16,
   notes,
   sections,
   normalQuestions,

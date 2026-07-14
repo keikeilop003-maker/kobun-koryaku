@@ -1572,11 +1572,12 @@ function KanbunSyntaxBlock({ section, isAdmin, onUpdateSection, selectedTarget, 
   );
 }
 
-function sectionNumber(index) {
-  return Number.isInteger(index) && index >= 0 ? String(index + 1) : '';
+function sectionNumber(index, sectionNumberStart = 1) {
+  const start = Number.isInteger(sectionNumberStart) ? sectionNumberStart : 1;
+  return Number.isInteger(index) && index >= 0 ? String(start + index) : '';
 }
 
-function SectionCard({ section, sectionIndex, collapsed, onToggleCollapsed, selectedTarget, selectedSection, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, sourceHeightScale, isKanbunTextbook, compactKanbunSourceHeight, correctKaeritenLines }) {
+function SectionCard({ section, sectionIndex, sectionNumberStart, collapsed, onToggleCollapsed, selectedTarget, selectedSection, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, isAdmin, onUpdateSection, onUpdateTarget, onRecord, onCreateTarget, sourceHeightScale, isKanbunTextbook, compactKanbunSourceHeight, correctKaeritenLines }) {
   const scrollRef = useRef(null);
   const textRef = useRef(null);
   const pinnedRef = useRef(null);
@@ -1656,7 +1657,7 @@ function SectionCard({ section, sectionIndex, collapsed, onToggleCollapsed, sele
   const selectedEnd = selectionRange?.sectionId === section.id ? selectionRange.end : null;
   const focusedSectionId = selectedSection?.id ?? selectedTarget?.sectionId;
   const isFocusedSection = Boolean(focusedSectionId && focusedSectionId === section.id);
-  const sectionNumberText = sectionNumber(sectionIndex);
+  const sectionNumberText = sectionNumber(sectionIndex, sectionNumberStart);
   const showModern = Boolean(section.modernVisible);
   const sectionTitle = (
     <div className="section-title">
@@ -2917,7 +2918,7 @@ function NotesTab({ textId, notes, sections, isAdmin, onUpdateSection }) {
   );
 }
 
-export default function VerticalTextViewer({ textId, notes, sections, selectedTarget, selectedSection, collapsedSectionIds, onToggleSectionCollapsed, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, isAdmin, onUpdateSection, lessonViewSections, lessonViewPublished, onUpdateLessonViewSection, onUpdateLessonViewPublished, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false, correctKaeritenLines = {}, shareBoard = null, onViewModeChange }) {
+export default function VerticalTextViewer({ textId, notes, sections, sectionNumberStart = 1, selectedTarget, selectedSection, collapsedSectionIds, onToggleSectionCollapsed, onSelectTarget, activeType, pinnedPhrase, selectionMode, selectionRange, onRangeSelect, isAdmin, onUpdateSection, lessonViewSections, lessonViewPublished, onUpdateLessonViewSection, onUpdateLessonViewPublished, onUpdateTarget, onRecord, onCreateTarget, onBackToSelect, onContactAdmin, isKanbunTextbook = false, correctKaeritenLines = {}, shareBoard = null, onViewModeChange }) {
   const [activeTab, setActiveTab] = useState('source');
   const visibleSections = sections.filter(section => !section.sectionless);
   const canViewLesson = isAdmin || lessonViewPublished;
@@ -2998,6 +2999,7 @@ export default function VerticalTextViewer({ textId, notes, sections, selectedTa
                 key={section.id}
                 section={section}
                 sectionIndex={sectionIndex}
+                sectionNumberStart={sectionNumberStart}
                 collapsed={collapsedSectionIds?.has(section.id) ?? false}
                 onToggleCollapsed={onToggleSectionCollapsed}
                 selectedTarget={selectedTarget}

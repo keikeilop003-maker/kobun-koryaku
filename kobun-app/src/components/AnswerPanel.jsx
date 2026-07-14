@@ -168,11 +168,12 @@ function sectionOrder(sections, section) {
   return index === -1 ? Number.MAX_SAFE_INTEGER - 1 : index;
 }
 
-function sectionNumberLabel(sections, section) {
+function sectionNumberLabel(sections, section, sectionNumberStart = 1) {
   if (!section?.id || section.sectionless) return '段未設定';
   const visibleSections = (sections ?? []).filter(item => !item.sectionless);
   const index = visibleSections.findIndex(item => item.id === section.id);
-  return index === -1 ? '段未設定' : `${index + 1}段`;
+  const start = Number.isInteger(sectionNumberStart) ? sectionNumberStart : 1;
+  return index === -1 ? '段未設定' : `${start + index}段`;
 }
 
 function inputCls(judgement, value) {
@@ -1110,7 +1111,7 @@ const SyntaxAnswerEditor = forwardRef(function SyntaxAnswerEditor({ target, sect
   );
 });
 
-const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelected, initialFeedback, onHistoryUpdate, onAdvance, initialInputs, onInputChange, onFocusTarget, isAdmin, onDeleteTarget, onUpdateTarget, onUpdateSection, sections }, ref) {
+const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelected, initialFeedback, onHistoryUpdate, onAdvance, initialInputs, onInputChange, onFocusTarget, isAdmin, onDeleteTarget, onUpdateTarget, onUpdateSection, sections, sectionNumberStart }, ref) {
   const [feedback, setFeedback] = useState(initialFeedback ?? null);
   const [editing, setEditing] = useState(false);
   const [editVersion, setEditVersion] = useState(0);
@@ -1173,7 +1174,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
   const isScoreType = SCORE_TYPES.has(target.type);
   const formProps = { initialInputs, onInputChange };
   const showPanelHeader = target.type !== 'kaeriten';
-  const sectionLabel = sectionNumberLabel(sections, section);
+  const sectionLabel = sectionNumberLabel(sections, section, sectionNumberStart);
 
   return (
     <div
@@ -1280,6 +1281,7 @@ const QuestionCard = forwardRef(function QuestionCard({ target, section, isSelec
 export default function AnswerPanel({
   activeType,
   sections,
+  sectionNumberStart = 1,
   collapsedSectionIds,
   selectedTarget,
   selectedSection,
@@ -1410,6 +1412,7 @@ export default function AnswerPanel({
           onUpdateTarget={onUpdateTarget}
           onUpdateSection={onUpdateSection}
           sections={sections}
+          sectionNumberStart={sectionNumberStart}
         />
       </div>
     );
@@ -1435,6 +1438,7 @@ export default function AnswerPanel({
             onUpdateTarget={onUpdateTarget}
             onUpdateSection={onUpdateSection}
             sections={sections}
+            sectionNumberStart={sectionNumberStart}
           />
         </div>
       );
@@ -1479,6 +1483,7 @@ export default function AnswerPanel({
             onUpdateTarget={onUpdateTarget}
             onUpdateSection={onUpdateSection}
             sections={sections}
+            sectionNumberStart={sectionNumberStart}
           />
         </div>
       );
@@ -1529,6 +1534,7 @@ export default function AnswerPanel({
           onUpdateTarget={onUpdateTarget}
           onUpdateSection={onUpdateSection}
           sections={sections}
+          sectionNumberStart={sectionNumberStart}
         />
       ))}
     </div>
