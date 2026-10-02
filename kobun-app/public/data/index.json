@@ -5,6 +5,7 @@
   { "id": "mujun", "title": "矛盾", "source": "韓非子", "status": "draft" },
   { "id": "gyofunori", "title": "漁夫之利", "source": "戦国策", "status": "draft" },
   { "id": "kokkojakkoi", "title": "狐借虎威", "source": "戦国策", "status": "draft" },
+  { "id": "senzukaishi", "title": "先従隗始", "source": "十八史略", "status": "published" },
   { "id": "chousanboshi", "title": "朝三暮四", "source": "列子", "status": "published" },
   { "id": "akutagawa", "title": "芥川", "source": "伊勢物語", "status": "published" },
   { "id": "azumakudari", "title": "東下り", "source": "伊勢物語", "status": "published" },

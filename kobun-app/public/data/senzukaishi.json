@@ -1,0 +1,720 @@
+{
+  "id": "senzukaishi",
+  "title": "先従隗始",
+  "source": "十八史略",
+  "genre": "漢文",
+  "notes": "戦国時代、燕では国の混乱に乗じて斉が侵攻し、王と臣下が殺された。その後即位した昭王が、賢士を求めて郭隗に相談する。参考資料では、この後、魏から来た楽毅に昭王が国政を任せ、斉を攻めさせたことが記されている。",
+  "sections": [
+    {
+      "id": "s1",
+      "title": "昭王の願い",
+      "genre": "漢文",
+      "text": "燕人立太子平為君。是為昭王。弔死問生、卑辞厚幣、以招賢者。問郭隗曰、「斉因孤之国乱而襲破燕。孤極知燕小不足以報。誠得賢士、与共国、以雪先王之恥、孤之願也。先生視可者。得身事之。」",
+      "kundoku": "燕人太子平を立てて君と為す。是れを昭王と為す。死を弔ひ生を問ひ、辞を卑くし幣を厚くして、以て賢者を招く。郭隗に問ひて曰はく、「斉 孤の国の乱るるに因りて襲ひて燕を破る。孤極めて燕の小にして以て報ずるに足らざるを知る。誠に賢士を得て、与に国を共にし、以て先王の恥を雪ぐは、孤の願ひなり。先生可なる者を視せ。身之に事ふるを得ん。」と。",
+      "modern": "燕の人々は太子平を即位させて君主とした。これが昭王である。（昭王は）戦死者をとむらい遺族を慰問し、言葉遣いを謙虚にし贈り物を手厚くして、それによって賢者を招こうとした。郭隗に尋ねて言うことには、「斉は私の国が乱れるのに乗じて襲いかかって燕を破りました。私は燕が小国であって報復する力がないことをよくわかっています。もし賢士を得たならば、その者と一緒に国政にあたり、それによって先王の恥をすすぐことが私の願いです。先生、（賢者として）ふさわしい者をお示しください。私自身がその者にお仕えしましょう。」と。",
+      "targets": [
+        {
+          "id": "vocab-s1-1",
+          "type": "vocab",
+          "surface": "死",
+          "start": 15,
+          "answer": "戦死者",
+          "explanation": "「生」は戦死者の遺族。",
+          "alternativeAnswers": [],
+          "meaning": "戦死者",
+          "detail": "「生」は戦死者の遺族。"
+        },
+        {
+          "id": "vocab-s1-2",
+          "type": "vocab",
+          "surface": "生",
+          "start": 17,
+          "answer": "遺族",
+          "explanation": "戦死者の残された家族。",
+          "alternativeAnswers": [],
+          "meaning": "遺族",
+          "detail": "戦死者の残された家族。"
+        },
+        {
+          "id": "vocab-s1-3",
+          "type": "vocab",
+          "surface": "辞",
+          "start": 20,
+          "answer": "言葉",
+          "explanation": "「卑辞」は言葉遣いを謙虚にすること。",
+          "alternativeAnswers": [],
+          "meaning": "言葉",
+          "detail": "「卑辞」は言葉遣いを謙虚にすること。"
+        },
+        {
+          "id": "vocab-s1-4",
+          "type": "vocab",
+          "surface": "幣",
+          "start": 22,
+          "answer": "贈り物",
+          "explanation": "「厚幣」は贈り物を手厚くすること。",
+          "alternativeAnswers": [],
+          "meaning": "贈り物",
+          "detail": "「厚幣」は贈り物を手厚くすること。"
+        },
+        {
+          "id": "vocab-s1-5",
+          "type": "vocab",
+          "surface": "孤",
+          "start": 37,
+          "answer": "昭王",
+          "explanation": "君主が自分をへりくだっていう語。",
+          "alternativeAnswers": [],
+          "meaning": "昭王",
+          "detail": "君主が自分をへりくだっていう語。"
+        },
+        {
+          "id": "vocab-s1-6",
+          "type": "vocab",
+          "surface": "因",
+          "start": 36,
+          "answer": "乗じる",
+          "explanation": "ここでは国の混乱につけこむこと。",
+          "alternativeAnswers": [],
+          "meaning": "乗じる",
+          "detail": "ここでは国の混乱につけこむこと。"
+        },
+        {
+          "id": "vocab-s1-7",
+          "type": "vocab",
+          "surface": "報",
+          "start": 54,
+          "answer": "報復する",
+          "explanation": "斉に仕返しをする。",
+          "alternativeAnswers": [],
+          "meaning": "報復する",
+          "detail": "斉に仕返しをする。"
+        },
+        {
+          "id": "vocab-s1-8",
+          "type": "vocab",
+          "surface": "誠",
+          "start": 56,
+          "answer": "もし",
+          "explanation": "ここでは仮定を表す。",
+          "alternativeAnswers": [],
+          "meaning": "もし",
+          "detail": "ここでは仮定を表す。"
+        },
+        {
+          "id": "vocab-s1-9",
+          "type": "vocab",
+          "surface": "与",
+          "start": 61,
+          "answer": "一緒に",
+          "explanation": "「ともに」と読む。",
+          "alternativeAnswers": [],
+          "meaning": "一緒に",
+          "detail": "「ともに」と読む。"
+        },
+        {
+          "id": "vocab-s1-10",
+          "type": "vocab",
+          "surface": "雪",
+          "start": 66,
+          "answer": "すすぐ",
+          "explanation": "恥をすすぐ。「雪辱」の「雪」。",
+          "alternativeAnswers": [],
+          "meaning": "すすぐ",
+          "detail": "恥をすすぐ。「雪辱」の「雪」。"
+        },
+        {
+          "id": "vocab-s1-11",
+          "type": "vocab",
+          "surface": "可者",
+          "start": 80,
+          "answer": "ふさわしい者",
+          "explanation": "昭王と一緒に国政にあたる賢者。",
+          "alternativeAnswers": [],
+          "meaning": "ふさわしい者",
+          "detail": "昭王と一緒に国政にあたる賢者。"
+        },
+        {
+          "id": "vocab-s1-12",
+          "type": "vocab",
+          "surface": "身",
+          "start": 84,
+          "answer": "自分自身",
+          "explanation": "昭王自身。",
+          "alternativeAnswers": [],
+          "meaning": "自分自身",
+          "detail": "昭王自身。"
+        },
+        {
+          "id": "reading-s1-13",
+          "type": "reading",
+          "surface": "因",
+          "start": 36,
+          "answer": "よりて",
+          "explanation": "送り仮名も含めて現代仮名遣いで答える。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "reading-s1-14",
+          "type": "reading",
+          "surface": "雪",
+          "start": 66,
+          "answer": "すすぐ",
+          "explanation": "送り仮名も含めて現代仮名遣いで答える。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "reading-s1-15",
+          "type": "reading",
+          "surface": "与",
+          "start": 61,
+          "answer": "ともに",
+          "explanation": "送り仮名も含めて現代仮名遣いで答える。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "reading-s1-16",
+          "type": "reading",
+          "surface": "事",
+          "start": 85,
+          "answer": "つかうる",
+          "explanation": "送り仮名も含めて現代仮名遣いで答える。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "grammar-s1-17",
+          "type": "grammar",
+          "surface": "不足以報",
+          "start": 51,
+          "answer": "以て報ずるに足らず。",
+          "explanation": "「不足以～」は「～するに足りない」。燕には斉に報復する力がない。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "grammar-s1-18",
+          "type": "grammar",
+          "surface": "得身事之",
+          "start": 83,
+          "answer": "身之に事ふるを得ん。",
+          "explanation": "「得」は可能を表す。昭王自身が賢士に仕えようとする。",
+          "alternativeAnswers": []
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "title": "郭隗の進言と賢士の参集",
+      "genre": "漢文",
+      "text": "隗曰、「古之君、有以千金使涓人求千里馬者。買死馬骨五百金而返。君怒。涓人曰、『死馬且買之。況生者乎。馬今至矣。』不期年、千里馬至者三。今、王必欲致士、先従隗始。況賢於隗者、豈遠千里哉。」於是昭王為隗改築宮、師事之。於是士争趨燕。",
+      "kundoku": "隗曰はく、「古の君、千金を以て涓人をして千里の馬を求めしむる者有り。死馬の骨を五百金に買ひて返る。君怒る。涓人曰はく、『死馬すら且つ之を買ふ。況んや生ける者をや。馬今に至らん。』と。期年ならずして、千里の馬至る者三あり。今、王必ず士を致さんと欲せば、先づ隗より始めよ。況んや隗より賢なる者、豈に千里を遠しとせんや。」と。是に於いて昭王隗の為に改めて宮を築き、之に師事す。是に於いて士争ひて燕に趨く。",
+      "modern": "郭隗が言うことには、「昔の君主に、千金で涓人に千里の馬を求めさせた者がいました。（涓人は）死んだ馬の骨を五百金で買って帰ってきました。君主は怒りました。涓人が言うことには、『死んだ馬でさえそれを（高値で）買いました、まして生きている馬（を高値で買うの）はなおさら（当然）です。馬はじきにやってくるでしょう。』と。一年経たないうちに、千里の馬でやってきた者が三頭いました。今もし、王様が賢士を招こうと思うならば、まず私（を厚遇すること）からお始めになってください。ましてや私より優れた者は、どうして千里の距離を遠いと思うでしょうか（いや、遠いとも思わず、各地からやってくるでしょう）。」と。そこで昭王は郭隗のために住居を改築し、彼に師事した。すると賢士たちは争うように燕に行った。",
+      "targets": [
+        {
+          "id": "vocab-s2-1",
+          "type": "vocab",
+          "surface": "涓人",
+          "start": 13,
+          "answer": "宮中の雑務をする役人",
+          "explanation": "君主の命令で千里の馬を求める人物。",
+          "alternativeAnswers": [],
+          "meaning": "宮中の雑務をする役人",
+          "detail": "君主の命令で千里の馬を求める人物。"
+        },
+        {
+          "id": "vocab-s2-2",
+          "type": "vocab",
+          "surface": "千里馬",
+          "start": 16,
+          "answer": "一日に千里を走る名馬",
+          "explanation": "郭隗より優れた賢士のたとえ。",
+          "alternativeAnswers": [],
+          "meaning": "一日に千里を走る名馬",
+          "detail": "郭隗より優れた賢士のたとえ。"
+        },
+        {
+          "id": "vocab-s2-3",
+          "type": "vocab",
+          "surface": "期年",
+          "start": 57,
+          "answer": "一年",
+          "explanation": "「不期年」は一年経たないうちに。",
+          "alternativeAnswers": [],
+          "meaning": "一年",
+          "detail": "「不期年」は一年経たないうちに。"
+        },
+        {
+          "id": "vocab-s2-4",
+          "type": "vocab",
+          "surface": "致",
+          "start": 72,
+          "answer": "招き寄せる",
+          "explanation": "賢士を招くこと。",
+          "alternativeAnswers": [],
+          "meaning": "招き寄せる",
+          "detail": "賢士を招くこと。"
+        },
+        {
+          "id": "vocab-s2-5",
+          "type": "vocab",
+          "surface": "従",
+          "start": 76,
+          "answer": "より",
+          "explanation": "起点を示す。",
+          "alternativeAnswers": [],
+          "meaning": "より",
+          "detail": "起点を示す。"
+        },
+        {
+          "id": "vocab-s2-6",
+          "type": "vocab",
+          "surface": "於是",
+          "start": 93,
+          "answer": "そこで",
+          "explanation": "「是に於いて」と読む。",
+          "alternativeAnswers": [],
+          "meaning": "そこで",
+          "detail": "「是に於いて」と読む。"
+        },
+        {
+          "id": "vocab-s2-7",
+          "type": "vocab",
+          "surface": "師事",
+          "start": 103,
+          "answer": "師として仕える",
+          "explanation": "昭王が郭隗を師として待遇すること。",
+          "alternativeAnswers": [],
+          "meaning": "師として仕える",
+          "detail": "昭王が郭隗を師として待遇すること。"
+        },
+        {
+          "id": "vocab-s2-8",
+          "type": "vocab",
+          "surface": "趨",
+          "start": 111,
+          "answer": "おもむく",
+          "explanation": "賢士が燕に向かって行くこと。",
+          "alternativeAnswers": [],
+          "meaning": "おもむく",
+          "detail": "賢士が燕に向かって行くこと。"
+        },
+        {
+          "id": "reading-s2-9",
+          "type": "reading",
+          "surface": "且",
+          "start": 41,
+          "answer": "かつ",
+          "explanation": "送り仮名も含めて現代仮名遣いで答える。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "reading-s2-10",
+          "type": "reading",
+          "surface": "況",
+          "start": 45,
+          "answer": "いわんや",
+          "explanation": "送り仮名も含めて現代仮名遣いで答える。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "reading-s2-11",
+          "type": "reading",
+          "surface": "乎",
+          "start": 48,
+          "answer": "や",
+          "explanation": "送り仮名も含めて現代仮名遣いで答える。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "reading-s2-12",
+          "type": "reading",
+          "surface": "先",
+          "start": 75,
+          "answer": "まず",
+          "explanation": "送り仮名も含めて現代仮名遣いで答える。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "reading-s2-13",
+          "type": "reading",
+          "surface": "従",
+          "start": 76,
+          "answer": "より",
+          "explanation": "送り仮名も含めて現代仮名遣いで答える。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "reading-s2-14",
+          "type": "reading",
+          "surface": "豈",
+          "start": 86,
+          "answer": "あに",
+          "explanation": "送り仮名も含めて現代仮名遣いで答える。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "reading-s2-15",
+          "type": "reading",
+          "surface": "哉",
+          "start": 90,
+          "answer": "や",
+          "explanation": "送り仮名も含めて現代仮名遣いで答える。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "reading-s2-16",
+          "type": "reading",
+          "surface": "於是",
+          "start": 93,
+          "answer": "ここにおいて",
+          "explanation": "送り仮名も含めて現代仮名遣いで答える。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "reading-s2-17",
+          "type": "reading",
+          "surface": "期年",
+          "start": 57,
+          "answer": "きねん",
+          "explanation": "送り仮名も含めて現代仮名遣いで答える。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "reading-s2-18",
+          "type": "reading",
+          "surface": "涓人",
+          "start": 13,
+          "answer": "けんじん",
+          "explanation": "送り仮名も含めて現代仮名遣いで答える。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "grammar-s2-19",
+          "type": "grammar",
+          "surface": "使涓人求千里馬",
+          "start": 12,
+          "answer": "涓人をして千里の馬を求めしむ。",
+          "explanation": "「使A B」は「AをしてBしむ」と読む使役。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "grammar-s2-20",
+          "type": "grammar",
+          "surface": "死馬且買之",
+          "start": 39,
+          "answer": "死馬すら且つ之を買ふ。",
+          "explanation": "「A且B、況C乎」は抑揚。AでさえBなのだから、Cはなおさらである。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "grammar-s2-21",
+          "type": "grammar",
+          "surface": "況生者乎",
+          "start": 45,
+          "answer": "況んや生ける者をや。",
+          "explanation": "抑揚。「まして生きている馬はなおさら高値で買う」の意。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "grammar-s2-22",
+          "type": "grammar",
+          "surface": "賢於隗",
+          "start": 81,
+          "answer": "隗より賢なり。",
+          "explanation": "「於」は比較の対象を示し、「より」と読む。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "grammar-s2-23",
+          "type": "grammar",
+          "surface": "豈遠千里哉",
+          "start": 86,
+          "answer": "豈に千里を遠しとせんや。",
+          "explanation": "「豈～哉」は反語。どうして千里を遠いと思うだろうか、いや思わない。",
+          "alternativeAnswers": []
+        },
+        {
+          "id": "grammar-s2-24",
+          "type": "grammar",
+          "surface": "矣",
+          "start": 53,
+          "answer": "置き字",
+          "explanation": "強意・断定を表す。ここでは「馬今に至らん」と読む。",
+          "alternativeAnswers": []
+        }
+      ]
+    }
+  ],
+  "normalQuestions": [
+    {
+      "id": "content-1",
+      "type": "content",
+      "title": "読解問題1",
+      "sectionId": "s1",
+      "question": "「死」「生」とは、具体的にどういった人のことか。",
+      "answer": "戦争による死者と遺族のこと。"
+    },
+    {
+      "id": "content-2",
+      "type": "content",
+      "title": "読解問題2",
+      "sectionId": "s1",
+      "question": "「弔死問生」とは、誰がどういうことをしたと言うのか。",
+      "answer": "昭王が、戦死者を弔い、遺族を慰問したということ。"
+    },
+    {
+      "id": "content-3",
+      "type": "content",
+      "title": "読解問題3",
+      "sectionId": "s1",
+      "question": "「辞」「幣」とはそれぞれどういう意味か。",
+      "answer": "「辞」は言葉。「幣」は贈り物。"
+    },
+    {
+      "id": "content-4",
+      "type": "content",
+      "title": "読解問題4",
+      "sectionId": "s1",
+      "question": "「卑辞厚幣」とは、誰に対してどういうことをしたというのか。",
+      "answer": "賢者に対して言葉遣いを謙虚にし、贈り物を手厚く与えた。"
+    },
+    {
+      "id": "content-5",
+      "type": "content",
+      "title": "読解問題5",
+      "sectionId": "s1",
+      "question": "「報」とは、何に何をすることを言うのか。",
+      "answer": "国乱に乗じて燕を打ち破った斉に報復すること。"
+    },
+    {
+      "id": "content-6",
+      "type": "content",
+      "title": "読解問題6",
+      "sectionId": "s1",
+      "question": "「孤之願」とは誰のどのような願いのことか。",
+      "answer": "昭王の、賢士を得て一緒に国政にあたり、先王の恥をすすぐという願い。"
+    },
+    {
+      "id": "content-7",
+      "type": "content",
+      "title": "読解問題7",
+      "sectionId": "s1",
+      "question": "「雪」を使った慣用句を答えよ。",
+      "answer": "雪辱を果たす。"
+    },
+    {
+      "id": "content-8",
+      "type": "content",
+      "title": "読解問題8",
+      "sectionId": "s1",
+      "question": "「可者」（ふさわしい者）とは、何にふさわしい者のことを指すか。",
+      "answer": "昭王と一緒に国政にあたる賢者としてふさわしい者。"
+    },
+    {
+      "id": "content-9",
+      "type": "content",
+      "title": "読解問題9",
+      "sectionId": "s2",
+      "question": "「千里馬至者三」とあるが、どうしてそうなったのか。",
+      "answer": "君主が、死馬を五百金という大金で買ったという噂が広がり、死馬を高額で買うほど良馬を求めているなら、ましてや生きている名馬ならなおさら高く買うだろうと馬主たちが期待したから。"
+    },
+    {
+      "id": "content-10",
+      "type": "content",
+      "title": "読解問題10",
+      "sectionId": "s2",
+      "question": "「先従隗始」とは、具体的にどうすることを求めているのか。",
+      "answer": "まず郭隗を厚遇すること。"
+    },
+    {
+      "id": "content-11",
+      "type": "content",
+      "title": "読解問題11",
+      "sectionId": "s2",
+      "question": "「豈遠千里哉。」とは、つまりどのようなことを言っているか。",
+      "answer": "優れた者たちが、千里の距離を遠いとも思わず、各地からやってくるだろうということ。"
+    },
+    {
+      "id": "content-12",
+      "type": "content",
+      "title": "読解問題12",
+      "sectionId": "s2",
+      "question": "「士争趨燕」の理由を答えよ。",
+      "answer": "賢士たちは、燕の昭王が郭隗を厚遇していると聞き、郭隗が厚遇されているのなら、まして郭隗より優れている自分ならなおさら厚遇されるだろうと期待したから。"
+    },
+    {
+      "id": "content-13",
+      "type": "content",
+      "title": "読解問題13",
+      "sectionId": "s2",
+      "question": "郭隗は、死馬と千里の馬を、それぞれ何のたとえとして述べているか。",
+      "answer": "死馬は郭隗自身、千里の馬は郭隗よりもすぐれた士のたとえ。"
+    },
+    {
+      "id": "content-14",
+      "type": "content",
+      "title": "読解問題14",
+      "sectionId": "s1",
+      "question": "「孤之国」が表す国名を漢字一字で答えなさい。",
+      "answer": "燕",
+      "local": true
+    },
+    {
+      "id": "content-15",
+      "type": "content",
+      "title": "読解問題15",
+      "sectionId": "s1",
+      "question": "「以招賢者」とあるが、何によって賢者を招こうとしたのか。本文から抜き出しなさい。",
+      "answer": "弔死問生、卑辞厚幣",
+      "local": true
+    },
+    {
+      "id": "content-16",
+      "type": "content",
+      "title": "読解問題16",
+      "sectionId": "s2",
+      "question": "「況生者乎」の「なおさら」とは、なおさらどうすることか。",
+      "answer": "生きている馬なら、なおさら高値で買うということ。"
+    },
+    {
+      "id": "content-17",
+      "type": "content",
+      "title": "読解問題17",
+      "sectionId": "s2",
+      "question": "「隗より始めよ」は、現在どのような意味で用いられるか。二通り答えなさい。",
+      "answer": "物事を始めるにはまず身近なことから始めよ。先に言い出した人から始めよ。"
+    },
+    {
+      "id": "content-18",
+      "type": "content",
+      "title": "読解問題18",
+      "sectionId": "s1",
+      "question": "「燕小不足以報」の趣旨として最も適当なものを選びなさい。",
+      "answer": "燕は国力が弱いため、斉に報復することができない。",
+      "inputType": "choice",
+      "choices": [
+        "燕は国力が弱いため、斉に報復することができない。",
+        "燕は歴史が浅いため、できごとを記録するほどではない。",
+        "燕は人が少ないため、他国に情勢を伝えられない。",
+        "燕は財力が乏しいため、同盟国にお礼を贈れない。"
+      ],
+      "explanation": "「報」は斉への報復を意味する。"
+    },
+    {
+      "id": "content-19",
+      "type": "content",
+      "title": "読解問題19",
+      "sectionId": "s2",
+      "question": "「況賢於隗者、豈遠千里哉」の解釈として適当なものを選びなさい。",
+      "answer": "私より優れた者は、厚遇を期待して遠方からでもやってくる。",
+      "inputType": "choice",
+      "choices": [
+        "私より優れた者は、千里の馬になぞらえるだけでは満足しない。",
+        "私より優れた者は、厚遇を期待して遠方からでもやってくる。",
+        "私より優れた者は国内にいるので、遠方から招く必要はない。",
+        "私より優れた者を並べると千里の距離になる。"
+      ],
+      "explanation": "「豈～哉」は反語。千里を遠いとも思わないという意味。"
+    },
+    {
+      "id": "content-20",
+      "type": "content",
+      "title": "読解問題20",
+      "sectionId": "s2",
+      "question": "「隗より始めよ」と似た意味の格言を選びなさい。",
+      "answer": "千里の行も足下に始まる",
+      "inputType": "choice",
+      "choices": [
+        "奇貨居くべし",
+        "千里の行も足下に始まる",
+        "青は藍より出でて藍より青し",
+        "先んずれば人を制す",
+        "朋有り遠方より来たる"
+      ],
+      "explanation": "大きなことも、まず身近なことから始める。"
+    },
+    {
+      "id": "content-21",
+      "type": "content",
+      "title": "読解問題21",
+      "sectionId": "s1",
+      "question": "本文の「報」と最も近い意味で使われている熟語を選びなさい。",
+      "answer": "報復",
+      "inputType": "choice",
+      "choices": [
+        "報復",
+        "報告",
+        "報奨",
+        "報知"
+      ],
+      "explanation": "「報」はここでは仕返しをすること。"
+    },
+    {
+      "id": "content-22",
+      "type": "content",
+      "title": "読解問題22",
+      "sectionId": "s1",
+      "question": "本文の「雪」と最も近い意味で使われている熟語を選びなさい。",
+      "answer": "雪辱",
+      "inputType": "choice",
+      "choices": [
+        "雪害",
+        "雪辱",
+        "雪肌",
+        "雪景"
+      ],
+      "explanation": "「雪」はすすぐ。恥をすすぐことを雪辱という。"
+    },
+    {
+      "id": "content-23",
+      "type": "content",
+      "title": "読解問題23",
+      "sectionId": "s2",
+      "question": "賢士たちが争って燕に向かった理由を選びなさい。",
+      "answer": "郭隗が厚遇されているので、自分ならさらに厚遇されると期待したから。",
+      "inputType": "choice",
+      "choices": [
+        "郭隗が厚遇されているので、自分ならさらに厚遇されると期待したから。",
+        "昭王が名馬を賢士に配ると約束したから。",
+        "郭隗がすべての賢士を直接訪ねて頼んだから。",
+        "燕が斉をすでに滅ぼしていたから。"
+      ],
+      "explanation": "死馬を高値で買った結果、名馬が集まったたとえと対応する。"
+    },
+    {
+      "id": "content-24",
+      "type": "translation",
+      "title": "現代語訳",
+      "sectionId": "s1",
+      "question": "次の部分を現代語訳しなさい。",
+      "answer": "もし賢士を得たならば、その者と一緒に国政にあたり、先王の恥をすすぐことが私の願いです。",
+      "targetText": "誠得賢士、与共国、以雪先王之恥、孤之願也。"
+    },
+    {
+      "id": "content-25",
+      "type": "translation",
+      "title": "現代語訳",
+      "sectionId": "s2",
+      "question": "次の部分を現代語訳しなさい。",
+      "answer": "死んだ馬でさえ高値で買ったのだから、まして生きている馬ならなおさら高値で買うだろう。",
+      "targetText": "死馬且買之。況生者乎。"
+    },
+    {
+      "id": "content-26",
+      "type": "translation",
+      "title": "現代語訳",
+      "sectionId": "s2",
+      "question": "次の部分を現代語訳しなさい。",
+      "answer": "今もし王様が賢士を招こうと思うならば、まず私を厚遇することからお始めになってください。",
+      "targetText": "今、王必欲致士、先従隗始。"
+    },
+    {
+      "id": "content-27",
+      "type": "translation",
+      "title": "現代語訳",
+      "sectionId": "s2",
+      "question": "次の部分を現代語訳しなさい。",
+      "answer": "まして私より優れた者は、どうして千里の距離を遠いと思うでしょうか。いや、遠いとも思わずやってくるでしょう。",
+      "targetText": "況賢於隗者、豈遠千里哉。"
+    }
+  ]
+}
